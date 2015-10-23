@@ -1,0 +1,369 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BB96B5C3-5679-471E-A7B4-50C31D34AD05}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Contour</RootNamespace>
+    <AssemblyName>Contour</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Contour.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BusNotReadyException.cs" />
+    <Compile Include="Caching\ICacheProvider.cs" />
+    <Compile Include="Caching\MemoryCacheProvider.cs" />
+    <Compile Include="Caching\Expires.cs" />
+    <Compile Include="Configuration\BusComponentTracker.cs" />
+    <Compile Include="Configuration\BusConfiguratorExtension.cs" />
+    <Compile Include="Configuration\BusConnectionException.cs" />
+    <Compile Include="Configuration\BusOptions.cs" />
+    <Compile Include="Configurator\CachingElement.cs" />
+    <Compile Include="Caching\CacheMessageExchangeFilter.cs" />
+    <Compile Include="Configurator\DynamicElement.cs" />
+    <Compile Include="Configurator\QosElement.cs" />
+    <Compile Include="Filters\Filter.cs" />
+    <Compile Include="Filters\SendingExchangeFilter.cs" />
+    <Compile Include="Filters\IMessageExchangeFilter.cs" />
+    <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
+    <Compile Include="Helpers\Hasher.cs" />
+    <Compile Include="IIncomingMessageHeaderStorage.cs" />
+    <Compile Include="IKeyValueStorage.cs" />
+    <Compile Include="MessageExchange.cs" />
+    <Compile Include="Headers.cs" />
+    <Compile Include="MessageHeaderStorage.cs" />
+    <Compile Include="Operators\Acceptor.cs" />
+    <Compile Include="Operators\BusProcessingContext.cs" />
+    <Compile Include="Operators\ContentBasedRouter.cs" />
+    <Compile Include="Operators\DynamicFilter.cs" />
+    <Compile Include="Operators\DynamicRouter.cs" />
+    <Compile Include="Operators\Enricher.cs" />
+    <Compile Include="Operators\Filter.cs" />
+    <Compile Include="Operators\IMessageOperator.cs" />
+    <Compile Include="Operators\Pipeline.cs" />
+    <Compile Include="Operators\JsonPathFilter.cs" />
+    <Compile Include="Operators\PipelineConsumerOf.cs" />
+    <Compile Include="Operators\OperatorConsumerOf.cs" />
+    <Compile Include="Operators\RecipientList.cs" />
+    <Compile Include="Operators\Splitter.cs" />
+    <Compile Include="Operators\StaticRouter.cs" />
+    <Compile Include="Operators\Translator.cs" />
+    <Compile Include="Operators\Reply.cs" />
+    <Compile Include="Operators\TransparentReply.cs" />
+    <Compile Include="Operators\WireTap.cs" />
+    <Compile Include="Receiving\Sagas\CorrelationIdSeparator.cs" />
+    <Compile Include="Receiving\Sagas\DefaultSagaFactory.cs" />
+    <Compile Include="Receiving\Sagas\DefaultSagaLifecycle.cs" />
+    <Compile Include="Receiving\Sagas\InMemorySagaRepository.cs" />
+    <Compile Include="Receiving\Sagas\ISagaConfigurator.cs" />
+    <Compile Include="Receiving\Sagas\ISagaContext.cs" />
+    <Compile Include="Receiving\Sagas\ISagaFactory.cs" />
+    <Compile Include="Receiving\Sagas\ISagaFailedHandler.cs" />
+    <Compile Include="Receiving\Sagas\ISagaIdSeparator.cs" />
+    <Compile Include="Receiving\Sagas\ISagaLifecycle.cs" />
+    <Compile Include="Receiving\Sagas\ISagaRepository.cs" />
+    <Compile Include="Receiving\Sagas\ISagaStep.cs" />
+    <Compile Include="Receiving\Sagas\LambdaFailedHandler.cs" />
+    <Compile Include="Receiving\Sagas\LambdaSagaFactory.cs" />
+    <Compile Include="Receiving\Sagas\LambdaSagaSeparator.cs" />
+    <Compile Include="Receiving\Sagas\LambdaSagaStep.cs" />
+    <Compile Include="Receiving\Sagas\SagaConfiguration.cs" />
+    <Compile Include="Receiving\Sagas\SagaConsumerOf.cs" />
+    <Compile Include="Receiving\Sagas\SagaContext.cs" />
+    <Compile Include="Receiving\Sagas\SingletonSagaFactory.cs" />
+    <Compile Include="Receiving\Sagas\SingletonSagaRepository.cs" />
+    <Compile Include="Sending\SenderOptions.cs" />
+    <Compile Include="Receiving\ReceiverOptions.cs" />
+    <Compile Include="Configuration\IBusConfiguration.cs" />
+    <Compile Include="Configuration\IBusOptionsExtension.cs" />
+    <Compile Include="Configurator\AppConfigConfigurator.cs" />
+    <Compile Include="Configurator\CallbackEndpointElement.cs" />
+    <Compile Include="Configurator\ValidatorCollection.cs" />
+    <Compile Include="Configurator\ValidatorElement.cs" />
+    <Compile Include="Configurator\DigestCollection.cs" />
+    <Compile Include="Configurator\DigestElement.cs" />
+    <Compile Include="Configurator\DigestSection.cs" />
+    <Compile Include="Configurator\EndpointCollection.cs" />
+    <Compile Include="Configurator\EndpointElement.cs" />
+    <Compile Include="Configurator\IDependencyResolver.cs" />
+    <Compile Include="Configurator\IConfiguration.cs" />
+    <Compile Include="Configurator\IConfigurator.cs" />
+    <Compile Include="Configurator\IncomingCollection.cs" />
+    <Compile Include="Configurator\IncomingElement.cs" />
+    <Compile Include="Configurator\LambdaDependencyResolver.cs" />
+    <Compile Include="Configurator\Lifestyle.cs" />
+    <Compile Include="Configurator\MessageElement.cs" />
+    <Compile Include="Configurator\OutgoingCollection.cs" />
+    <Compile Include="Configurator\OutgoingElement.cs" />
+    <Compile Include="Configurator\RequestConfiguration.cs" />
+    <Compile Include="Configurator\EndpointsSection.cs" />
+    <Compile Include="Configurator\StubDependencyResolver.cs" />
+    <Compile Include="DefaultBusLifecycleHandler.cs" />
+    <Compile Include="FaultException.cs" />
+    <Compile Include="Helpers\CodeContracts\Assumes.cs" />
+    <Compile Include="Helpers\CodeContracts\Requires.cs" />
+    <Compile Include="Helpers\DateTimeEx.cs" />
+    <Compile Include="Helpers\DisposableEx.cs" />
+    <Compile Include="Helpers\Maybe.cs" />
+    <Compile Include="Helpers\MaybeExtensions.cs" />
+    <Compile Include="Helpers\Reflection.cs" />
+    <Compile Include="Helpers\Timing\ITicketTimer.cs" />
+    <Compile Include="Helpers\Timing\RoughTicketTimer.cs" />
+    <Compile Include="IBusAdvanced.cs" />
+    <Compile Include="FaultMessage.cs" />
+    <Compile Include="AbstractBus.cs" />
+    <Compile Include="Configuration\BusConfigurationException.cs" />
+    <Compile Include="Helpers\Scheduler\AbstractWorker.cs" />
+    <Compile Include="Helpers\Scheduler\TaskWorker.cs" />
+    <Compile Include="Helpers\Scheduler\IWorker.cs" />
+    <Compile Include="Helpers\Scheduler\ThreadWorker.cs" />
+    <Compile Include="IBusContext.cs" />
+    <Compile Include="IBusLifecycleHandler.cs" />
+    <Compile Include="IChannelProvider.cs" />
+    <Compile Include="MessageAttribute.cs" />
+    <Compile Include="MessageLabelResolver.cs" />
+    <Compile Include="Receiving\AbstractReceiver.cs" />
+    <Compile Include="Receiving\Consumers\LazyConsumerOf.cs" />
+    <Compile Include="Receiving\Consumers\FactoryConsumerOf.cs" />
+    <Compile Include="Receiving\IDeliveryContext.cs" />
+    <Compile Include="Receiving\IUnhandledConsumingContext.cs" />
+    <Compile Include="Receiving\FaultedConsumingContext.cs" />
+    <Compile Include="Receiving\LambdaFailedDeliveryStrategy.cs" />
+    <Compile Include="Receiving\LambdaUnhandledDeliveryStrategy.cs" />
+    <Compile Include="Receiving\IFailedConsumingContext.cs" />
+    <Compile Include="Receiving\IFailedDeliveryStrategy.cs" />
+    <Compile Include="Receiving\IReceiver.cs" />
+    <Compile Include="Receiving\IFaultedConsumingContext.cs" />
+    <Compile Include="Receiving\IUnhandledDeliveryStrategy.cs" />
+    <Compile Include="Receiving\TypedReceiverConfigurationDecorator.cs" />
+    <Compile Include="Sending\AbstractSender.cs" />
+    <Compile Include="Sending\ISender.cs" />
+    <Compile Include="Sending\ISenderConfigurator.cs" />
+    <Compile Include="Receiving\IReceiverConfiguration.cs" />
+    <Compile Include="Sending\MessageRejectedException.cs" />
+    <Compile Include="Sending\RequestOptions.cs" />
+    <Compile Include="Sending\SenderConfiguration.cs" />
+    <Compile Include="Sending\ISenderConfiguration.cs" />
+    <Compile Include="Configuration\BusConfiguration.cs" />
+    <Compile Include="Receiving\ReceiverConfiguration.cs" />
+    <Compile Include="Serialization\AbstractPayloadConverter.cs" />
+    <Compile Include="Topology\ITopologyBuilder.cs" />
+    <Compile Include="Receiving\IListeningSource.cs" />
+    <Compile Include="Receiving\ISubscriptionEndpointBuilder.cs" />
+    <Compile Include="Receiving\SubscriptionEndpointBuilder.cs" />
+    <Compile Include="Helpers\EnumerableEx.cs" />
+    <Compile Include="IChannel.cs" />
+    <Compile Include="Receiving\Consumers\IConsumer.cs" />
+    <Compile Include="Sending\IRouteResolverBuilder.cs" />
+    <Compile Include="Sending\RouteResolverBuilder.cs" />
+    <Compile Include="Configuration\IBusComponent.cs" />
+    <Compile Include="Configuration\IBusComponentTracker.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ListenerConfiguration.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\NullPublishConfirmationTracker.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\IPublishConfirmationTracker.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\DefaultPublishConfirmationTracker.cs" />
+    <Compile Include="Sending\PublishingOptions.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitFaultMessage.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitUnhandledConsumingContext.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitFailedConsumingContext.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitReceiver.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitSender.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ProducerRegistry.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ListenerRegistry.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitBusDefaults.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitChannel.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitDelivery.cs" />
+    <Compile Include="Endpoint.cs" />
+    <Compile Include="Receiving\IDelivery.cs" />
+    <Compile Include="Receiving\ISubscriptionEndpoint.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="Sending\IRouteResolver.cs" />
+    <Compile Include="Sending\LambdaRouteResolver.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\Listener.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\Producer.cs" />
+    <Compile Include="Receiving\DefaultConsumingContext.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitClient.cs" />
+    <Compile Include="Transport\RabbitMQ\RabbitException.cs" />
+    <Compile Include="Transport\RabbitMQ\RabbitReceiverOptions.cs" />
+    <Compile Include="Transport\RabbitMQ\StaticRouter.cs" />
+    <Compile Include="Transport\RabbitMQ\SubscriptionEndpointBuilderEx.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\NameGenerator.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\TopologyBuilder.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\QueueBuilder.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\Queue.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\Exchange.cs" />
+    <Compile Include="Topology\ITopologyEntity.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\ExchangeBuilder.cs" />
+    <Compile Include="Configuration\IBusConfigurator.cs" />
+    <Compile Include="Receiving\IReceiverConfigurator.cs" />
+    <Compile Include="IRoute.cs" />
+    <Compile Include="DefaultBusConfigurationBuilder.cs" />
+    <Compile Include="Receiving\Consumers\IConsumerOf.cs" />
+    <Compile Include="Receiving\IConsumingContext.cs" />
+    <Compile Include="BusFactory.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="IEndpoint.cs" />
+    <Compile Include="Transport\RabbitMQ\BusConsumerConfigurationEx.cs" />
+    <Compile Include="IBus.cs" />
+    <Compile Include="IMessageLabelHandler.cs" />
+    <Compile Include="Receiving\Consumers\LambdaConsumerOf.cs" />
+    <Compile Include="MessageLabel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\IPayloadConverter.cs" />
+    <Compile Include="Serialization\JsonNetPayloadConverter.cs" />
+    <Compile Include="StringEx.cs" />
+    <Compile Include="Transport\RabbitMQ\BusConfigurationEx.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\DefaultRabbitMessageLabelHandler.cs" />
+    <Compile Include="Transport\RabbitMQ\QoSParams.cs" />
+    <Compile Include="Receiving\SubscriptionEndpoint.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitBus.cs" />
+    <Compile Include="Transport\RabbitMQ\RabbitProperties.cs" />
+    <Compile Include="Transport\RabbitMQ\RabbitRoute.cs" />
+    <Compile Include="Transport\RabbitMQ\Topology\TopologyBuilderEx.cs" />
+    <Compile Include="Validation\AbstractMessageValidatorOf.cs" />
+    <Compile Include="Validation\BrokenRule.cs" />
+    <Compile Include="Validation\Fluent\FluentValidatorResultEx.cs" />
+    <Compile Include="Validation\Fluent\FluentPayloadValidatorOf.cs" />
+    <Compile Include="Validation\IMessageValidator.cs" />
+    <Compile Include="Validation\MessageValidatorGroup.cs" />
+    <Compile Include="Validation\IMessageValidatorOf.cs" />
+    <Compile Include="Validation\MessageValidationException.cs" />
+    <Compile Include="Validation\MessageValidatorRegistry.cs" />
+    <Compile Include="Validation\ValidationResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <Import Project="..\..\.paket\paket.targets" />
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="Common.Logging">
+          <HintPath>..\..\packages\Common.Logging\lib\net40\Common.Logging.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="FluentValidation">
+          <HintPath>..\..\packages\FluentValidation\lib\Net40\FluentValidation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == 'Silverlight' And $(TargetFrameworkVersion) == 'v5.0') Or ($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac')">
+      <ItemGroup>
+        <Reference Include="FluentValidation">
+          <HintPath>..\..\packages\FluentValidation\lib\portable-win+net40+sl50+wp80\FluentValidation.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore'">
+      <ItemGroup>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>..\..\packages\Newtonsoft.Json\lib\netcore45\Newtonsoft.Json.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0')">
+      <ItemGroup>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>..\..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == 'Silverlight' And $(TargetFrameworkVersion) == 'v5.0') Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
+      <ItemGroup>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>..\..\packages\Newtonsoft.Json\lib\portable-net40+sl5+wp80+win8+monotouch+monoandroid\Newtonsoft.Json.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac')">
+      <ItemGroup>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>..\..\packages\Newtonsoft.Json\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="RabbitMQ.Client">
+          <HintPath>..\..\packages\RabbitMQ.Client\lib\net20\RabbitMQ.Client.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+</Project>

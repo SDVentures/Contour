@@ -1,0 +1,14 @@
+*.suo
+.fake/
+bin/
+obj/
+paket-files/
+Sources/Contour/**/AssemblyInfo.cs
+nuget/*.nupkg
+packages/*
+build/*
+TestResults.xml
+*.sln.DotSettings.user
+*.userprefs
+*.bak
+.paket/paket.exe

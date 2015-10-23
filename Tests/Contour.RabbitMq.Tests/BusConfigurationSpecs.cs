@@ -1,0 +1,194 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+
+using FluentAssertions;
+
+using Contour.Configuration;
+using Contour.Testing.Transport.RabbitMq;
+using Contour.Transport.RabbitMQ.Topology;
+
+using NUnit.Framework;
+
+namespace Contour.RabbitMq.Tests
+{
+    /// <summary>
+    /// The bus configuration specs.
+    /// </summary>
+    // ReSharper disable InconsistentNaming
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    public class BusConfigurationSpecs
+    {
+        /// <summary>
+        /// The when_building_configuration_without_consumers_and_producers.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_building_configuration_without_consumers_and_producers : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_throw_on_validation.
+            /// </summary>
+            [Test]
+            [Ignore("Doesn't work considering we're using default dead letter queue.")]
+            public void should_throw_on_validation()
+            {
+                Action busInitializationAction = () => this.StartBus("Test", cfg => { });
+
+                busInitializationAction.ShouldThrow<BusConfigurationException>();
+            }
+        }
+
+        /// <summary>
+        /// The when_building_configuration_without_endpoint_set.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_building_configuration_without_endpoint_set : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_throw_on_validation.
+            /// </summary>
+            [Test]
+            public void should_throw_on_validation()
+            {
+                IBus bus = null;
+                Action busInitializationAction = () => { bus = new BusFactory().Create(cfg => cfg.Route("something")); };
+
+                busInitializationAction.ShouldThrow<BusConfigurationException>();
+                if (bus != null)
+                {
+                    bus.Shutdown();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The when_defining_consumer_using_lambda.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_defining_consumer_using_lambda : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_build_valid_configuration.
+            /// </summary>
+            [Test]
+            public void should_build_valid_configuration()
+            {
+                IBus bus = this.StartBus(
+                    "Test",
+                    cfg =>
+                        {
+                            cfg.On<BooMessage>("boo").ReactWith(m => { });
+                            cfg.Route("foo").WithConfirmation();
+                        });
+
+                bus.CanHandle("boo").Should().BeTrue();
+                bus.CanRoute("foo").Should().BeTrue();
+
+                bus.CanHandle("foo").Should().BeFalse();
+                bus.CanRoute("voo").Should().BeFalse();
+            }
+        }
+
+        /// <summary>
+        /// The when_defining_receivers_on_same_queue_with_different_accept_requirements.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_defining_receivers_on_same_queue_with_different_accept_requirements : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_throw.
+            /// </summary>
+            [Test]
+            public void should_throw()
+            {
+                IBus bus = this.ConfigureBus(
+                    "Test",
+                    cfg =>
+                        {
+                            cfg.On<BooMessage>("boo")
+                                .ReactWith(m => { })
+                                .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))))
+                                .RequiresAccept();
+                            cfg.On<FooMessage>("foo")
+                                .ReactWith(m => { })
+                                .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))));
+                        });
+
+                bus.Invoking(b => b.Start()).ShouldThrow<BusConfigurationException>();
+            }
+        }
+
+        /// <summary>
+        /// ѕри создании очереди с <c>ttl</c>.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_declaring_queue_with_ttl : RabbitMqFixture
+        {
+            /// <summary>
+            /// —ообщени€ должны удал€тьс€ по истечении времени жизни.
+            /// </summary>
+            [Test]
+            public void should_remove_message_from_queue()
+            {
+                TimeSpan ttl = TimeSpan.FromSeconds(2);
+
+                IBus bus = this.StartBus(
+                    "producer",
+                        cfg => cfg.Route("boo")
+                                .ConfiguredWith(
+                                    b =>
+                                    {
+                                        Exchange e = b.Topology.Declare(Exchange.Named("boo").Fanout);
+                                        Queue q = b.Topology.Declare(Queue.Named("boo").WithTtl(ttl));
+                                        b.Topology.Bind(e, q);
+                                        return e;
+                                    }));
+
+                bus.Emit("boo", new { });
+                Thread.Sleep(TimeSpan.FromMilliseconds(ttl.TotalMilliseconds * 2));
+
+                var emptyMessages = this.Broker.GetMessages(this.VhostName, "boo", int.MaxValue, false);
+
+                Assert.IsEmpty(emptyMessages, "ƒолжно быть удалено сообщение.");
+            }
+
+            /// <summary>
+            /// —ообщени€ должны оставатьс€ в очереди до истечени€ времени жизни.
+            /// </summary>
+            [Test]
+            public void should_stay_message_in_queue()
+            {
+                TimeSpan ttl = TimeSpan.FromSeconds(10);
+
+                IBus bus = this.StartBus(
+                    "producer",
+                    cfg =>
+                        cfg.Route("boo2")
+                            .ConfiguredWith(
+                                b =>
+                                {
+                                    Exchange e = b.Topology.Declare(Exchange.Named("boo2").Fanout);
+                                    Queue q = b.Topology.Declare(Queue.Named("boo2").WithTtl(ttl));
+                                    b.Topology.Bind(e, q);
+                                    return e;
+                                }));
+
+                bus.WhenReady.WaitOne();
+                bus.Emit("boo2", new { });
+
+                Thread.Sleep(TimeSpan.FromMilliseconds(ttl.TotalMilliseconds / 2));
+
+                var notEmptyMessages = this.Broker.GetMessages(this.VhostName, "boo2", int.MaxValue, false);
+
+                Assert.IsNotEmpty(notEmptyMessages, "—ообщени€ должны быть в очереди.");
+            }
+        }
+    }
+
+    // ReSharper restore InconsistentNaming
+}
