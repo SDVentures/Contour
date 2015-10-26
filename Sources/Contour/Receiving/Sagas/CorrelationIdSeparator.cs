@@ -1,18 +1,18 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Вычисляет идентификатор саги на основе заголовка <c>x-correlation-id</c> входящего сообщения.
+    /// Р’С‹С‡РёСЃР»СЏРµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё РЅР° РѕСЃРЅРѕРІРµ Р·Р°РіРѕР»РѕРІРєР° <c>x-correlation-id</c> РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
-    /// <typeparam name="TM">Тип входящего сообщения.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TM">РўРёРї РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class CorrelationIdSeparator<TM, TK> : ISagaIdSeparator<TM, TK>
         where TM : class
     {
         /// <summary>
-        /// Вычисляет идентификатор саги на основе входящего сообщения.
+        /// Р’С‹С‡РёСЃР»СЏРµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё РЅР° РѕСЃРЅРѕРІРµ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="message">Сообщение, в котором находится идентификатор саги.</param>
-        /// <returns>Идентификатор саги.</returns>
+        /// <param name="message">РЎРѕРѕР±С‰РµРЅРёРµ, РІ РєРѕС‚РѕСЂРѕРј РЅР°С…РѕРґРёС‚СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <returns>РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</returns>
         public TK GetId(Message<TM> message)
         {
             return Headers.Extract<TK>(message.Headers, Headers.CorrelationId);

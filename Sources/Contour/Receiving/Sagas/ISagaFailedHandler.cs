@@ -1,28 +1,28 @@
-using System;
+п»їusing System;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Обработчик ошибок саги.
+    /// РћР±СЂР°Р±РѕС‚С‡РёРє РѕС€РёР±РѕРє СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TS">Тип состояния саги.</typeparam>
-    /// <typeparam name="TM">Тип сообщения.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.</typeparam>
+    /// <typeparam name="TM">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal interface ISagaFailedHandler<TS, TM, TK>
         where TM : class
     {
         /// <summary>
-        /// Обрабатывает ситуацию, когда сага не найдена.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРёС‚СѓР°С†РёСЋ, РєРѕРіРґР° СЃР°РіР° РЅРµ РЅР°Р№РґРµРЅР°.
         /// </summary>
-        /// <param name="context">Контекст обработки сообщения, в котором возникла эта ситуация.</param>
+        /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ, РІ РєРѕС‚РѕСЂРѕРј РІРѕР·РЅРёРєР»Р° СЌС‚Р° СЃРёС‚СѓР°С†РёСЏ.</param>
         void SagaNotFoundHandle(IConsumingContext<TM> context);
 
         /// <summary>
-        /// Обрабатывает исключения возникшие при выполнении шага саги.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёСЏ РІРѕР·РЅРёРєС€РёРµ РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё С€Р°РіР° СЃР°РіРё.
         /// </summary>
-        /// <param name="sagaContext">Данные саги.</param>
-        /// <param name="context">Контекст полученного сообщения.</param>
-        /// <param name="exception">Обрабатываемое исключение.</param>
+        /// <param name="sagaContext">Р”Р°РЅРЅС‹Рµ СЃР°РіРё.</param>
+        /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="exception">РћР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРµ РёСЃРєР»СЋС‡РµРЅРёРµ.</param>
         void SagaFailedHandle(ISagaContext<TS, TK> sagaContext, IConsumingContext<TM> context, Exception exception);
     }
 }

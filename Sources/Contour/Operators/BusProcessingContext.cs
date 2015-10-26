@@ -1,11 +1,11 @@
-namespace Contour.Operators
+п»їnamespace Contour.Operators
 {
     using System;
 
     using Contour.Receiving;
 
     /// <summary>
-    /// Контекст обработки сообщения.
+    /// РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public class BusProcessingContext
     {
@@ -13,7 +13,7 @@ namespace Contour.Operators
         private static BusProcessingContext current;
 
         /// <summary>
-        /// Текущий контекст.
+        /// РўРµРєСѓС‰РёР№ РєРѕРЅС‚РµРєСЃС‚.
         /// </summary>
         public static BusProcessingContext Current
         {
@@ -29,14 +29,14 @@ namespace Contour.Operators
         }
 
         /// <summary>
-        /// Входящая доставка.
+        /// Р’С…РѕРґСЏС‰Р°СЏ РґРѕСЃС‚Р°РІРєР°.
         /// </summary>
         public IDelivery Delivery { get; private set; }
 
         /// <summary>
-        /// Создает объект контекста.
+        /// РЎРѕР·РґР°РµС‚ РѕР±СЉРµРєС‚ РєРѕРЅС‚РµРєСЃС‚Р°.
         /// </summary>
-        /// <param name="delivery">Доставка.</param>
+        /// <param name="delivery">Р”РѕСЃС‚Р°РІРєР°.</param>
         public BusProcessingContext(IDelivery delivery)
         {
             this.Delivery = delivery;

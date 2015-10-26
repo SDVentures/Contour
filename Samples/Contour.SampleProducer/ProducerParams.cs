@@ -1,4 +1,4 @@
-namespace Contour.SampleProducer
+﻿namespace Contour.SampleProducer
 {
     using System;
     using System.Configuration;

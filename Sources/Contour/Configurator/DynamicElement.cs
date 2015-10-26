@@ -1,14 +1,14 @@
-using System.Configuration;
+п»їusing System.Configuration;
 
 namespace Contour.Configurator
 {
     /// <summary>
-    /// Конфигурационный элемент для установки параметров динамической маршрутизации.
+    /// РљРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё РїР°СЂР°РјРµС‚СЂРѕРІ РґРёРЅР°РјРёС‡РµСЃРєРѕР№ РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.
     /// </summary>
     public class DynamicElement : ConfigurationElement
     {
         /// <summary>
-        /// Включение динамической маршрутизации для исходящих сообщений.
+        /// Р’РєР»СЋС‡РµРЅРёРµ РґРёРЅР°РјРёС‡РµСЃРєРѕР№ РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё РґР»СЏ РёСЃС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         [ConfigurationProperty("outgoing", IsRequired = true)]
         public bool? Outgoing

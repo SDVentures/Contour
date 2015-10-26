@@ -1,4 +1,4 @@
-#r "packages/FAKE/tools/FakeLib.dll" // include Fake lib
+﻿#r "packages/FAKE/tools/FakeLib.dll" // include Fake lib
 open Fake
 open Fake.AssemblyInfoFile
 

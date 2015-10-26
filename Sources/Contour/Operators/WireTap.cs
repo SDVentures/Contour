@@ -1,14 +1,14 @@
-namespace Contour.Operators
+п»їnamespace Contour.Operators
 {
     /// <summary>
-    /// Оператор, который позволяет инспектировать сообщения передаваемые в шине (реализация шаблона <see href="http://www.eaipatterns.com/WireTap.html"/>).
+    /// РћРїРµСЂР°С‚РѕСЂ, РєРѕС‚РѕСЂС‹Р№ РїРѕР·РІРѕР»СЏРµС‚ РёРЅСЃРїРµРєС‚РёСЂРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ РїРµСЂРµРґР°РІР°РµРјС‹Рµ РІ С€РёРЅРµ (СЂРµР°Р»РёР·Р°С†РёСЏ С€Р°Р±Р»РѕРЅР° <see href="http://www.eaipatterns.com/WireTap.html"/>).
     /// </summary>
     public class WireTap : RecipientList
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="WireTap"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="WireTap"/>.
         /// </summary>
-        /// <param name="messageLabel">Метка сообщения, куда надо перенаправить входящее сообщение.</param>
+        /// <param name="messageLabel">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ, РєСѓРґР° РЅР°РґРѕ РїРµСЂРµРЅР°РїСЂР°РІРёС‚СЊ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
         public WireTap(MessageLabel messageLabel)
             : base(message => new[] { messageLabel, message.Label })
         {

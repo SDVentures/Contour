@@ -1,17 +1,17 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System;
     using System.IO;
 
     /// <summary>
-    ///   Канал (сессия) подключения к шине.
+    ///   РљР°РЅР°Р» (СЃРµСЃСЃРёСЏ) РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє С€РёРЅРµ.
     /// </summary>
     public interface IChannel : IDisposable
     {
         #region Public Events
 
         /// <summary>
-        ///   Событие для получения уведомлений о критическом сбое в работе канала.
+        ///   РЎРѕР±С‹С‚РёРµ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРІРµРґРѕРјР»РµРЅРёР№ Рѕ РєСЂРёС‚РёС‡РµСЃРєРѕРј СЃР±РѕРµ РІ СЂР°Р±РѕС‚Рµ РєР°РЅР°Р»Р°.
         /// </summary>
         event Action<IChannel, ErrorEventArgs> Failed;
 
@@ -20,7 +20,7 @@ namespace Contour
         #region Public Properties
 
         /// <summary>
-        ///   Экземпляр шины, в рамках которого был создан канал.
+        ///   Р­РєР·РµРјРїР»СЏСЂ С€РёРЅС‹, РІ СЂР°РјРєР°С… РєРѕС‚РѕСЂРѕРіРѕ Р±С‹Р» СЃРѕР·РґР°РЅ РєР°РЅР°Р».
         /// </summary>
         IBusContext Bus { get; }
 

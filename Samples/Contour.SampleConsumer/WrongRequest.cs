@@ -1,4 +1,4 @@
-namespace Contour.SampleConsumer
+﻿namespace Contour.SampleConsumer
 {
     using System;
 

@@ -1,17 +1,17 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
-    ///   Нестрого типизированный контейнер сообщения.
+    ///   РќРµСЃС‚СЂРѕРіРѕ С‚РёРїРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РєРѕРЅС‚РµР№РЅРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public sealed class Message : IMessage
     {
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Message"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Message"/>.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -30,7 +30,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Message"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Message"/>.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -53,25 +53,25 @@ namespace Contour
         public IDictionary<string, object> Headers { get; private set; }
 
         /// <summary>
-        ///   Метка сообщения.
+        ///   РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public MessageLabel Label { get; private set; }
 
         /// <summary>
-        ///   Содержимое сообщения.
+        ///   РЎРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public object Payload { get; private set; }
 
         #endregion
 
         /// <summary>
-        /// Создает копию сообщения с указанной меткой.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРїРёСЋ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
         /// <param name="label">
-        /// Новая метка сообщения.
+        /// РќРѕРІР°СЏ РјРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <returns>
-        /// Новое сообщение.
+        /// РќРѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </returns>
         public IMessage WithLabel(MessageLabel label)
         {
@@ -79,11 +79,11 @@ namespace Contour
         }
 
         /// <summary>
-        /// Создает копию сообщения с указанным содержимым.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРїРёСЋ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј СЃРѕРґРµСЂР¶РёРјС‹Рј.
         /// </summary>
-        /// <typeparam name="T">Тип содержимого.</typeparam>
-        /// <param name="payload">Содержимое сообщения.</param>
-        /// <returns>Новое сообщение.</returns>
+        /// <typeparam name="T">РўРёРї СЃРѕРґРµСЂР¶РёРјРѕРіРѕ.</typeparam>
+        /// <param name="payload">РЎРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РќРѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</returns>
         public IMessage WithPayload<T>(T payload) where T : class
         {
             return new Message(Label, Headers, payload);
@@ -91,10 +91,10 @@ namespace Contour
     }
 
     /// <summary>
-    /// Строго типизированный контейнер сообщения.
+    /// РЎС‚СЂРѕРіРѕ С‚РёРїРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РєРѕРЅС‚РµР№РЅРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     /// <typeparam name="T">
-    /// Тип содержимого сообщения
+    /// РўРёРї СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
     /// </typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed. Suppression is OK here.")]
     public sealed class Message<T> : IMessage
@@ -103,7 +103,7 @@ namespace Contour
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Message{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Message{T}"/>.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -122,7 +122,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Message{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Message{T}"/>.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -145,12 +145,12 @@ namespace Contour
         public IDictionary<string, object> Headers { get; private set; }
 
         /// <summary>
-        ///   Метка сообщения.
+        ///   РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public MessageLabel Label { get; private set; }
 
         /// <summary>
-        ///   Содержимое сообщения.
+        ///   РЎРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public T Payload { get; private set; }
 
@@ -172,13 +172,13 @@ namespace Contour
         #endregion
 
         /// <summary>
-        /// Создает копию сообщения с указанной меткой.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРїРёСЋ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
         /// <param name="label">
-        /// Новая метка сообщения.
+        /// РќРѕРІР°СЏ РјРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <returns>
-        /// Новое сообщение.
+        /// РќРѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </returns>
         public IMessage WithLabel(MessageLabel label)
         {
@@ -186,11 +186,11 @@ namespace Contour
         }
 
         /// <summary>
-        /// Создает копию сообщения с указанным содержимым.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРїРёСЋ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј СЃРѕРґРµСЂР¶РёРјС‹Рј.
         /// </summary>
-        /// <typeparam name="T1">Тип содержимого.</typeparam>
-        /// <param name="payload">Содержимое сообщения.</param>
-        /// <returns>Новое сообщение.</returns>
+        /// <typeparam name="T1">РўРёРї СЃРѕРґРµСЂР¶РёРјРѕРіРѕ.</typeparam>
+        /// <param name="payload">РЎРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РќРѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</returns>
         public IMessage WithPayload<T1>(T1 payload) where T1 : class
         {
             return new Message<T1>(Label, Headers, payload);

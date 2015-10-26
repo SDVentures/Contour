@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ.Internal
+п»їnamespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitFaultMessage"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitFaultMessage"/>.
         /// </summary>
         /// <param name="delivery">
         /// The delivery.
@@ -38,7 +38,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitFaultMessage"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitFaultMessage"/>.
         /// </summary>
         /// <param name="delivery">
         /// The delivery.

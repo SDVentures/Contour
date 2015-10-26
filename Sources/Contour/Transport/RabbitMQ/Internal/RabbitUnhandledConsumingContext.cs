@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ.Internal
+п»їnamespace Contour.Transport.RabbitMQ.Internal
 {
     using Contour.Receiving;
 
@@ -10,7 +10,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitUnhandledConsumingContext"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitUnhandledConsumingContext"/>.
         /// </summary>
         /// <param name="delivery">
         /// The delivery.

@@ -1,4 +1,4 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System;
 
@@ -10,7 +10,7 @@ namespace Contour
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageExchange"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageExchange"/>.
         /// </summary>
         /// <param name="out">
         /// The out.
@@ -25,7 +25,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageExchange"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageExchange"/>.
         /// </summary>
         /// <param name="out">
         /// The out.

@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Helpers;
 using Contour.Helpers.CodeContracts;
@@ -7,23 +7,23 @@ using Contour.Receiving;
 namespace Contour.Sending
 {
     /// <summary>
-    /// Конфигурация отправителя сообщений.
-    /// Используется для конфигурирования вариантов односторонних коммуникаций и коммуникаций в формате запрос-ответ.
+    /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёР№.
+    /// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёСЏ РІР°СЂРёР°РЅС‚РѕРІ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРёС… РєРѕРјРјСѓРЅРёРєР°С†РёР№ Рё РєРѕРјРјСѓРЅРёРєР°С†РёР№ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
     /// </summary>
     internal class SenderConfiguration : ISenderConfiguration, ISenderConfigurator
     {
         /// <summary>
-        /// Настройки получателя сообщений.
-        /// Используются для конфигурирования получения ответа на запрос.
+        /// РќР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёР№.
+        /// РСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РґР»СЏ РєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёСЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         private readonly ReceiverOptions receiverOptions;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SenderConfiguration"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SenderConfiguration"/>.
         /// </summary>
-        /// <param name="label">Метка отправляемых сообщений.</param>
-        /// <param name="parentOptions">Настройки отправителя.</param>
-        /// <param name="receiverOptions">Настройки получателя (для ответных сообщений).</param>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјС‹С… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="parentOptions">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <param name="receiverOptions">РќР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ (РґР»СЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№).</param>
         public SenderConfiguration(MessageLabel label, SenderOptions parentOptions, ReceiverOptions receiverOptions)
         {
             this.receiverOptions = receiverOptions;
@@ -34,27 +34,27 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Псевдоним метки сообщений.
+        /// РџСЃРµРІРґРѕРЅРёРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public string Alias { get; private set; }
 
         /// <summary>
-        /// Конфигурация получателя ответных сообщений.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IReceiverConfiguration CallbackConfiguration { get; private set; }
 
         /// <summary>
-        /// Метка отправляемых сообщений.
+        /// РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public MessageLabel Label { get; private set; }
 
         /// <summary>
-        /// Настройки отправителя сообщений.
+        /// РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public SenderOptions Options { get; private set; }
 
         /// <summary>
-        /// Нужен ли обратный вызов для отправки сообщений.
+        /// РќСѓР¶РµРЅ Р»Рё РѕР±СЂР°С‚РЅС‹Р№ РІС‹Р·РѕРІ РґР»СЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public bool RequiresCallback
         {
@@ -65,10 +65,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Дополняет конфигурацию.
+        /// Р”РѕРїРѕР»РЅСЏРµС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ.
         /// </summary>
-        /// <param name="routeResolverBuilder">Построитель вычислителя маршрута.</param>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <param name="routeResolverBuilder">РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РІС‹С‡РёСЃР»РёС‚РµР»СЏ РјР°СЂС€СЂСѓС‚Р°.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator ConfiguredWith(Func<IRouteResolverBuilder, IRouteResolver> routeResolverBuilder)
         {
             this.Options.RouteResolverBuilder = routeResolverBuilder;
@@ -77,9 +77,9 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает необходимость сохранять сообщения на диске.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ СЃРѕС…СЂР°РЅСЏС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ РЅР° РґРёСЃРєРµ.
         /// </summary>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator Persistently()
         {
             this.Options.Persistently = true;
@@ -88,7 +88,7 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Проверяет корректность конфигурации.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёРё.
         /// </summary>
         public void Validate()
         {
@@ -96,10 +96,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает псевдоним для метки сообщения.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїСЃРµРІРґРѕРЅРёРј РґР»СЏ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="alias">Псевдоним метки сообщения.</param>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <param name="alias">РџСЃРµРІРґРѕРЅРёРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator WithAlias(string alias)
         {
             string tempAlias = MessageLabel.AliasPrefix + alias;
@@ -111,10 +111,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает конечную точку обратного вызова для получения ответных сообщений.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РѕР±СЂР°С‚РЅРѕРіРѕ РІС‹Р·РѕРІР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="callbackEndpointBuilder">Построитель конечной точки для ответных сообщений.</param>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <param name="callbackEndpointBuilder">РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё РґР»СЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator WithCallbackEndpoint(Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> callbackEndpointBuilder)
         {
             IReceiverConfigurator configurator = new ReceiverConfiguration(MessageLabel.Any, this.receiverOptions).WithEndpoint(callbackEndpointBuilder);
@@ -125,9 +125,9 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает необходимость подтверждения отправки сообщения.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator WithConfirmation()
         {
             this.Options.ConfirmationIsRequired = true;
@@ -136,19 +136,19 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает конечную точку обратного вызова по умолчанию для получения сообщений.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РѕР±СЂР°С‚РЅРѕРіРѕ РІС‹Р·РѕРІР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator WithDefaultCallbackEndpoint()
         {
             return this.WithCallbackEndpoint(seb => seb.UseDefaultTempReplyEndpoint(this));
         }
 
         /// <summary>
-        /// Устанавливает временной интервал за который должен быть получен ответ на запрос.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІСЂРµРјРµРЅРЅРѕР№ РёРЅС‚РµСЂРІР°Р» Р·Р° РєРѕС‚РѕСЂС‹Р№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
-        /// <param name="timeout">Временной интервал за который должен быть получен ответ на запрос.</param>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <param name="timeout">Р’СЂРµРјРµРЅРЅРѕР№ РёРЅС‚РµСЂРІР°Р» Р·Р° РєРѕС‚РѕСЂС‹Р№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator WithRequestTimeout(TimeSpan? timeout)
         {
             this.Options.RequestTimeout = timeout;
@@ -157,10 +157,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает время жизни отправляемого сообщения.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІСЂРµРјСЏ Р¶РёР·РЅРё РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="ttl">Время жизни отправляемого сообщения.</param>
-        /// <returns>Конфигурация отправителя.</returns>
+        /// <param name="ttl">Р’СЂРµРјСЏ Р¶РёР·РЅРё РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</returns>
         public ISenderConfigurator WithTtl(TimeSpan ttl)
         {
             this.Options.Ttl = ttl;
@@ -169,10 +169,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Устанавливает хранилище заголовков входящего сообщения.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С…СЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="storage">Хранилище заголовков входящего сообщения.</param>
-        /// <returns>Конфигуратор отправителя с установленным хранилище заголовков входящего сообщения.</returns>
+        /// <param name="storage">РҐСЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РѕС‚РїСЂР°РІРёС‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј С…СЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public ISenderConfigurator WithIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage)
         {
             this.Options.IncomingMessageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(storage);

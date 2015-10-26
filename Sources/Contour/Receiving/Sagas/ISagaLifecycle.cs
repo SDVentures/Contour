@@ -1,26 +1,26 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Контролирует время жизни саги.
+    /// РљРѕРЅС‚СЂРѕР»РёСЂСѓРµС‚ РІСЂРµРјСЏ Р¶РёР·РЅРё СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TS">Тип данных саги.</typeparam>
-    /// <typeparam name="TM">Тип данных сообщения.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РґР°РЅРЅС‹С… СЃР°РіРё.</typeparam>
+    /// <typeparam name="TM">РўРёРї РґР°РЅРЅС‹С… СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal interface ISagaLifecycle<TS, TM, TK>
         where TM : class
     {
         /// <summary>
-        /// Инициализирует сагу.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="context">Контекст обработки входящего сообщения.</param>
-        /// <param name="canInitiate">Если <c>true</c> - тогда при инициализации можно создавать новую сагу.</param>
-        /// <returns>Сага соответствующая сообщению, новая сага или <c>null</c>, если сагу получить или создать невозможно.</returns>
+        /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="canInitiate">Р•СЃР»Рё <c>true</c> - С‚РѕРіРґР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РјРѕР¶РЅРѕ СЃРѕР·РґР°РІР°С‚СЊ РЅРѕРІСѓСЋ СЃР°РіСѓ.</param>
+        /// <returns>РЎР°РіР° СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ СЃРѕРѕР±С‰РµРЅРёСЋ, РЅРѕРІР°СЏ СЃР°РіР° РёР»Рё <c>null</c>, РµСЃР»Рё СЃР°РіСѓ РїРѕР»СѓС‡РёС‚СЊ РёР»Рё СЃРѕР·РґР°С‚СЊ РЅРµРІРѕР·РјРѕР¶РЅРѕ.</returns>
         ISagaContext<TS, TK> InitializeSaga(IConsumingContext<TM> context, bool canInitiate);
 
         /// <summary>
-        /// Завершает обработку саги. 
+        /// Р—Р°РІРµСЂС€Р°РµС‚ РѕР±СЂР°Р±РѕС‚РєСѓ СЃР°РіРё. 
         /// </summary>
-        /// <param name="sagaContext">Завершаемая сага.</param>
+        /// <param name="sagaContext">Р—Р°РІРµСЂС€Р°РµРјР°СЏ СЃР°РіР°.</param>
         void FinilizeSaga(ISagaContext<TS, TK> sagaContext);
     }
 }

@@ -1,12 +1,12 @@
-using System;
+п»їusing System;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Создает контекст саги для выполнения шага саги.
+    /// РЎРѕР·РґР°РµС‚ РєРѕРЅС‚РµРєСЃС‚ СЃР°РіРё РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ С€Р°РіР° СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TS">Тип данных саги.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РґР°РЅРЅС‹С… СЃР°РіРё.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class LambdaSagaFactory<TS, TK> : ISagaFactory<TS, TK>
     {
         private readonly Func<TK, ISagaContext<TS, TK>> factoryById;
@@ -14,10 +14,10 @@ namespace Contour.Receiving.Sagas
         private readonly Func<TK, TS, ISagaContext<TS, TK>> factoryByData;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="LambdaSagaFactory{TS,TK}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LambdaSagaFactory{TS,TK}"/>. 
         /// </summary>
-        /// <param name="factoryById">Создает новый контекст саги с указанным идентификатором.</param>
-        /// <param name="factoryByData">Создает новый контекст саги с указанным идентификатором и данными.</param>
+        /// <param name="factoryById">РЎРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ РєРѕРЅС‚РµРєСЃС‚ СЃР°РіРё СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј.</param>
+        /// <param name="factoryByData">РЎРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ РєРѕРЅС‚РµРєСЃС‚ СЃР°РіРё СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј Рё РґР°РЅРЅС‹РјРё.</param>
         public LambdaSagaFactory(Func<TK, ISagaContext<TS, TK>> factoryById, Func<TK, TS, ISagaContext<TS, TK>> factoryByData)
         {
             this.factoryById = factoryById;
@@ -25,21 +25,21 @@ namespace Contour.Receiving.Sagas
         }
 
         /// <summary>
-        /// Создает сагу на основе переданного идентификатора.
+        /// РЎРѕР·РґР°РµС‚ СЃР°РіСѓ РЅР° РѕСЃРЅРѕРІРµ РїРµСЂРµРґР°РЅРЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°.
         /// </summary>
-        /// <param name="sagaId">Идентификатор саги.</param>
-        /// <returns>Созданная сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃР°РіР°.</returns>
         public ISagaContext<TS, TK> Create(TK sagaId)
         {
             return this.factoryById(sagaId);
         }
 
         /// <summary>
-        /// Создает сагу на основе идентификатора и состояния саги.
+        /// РЎРѕР·РґР°РµС‚ СЃР°РіСѓ РЅР° РѕСЃРЅРѕРІРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° Рё СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.
         /// </summary>
-        /// <param name="sagaId">Идентификатор саги.</param>
-        /// <param name="data">Состояние саги.</param>
-        /// <returns>Созданная сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <param name="data">РЎРѕСЃС‚РѕСЏРЅРёРµ СЃР°РіРё.</param>
+        /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃР°РіР°.</returns>
         public ISagaContext<TS, TK> Create(TK sagaId, TS data)
         {
             return this.factoryByData(sagaId, data);

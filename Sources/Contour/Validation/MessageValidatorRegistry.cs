@@ -1,4 +1,4 @@
-namespace Contour.Validation
+﻿namespace Contour.Validation
 {
     using System;
     using System.Collections.Generic;

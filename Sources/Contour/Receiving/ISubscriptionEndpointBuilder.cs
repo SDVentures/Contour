@@ -1,47 +1,47 @@
-using Contour.Sending;
+п»їusing Contour.Sending;
 using Contour.Topology;
 
 namespace Contour.Receiving
 {
     /// <summary>
-    /// Построитель конечной точки для получения сообщения.
+    /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public interface ISubscriptionEndpointBuilder
     {
         /// <summary>
-        /// Конечная точка шины сообщений.
+        /// РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         IEndpoint Endpoint { get; }
 
         /// <summary>
-        /// Конфигурация получателя.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ.
         /// </summary>
         IReceiverConfiguration Receiver { get; }
 
         /// <summary>
-        /// Построитель топологии.
+        /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ С‚РѕРїРѕР»РѕРіРёРё.
         /// </summary>
         ITopologyBuilder Topology { get; }
 
         /// <summary>
-        /// Создает конечную точку подписки на указанный источник
+        /// РЎРѕР·РґР°РµС‚ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РїРѕРґРїРёСЃРєРё РЅР° СѓРєР°Р·Р°РЅРЅС‹Р№ РёСЃС‚РѕС‡РЅРёРє
         /// </summary>
-        /// <param name="listeningSource">Источник подписки.</param>
-        /// <param name="callbackRouteResolver">Вычислитель маршрута ответного сообщения.</param>
-        /// <returns>Конечная точка подписки.</returns>
+        /// <param name="listeningSource">РСЃС‚РѕС‡РЅРёРє РїРѕРґРїРёСЃРєРё.</param>
+        /// <param name="callbackRouteResolver">Р’С‹С‡РёСЃР»РёС‚РµР»СЊ РјР°СЂС€СЂСѓС‚Р° РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° РїРѕРґРїРёСЃРєРё.</returns>
         ISubscriptionEndpoint ListenTo(IListeningSource listeningSource, IRouteResolver callbackRouteResolver = null);
 
         /// <summary>
-        /// Устанавливает конечную точку для ответов с настройками по умолчанию.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РґР»СЏ РѕС‚РІРµС‚РѕРІ СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
         /// </summary>
-        /// <returns>Конечная точка подписки на сообщения.</returns>
+        /// <returns>РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° РїРѕРґРїРёСЃРєРё РЅР° СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         ISubscriptionEndpoint UseDefaultTempReplyEndpoint();
 
         /// <summary>
-        /// Использовать конечную точку для ответов с настройками по умолчанию
+        /// РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РґР»СЏ РѕС‚РІРµС‚РѕРІ СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         /// </summary>
-        /// <param name="senderConfiguratoration">Настройки отправителя.</param>
-        /// <returns>Конечная точка подписки на сообщения.</returns>
+        /// <param name="senderConfiguratoration">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <returns>РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° РїРѕРґРїРёСЃРєРё РЅР° СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         ISubscriptionEndpoint UseDefaultTempReplyEndpoint(ISenderConfiguration senderConfiguratoration);
     }
 }

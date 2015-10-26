@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LambdaConsumerOf.cs" company="">
 //   
 // </copyright>
@@ -31,7 +31,7 @@ namespace Contour.Receiving.Consumers
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="LambdaConsumerOf{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LambdaConsumerOf{T}"/>.
         /// </summary>
         /// <param name="handlerAction">
         /// The handler action.

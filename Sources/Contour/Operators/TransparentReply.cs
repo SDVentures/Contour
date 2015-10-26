@@ -1,17 +1,17 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 
 namespace Contour.Operators
 {
     /// <summary>
-    /// Оператор, который отсылает ответ на запрос и передает сообщение дальше.
+    /// РћРїРµСЂР°С‚РѕСЂ, РєРѕС‚РѕСЂС‹Р№ РѕС‚СЃС‹Р»Р°РµС‚ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ Рё РїРµСЂРµРґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РґР°Р»СЊС€Рµ.
     /// </summary>
     public class TransparentReply : IMessageOperator
     {
         /// <summary>
-        /// Отвечает на запрос и передает сообщение дальше.
+        /// РћС‚РІРµС‡Р°РµС‚ РЅР° Р·Р°РїСЂРѕСЃ Рё РїРµСЂРµРґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РґР°Р»СЊС€Рµ.
         /// </summary>
-        /// <param name="message">Ответное сообщение.</param>
-        /// <returns>Ответное сообщение без заголовка <c>ReplyRoute</c>.</returns>
+        /// <param name="message">РћС‚РІРµС‚РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <returns>РћС‚РІРµС‚РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ Р±РµР· Р·Р°РіРѕР»РѕРІРєР° <c>ReplyRoute</c>.</returns>
         public IEnumerable<IMessage> Apply(IMessage message)
         {
             message.Headers.Remove(Headers.ReplyRoute);

@@ -1,7 +1,7 @@
-namespace Contour
+п»їnamespace Contour
 {
     /// <summary>
-    ///   Путь/адрес доставки сообщения.
+    ///   РџСѓС‚СЊ/Р°РґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public interface IRoute
     {

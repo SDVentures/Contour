@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
@@ -30,7 +30,7 @@ namespace Contour.RabbitMq.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BooValidator"/>.
             /// </summary>
             public BooValidator()
             {
@@ -49,7 +49,7 @@ namespace Contour.RabbitMq.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="FooValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FooValidator"/>.
             /// </summary>
             public FooValidator()
             {

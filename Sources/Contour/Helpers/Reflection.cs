@@ -1,4 +1,4 @@
-namespace Contour.Helpers
+﻿namespace Contour.Helpers
 {
     using System;
     using System.Collections.Generic;

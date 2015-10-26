@@ -1,4 +1,4 @@
-namespace Contour.Configuration
+п»їnamespace Contour.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -51,11 +51,11 @@ namespace Contour.Configuration
         private readonly MessageValidatorRegistry validatorRegistry = new MessageValidatorRegistry();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusConfiguration"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusConfiguration"/>.
         /// </summary>
         public BusConfiguration()
         {
-            Logger.Trace(m => m("Вызван конструктор BusConfiguration"));
+            Logger.Trace(m => m("Р’С‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ BusConfiguration"));
 
             this.SenderDefaults = new SenderOptions();
             this.ReceiverDefaults = new ReceiverOptions();
@@ -416,11 +416,11 @@ namespace Contour.Configuration
         /// </param>
         public void SetConnectionString(string connectionString)
         {
-            Logger.Trace(m => m("Установка строки подключения к брокеру RabbitMQ [{0}].", connectionString));
+            Logger.Trace(m => m("РЈСЃС‚Р°РЅРѕРІРєР° СЃС‚СЂРѕРєРё РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє Р±СЂРѕРєРµСЂСѓ RabbitMQ [{0}].", connectionString));
 
             this.ConnectionString = connectionString;
 
-            Logger.Debug(m => m("Установлена строка подключения [{0}].", this.ConnectionString));
+            Logger.Debug(m => m("РЈСЃС‚Р°РЅРѕРІР»РµРЅР° СЃС‚СЂРѕРєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ [{0}].", this.ConnectionString));
         }
 
         /// <summary>
@@ -444,11 +444,11 @@ namespace Contour.Configuration
         /// </param>
         public void SetEndpoint(string address)
         {
-            Logger.Trace(m => m("Установка адреса конечной точки [{0}].", address));
+            Logger.Trace(m => m("РЈСЃС‚Р°РЅРѕРІРєР° Р°РґСЂРµСЃР° РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё [{0}].", address));
 
             this.Endpoint = new Endpoint(address);
 
-            Logger.Debug(m => m("Установлен адрес конечной точки [{0}].", this.Endpoint));
+            Logger.Debug(m => m("РЈСЃС‚Р°РЅРѕРІР»РµРЅ Р°РґСЂРµСЃ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё [{0}].", this.Endpoint));
         }
 
         /// <summary>
@@ -524,7 +524,7 @@ namespace Contour.Configuration
         /// </exception>
         public void Validate()
         {
-            Logger.Trace(m => m("Вызван метод для валидации конфигурации. Строка соединия - [{0}], адрес конечной точки - [{1}], получаемые сообщения - [{2}], отправляемые сообщения - [{3}]", this.ConnectionString, this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
+            Logger.Trace(m => m("Р’С‹Р·РІР°РЅ РјРµС‚РѕРґ РґР»СЏ РІР°Р»РёРґР°С†РёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё. РЎС‚СЂРѕРєР° СЃРѕРµРґРёРЅРёСЏ - [{0}], Р°РґСЂРµСЃ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё - [{1}], РїРѕР»СѓС‡Р°РµРјС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ - [{2}], РѕС‚РїСЂР°РІР»СЏРµРјС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ - [{3}]", this.ConnectionString, this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
 
             if (this.Serializer == null)
             {
@@ -538,13 +538,13 @@ namespace Contour.Configuration
 
             if (string.IsNullOrEmpty(this.ConnectionString))
             {
-                throw new BusConfigurationException(@"Не задана строка подключения к шине. Строку подключения можно задать явно при создании IBus 
-												или в конфигурационном файле приложения в секции /configuration/connectionStrings/add[@address='service-bus']");
+                throw new BusConfigurationException(@"РќРµ Р·Р°РґР°РЅР° СЃС‚СЂРѕРєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє С€РёРЅРµ. РЎС‚СЂРѕРєСѓ РїРѕРґРєР»СЋС‡РµРЅРёСЏ РјРѕР¶РЅРѕ Р·Р°РґР°С‚СЊ СЏРІРЅРѕ РїСЂРё СЃРѕР·РґР°РЅРёРё IBus 
+												РёР»Рё РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅРѕРј С„Р°Р№Р»Рµ РїСЂРёР»РѕР¶РµРЅРёСЏ РІ СЃРµРєС†РёРё /configuration/connectionStrings/add[@address='service-bus']");
             }
 
             if (this.Endpoint == null)
             {
-                throw new BusConfigurationException("Не задано название компонента (Endpoint).");
+                throw new BusConfigurationException("РќРµ Р·Р°РґР°РЅРѕ РЅР°Р·РІР°РЅРёРµ РєРѕРјРїРѕРЅРµРЅС‚Р° (Endpoint).");
             }
 
             if (!this.ReceiverConfigurations.Any() && !this.SenderConfigurations.Any())
@@ -562,7 +562,7 @@ namespace Contour.Configuration
                 consumer.Validate();
             }
 
-            Logger.Trace(m => m("Конец метода валидации конфигурации"));
+            Logger.Trace(m => m("РљРѕРЅРµС† РјРµС‚РѕРґР° РІР°Р»РёРґР°С†РёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё"));
         }
 
         /// <summary>

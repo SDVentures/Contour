@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FaultedConsumingContext.cs" company="">
 //   
 // </copyright>
@@ -17,7 +17,7 @@ namespace Contour.Receiving
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="FaultedConsumingContext"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FaultedConsumingContext"/>.
         /// </summary>
         /// <param name="delivery">
         /// The delivery.

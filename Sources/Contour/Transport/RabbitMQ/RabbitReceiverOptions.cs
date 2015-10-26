@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ
+п»їnamespace Contour.Transport.RabbitMQ
 {
     using Contour.Configuration;
     using Contour.Helpers;
@@ -10,14 +10,14 @@ namespace Contour.Transport.RabbitMQ
     public class RabbitReceiverOptions : ReceiverOptions
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitReceiverOptions"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitReceiverOptions"/>.
         /// </summary>
         public RabbitReceiverOptions()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitReceiverOptions"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitReceiverOptions"/>.
         /// </summary>
         /// <param name="parent">
         /// The parent.

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ThreadWorker.cs" company="">
 //   
 // </copyright>
@@ -29,7 +29,7 @@ namespace Contour.Helpers.Scheduler
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ThreadWorker"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ThreadWorker"/>.
         /// </summary>
         /// <param name="cancellationToken">
         /// The cancellation token.

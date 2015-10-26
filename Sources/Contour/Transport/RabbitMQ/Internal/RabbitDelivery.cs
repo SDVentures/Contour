@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -13,32 +13,32 @@ using global::RabbitMQ.Client.Events;
 namespace Contour.Transport.RabbitMQ.Internal
 {
     /// <summary>
-    /// Доставленное сообщение через брокер <c>RabbitMQ</c>.
+    /// Р”РѕСЃС‚Р°РІР»РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ С‡РµСЂРµР· Р±СЂРѕРєРµСЂ <c>RabbitMQ</c>.
     /// </summary>
     internal class RabbitDelivery : IDelivery
     {
         /// <summary>
-        /// Заголовки сообщения.
+        /// Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         private readonly Lazy<IDictionary<string, object>> headers;
 
         /// <summary>
-        /// Верно, если сообщение требует подтверждения обработки.
+        /// Р’РµСЂРЅРѕ, РµСЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ С‚СЂРµР±СѓРµС‚ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕР±СЂР°Р±РѕС‚РєРё.
         /// </summary>
         private readonly bool requiresAccept;
 
         /// <summary>
-        /// Верно, если обработка сообщения подтверждена.
+        /// Р’РµСЂРЅРѕ, РµСЃР»Рё РѕР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅР°.
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         private volatile bool isAccepted;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitDelivery"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitDelivery"/>.
         /// </summary>
-        /// <param name="channel">Канал поставки сообщения.</param>
-        /// <param name="args">Параметры поставки сообщения.</param>
-        /// <param name="requiresAccept">Верно, если требуется подтверждение доставки.</param>
+        /// <param name="channel">РљР°РЅР°Р» РїРѕСЃС‚Р°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="args">РџР°СЂР°РјРµС‚СЂС‹ РїРѕСЃС‚Р°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="requiresAccept">Р’РµСЂРЅРѕ, РµСЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РґРѕСЃС‚Р°РІРєРё.</param>
         public RabbitDelivery(RabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept)
         {
             this.Channel = channel;
@@ -51,17 +51,17 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Параметры поставки сообщения.
+        /// РџР°СЂР°РјРµС‚СЂС‹ РїРѕСЃС‚Р°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public BasicDeliverEventArgs Args { get; private set; }
 
         /// <summary>
-        /// Канал доставки сообщения.
+        /// РљР°РЅР°Р» РґРѕСЃС‚Р°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public RabbitChannel Channel { get; private set; }
 
         /// <summary>
-        /// Формат содержимого сообщения.
+        /// Р¤РѕСЂРјР°С‚ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public string ContentType
         {
@@ -72,7 +72,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Идентификатор сообщения.
+        /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public string CorrelationId
         {
@@ -83,7 +83,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Заголовки сообщения.
+        /// Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public IDictionary<string, object> Headers
         {
@@ -94,7 +94,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Маршрут входящего сообщения.
+        /// РњР°СЂС€СЂСѓС‚ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public RabbitRoute IncomingRoute
         {
@@ -105,7 +105,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Верно, если сообщение запрос.
+        /// Р’РµСЂРЅРѕ, РµСЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃ.
         /// </summary>
         public bool IsRequest
         {
@@ -116,7 +116,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Верно, если сообщение ответ.
+        /// Р’РµСЂРЅРѕ, РµСЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ РѕС‚РІРµС‚.
         /// </summary>
         public bool IsResponse
         {
@@ -127,12 +127,12 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Метка полученного сообщения.
+        /// РњРµС‚РєР° РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public MessageLabel Label { get; private set; }
 
         /// <summary>
-        /// Верно, если можно ответить на полученное сообщение.
+        /// Р’РµСЂРЅРѕ, РµСЃР»Рё РјРѕР¶РЅРѕ РѕС‚РІРµС‚РёС‚СЊ РЅР° РїРѕР»СѓС‡РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         public bool CanReply
         {
@@ -143,7 +143,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Канал доставки сообщения.
+        /// РљР°РЅР°Р» РґРѕСЃС‚Р°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         IChannel IDelivery.Channel
         {
@@ -154,7 +154,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Маршрут ответа на доставленное сообщение.
+        /// РњР°СЂС€СЂСѓС‚ РѕС‚РІРµС‚Р° РЅР° РґРѕСЃС‚Р°РІР»РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         IRoute IDelivery.ReplyRoute
         {
@@ -165,7 +165,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Маршрут ответа на доставленное сообщение.
+        /// РњР°СЂС€СЂСѓС‚ РѕС‚РІРµС‚Р° РЅР° РґРѕСЃС‚Р°РІР»РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         private RabbitRoute ReplyRoute
         {
@@ -182,7 +182,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Подтверждает доставку сообщения.
+        /// РџРѕРґС‚РІРµСЂР¶РґР°РµС‚ РґРѕСЃС‚Р°РІРєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public void Accept()
         {
@@ -196,11 +196,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Пересылает сообщение, устанавливая указанную метку.
+        /// РџРµСЂРµСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЏ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ.
         /// </summary>
-        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
-        /// <typeparam name="T">Тип получаемого сообщения.</typeparam>
-        /// <returns>Задача пересылки сообщения.</returns>
+        /// <param name="label">РќРѕРІР°СЏ РјРµС‚РєР°, СЃ РєРѕС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <typeparam name="T">РўРёРї РїРѕР»СѓС‡Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РїРµСЂРµСЃС‹Р»РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public IConsumingContext<T> BuildConsumingContext<T>(MessageLabel label = null) where T : class
         {
             Message<T> message = this.UnpackAs<T>();
@@ -214,11 +214,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Пересылает сообщение, устанавливая указанную метку.
+        /// РџРµСЂРµСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЏ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ.
         /// </summary>
-        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
-        /// <param name="payload">Новое содержимое сообщения.</param>
-        /// <returns>Задачи пересылки сообщения.</returns>
+        /// <param name="label">РќРѕРІР°СЏ РјРµС‚РєР°, СЃ РєРѕС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="payload">РќРѕРІРѕРµ СЃРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Рё РїРµСЂРµСЃС‹Р»РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Forward(MessageLabel label, object payload)
         {
             var headers = new Dictionary<string, object>(this.Headers);
@@ -231,10 +231,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Помечает сообщение как необработанное.
+        /// РџРѕРјРµС‡Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РєР°Рє РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ.
         /// </summary>
         /// <param name="requeue">
-        /// Сообщение требуется вернуть во входящую очередь для повторной обработки.
+        /// РЎРѕРѕР±С‰РµРЅРёРµ С‚СЂРµР±СѓРµС‚СЃСЏ РІРµСЂРЅСѓС‚СЊ РІРѕ РІС…РѕРґСЏС‰СѓСЋ РѕС‡РµСЂРµРґСЊ РґР»СЏ РїРѕРІС‚РѕСЂРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё.
         /// </param>
         public void Reject(bool requeue)
         {
@@ -248,9 +248,9 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Отсылает ответное сообщение.
+        /// РћС‚СЃС‹Р»Р°РµС‚ РѕС‚РІРµС‚РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="message">Ответное сообщение.</param>
+        /// <param name="message">РћС‚РІРµС‚РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
         public void ReplyWith(IMessage message)
         {
             if (!this.CanReply)
@@ -262,10 +262,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Конвертирует полученную информацию в сообщение указанного типа.
+        /// РљРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РїРѕР»СѓС‡РµРЅРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РІ СЃРѕРѕР±С‰РµРЅРёРµ СѓРєР°Р·Р°РЅРЅРѕРіРѕ С‚РёРїР°.
         /// </summary>
-        /// <typeparam name="T">Тип сообщения.</typeparam>
-        /// <returns>Сообщение указанного типа.</returns>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>РЎРѕРѕР±С‰РµРЅРёРµ СѓРєР°Р·Р°РЅРЅРѕРіРѕ С‚РёРїР°.</returns>
         public Message<T> UnpackAs<T>() where T : class
         {
             IMessage message = this.Channel.UnpackAs(typeof(T), this);
@@ -273,20 +273,20 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Конвертирует полученную информацию в сообщение указанного типа.
+        /// РљРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РїРѕР»СѓС‡РµРЅРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РІ СЃРѕРѕР±С‰РµРЅРёРµ СѓРєР°Р·Р°РЅРЅРѕРіРѕ С‚РёРїР°.
         /// </summary>
-        /// <param name="type">Тип сообщения.</param>
-        /// <returns>Сообщение указанного типа.</returns>
+        /// <param name="type">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РЎРѕРѕР±С‰РµРЅРёРµ СѓРєР°Р·Р°РЅРЅРѕРіРѕ С‚РёРїР°.</returns>
         public IMessage UnpackAs(Type type)
         {
             return this.Channel.UnpackAs(type, this);
         }
 
         /// <summary>
-        /// Вычленяет заголовки из параметров сообщения.
+        /// Р’С‹С‡Р»РµРЅСЏРµС‚ Р·Р°РіРѕР»РѕРІРєРё РёР· РїР°СЂР°РјРµС‚СЂРѕРІ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="args">Параметры отправки сообщения.</param>
-        /// <returns>Заголовки сообщения.</returns>
+        /// <param name="args">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         private IDictionary<string, object> ExtractHeadersFrom(BasicDeliverEventArgs args)
         {
             var h = new Dictionary<string, object>(args.BasicProperties.Headers);

@@ -1,4 +1,4 @@
-using Contour.Configuration;
+п»їusing Contour.Configuration;
 using Contour.Helpers;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
@@ -40,7 +40,7 @@ namespace Contour.Configurator.Tests
         public class BooPayloadValidator : FluentPayloadValidatorOf<BooMessage>
         {
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooPayloadValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BooPayloadValidator"/>.
             /// </summary>
             public BooPayloadValidator()
             {
@@ -64,7 +64,7 @@ namespace Contour.Configurator.Tests
             public static CountdownEvent WaitEvent;
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BusDependentHandler"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusDependentHandler"/>.
             /// </summary>
             /// <param name="bus">
             /// The bus.
@@ -118,7 +118,7 @@ namespace Contour.Configurator.Tests
             public static CountdownEvent WaitEvent;
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BusDependentTransformer"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusDependentTransformer"/>.
             /// </summary>
             /// <param name="bus">
             /// The bus.
@@ -224,7 +224,7 @@ namespace Contour.Configurator.Tests
         public class FooPayloadValidator : FluentPayloadValidatorOf<FooMessage>
         {
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="FooPayloadValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FooPayloadValidator"/>.
             /// </summary>
             public FooPayloadValidator()
             {
@@ -805,14 +805,14 @@ namespace Contour.Configurator.Tests
         }
 
         /// <summary>
-        /// При указании конечной точки.
+        /// РџСЂРё СѓРєР°Р·Р°РЅРёРё РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_configuring_endpoint
         {
             /// <summary>
-            /// Можно установить значение QoS.
+            /// РњРѕР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ QoS.
             /// </summary>
             [Test]
             public void should_set_qos()
@@ -833,14 +833,14 @@ namespace Contour.Configurator.Tests
                 var result = sut.Configure("producer", busConfigurator);
 
                 RabbitReceiverOptions rabbitReceiverOptions = ((BusConfiguration)result).ReceiverDefaults as RabbitReceiverOptions;
-                Assert.IsNotNull(rabbitReceiverOptions, "Долны быть установлены настройки получателя.");
+                Assert.IsNotNull(rabbitReceiverOptions, "Р”РѕР»РЅС‹ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РЅР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.");
                 Maybe<QoSParams> qosMaybe = rabbitReceiverOptions.GetQoS();
-                Assert.IsTrue(qosMaybe.HasValue, "QoS должен быть установлен.");
-                Assert.AreEqual(8, qosMaybe.Value.PrefetchCount, "Должно быть установлено количество потоков.");
+                Assert.IsTrue(qosMaybe.HasValue, "QoS РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ.");
+                Assert.AreEqual(8, qosMaybe.Value.PrefetchCount, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕС‚РѕРєРѕРІ.");
             }
 
             /// <summary>
-            /// Можно использовать значение по умолчанию.
+            /// РњРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
             /// </summary>
             [Test]
             public void should_be_default()
@@ -859,24 +859,24 @@ namespace Contour.Configurator.Tests
                 using (var bus = new BusFactory().Create(cfg => sut.Configure("producer", cfg), false))
                 {
                     RabbitReceiverOptions rabbitReceiverOptions = ((BusConfiguration)bus.Configuration).ReceiverDefaults as RabbitReceiverOptions;
-                    Assert.IsNotNull(rabbitReceiverOptions, "Долны быть установлены настройки получателя.");
+                    Assert.IsNotNull(rabbitReceiverOptions, "Р”РѕР»РЅС‹ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РЅР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.");
                     Maybe<QoSParams> qosMaybe = rabbitReceiverOptions.GetQoS();
-                    Assert.IsTrue(qosMaybe.HasValue, "QoS должен быть установлен.");
-                    Assert.AreEqual(50, qosMaybe.Value.PrefetchCount, "Должно быть установлено количество потоков.");
+                    Assert.IsTrue(qosMaybe.HasValue, "QoS РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ.");
+                    Assert.AreEqual(50, qosMaybe.Value.PrefetchCount, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕС‚РѕРєРѕРІ.");
                 }
 
             }
         }
 
         /// <summary>
-        /// Если в конфигурации установлено количество обработчиков сообщений из очередей конечной точки.
+        /// Р•СЃР»Рё РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ СЃРѕРѕР±С‰РµРЅРёР№ РёР· РѕС‡РµСЂРµРґРµР№ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_configuring_endpoint_with_parallelism_level
         {
             /// <summary>
-            /// Тогда это значение должно быть использовано при конфигурации.
+            /// РўРѕРіРґР° СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РїСЂРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё.
             /// </summary>
             [Test]
             public void should_set_parallelismLevel()
@@ -897,20 +897,20 @@ namespace Contour.Configurator.Tests
                 var result = sut.Configure("producer", busConfigurator);
 
                 ReceiverOptions receiverOptions = ((BusConfiguration)result).ReceiverDefaults;
-                Assert.IsTrue(receiverOptions.GetParallelismLevel().HasValue, "Должно быть установлено количество обработчиков.");
-                Assert.AreEqual(8, receiverOptions.GetParallelismLevel().Value, "Должно быть установлено количество обработчиков.");
+                Assert.IsTrue(receiverOptions.GetParallelismLevel().HasValue, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ.");
+                Assert.AreEqual(8, receiverOptions.GetParallelismLevel().Value, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ.");
             }
         }
 
         /// <summary>
-        /// Если в конфигурации динамическая исходящая маршрутизация.
+        /// Р•СЃР»Рё РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РґРёРЅР°РјРёС‡РµСЃРєР°СЏ РёСЃС…РѕРґСЏС‰Р°СЏ РјР°СЂС€СЂСѓС‚РёР·Р°С†РёСЏ.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_configuring_endpoint_with_dynamic_outgoing_routing
         {
             /// <summary>
-            /// Тогда это значение должно быть использовано при конфигурации.
+            /// РўРѕРіРґР° СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РїСЂРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё.
             /// </summary>
             [Test]
             public void should_route_any()
@@ -928,7 +928,7 @@ namespace Contour.Configurator.Tests
 
                 using (var bus = new BusFactory().Create(cfg => sut.Configure("producer", cfg), false))
                 {
-                    Assert.IsTrue(bus.CanRoute(MessageLabel.Any), "Должна быть включена динамическая маршрутизация.");
+                    Assert.IsTrue(bus.CanRoute(MessageLabel.Any), "Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ РІРєР»СЋС‡РµРЅР° РґРёРЅР°РјРёС‡РµСЃРєР°СЏ РјР°СЂС€СЂСѓС‚РёР·Р°С†РёСЏ.");
                 }
             }
         }

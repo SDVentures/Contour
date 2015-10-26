@@ -1,16 +1,16 @@
-namespace Contour.Operators
+п»їnamespace Contour.Operators
 {
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Фильтр на основе выражения JsonPath.
+    /// Р¤РёР»СЊС‚СЂ РЅР° РѕСЃРЅРѕРІРµ РІС‹СЂР°Р¶РµРЅРёСЏ JsonPath.
     /// </summary>
     public class JsonPathFilter : Filter
     {
         /// <summary>
-        /// Инициализирует оператор.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РѕРїРµСЂР°С‚РѕСЂ.
         /// </summary>
-        /// <param name="jsonPath">Выражение JsonPath.</param>
+        /// <param name="jsonPath">Р’С‹СЂР°Р¶РµРЅРёРµ JsonPath.</param>
         public JsonPathFilter(string jsonPath)
             : base(m => Predicate(m, jsonPath))
         {

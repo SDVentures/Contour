@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -12,19 +12,19 @@ using NUnit.Framework;
 namespace Contour.RabbitMq.Tests
 {
     /// <summary>
-    /// Набор тестов для саги.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РґР»СЏ СЃР°РіРё.
     /// </summary>
     public class SagaHandlingSpecs
     {
         /// <summary>
-        /// При получении сообщения
+        /// РџСЂРё РїРѕР»СѓС‡РµРЅРёРё СЃРѕРѕР±С‰РµРЅРёСЏ
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenHandleMessage : RabbitMqFixture
         {
             /// <summary>
-            /// Должен обрабатываться шаг саги.
+            /// Р”РѕР»Р¶РµРЅ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊСЃСЏ С€Р°Рі СЃР°РіРё.
             /// </summary>
             [Test]
             public void ShouldProcessSagaStep()
@@ -87,7 +87,7 @@ namespace Contour.RabbitMq.Tests
                 initiator.WhenReady.WaitOne(TimeSpan.FromSeconds(5));
                 initiator.Emit(commandProcessdata, "start");
                 var result = autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));
-                Assert.IsTrue(result, "Сага должна быть обработана.");
+                Assert.IsTrue(result, "РЎР°РіР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅР°.");
             }
         }
     }

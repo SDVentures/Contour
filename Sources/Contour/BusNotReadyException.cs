@@ -1,23 +1,23 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System;
 
     /// <summary>
-    ///   Исключение возникающее в случае неготовности шины к работе (например неполная инициализация).
+    ///   РСЃРєР»СЋС‡РµРЅРёРµ РІРѕР·РЅРёРєР°СЋС‰РµРµ РІ СЃР»СѓС‡Р°Рµ РЅРµРіРѕС‚РѕРІРЅРѕСЃС‚Рё С€РёРЅС‹ Рє СЂР°Р±РѕС‚Рµ (РЅР°РїСЂРёРјРµСЂ РЅРµРїРѕР»РЅР°СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ).
     /// </summary>
     public class BusNotReadyException : Exception
     {
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusNotReadyException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusNotReadyException"/>.
         /// </summary>
         internal BusNotReadyException()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusNotReadyException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusNotReadyException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.
@@ -28,7 +28,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusNotReadyException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusNotReadyException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.

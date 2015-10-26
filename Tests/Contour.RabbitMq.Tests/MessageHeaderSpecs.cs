@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
@@ -12,19 +12,19 @@ using NUnit.Framework;
 namespace Contour.RabbitMq.Tests
 {
     /// <summary>
-    /// Набор тестов для проверки обработки заголовков сообщения.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕР±СЂР°Р±РѕС‚РєРё Р·Р°РіРѕР»РѕРІРєРѕРІ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public class MessageHeaderSpecs
     {
         /// <summary>
-        /// При обработке входящего сообщения и публикации нового.
+        /// РџСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ Рё РїСѓР±Р»РёРєР°С†РёРё РЅРѕРІРѕРіРѕ.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenConsumingAndProduceMessage : RabbitMqFixture
         {
             /// <summary>
-            /// Должны копироваться заголовки инициирующего сообщения.
+            /// Р”РѕР»Р¶РЅС‹ РєРѕРїРёСЂРѕРІР°С‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРєРё РёРЅРёС†РёРёСЂСѓСЋС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldCopiesHeadersOfInitialMessage()
@@ -65,13 +65,13 @@ namespace Contour.RabbitMq.Tests
                     new { },
                     new Dictionary<string, object> { { producerTime, utc } });
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Должен быть установлен заголовок переданный первоисточником.");
-                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Заголовок должен содержать корректные данные.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїРµСЂРµРґР°РЅРЅС‹Р№ РїРµСЂРІРѕРёСЃС‚РѕС‡РЅРёРєРѕРј.");
+                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должны копироваться заголовки при отправке сообщений в новом потоке.
+            /// Р”РѕР»Р¶РЅС‹ РєРѕРїРёСЂРѕРІР°С‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРєРё РїСЂРё РѕС‚РїСЂР°РІРєРµ СЃРѕРѕР±С‰РµРЅРёР№ РІ РЅРѕРІРѕРј РїРѕС‚РѕРєРµ.
             /// </summary>
             [Test]
             public void ShouldCopiesHeadersForNewTask()
@@ -118,13 +118,13 @@ namespace Contour.RabbitMq.Tests
                     new { },
                     new Dictionary<string, object> { { producerTime, utc } });
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Должен быть установлен заголовок переданный первоисточником.");
-                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Заголовок должен содержать корректные данные.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїРµСЂРµРґР°РЅРЅС‹Р№ РїРµСЂРІРѕРёСЃС‚РѕС‡РЅРёРєРѕРј.");
+                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должны копироваться заголовке при использовании задачи из пула потоков.
+            /// Р”РѕР»Р¶РЅС‹ РєРѕРїРёСЂРѕРІР°С‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРєРµ РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё Р·Р°РґР°С‡Рё РёР· РїСѓР»Р° РїРѕС‚РѕРєРѕРІ.
             /// </summary>
             [Test]
             public void ShouldCopiesHeadersForQueueUserItem()
@@ -170,13 +170,13 @@ namespace Contour.RabbitMq.Tests
                     new { },
                     new Dictionary<string, object> { { producerTime, utc } });
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Должен быть установлен заголовок переданный первоисточником.");
-                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Заголовок должен содержать корректные данные.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїРµСЂРµРґР°РЅРЅС‹Р№ РїРµСЂРІРѕРёСЃС‚РѕС‡РЅРёРєРѕРј.");
+                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должны копироваться заголовки запроса.
+            /// Р”РѕР»Р¶РЅС‹ РєРѕРїРёСЂРѕРІР°С‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.
             /// </summary>
             [Test]
             public void ShouldCopiesHeadersOfInitialRequestMessage()
@@ -220,13 +220,13 @@ namespace Contour.RabbitMq.Tests
                     new Dictionary<string, object> { { producerTime, utc } }, 
                     o => { });
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Должен быть установлен заголовок переданный первоисточником.");
-                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Заголовок должен содержать корректные данные.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїРµСЂРµРґР°РЅРЅС‹Р№ РїРµСЂРІРѕРёСЃС‚РѕС‡РЅРёРєРѕРј.");
+                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должны копироваться заголовки асинхронного запроса.
+            /// Р”РѕР»Р¶РЅС‹ РєРѕРїРёСЂРѕРІР°С‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРєРё Р°СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ Р·Р°РїСЂРѕСЃР°.
             /// </summary>
             [Test]
             public void ShouldCopiesHeadersOfInitialAsyncRequestMessage()
@@ -271,15 +271,15 @@ namespace Contour.RabbitMq.Tests
                             new { },
                             new Dictionary<string, object> { { producerTime, utc } }).ContinueWith(t => { })
                         .Wait(TimeSpan.FromSeconds(5)),
-                    "Операция запроса должна получить ответ.");
+                    "РћРїРµСЂР°С†РёСЏ Р·Р°РїСЂРѕСЃР° РґРѕР»Р¶РЅР° РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚.");
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Должен быть установлен заголовок переданный первоисточником.");
-                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Заголовок должен содержать корректные данные.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(producerTime), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїРµСЂРµРґР°РЅРЅС‹Р№ РїРµСЂРІРѕРёСЃС‚РѕС‡РЅРёРєРѕРј.");
+                Assert.AreEqual(utc, Headers.GetString(message.Headers, producerTime), "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должен формироваться путь прохождения сообщения.
+            /// Р”РѕР»Р¶РµРЅ С„РѕСЂРјРёСЂРѕРІР°С‚СЊСЃСЏ РїСѓС‚СЊ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldFillBreadCrumbs()
@@ -323,18 +323,18 @@ namespace Contour.RabbitMq.Tests
                             new { })
                         .ContinueWith(t => { })
                         .Wait(TimeSpan.FromSeconds(5)),
-                    "Операция запроса должна получить ответ.");
+                    "РћРїРµСЂР°С†РёСЏ Р·Р°РїСЂРѕСЃР° РґРѕР»Р¶РЅР° РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚.");
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(Headers.Breadcrumbs), "Должен быть установлен заголовок пути сообщения.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(Headers.Breadcrumbs), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїСѓС‚Рё СЃРѕРѕР±С‰РµРЅРёСЏ.");
                 Assert.AreEqual(
                     string.Format("{0};{1}", ProducerName, ConsumerName), 
                     Headers.GetString(message.Headers, Headers.Breadcrumbs), 
-                    "Заголовок должен содержать корректные данные.");
+                    "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должен формироваться путь прохождения сообщения.
+            /// Р”РѕР»Р¶РµРЅ С„РѕСЂРјРёСЂРѕРІР°С‚СЊСЃСЏ РїСѓС‚СЊ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldNotMultyFillBreadCrumbsWhenMassEmit()
@@ -382,18 +382,18 @@ namespace Contour.RabbitMq.Tests
                             new { })
                         .ContinueWith(t => { })
                         .Wait(TimeSpan.FromSeconds(5)),
-                    "Операция запроса должна получить ответ.");
+                    "РћРїРµСЂР°С†РёСЏ Р·Р°РїСЂРѕСЃР° РґРѕР»Р¶РЅР° РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚.");
 
-                Assert.IsTrue(waitHandle.Wait(TimeSpan.FromSeconds(5)), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(Headers.Breadcrumbs), "Должен быть установлен заголовок пути сообщения.");
+                Assert.IsTrue(waitHandle.Wait(TimeSpan.FromSeconds(5)), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(Headers.Breadcrumbs), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє РїСѓС‚Рё СЃРѕРѕР±С‰РµРЅРёСЏ.");
                 Assert.AreEqual(
                     string.Format("{0};{1}", ProducerName, ConsumerName),
                     Headers.GetString(message.Headers, Headers.Breadcrumbs),
-                    "Заголовок должен содержать корректные данные.");
+                    "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.");
             }
 
             /// <summary>
-            /// Должен передаваться сквозной идентификатор сообщения.
+            /// Р”РѕР»Р¶РµРЅ РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ СЃРєРІРѕР·РЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldFillOriginalMessageId()
@@ -437,14 +437,14 @@ namespace Contour.RabbitMq.Tests
                             new { })
                         .ContinueWith(t => { })
                         .Wait(TimeSpan.FromSeconds(5)),
-                    "Операция запроса должна получить ответ.");
+                    "РћРїРµСЂР°С†РёСЏ Р·Р°РїСЂРѕСЃР° РґРѕР»Р¶РЅР° РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚.");
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.IsTrue(message.Headers.ContainsKey(Headers.OriginalMessageId), "Должен быть установлен заголовок с индентификатором первого сообщения.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.IsTrue(message.Headers.ContainsKey(Headers.OriginalMessageId), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє СЃ РёРЅРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РїРµСЂРІРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.");
             }
 
             /// <summary>
-            /// Сквозной идентификатор сообщения не должен меняться.
+            /// РЎРєРІРѕР·РЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ РЅРµ РґРѕР»Р¶РµРЅ РјРµРЅСЏС‚СЊСЃСЏ.
             /// </summary>
             [Test]
             public void ShouldNotChangedOriginalMessageId()
@@ -491,10 +491,10 @@ namespace Contour.RabbitMq.Tests
                             new { })
                         .ContinueWith(t => { })
                         .Wait(TimeSpan.FromSeconds(5)),
-                    "Операция запроса должна получить ответ.");
+                    "РћРїРµСЂР°С†РёСЏ Р·Р°РїСЂРѕСЃР° РґРѕР»Р¶РЅР° РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚.");
 
-                Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
-                Assert.AreEqual(initalEndToEndId, Headers.GetString(message.Headers, Headers.OriginalMessageId), "Заголовок со идентификатором первого сообщения.");
+                Assert.IsTrue(waitHandle.WaitOne(), "РўРµСЃС‚ РґРѕР»Р¶РµРЅ Р·Р°РІРµСЂС€РёС‚СЊСЃСЏ Р·Р° СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ.");
+                Assert.AreEqual(initalEndToEndId, Headers.GetString(message.Headers, Headers.OriginalMessageId), "Р—Р°РіРѕР»РѕРІРѕРє СЃРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РїРµСЂРІРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.");
             }
         }
     }

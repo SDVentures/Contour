@@ -1,21 +1,21 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 
 using Contour.Caching;
 
 namespace Contour.Receiving
 {
     /// <summary>
-    /// Контекст обработки полученного сообщения.
+    /// РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
-    /// <typeparam name="T">Тип полученного сообщения.</typeparam>
+    /// <typeparam name="T">РўРёРї РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
     internal class DefaultConsumingContext<T> : IConsumingContext<T>, IDeliveryContext
         where T : class
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="DefaultConsumingContext{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DefaultConsumingContext{T}"/>.
         /// </summary>
-        /// <param name="message">Входящее сообщение.</param>
-        /// <param name="delivery">Полученное сообщение.</param>
+        /// <param name="message">Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="delivery">РџРѕР»СѓС‡РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
         public DefaultConsumingContext(Message<T> message, IDelivery delivery)
         {
             this.Message = message;
@@ -24,22 +24,22 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Конечная точка, в которой зарегистрирован текущий обработчик сообщения.
+        /// РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР°, РІ РєРѕС‚РѕСЂРѕР№ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ С‚РµРєСѓС‰РёР№ РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public IBusContext Bus { get; private set; }
 
         /// <summary>
-        /// Возвращает доставленное сообщение.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РґРѕСЃС‚Р°РІР»РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         public IDelivery Delivery { get; private set; }
 
         /// <summary>
-        /// Полученное сообщение.
+        /// РџРѕР»СѓС‡РµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         public Message<T> Message { get; private set; }
 
         /// <summary>
-        /// Верно, если можно ответить на это сообщение.
+        /// Р’РµСЂРЅРѕ, РµСЃР»Рё РјРѕР¶РЅРѕ РѕС‚РІРµС‚РёС‚СЊ РЅР° СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         public bool CanReply
         {
@@ -50,7 +50,7 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Помечает сообщение как обработанное.
+        /// РџРѕРјРµС‡Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РєР°Рє РѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ.
         /// </summary>
         public void Accept()
         {
@@ -58,50 +58,50 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Пересылает сообщение, устанавливая указанную метку.
+        /// РџРµСЂРµСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЏ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ.
         /// </summary>
-        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
+        /// <param name="label">РќРѕРІР°СЏ РјРµС‚РєР°, СЃ РєРѕС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
         public void Forward(MessageLabel label)
         {
             this.Forward(label, this.Message.Payload);
         }
 
         /// <summary>
-        /// Пересылает сообщение, устанавливая указанную метку.
+        /// РџРµСЂРµСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЏ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ.
         /// </summary>
-        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
+        /// <param name="label">РќРѕРІР°СЏ РјРµС‚РєР°, СЃ РєРѕС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
         public void Forward(string label)
         {
             this.Forward(label, this.Message.Payload);
         }
 
         /// <summary>
-        /// Пересылает сообщение, устанавливая указанную метку.
+        /// РџРµСЂРµСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЏ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ.
         /// </summary>
-        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
-        /// <param name="payload">Новое содержимое сообщения.</param>
-        /// <typeparam name="TOut">Тип сообщения.</typeparam>
+        /// <param name="label">РќРѕРІР°СЏ РјРµС‚РєР°, СЃ РєРѕС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="payload">РќРѕРІРѕРµ СЃРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="TOut">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
         public void Forward<TOut>(MessageLabel label, TOut payload = default(TOut)) where TOut : class
         {
             this.Delivery.Forward(label, payload);
         }
 
         /// <summary>
-        /// Пересылает сообщение, устанавливая указанную метку.
+        /// РџРµСЂРµСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЏ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ.
         /// </summary>
-        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
-        /// <param name="payload">Новое содержимое сообщения.</param>
-        /// <typeparam name="TOut">Тип сообщения.</typeparam>
+        /// <param name="label">РќРѕРІР°СЏ РјРµС‚РєР°, СЃ РєРѕС‚РѕСЂРѕР№ РїРµСЂРµСЃС‹Р»Р°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="payload">РќРѕРІРѕРµ СЃРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="TOut">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
         public void Forward<TOut>(string label, TOut payload = default(TOut)) where TOut : class
         {
             this.Forward(label.ToMessageLabel(), payload);
         }
 
         /// <summary>
-        /// Помечает сообщение как необработанное.
+        /// РџРѕРјРµС‡Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РєР°Рє РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ.
         /// </summary>
         /// <param name="requeue">
-        /// Сообщение требуется вернуть во входящую очередь для повторной обработки.
+        /// РЎРѕРѕР±С‰РµРЅРёРµ С‚СЂРµР±СѓРµС‚СЃСЏ РІРµСЂРЅСѓС‚СЊ РІРѕ РІС…РѕРґСЏС‰СѓСЋ РѕС‡РµСЂРµРґСЊ РґР»СЏ РїРѕРІС‚РѕСЂРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё.
         /// </param>
         public void Reject(bool requeue)
         {
@@ -109,12 +109,12 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Отправляет ответное сообщение, используя переданный в исходном
-        /// сообщении обратный адрес и идентификатор сообщения.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕС‚РІРµС‚РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ, РёСЃРїРѕР»СЊР·СѓСЏ РїРµСЂРµРґР°РЅРЅС‹Р№ РІ РёСЃС…РѕРґРЅРѕРј
+        /// СЃРѕРѕР±С‰РµРЅРёРё РѕР±СЂР°С‚РЅС‹Р№ Р°РґСЂРµСЃ Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <typeparam name="TResponse">.NET тип отправляемого сообщения.</typeparam>
-        /// <param name="response">Отправляемое сообщение.</param>
-        /// <param name="expires">Настройки, которые определяют время пока ответ актуален.</param>
+        /// <typeparam name="TResponse">.NET С‚РёРї РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <param name="response">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="expires">РќР°СЃС‚СЂРѕР№РєРё, РєРѕС‚РѕСЂС‹Рµ РѕРїСЂРµРґРµР»СЏСЋС‚ РІСЂРµРјСЏ РїРѕРєР° РѕС‚РІРµС‚ Р°РєС‚СѓР°Р»РµРЅ.</param>
         public void Reply<TResponse>(TResponse response, Expires expires = null) where TResponse : class
         {
             var headers = new Dictionary<string, object>();

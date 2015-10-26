@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -8,31 +8,31 @@ using NUnit.Framework;
 namespace Contour.Common.Tests
 {
     /// <summary>
-    /// Набор тестов обработки ошибочных сообщений.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РѕР±СЂР°Р±РѕС‚РєРё РѕС€РёР±РѕС‡РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
     /// </summary>
     public class FaultExceptionSpecs
     {
         /// <summary>
-        /// Если создается объект ошибки
+        /// Р•СЃР»Рё СЃРѕР·РґР°РµС‚СЃСЏ РѕР±СЉРµРєС‚ РѕС€РёР±РєРё
         /// </summary>
         [TestFixture]
         public class WhenCreateFaultException
         {
             /// <summary>
-            /// Тогда в случе если нет внутренних исключений, должен создаться объект без внутренних объектов ошибки.
+            /// РўРѕРіРґР° РІ СЃР»СѓС‡Рµ РµСЃР»Рё РЅРµС‚ РІРЅСѓС‚СЂРµРЅРЅРёС… РёСЃРєР»СЋС‡РµРЅРёР№, РґРѕР»Р¶РµРЅ СЃРѕР·РґР°С‚СЊСЃСЏ РѕР±СЉРµРєС‚ Р±РµР· РІРЅСѓС‚СЂРµРЅРЅРёС… РѕР±СЉРµРєС‚РѕРІ РѕС€РёР±РєРё.
             /// </summary>
             [Test]
             public void IfExceptionWithoutInnerExceptionsShouldBeWithoutInnerExceptions()
             {
-                var convertedException = new ArgumentException("Неверно задан параметр.");
+                var convertedException = new ArgumentException("РќРµРІРµСЂРЅРѕ Р·Р°РґР°РЅ РїР°СЂР°РјРµС‚СЂ.");
 
                 var sut = new FaultException(convertedException);
 
-                CollectionAssert.IsEmpty(sut.InnerExceptions, "Список исключений дожен быть пустым.");
+                CollectionAssert.IsEmpty(sut.InnerExceptions, "РЎРїРёСЃРѕРє РёСЃРєР»СЋС‡РµРЅРёР№ РґРѕР¶РµРЅ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј.");
             }
 
             /// <summary>
-            /// Тогда в случае, если есть внутренние ошибки, должен создаваться объект с внутренним объектом ошибки.
+            /// РўРѕРіРґР° РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РµСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёРµ РѕС€РёР±РєРё, РґРѕР»Р¶РµРЅ СЃРѕР·РґР°РІР°С‚СЊСЃСЏ РѕР±СЉРµРєС‚ СЃ РІРЅСѓС‚СЂРµРЅРЅРёРј РѕР±СЉРµРєС‚РѕРј РѕС€РёР±РєРё.
             /// </summary>
             [Test]
             public void IfExceptionWithInnerExceptionShouldContainInnerException()
@@ -47,13 +47,13 @@ namespace Contour.Common.Tests
                 {
                     var sut = new FaultException(ex);
 
-                    CollectionAssert.IsNotEmpty(sut.InnerExceptions, "Должны быть внутренние исключения.");
-                    Assert.AreEqual(1, sut.InnerExceptions.Count, "Должно быть одно внутреннее исключение.");
+                    CollectionAssert.IsNotEmpty(sut.InnerExceptions, "Р”РѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёРµ РёСЃРєР»СЋС‡РµРЅРёСЏ.");
+                    Assert.AreEqual(1, sut.InnerExceptions.Count, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕРґРЅРѕ РІРЅСѓС‚СЂРµРЅРЅРµРµ РёСЃРєР»СЋС‡РµРЅРёРµ.");
                 }
             }
 
             /// <summary>
-            /// Тогда в случае, если ошибка представлена экземпляром класса <see cref="System.AggregateException"/>, объект ошибки должен содержать внутренние объекты ошибки.
+            /// РўРѕРіРґР° РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕС€РёР±РєР° РїСЂРµРґСЃС‚Р°РІР»РµРЅР° СЌРєР·РµРјРїР»СЏСЂРѕРј РєР»Р°СЃСЃР° <see cref="System.AggregateException"/>, РѕР±СЉРµРєС‚ РѕС€РёР±РєРё РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёРµ РѕР±СЉРµРєС‚С‹ РѕС€РёР±РєРё.
             /// </summary>
             [Test]
             public void IfExceptionWIthAggregatedExceptionShouldContainException()
@@ -73,16 +73,16 @@ namespace Contour.Common.Tests
                 {
                     var sut = new FaultException(exception);
 
-                    CollectionAssert.IsNotEmpty(sut.InnerExceptions, "Должны быть внутренние исключения.");
-                    Assert.AreEqual(1, sut.InnerExceptions.Count, "Должно быть одно внутреннее исключение.");
+                    CollectionAssert.IsNotEmpty(sut.InnerExceptions, "Р”РѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёРµ РёСЃРєР»СЋС‡РµРЅРёСЏ.");
+                    Assert.AreEqual(1, sut.InnerExceptions.Count, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕРґРЅРѕ РІРЅСѓС‚СЂРµРЅРЅРµРµ РёСЃРєР»СЋС‡РµРЅРёРµ.");
                 }
             }
 
             /// <summary>
-            /// В случае, если ошибка представлена экземпляром класса <see cref="System.AggregateException"/>,
-            /// и ошибка сожержит внутреннюю ошибку класса <see cref="System.AggregateException"/>, которая в свою очередь содержит ошибки,
-            /// объект ошибки <see cref="FaultException"/> должен содержать все внутренние объекты ошибки.
-            /// Также не должно быть падений при преобразовании ошибки в <see cref="FaultException"/>
+            /// Р’ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕС€РёР±РєР° РїСЂРµРґСЃС‚Р°РІР»РµРЅР° СЌРєР·РµРјРїР»СЏСЂРѕРј РєР»Р°СЃСЃР° <see cref="System.AggregateException"/>,
+            /// Рё РѕС€РёР±РєР° СЃРѕР¶РµСЂР¶РёС‚ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ РѕС€РёР±РєСѓ РєР»Р°СЃСЃР° <see cref="System.AggregateException"/>, РєРѕС‚РѕСЂР°СЏ РІ СЃРІРѕСЋ РѕС‡РµСЂРµРґСЊ СЃРѕРґРµСЂР¶РёС‚ РѕС€РёР±РєРё,
+            /// РѕР±СЉРµРєС‚ РѕС€РёР±РєРё <see cref="FaultException"/> РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РІСЃРµ РІРЅСѓС‚СЂРµРЅРЅРёРµ РѕР±СЉРµРєС‚С‹ РѕС€РёР±РєРё.
+            /// РўР°РєР¶Рµ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїР°РґРµРЅРёР№ РїСЂРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРё РѕС€РёР±РєРё РІ <see cref="FaultException"/>
             /// </summary>
             [Test]
             public void IfAggregatedExceptionContainsInnerAggregateExceptionsFaultExceptionShouldContainAllExceptions()
@@ -96,10 +96,10 @@ namespace Contour.Common.Tests
                     Assert.DoesNotThrow(() => { new FaultException(exception); });
 
                     var sut = new FaultException(exception);
-                    CollectionAssert.IsNotEmpty(sut.InnerExceptions, "Должны быть внутренние исключения.");
-                    Assert.AreEqual(1, sut.InnerExceptions.Count, "Должно быть одно внутреннее исключение.");
-                    Assert.IsNotEmpty(sut.InnerExceptions.First().InnerExceptions, "Внутренне исключение должно содержать исключения.");
-                    Assert.AreEqual(1, sut.InnerExceptions.First().InnerExceptions.Count, "Внутренне исключение должно содержать одно внутреннее исключение.");
+                    CollectionAssert.IsNotEmpty(sut.InnerExceptions, "Р”РѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёРµ РёСЃРєР»СЋС‡РµРЅРёСЏ.");
+                    Assert.AreEqual(1, sut.InnerExceptions.Count, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕРґРЅРѕ РІРЅСѓС‚СЂРµРЅРЅРµРµ РёСЃРєР»СЋС‡РµРЅРёРµ.");
+                    Assert.IsNotEmpty(sut.InnerExceptions.First().InnerExceptions, "Р’РЅСѓС‚СЂРµРЅРЅРµ РёСЃРєР»СЋС‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РёСЃРєР»СЋС‡РµРЅРёСЏ.");
+                    Assert.AreEqual(1, sut.InnerExceptions.First().InnerExceptions.Count, "Р’РЅСѓС‚СЂРµРЅРЅРµ РёСЃРєР»СЋС‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РѕРґРЅРѕ РІРЅСѓС‚СЂРµРЅРЅРµРµ РёСЃРєР»СЋС‡РµРЅРёРµ.");
                     Assert.AreEqual(exception.InnerExceptions.First().InnerException.GetType().FullName, sut.InnerExceptions.First().InnerExceptions.First().Type);
                 }
             }

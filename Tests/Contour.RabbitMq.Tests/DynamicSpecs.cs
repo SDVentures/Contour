@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Reflection;
@@ -87,7 +87,7 @@ namespace Contour.RabbitMq.Tests
                 #region Constructors and Destructors
 
                 /// <summary>
-                /// Инициализирует новый экземпляр класса <see cref="LowerCaseDelimitedPropertyNamesContractResovler"/>.
+                /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LowerCaseDelimitedPropertyNamesContractResovler"/>.
                 /// </summary>
                 /// <param name="delimiter">
                 /// The delimiter.

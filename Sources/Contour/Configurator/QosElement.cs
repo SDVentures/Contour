@@ -1,14 +1,14 @@
-using System.Configuration;
+п»їusing System.Configuration;
 
 namespace Contour.Configurator
 {
     /// <summary>
-    /// Конфигурационный элемент для установки параметров <c>QoS</c> (<a href="http://www.rabbitmq.com/blog/2012/05/11/some-queuing-theory-throughput-latency-and-bandwidth/"><c>QoS</c></a>).
+    /// РљРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё РїР°СЂР°РјРµС‚СЂРѕРІ <c>QoS</c> (<a href="http://www.rabbitmq.com/blog/2012/05/11/some-queuing-theory-throughput-latency-and-bandwidth/"><c>QoS</c></a>).
     /// </summary>
     public class QosElement : ConfigurationElement
     {
         /// <summary>
-        /// Количество считываемых сообщений из очереди.
+        /// РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‡РёС‚С‹РІР°РµРјС‹С… СЃРѕРѕР±С‰РµРЅРёР№ РёР· РѕС‡РµСЂРµРґРё.
         /// </summary>
         [ConfigurationProperty("prefetchCount", IsRequired = true)]
         public ushort? PrefetchCount

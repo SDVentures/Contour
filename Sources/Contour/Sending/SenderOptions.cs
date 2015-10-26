@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Configuration;
 using Contour.Helpers;
@@ -6,70 +6,70 @@ using Contour.Helpers;
 namespace Contour.Sending
 {
     /// <summary>
-    /// Настройки отправителя.
+    /// РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
     /// </summary>
     public class SenderOptions : BusOptions
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SenderOptions"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SenderOptions"/>.
         /// </summary>
         public SenderOptions()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SenderOptions"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SenderOptions"/>.
         /// </summary>
-        /// <param name="parent">Базовые настройки.</param>
+        /// <param name="parent">Р‘Р°Р·РѕРІС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё.</param>
         public SenderOptions(BusOptions parent)
             : base(parent)
         {
         }
 
         /// <summary>
-        /// Требуется ли подтверждение об успешной отправке.
+        /// РўСЂРµР±СѓРµС‚СЃСЏ Р»Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РѕР± СѓСЃРїРµС€РЅРѕР№ РѕС‚РїСЂР°РІРєРµ.
         /// </summary>
         public Maybe<bool> ConfirmationIsRequired { protected get; set; }
 
         /// <summary>
-        /// Требуется ли сохранение сообщения.
+        /// РўСЂРµР±СѓРµС‚СЃСЏ Р»Рё СЃРѕС…СЂР°РЅРµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public Maybe<bool> Persistently { protected get; set; }
 
         /// <summary>
-        /// Время ожидания ответа на запрос.
+        /// Р’СЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         public Maybe<TimeSpan?> RequestTimeout { protected get; set; }
 
         /// <summary>
-        /// Построитель вычислителя маршрута.
+        /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РІС‹С‡РёСЃР»РёС‚РµР»СЏ РјР°СЂС€СЂСѓС‚Р°.
         /// </summary>
         public Maybe<Func<IRouteResolverBuilder, IRouteResolver>> RouteResolverBuilder { protected get; set; }
 
         /// <summary>
-        /// Время жизни сообщения.
+        /// Р’СЂРµРјСЏ Р¶РёР·РЅРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public Maybe<TimeSpan?> Ttl { protected get; set; }
 
         /// <summary>
-        /// Хранилище входящих сообщений.
+        /// РҐСЂР°РЅРёР»РёС‰Рµ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public Maybe<IIncomingMessageHeaderStorage> IncomingMessageHeaderStorage { protected get; set; }
 
         /// <summary>
-        /// Создает новые настройки отправителя, которые наследуют существующие.
+        /// РЎРѕР·РґР°РµС‚ РЅРѕРІС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ, РєРѕС‚РѕСЂС‹Рµ РЅР°СЃР»РµРґСѓСЋС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ.
         /// </summary>
-        /// <returns>Новые настройки отправителя, наследующие существующие настройки.</returns>
+        /// <returns>РќРѕРІС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ, РЅР°СЃР»РµРґСѓСЋС‰РёРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё.</returns>
         public override BusOptions Derive()
         {
             return new SenderOptions(this);
         }
 
         /// <summary>
-        /// Возвращает время ожидания ответа на запрос.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         /// <returns>
-        /// Время ожидания ответа на запрос.
+        /// Р’СЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </returns>
         public Maybe<TimeSpan?> GetRequestTimeout()
         {
@@ -77,45 +77,45 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Возвращает построитель вычислителя маршрута.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РїРѕСЃС‚СЂРѕРёС‚РµР»СЊ РІС‹С‡РёСЃР»РёС‚РµР»СЏ РјР°СЂС€СЂСѓС‚Р°.
         /// </summary>
-        /// <returns>Построитель вычислителя маршрута.</returns>
+        /// <returns>РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РІС‹С‡РёСЃР»РёС‚РµР»СЏ РјР°СЂС€СЂСѓС‚Р°.</returns>
         public Maybe<Func<IRouteResolverBuilder, IRouteResolver>> GetRouteResolverBuilder()
         {
             return this.Pick(o => ((SenderOptions)o).RouteResolverBuilder);
         }
 
         /// <summary>
-        /// Возвращает время жизни сообщения.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РІСЂРµРјСЏ Р¶РёР·РЅРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <returns>Время жизни сообщения.</returns>
+        /// <returns>Р’СЂРµРјСЏ Р¶РёР·РЅРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Maybe<TimeSpan?> GetTtl()
         {
             return this.Pick(o => ((SenderOptions)o).Ttl);
         }
 
         /// <summary>
-        /// Требуется ли подтверждение отправки сообщения.
+        /// РўСЂРµР±СѓРµС‚СЃСЏ Р»Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <returns>Подтверждение отправки сообщения.</returns>
+        /// <returns>РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Maybe<bool> IsConfirmationRequired()
         {
             return this.Pick(o => ((SenderOptions)o).ConfirmationIsRequired);
         }
 
         /// <summary>
-        /// Необходимо ли сохранять сообщение.
+        /// РќРµРѕР±С…РѕРґРёРјРѕ Р»Рё СЃРѕС…СЂР°РЅСЏС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <returns>Если <c>true</c>, тогда нужно сохранять сообщение, иначе - <c>false</c>.</returns>
+        /// <returns>Р•СЃР»Рё <c>true</c>, С‚РѕРіРґР° РЅСѓР¶РЅРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ, РёРЅР°С‡Рµ - <c>false</c>.</returns>
         public Maybe<bool> IsPersistently()
         {
             return this.Pick(o => ((SenderOptions)o).Persistently);
         }
 
         /// <summary>
-        /// Возвращает хранилище заголовков входящего сообщения.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ С…СЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <returns>Хранилище заголовка входящего сообщения.</returns>
+        /// <returns>РҐСЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєР° РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
         {
             return this.Pick(o => ((SenderOptions)o).IncomingMessageHeaderStorage);

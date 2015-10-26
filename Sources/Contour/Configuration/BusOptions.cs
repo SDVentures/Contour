@@ -1,4 +1,4 @@
-namespace Contour.Configuration
+п»їnamespace Contour.Configuration
 {
     using System;
 
@@ -12,14 +12,14 @@ namespace Contour.Configuration
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusOptions"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusOptions"/>.
         /// </summary>
         protected BusOptions()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusOptions"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusOptions"/>.
         /// </summary>
         /// <param name="parent">
         /// The parent.

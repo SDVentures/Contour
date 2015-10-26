@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Common.Logging;
@@ -9,32 +9,32 @@ using Contour.Sending;
 namespace Contour.Transport.RabbitMQ.Internal
 {
     /// <summary>
-    /// Отправитель сообщений с помощью брокера <c>RabbitMQ</c>.
+    /// РћС‚РїСЂР°РІРёС‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёР№ СЃ РїРѕРјРѕС‰СЊСЋ Р±СЂРѕРєРµСЂР° <c>RabbitMQ</c>.
     /// </summary>
     internal class RabbitSender : AbstractSender
     {
         /// <summary>
-        /// Журнал выполнения отправителя.
+        /// Р–СѓСЂРЅР°Р» РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
         /// </summary>
         private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Реестр поставщиков сообщений.
+        /// Р РµРµСЃС‚СЂ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private readonly ProducerRegistry producerRegistry;
 
         /// <summary>
-        /// Поставщик сообщений.
+        /// РџРѕСЃС‚Р°РІС‰РёРє СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private Producer producer;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitSender"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitSender"/>.
         /// </summary>
-        /// <param name="endpoint">Конечная точка, для которой создается отправитель.</param>
-        /// <param name="configuration">Конфигурация отправителя сообщений.</param>
-        /// <param name="producerRegistry">Реестр поставщиков сообщений.</param>
-        /// <param name="filters">Фильтры сообщений.</param>
+        /// <param name="endpoint">РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР°, РґР»СЏ РєРѕС‚РѕСЂРѕР№ СЃРѕР·РґР°РµС‚СЃСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЊ.</param>
+        /// <param name="configuration">РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="producerRegistry">Р РµРµСЃС‚СЂ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="filters">Р¤РёР»СЊС‚СЂС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
         public RabbitSender(IEndpoint endpoint, ISenderConfiguration configuration, ProducerRegistry producerRegistry, IEnumerable<IMessageExchangeFilter> filters)
             : base(endpoint, configuration, filters)
         {
@@ -42,12 +42,12 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Если <c>true</c> - запущен, иначе <c>false</c>.
+        /// Р•СЃР»Рё <c>true</c> - Р·Р°РїСѓС‰РµРЅ, РёРЅР°С‡Рµ <c>false</c>.
         /// </summary>
         public bool IsStarted { get; private set; }
 
         /// <summary>
-        /// Если <c>true</c> - отправитель работает без сбоев, иначе <c>false</c>.
+        /// Р•СЃР»Рё <c>true</c> - РѕС‚РїСЂР°РІРёС‚РµР»СЊ СЂР°Р±РѕС‚Р°РµС‚ Р±РµР· СЃР±РѕРµРІ, РёРЅР°С‡Рµ <c>false</c>.
         /// </summary>
         public override bool IsHealthy
         {
@@ -58,7 +58,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Освобождает занятые ресурсы. И останавливает отправителя.
+        /// РћСЃРІРѕР±РѕР¶РґР°РµС‚ Р·Р°РЅСЏС‚С‹Рµ СЂРµСЃСѓСЂСЃС‹. Р РѕСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
         /// </summary>
         public override void Dispose()
         {
@@ -67,7 +67,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Запускает отправителя.
+        /// Р—Р°РїСѓСЃРєР°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
         /// </summary>
         public override void Start()
         {
@@ -84,7 +84,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Останавливает отправителя.
+        /// РћСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
         /// </summary>
         public override void Stop()
         {
@@ -95,10 +95,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Выполняет отправку сообщения.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚ РѕС‚РїСЂР°РІРєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="exchange">Информация об отправке.</param>
-        /// <returns>Задача ожидания отправки сообщения.</returns>
+        /// <param name="exchange">РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‚РїСЂР°РІРєРµ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РѕР¶РёРґР°РЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         protected override Task<MessageExchange> InternalSend(MessageExchange exchange)
         {
             this.EnsureProducerIsReady();
@@ -136,7 +136,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Гарантирует, что поставщик сообщений запущен.
+        /// Р“Р°СЂР°РЅС‚РёСЂСѓРµС‚, С‡С‚Рѕ РїРѕСЃС‚Р°РІС‰РёРє СЃРѕРѕР±С‰РµРЅРёР№ Р·Р°РїСѓС‰РµРЅ.
         /// </summary>
         private void EnsureProducerIsReady()
         {
@@ -149,7 +149,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Отписывается от поставщика сообщений.
+        /// РћС‚РїРёСЃС‹РІР°РµС‚СЃСЏ РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР° СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private void UnbindProducer()
         {

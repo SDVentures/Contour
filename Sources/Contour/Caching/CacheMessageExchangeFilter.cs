@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+п»їusing System.Threading.Tasks;
 
 using Contour.Filters;
 using Contour.Helpers;
@@ -6,35 +6,35 @@ using Contour.Helpers;
 namespace Contour.Caching
 {
     /// <summary>
-    /// Фильтр, который кеширует ответные сообщения.
+    /// Р¤РёР»СЊС‚СЂ, РєРѕС‚РѕСЂС‹Р№ РєРµС€РёСЂСѓРµС‚ РѕС‚РІРµС‚РЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public class CacheMessageExchangeFilter : IMessageExchangeFilter
     {
         /// <summary>
-        /// Поставщик кеша.
+        /// РџРѕСЃС‚Р°РІС‰РёРє РєРµС€Р°.
         /// </summary>
         private readonly ICacheProvider cacheProvider;
 
         /// <summary>
-        /// Поставщик кеш значения.
+        /// РџРѕСЃС‚Р°РІС‰РёРє РєРµС€ Р·РЅР°С‡РµРЅРёСЏ.
         /// </summary>
         private readonly Hasher hasher = new Hasher();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="CacheMessageExchangeFilter"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="CacheMessageExchangeFilter"/>.
         /// </summary>
-        /// <param name="cacheProvider">Поставщик кеша.</param>
+        /// <param name="cacheProvider">РџРѕСЃС‚Р°РІС‰РёРє РєРµС€Р°.</param>
         public CacheMessageExchangeFilter(ICacheProvider cacheProvider)
         {
             this.cacheProvider = cacheProvider;
         }
 
         /// <summary>
-        /// Если в кеше, есть ответное сообщение на входящее сообщение, тогда возвращает объект из кеша.
+        /// Р•СЃР»Рё РІ РєРµС€Рµ, РµСЃС‚СЊ РѕС‚РІРµС‚РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ РЅР° РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ, С‚РѕРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ РѕР±СЉРµРєС‚ РёР· РєРµС€Р°.
         /// </summary>
-        /// <param name="exchange">Конвейер обработки сообщений.</param>
-        /// <param name="invoker">Фильтры вызывающий конвейер.</param>
-        /// <returns>Задача обработки сообщений.</returns>
+        /// <param name="exchange">РљРѕРЅРІРµР№РµСЂ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="invoker">Р¤РёР»СЊС‚СЂС‹ РІС‹Р·С‹РІР°СЋС‰РёР№ РєРѕРЅРІРµР№РµСЂ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker)
         {
             if (!exchange.IsIncompleteRequest)

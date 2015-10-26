@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Dynamic;
 using System.Threading;
 
@@ -78,15 +78,15 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// Проверяет случай, когда отправляется сообщение с установленным TTL
+        /// РџСЂРѕРІРµСЂСЏРµС‚ СЃР»СѓС‡Р°Р№, РєРѕРіРґР° РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј TTL
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
-        [TestFixture(Description = "Когда отправляется сообщение с установленным TTL")]
+        [TestFixture(Description = "РљРѕРіРґР° РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј TTL")]
         [Category("Integration")]
         public class when_publishing_message_with_ttl : RabbitMqFixture
         {
             /// <summary>
-            /// Тогда сообщение должно существовать указанный промежуток времени.
+            /// РўРѕРіРґР° СЃРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ СѓРєР°Р·Р°РЅРЅС‹Р№ РїСЂРѕРјРµР¶СѓС‚РѕРє РІСЂРµРјРµРЅРё.
             /// </summary>
             [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
             [Test]
@@ -103,11 +103,11 @@ namespace Contour.RabbitMq.Tests
                 Thread.Sleep(5000);
                 var emptyMessages = this.Broker.GetMessages(this.VhostName, "dummy.request", int.MaxValue, false);
 
-                Assert.IsNotEmpty(notEmptyMessages, "Должно быть сообщение.");
-                Assert.AreEqual(1, notEmptyMessages.Count, "Должно быть сообщение.");
+                Assert.IsNotEmpty(notEmptyMessages, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ.");
+                Assert.AreEqual(1, notEmptyMessages.Count, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ.");
 
-                Assert.IsEmpty(emptyMessages, "Должно быть удалено сообщение.");
-                Assert.AreEqual(1, notEmptyMessages.Count, "Должно быть удаленосообщение.");
+                Assert.IsEmpty(emptyMessages, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓРґР°Р»РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ.");
+                Assert.AreEqual(1, notEmptyMessages.Count, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓРґР°Р»РµРЅРѕСЃРѕРѕР±С‰РµРЅРёРµ.");
             }
         }
     }

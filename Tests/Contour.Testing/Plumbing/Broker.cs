@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -8,7 +8,7 @@ using RestSharp.Authenticators;
 namespace Contour.Testing.Plumbing
 {
     /// <summary>
-    /// Обеспечивает подключение к брокеру <c>RabbitMQ</c>.
+    /// РћР±РµСЃРїРµС‡РёРІР°РµС‚ РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р±СЂРѕРєРµСЂСѓ <c>RabbitMQ</c>.
     /// </summary>
     public class Broker
     {
@@ -19,11 +19,11 @@ namespace Contour.Testing.Plumbing
         private readonly string password;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Broker"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Broker"/>. 
         /// </summary>
-        /// <param name="connection">Строка подключения к брокеру.</param>
-        /// <param name="username">Имя пользователя.</param>
-        /// <param name="password">Пароль пользователя.</param>
+        /// <param name="connection">РЎС‚СЂРѕРєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє Р±СЂРѕРєРµСЂСѓ.</param>
+        /// <param name="username">РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+        /// <param name="password">РџР°СЂРѕР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
         public Broker(string connection, string username, string password)
         {
             this.connection = connection;
@@ -32,11 +32,11 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Создает привязку точки маршрутизации и очереди.
+        /// РЎРѕР·РґР°РµС‚ РїСЂРёРІСЏР·РєСѓ С‚РѕС‡РєРё РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё Рё РѕС‡РµСЂРµРґРё.
         /// </summary>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <param name="exchangeName">Имя точки маршрутизации.</param>
-        /// <param name="queueName">Имя очереди.</param>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <param name="exchangeName">РРјСЏ С‚РѕС‡РєРё РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
+        /// <param name="queueName">РРјСЏ РѕС‡РµСЂРµРґРё.</param>
         public void CreateBind(string vhostName, string exchangeName, string queueName)
         {
             var client = this.CreateClient();
@@ -48,14 +48,14 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Возвращает список сообщений из очереди.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє СЃРѕРѕР±С‰РµРЅРёР№ РёР· РѕС‡РµСЂРµРґРё.
         /// </summary>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <param name="queueName">Имя очереди.</param>
-        /// <param name="count">Получаемое количество сообщений из очереди.</param>
-        /// <param name="requeue">Если <c>true</c> - тогда нужно возвращать сообщение в очередь.</param>
-        /// <param name="encoding">Кодировка сообщений (по умолчанию <c>auto</c>).</param>
-        /// <returns>Список сообщений из очереди.</returns>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <param name="queueName">РРјСЏ РѕС‡РµСЂРµРґРё.</param>
+        /// <param name="count">РџРѕР»СѓС‡Р°РµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕРѕР±С‰РµРЅРёР№ РёР· РѕС‡РµСЂРµРґРё.</param>
+        /// <param name="requeue">Р•СЃР»Рё <c>true</c> - С‚РѕРіРґР° РЅСѓР¶РЅРѕ РІРѕР·РІСЂР°С‰Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ РѕС‡РµСЂРµРґСЊ.</param>
+        /// <param name="encoding">РљРѕРґРёСЂРѕРІРєР° СЃРѕРѕР±С‰РµРЅРёР№ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ <c>auto</c>).</param>
+        /// <returns>РЎРїРёСЃРѕРє СЃРѕРѕР±С‰РµРЅРёР№ РёР· РѕС‡РµСЂРµРґРё.</returns>
         public List<Message> GetMessages(string vhostName, string queueName, int count, bool requeue, string encoding = "auto")
         {
             var options = new
@@ -76,10 +76,10 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Возвращает список очередей в виртуальном хосте.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РѕС‡РµСЂРµРґРµР№ РІ РІРёСЂС‚СѓР°Р»СЊРЅРѕРј С…РѕСЃС‚Рµ.
         /// </summary>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <returns>Список очередей виртуального хоста брокера..</returns>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <returns>РЎРїРёСЃРѕРє РѕС‡РµСЂРµРґРµР№ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ С…РѕСЃС‚Р° Р±СЂРѕРєРµСЂР°..</returns>
         public IList<Queue> GetQueues(string vhostName)
         {
             var client = this.CreateClient();
@@ -91,11 +91,11 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Проверяет наличие точки маршрутизации в виртуальном хосте брокера.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РЅР°Р»РёС‡РёРµ С‚РѕС‡РєРё РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё РІ РІРёСЂС‚СѓР°Р»СЊРЅРѕРј С…РѕСЃС‚Рµ Р±СЂРѕРєРµСЂР°.
         /// </summary>
-        /// <param name="exchangeName">Имя точки маршрутизации брокера.</param>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <returns><c>true</c> - если точка маршрутизации найдена.</returns>
+        /// <param name="exchangeName">РРјСЏ С‚РѕС‡РєРё РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё Р±СЂРѕРєРµСЂР°.</param>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё С‚РѕС‡РєР° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё РЅР°Р№РґРµРЅР°.</returns>
         public bool HasExchange(string exchangeName, string vhostName)
         {
             var client = this.CreateClient();
@@ -107,11 +107,11 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Проверяет наличие очереди в виртуальном хосте брокера.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РЅР°Р»РёС‡РёРµ РѕС‡РµСЂРµРґРё РІ РІРёСЂС‚СѓР°Р»СЊРЅРѕРј С…РѕСЃС‚Рµ Р±СЂРѕРєРµСЂР°.
         /// </summary>
-        /// <param name="queueName">Имя очереди.</param>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <returns><c>true</c> - если очередь найдена.</returns>
+        /// <param name="queueName">РРјСЏ РѕС‡РµСЂРµРґРё.</param>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё РѕС‡РµСЂРµРґСЊ РЅР°Р№РґРµРЅР°.</returns>
         public bool HasQueue(string queueName, string vhostName)
         {
             var client = this.CreateClient();
@@ -123,9 +123,9 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Создает виртуальный хост в брокере.
+        /// РЎРѕР·РґР°РµС‚ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ РІ Р±СЂРѕРєРµСЂРµ.
         /// </summary>
-        /// <param name="vhostName">Имя виртуального хоста.</param>
+        /// <param name="vhostName">РРјСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ С…РѕСЃС‚Р°.</param>
         public void CreateHost(string vhostName)
         {
             var client = this.CreateClient();
@@ -135,10 +135,10 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Создает очередь в виртуальном хосте брокера.
+        /// РЎРѕР·РґР°РµС‚ РѕС‡РµСЂРµРґСЊ РІ РІРёСЂС‚СѓР°Р»СЊРЅРѕРј С…РѕСЃС‚Рµ Р±СЂРѕРєРµСЂР°.
         /// </summary>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <param name="queueName">Имя создаваемой очереди.</param>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <param name="queueName">РРјСЏ СЃРѕР·РґР°РІР°РµРјРѕР№ РѕС‡РµСЂРµРґРё.</param>
         public void CreateQueue(string vhostName, string queueName)
         {
             var client = this.CreateClient();
@@ -150,11 +150,11 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Создает пользователя в виртуальном хосте брокера.
+        /// РЎРѕР·РґР°РµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІ РІРёСЂС‚СѓР°Р»СЊРЅРѕРј С…РѕСЃС‚Рµ Р±СЂРѕРєРµСЂР°.
         /// </summary>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <param name="password">Пароль пользователя.</param>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <param name="user">РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+        /// <param name="password">РџР°СЂРѕР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
         public void CreateUser(string vhostName, string user, string password)
         {
             var client = this.CreateClient();
@@ -166,10 +166,10 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Устанавливает права пользователя.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїСЂР°РІР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
         /// </summary>
-        /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <param name="user">Имя пользователя.</param>
+        /// <param name="vhostName">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.</param>
+        /// <param name="user">РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
         public void SetPermissions(string vhostName, string user)
         {
             var client = this.CreateClient();
@@ -181,9 +181,9 @@ namespace Contour.Testing.Plumbing
         }
 
         /// <summary>
-        /// Удаляет виртуальный хост брокера.
+        /// РЈРґР°Р»СЏРµС‚ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ С…РѕСЃС‚ Р±СЂРѕРєРµСЂР°.
         /// </summary>
-        /// <param name="vhostName">Имя виртуального хоста брокера.</param>
+        /// <param name="vhostName">РРјСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ С…РѕСЃС‚Р° Р±СЂРѕРєРµСЂР°.</param>
         public void DeleteHost(string vhostName)
         {
             var client = this.CreateClient();

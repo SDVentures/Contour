@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,29 +14,29 @@ using Contour.Serialization;
 namespace Contour
 {
     /// <summary>
-    /// Шина сообщений, которая не знает о транспортном уровне.
+    /// РЁРёРЅР° СЃРѕРѕР±С‰РµРЅРёР№, РєРѕС‚РѕСЂР°СЏ РЅРµ Р·РЅР°РµС‚ Рѕ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРј СѓСЂРѕРІРЅРµ.
     /// </summary>
     internal abstract class AbstractBus : IBus
     {
         /// <summary>
-        /// Отслеживает работу компонентов шины сообщений.
+        /// РћС‚СЃР»РµР¶РёРІР°РµС‚ СЂР°Р±РѕС‚Сѓ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private readonly IBusComponentTracker componentTracker = new BusComponentTracker();
 
         /// <summary>
-        /// Конфигурация шины сообщений.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private readonly BusConfiguration configuration;
 
         /// <summary>
-        /// Журнал шины сообщений.
+        /// Р–СѓСЂРЅР°Р» С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private readonly ILog logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AbstractBus"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AbstractBus"/>.
         /// </summary>
-        /// <param name="configuration">Конфигурация шины сообщений.</param>
+        /// <param name="configuration">РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
         protected AbstractBus(BusConfiguration configuration)
         {
             this.configuration = configuration;
@@ -51,7 +51,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Уничтожает экземпляр класса <see cref="AbstractBus"/>. 
+        /// РЈРЅРёС‡С‚РѕР¶Р°РµС‚ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AbstractBus"/>. 
         /// </summary>
         ~AbstractBus()
         {
@@ -59,37 +59,37 @@ namespace Contour
         }
 
         /// <summary>
-        /// Событие установки соединения.
+        /// РЎРѕР±С‹С‚РёРµ СѓСЃС‚Р°РЅРѕРІРєРё СЃРѕРµРґРёРЅРµРЅРёСЏ.
         /// </summary>
         public event Action<IBus, EventArgs> Connected = (bus, args) => { };
 
         /// <summary>
-        /// Событие разрыва соединения.
+        /// РЎРѕР±С‹С‚РёРµ СЂР°Р·СЂС‹РІР° СЃРѕРµРґРёРЅРµРЅРёСЏ.
         /// </summary>
         public event Action<IBus, EventArgs> Disconnected = (bus, args) => { };
 
         /// <summary>
-        /// Событие запуска шины сообщений.
+        /// РЎРѕР±С‹С‚РёРµ Р·Р°РїСѓСЃРєР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public event Action<IBus, EventArgs> Started = (bus, args) => { };
 
         /// <summary>
-        /// Событие начала запуска шины сообщений.
+        /// РЎРѕР±С‹С‚РёРµ РЅР°С‡Р°Р»Р° Р·Р°РїСѓСЃРєР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public event Action<IBus, EventArgs> Starting = (bus, args) => { };
 
         /// <summary>
-        /// Событие останова шины сообщений.
+        /// РЎРѕР±С‹С‚РёРµ РѕСЃС‚Р°РЅРѕРІР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public event Action<IBus, EventArgs> Stopped = (bus, args) => { };
 
         /// <summary>
-        /// Событие начала останова шины сообщений.
+        /// РЎРѕР±С‹С‚РёРµ РЅР°С‡Р°Р»Р° РѕСЃС‚Р°РЅРѕРІР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public event Action<IBus, EventArgs> Stopping = (bus, args) => { };
 
         /// <summary>
-        /// Отслеживает работу компонентов шины.
+        /// РћС‚СЃР»РµР¶РёРІР°РµС‚ СЂР°Р±РѕС‚Сѓ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ С€РёРЅС‹.
         /// </summary>
         public IBusComponentTracker ComponentTracker
         {
@@ -100,7 +100,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Конфигурация шины.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С€РёРЅС‹.
         /// </summary>
         public BusConfiguration Configuration
         {
@@ -111,7 +111,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Конечная точка шины.
+        /// РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° С€РёРЅС‹.
         /// </summary>
         public IEndpoint Endpoint
         {
@@ -122,12 +122,12 @@ namespace Contour
         }
 
         /// <summary>
-        /// Применена ли к шине конфигурация.
+        /// РџСЂРёРјРµРЅРµРЅР° Р»Рё Рє С€РёРЅРµ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ.
         /// </summary>
         public bool IsConfigured { get; internal set; }
 
         /// <summary>
-        /// Готова ли шина к работе.
+        /// Р“РѕС‚РѕРІР° Р»Рё С€РёРЅР° Рє СЂР°Р±РѕС‚Рµ.
         /// </summary>
         public bool IsReady
         {
@@ -138,17 +138,17 @@ namespace Contour
         }
 
         /// <summary>
-        /// Шина находится в процессе завершения работы.
+        /// РЁРёРЅР° РЅР°С…РѕРґРёС‚СЃСЏ РІ РїСЂРѕС†РµСЃСЃРµ Р·Р°РІРµСЂС€РµРЅРёСЏ СЂР°Р±РѕС‚С‹.
         /// </summary>
         public bool IsShuttingDown { get; internal set; }
 
         /// <summary>
-        /// Запущена ли шина.
+        /// Р—Р°РїСѓС‰РµРЅР° Р»Рё С€РёРЅР°.
         /// </summary>
         public bool IsStarted { get; internal set; }
 
         /// <summary>
-        /// Обработчик меток сообщений.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє РјРµС‚РѕРє СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IMessageLabelHandler MessageLabelHandler
         {
@@ -159,7 +159,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Преобразователь сообщений.
+        /// РџСЂРµРѕР±СЂР°Р·РѕРІР°С‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IPayloadConverter PayloadConverter
         {
@@ -170,7 +170,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Получатели сообщений.
+        /// РџРѕР»СѓС‡Р°С‚РµР»Рё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IEnumerable<IReceiver> Receivers
         {
@@ -181,7 +181,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Отправители сообщений.
+        /// РћС‚РїСЂР°РІРёС‚РµР»Рё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IEnumerable<ISender> Senders
         {
@@ -192,12 +192,12 @@ namespace Contour
         }
 
         /// <summary>
-        /// Объект синхронизации ожидания готовности шины сообщений.
+        /// РћР±СЉРµРєС‚ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР¶РёРґР°РЅРёСЏ РіРѕС‚РѕРІРЅРѕСЃС‚Рё С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public abstract WaitHandle WhenReady { get; }
 
         /// <summary>
-        /// Конфигурация шины.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С€РёРЅС‹.
         /// </summary>
         IBusConfiguration IBus.Configuration
         {
@@ -208,56 +208,56 @@ namespace Contour
         }
 
         /// <summary>
-        /// Проверяет возможность обрабатывать сообщения с указанной меткой.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <param name="label">Метка сообщения.</param>
-        /// <returns><c>true</c> - если шина сообщения умеет обрабатывать указанную метку сообщений.</returns>
+        /// <param name="label">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё С€РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ СѓРјРµРµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public bool CanHandle(string label)
         {
             return this.CanHandle(label.ToMessageLabel());
         }
 
         /// <summary>
-        /// Проверяет возможность обрабатывать сообщения с указанной меткой.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <param name="label">Метка сообщения.</param>
-        /// <returns><c>true</c> - если шина сообщения умеет обрабатывать указанную метку сообщений.</returns>
+        /// <param name="label">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё С€РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ СѓРјРµРµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ СѓРєР°Р·Р°РЅРЅСѓСЋ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public bool CanHandle(MessageLabel label)
         {
             return this.configuration.ReceiverConfigurations.Any(cc => cc.Label.Equals(label));
         }
 
         /// <summary>
-        /// Проверяет возможность построить маршрут для сообщения с указанной меткой.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРѕСЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚ РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <param name="label">Метка сообщения.</param>
-        /// <returns><c>true</c> - если шина сообщения умеет строить маршрут для указанной метки сообщений.</returns>
+        /// <param name="label">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё С€РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ СѓРјРµРµС‚ СЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public bool CanRoute(string label)
         {
             return this.CanRoute(label.ToMessageLabel());
         }
 
         /// <summary>
-        /// Проверяет возможность построить маршрут для сообщения с указанной меткой.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРѕСЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚ РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <param name="label">Метка сообщения.</param>
-        /// <returns><c>true</c> - если шина сообщения умеет строить маршрут для указанной метки сообщений.</returns>
+        /// <param name="label">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё С€РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ СѓРјРµРµС‚ СЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public bool CanRoute(MessageLabel label)
         {
             return this.configuration.SenderConfigurations.Any(pc => pc.Label.Equals(label) || (pc.Alias != null && pc.Alias.Equals(label.Name)));
         }
 
         /// <summary>
-        /// Уничтожает шину сообщений.
+        /// РЈРЅРёС‡С‚РѕР¶Р°РµС‚ С€РёРЅСѓ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="disposing"><c>true</c> - если нужно освободить ресурсы.</param>
+        /// <param name="disposing"><c>true</c> - РµСЃР»Рё РЅСѓР¶РЅРѕ РѕСЃРІРѕР±РѕРґРёС‚СЊ СЂРµСЃСѓСЂСЃС‹.</param>
         public virtual void Dispose(bool disposing)
         {
             this.Shutdown();
         }
 
         /// <summary>
-        /// Уничтожает шину сообщений.
+        /// РЈРЅРёС‡С‚РѕР¶Р°РµС‚ С€РёРЅСѓ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public virtual void Dispose()
         {
@@ -266,28 +266,28 @@ namespace Contour
         }
 
         /// <summary>
-        /// Посылает сообщение.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Параметры отправки сообщения.</param>
-        /// <typeparam name="T">Тип отправляемого сообщения.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="T">РўРёРї РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Emit<T>(string label, T payload, PublishingOptions options = null) where T : class
         {
             return this.Emit(label.ToMessageLabel(), payload, options);
         }
 
         /// <summary>
-        /// Посылает сообщение.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Параметры отправки сообщения.</param>
-        /// <typeparam name="T">Тип отправляемого сообщения.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="T">РўРёРї РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Emit<T>(MessageLabel label, T payload, PublishingOptions options = null) where T : class
         {
             EnsureCanSendUsing(label);
@@ -296,26 +296,26 @@ namespace Contour
         }
 
         /// <summary>
-        /// Посылает сообщение.
-        /// Метка сообщения вычисляется на основе типа отправляемого сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
+        /// РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РЅР° РѕСЃРЅРѕРІРµ С‚РёРїР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Параметры отправки сообщения.</param>
-        /// <typeparam name="T">Тип отправляемого сообщения.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="T">РўРёРї РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Emit<T>(T payload, PublishingOptions options = null) where T : class
         {
             return this.Emit(this.Configuration.MessageLabelResolver.ResolveFrom<T>(), payload, options);
         }
 
         /// <summary>
-        /// Посылает сообщение.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers)
         {
             this.EnsureIsReady();
@@ -326,15 +326,15 @@ namespace Contour
         }
 
         /// <summary>
-        /// Посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <param name="responseAction">Действие вызываемое при получении ответа.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РІС‹Р·С‹РІР°РµРјРѕРµ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚Р°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
         public void Request<TRequest, TResponse>(MessageLabel label, TRequest request, RequestOptions options, Action<TResponse> responseAction) where TResponse : class where TRequest : class
         {
             EnsureCanSendUsing(label);
@@ -363,13 +363,13 @@ namespace Contour
                 .Wait();
         }
 
-        /// <summary>Выполняет синхронный запрос данных с указанной меткой.</summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа.</typeparam>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <param name="responseAction">Действие которое нужно выполнить при получении ответного сообщения.</param>
+        /// <summary>Р’С‹РїРѕР»РЅСЏРµС‚ СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</summary>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РєРѕС‚РѕСЂРѕРµ РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public void Request<TRequest, TResponse>(MessageLabel label, TRequest request, IDictionary<string, object> headers, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
             EnsureCanSendUsing(label);
@@ -399,85 +399,85 @@ namespace Contour
         }
 
         /// <summary>
-        /// Посылает сообщение в формате запрос-ответ.
-        /// Метка сообщения вычисляется на основе типа запроса.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РЅР° РѕСЃРЅРѕРІРµ С‚РёРїР° Р·Р°РїСЂРѕСЃР°.
         /// </summary>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <param name="responseAction">Действие вызываемое при получении ответа.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РІС‹Р·С‹РІР°РµРјРѕРµ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚Р°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
         public void Request<TRequest, TResponse>(TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
             Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
         }
 
         /// <summary>
-        /// Посылает сообщение в формате запрос-ответ.
-        /// Метка сообщения вычисляется на основе типа запроса.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РЅР° РѕСЃРЅРѕРІРµ С‚РёРїР° Р·Р°РїСЂРѕСЃР°.
         /// </summary>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="responseAction">Действие вызываемое при получении ответа.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РІС‹Р·С‹РІР°РµРјРѕРµ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚Р°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
         public void Request<TRequest, TResponse>(TRequest request, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
             this.RequestAsync<TRequest, TResponse>(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request);
         }
 
         /// <summary>
-        /// Посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <param name="responseAction">Действие вызываемое при получении ответа.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РІС‹Р·С‹РІР°РµРјРѕРµ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚Р°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
             Request(label.ToMessageLabel(), request, options, responseAction);
         }
 
         /// <summary>
-        /// Посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="responseAction">Действие вызываемое при получении ответа.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РІС‹Р·С‹РІР°РµРјРѕРµ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚Р°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
         public void Request<TRequest, TResponse>(MessageLabel label, TRequest request, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
             Request(label, request, (RequestOptions)null, responseAction);
         }
 
         /// <summary>
-        /// Посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РџРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="responseAction">Действие вызываемое при получении ответа.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РІС‹Р·С‹РІР°РµРјРѕРµ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚Р°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, Action<TResponse> responseAction) where TResponse : class where TRequest : class
         {
             Request(label.ToMessageLabel(), request, responseAction);
         }
 
         /// <summary>
-        /// Асинхронно посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РђСЃРёРЅС…СЂРѕРЅРЅРѕ РїРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task<TResponse> RequestAsync<TRequest, TResponse>(MessageLabel label, TRequest request, RequestOptions options = null) where TResponse : class where TRequest : class
         {
             EnsureCanSendUsing(label);
@@ -485,13 +485,13 @@ namespace Contour
             return this.InternalRequest<TResponse>(label, request, options);
         }
 
-        /// <summary>Выполняет асинхронный запрос данных с указанной меткой.</summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа</typeparam>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <returns>Задача получения ответного сообщения.</returns>
+        /// <summary>Р’С‹РїРѕР»РЅСЏРµС‚ Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</summary>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task<TResponse> RequestAsync<TRequest, TResponse>(MessageLabel label, TRequest request, IDictionary<string, object> headers) where TRequest : class where TResponse : class
         {
             EnsureCanSendUsing(label);
@@ -500,56 +500,56 @@ namespace Contour
         }
 
         /// <summary>
-        /// Асинхронно посылает сообщение в формате запрос-ответ.
-        /// Метка сообщения вычисляется на основе типа запроса.
+        /// РђСЃРёРЅС…СЂРѕРЅРЅРѕ РїРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РЅР° РѕСЃРЅРѕРІРµ С‚РёРїР° Р·Р°РїСЂРѕСЃР°.
         /// </summary>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task<TResponse> RequestAsync<TRequest, TResponse>(TRequest request, RequestOptions options = null) where TRequest : class where TResponse : class
         {
             return this.RequestAsync<TRequest, TResponse>(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options);
         }
 
         /// <summary>
-        /// Асинхронно посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РђСЃРёРЅС…СЂРѕРЅРЅРѕ РїРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="request">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <typeparam name="TRequest">Тип запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="TRequest">РўРёРї Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task<TResponse> RequestAsync<TRequest, TResponse>(string label, TRequest request, RequestOptions options = null) where TResponse : class where TRequest : class
         {
             return this.RequestAsync<TRequest, TResponse>(label.ToMessageLabel(), request, options);
         }
 
         /// <summary>
-        /// Завершает работу шины сообщений.
+        /// Р—Р°РІРµСЂС€Р°РµС‚ СЂР°Р±РѕС‚Сѓ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public abstract void Shutdown();
 
         /// <summary>
-        /// Запускает шину сообщений.
+        /// Р—Р°РїСѓСЃРєР°РµС‚ С€РёРЅСѓ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="waitForReadiness">Если <c>true</c> - тогда необходимо дождаться готовности шины сообщений.</param>
+        /// <param name="waitForReadiness">Р•СЃР»Рё <c>true</c> - С‚РѕРіРґР° РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕР¶РґР°С‚СЊСЃСЏ РіРѕС‚РѕРІРЅРѕСЃС‚Рё С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
         public abstract void Start(bool waitForReadiness = true);
 
         /// <summary>
-        /// Останавливает шину сообщений.
+        /// РћСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С€РёРЅСѓ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public abstract void Stop();
 
         /// <summary>
-        /// Вычисляет отправителя для указанной метки сообщений.
+        /// Р’С‹С‡РёСЃР»СЏРµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <returns>Отправитель сообщения с указанной меткой.</returns>
-        /// <exception cref="BusConfigurationException">Генерируется исключение, если нет отправителя для указанной метки.</exception>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РћС‚РїСЂР°РІРёС‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</returns>
+        /// <exception cref="BusConfigurationException">Р“РµРЅРµСЂРёСЂСѓРµС‚СЃСЏ РёСЃРєР»СЋС‡РµРЅРёРµ, РµСЃР»Рё РЅРµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРё.</exception>
         protected ISender GetSenderFor(MessageLabel label)
         {
             ISender sender = this.Senders.FirstOrDefault(s => s.CanRoute(label)) ?? this.Senders.FirstOrDefault(s => s.CanRoute(MessageLabel.Any));
@@ -563,14 +563,14 @@ namespace Contour
         }
 
         /// <summary>
-        /// Асинхронно посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РђСЃРёРЅС…СЂРѕРЅРЅРѕ РїРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="payload">Тело запроса.</param>
-        /// <param name="options">Параметры отправки запроса.</param>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         protected Task<TResponse> InternalRequest<TResponse>(MessageLabel label, object payload, RequestOptions options) where TResponse : class
         {
             this.EnsureIsReady();
@@ -580,14 +580,14 @@ namespace Contour
         }
 
         /// <summary>
-        /// Асинхронно посылает сообщение в формате запрос-ответ.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РђСЃРёРЅС…СЂРѕРЅРЅРѕ РїРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="payload">Тело запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="TResponse">Тип ответа.</typeparam>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="TResponse">РўРёРї РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         protected Task<TResponse> InternalRequest<TResponse>(MessageLabel label, object payload, IDictionary<string, object> headers) where TResponse : class
         {
             this.EnsureIsReady();
@@ -597,13 +597,13 @@ namespace Contour
         }
 
         /// <summary>
-        /// Асинхронно посылает сообщение.
-        /// Для отправки необходимо указать метку сообщения, на основе которой строится маршрут сообщения.
+        /// РђСЃРёРЅС…СЂРѕРЅРЅРѕ РїРѕСЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
+        /// Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РјРµС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕР№ СЃС‚СЂРѕРёС‚СЃСЏ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка посылаемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Параметры отправки сообщения.</param>
-        /// <returns>Задача отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РїРѕСЃС‹Р»Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         protected Task InternalSend(MessageLabel label, object payload, PublishingOptions options)
         {
             this.EnsureIsReady();
@@ -613,7 +613,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Генерирует событие об установке соединения.
+        /// Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±С‹С‚РёРµ РѕР± СѓСЃС‚Р°РЅРѕРІРєРµ СЃРѕРµРґРёРЅРµРЅРёСЏ.
         /// </summary>
         protected virtual void OnConnected()
         {
@@ -621,7 +621,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Генерирует событие о разрыве соединения.
+        /// Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±С‹С‚РёРµ Рѕ СЂР°Р·СЂС‹РІРµ СЃРѕРµРґРёРЅРµРЅРёСЏ.
         /// </summary>
         protected virtual void OnDisconnected()
         {
@@ -629,7 +629,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Генерирует событие о запуске шины сообщений.
+        /// Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±С‹С‚РёРµ Рѕ Р·Р°РїСѓСЃРєРµ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         protected virtual void OnStarted()
         {
@@ -642,7 +642,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Генерирует событие о начале запуска шины сообщений.
+        /// Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±С‹С‚РёРµ Рѕ РЅР°С‡Р°Р»Рµ Р·Р°РїСѓСЃРєР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         protected virtual void OnStarting()
         {
@@ -655,7 +655,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Генерирует событие об остановке шины сообщений.
+        /// Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±С‹С‚РёРµ РѕР± РѕСЃС‚Р°РЅРѕРІРєРµ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         protected virtual void OnStopped()
         {
@@ -668,7 +668,7 @@ namespace Contour
         }
 
         /// <summary>
-        /// Генерирует событие о начале остановки шины сообщений.
+        /// Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±С‹С‚РёРµ Рѕ РЅР°С‡Р°Р»Рµ РѕСЃС‚Р°РЅРѕРІРєРё С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         protected virtual void OnStopping()
         {
@@ -683,16 +683,16 @@ namespace Contour
         }
 
         /// <summary>
-        /// Останавливает и заново запускает шину сообщений.
+        /// РћСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ Рё Р·Р°РЅРѕРІРѕ Р·Р°РїСѓСЃРєР°РµС‚ С€РёРЅСѓ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="waitForReadiness"><c>true</c> - если нужно дождаться готовности шины.</param>
+        /// <param name="waitForReadiness"><c>true</c> - РµСЃР»Рё РЅСѓР¶РЅРѕ РґРѕР¶РґР°С‚СЊСЃСЏ РіРѕС‚РѕРІРЅРѕСЃС‚Рё С€РёРЅС‹.</param>
         protected abstract void Restart(bool waitForReadiness = true);
 
         /// <summary>
-        /// Проверяет возможность отправить сообщение с указанной меткой.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <exception cref="InvalidOperationException">Генерируется если нельзя отправлять указанные метки сообщения.</exception>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <exception cref="InvalidOperationException">Р“РµРЅРµСЂРёСЂСѓРµС‚СЃСЏ РµСЃР»Рё РЅРµР»СЊР·СЏ РѕС‚РїСЂР°РІР»СЏС‚СЊ СѓРєР°Р·Р°РЅРЅС‹Рµ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</exception>
         // ReSharper disable UnusedParameter.Local
         private static void EnsureCanSendUsing(MessageLabel label)
             // ReSharper restore UnusedParameter.Local
@@ -709,9 +709,9 @@ namespace Contour
         }
 
         /// <summary>
-        /// Проверяет, что шина сообщений готова к работе.
+        /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ С€РёРЅР° СЃРѕРѕР±С‰РµРЅРёР№ РіРѕС‚РѕРІР° Рє СЂР°Р±РѕС‚Рµ.
         /// </summary>
-        /// <exception cref="BusNotReadyException">Если шина не готова к работе, генерируется исключение.</exception>
+        /// <exception cref="BusNotReadyException">Р•СЃР»Рё С€РёРЅР° РЅРµ РіРѕС‚РѕРІР° Рє СЂР°Р±РѕС‚Рµ, РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ РёСЃРєР»СЋС‡РµРЅРёРµ.</exception>
         private void EnsureIsReady()
         {
             if (!this.WhenReady.WaitOne(TimeSpan.FromSeconds(5)))

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AbstractReceiver.cs" company="">
 //   
 // </copyright>
@@ -19,7 +19,7 @@ namespace Contour.Receiving
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AbstractReceiver"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AbstractReceiver"/>.
         /// </summary>
         /// <param name="configuration">
         /// The configuration.

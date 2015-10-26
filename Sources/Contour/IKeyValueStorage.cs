@@ -1,23 +1,23 @@
-namespace Contour
+п»їnamespace Contour
 {
     /// <summary>
-    /// Хранилище ключ-значение.
+    /// РҐСЂР°РЅРёР»РёС‰Рµ РєР»СЋС‡-Р·РЅР°С‡РµРЅРёРµ.
     /// </summary>
-    /// <typeparam name="T">Тип правил.</typeparam>
+    /// <typeparam name="T">РўРёРї РїСЂР°РІРёР».</typeparam>
     public interface IKeyValueStorage<T> where T : class
     {
         /// <summary>
-        /// Возвращает значение по ключу.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ РїРѕ РєР»СЋС‡Сѓ.
         /// </summary>
-        /// <param name="key">Ключ, по которому получают значение..</param>
-        /// <returns>Значение или <c>null</c>, если по ключу ничего не найдено.</returns>
+        /// <param name="key">РљР»СЋС‡, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РїРѕР»СѓС‡Р°СЋС‚ Р·РЅР°С‡РµРЅРёРµ..</param>
+        /// <returns>Р—РЅР°С‡РµРЅРёРµ РёР»Рё <c>null</c>, РµСЃР»Рё РїРѕ РєР»СЋС‡Сѓ РЅРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
         T Get(string key);
 
         /// <summary>
-        /// Сохраняет значение с указанным ключом.
+        /// РЎРѕС…СЂР°РЅСЏРµС‚ Р·РЅР°С‡РµРЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєР»СЋС‡РѕРј.
         /// </summary>
-        /// <param name="key">Ключ значения.</param>
-        /// <param name="value">Сохраняемое значение.</param>
+        /// <param name="key">РљР»СЋС‡ Р·РЅР°С‡РµРЅРёСЏ.</param>
+        /// <param name="value">РЎРѕС…СЂР°РЅСЏРµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ.</param>
         void Set(string key, T value);
     }
 }

@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
@@ -123,14 +123,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// При создании очереди с <c>ttl</c>.
+        /// РџСЂРё СЃРѕР·РґР°РЅРёРё РѕС‡РµСЂРµРґРё СЃ <c>ttl</c>.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class when_declaring_queue_with_ttl : RabbitMqFixture
         {
             /// <summary>
-            /// Сообщения должны удаляться по истечении времени жизни.
+            /// РЎРѕРѕР±С‰РµРЅРёСЏ РґРѕР»Р¶РЅС‹ СѓРґР°Р»СЏС‚СЊСЃСЏ РїРѕ РёСЃС‚РµС‡РµРЅРёРё РІСЂРµРјРµРЅРё Р¶РёР·РЅРё.
             /// </summary>
             [Test]
             public void should_remove_message_from_queue()
@@ -154,11 +154,11 @@ namespace Contour.RabbitMq.Tests
 
                 var emptyMessages = this.Broker.GetMessages(this.VhostName, "boo", int.MaxValue, false);
 
-                Assert.IsEmpty(emptyMessages, "Должно быть удалено сообщение.");
+                Assert.IsEmpty(emptyMessages, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓРґР°Р»РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ.");
             }
 
             /// <summary>
-            /// Сообщения должны оставаться в очереди до истечения времени жизни.
+            /// РЎРѕРѕР±С‰РµРЅРёСЏ РґРѕР»Р¶РЅС‹ РѕСЃС‚Р°РІР°С‚СЊСЃСЏ РІ РѕС‡РµСЂРµРґРё РґРѕ РёСЃС‚РµС‡РµРЅРёСЏ РІСЂРµРјРµРЅРё Р¶РёР·РЅРё.
             /// </summary>
             [Test]
             public void should_stay_message_in_queue()
@@ -185,7 +185,7 @@ namespace Contour.RabbitMq.Tests
 
                 var notEmptyMessages = this.Broker.GetMessages(this.VhostName, "boo2", int.MaxValue, false);
 
-                Assert.IsNotEmpty(notEmptyMessages, "Сообщения должны быть в очереди.");
+                Assert.IsNotEmpty(notEmptyMessages, "РЎРѕРѕР±С‰РµРЅРёСЏ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІ РѕС‡РµСЂРµРґРё.");
             }
         }
     }

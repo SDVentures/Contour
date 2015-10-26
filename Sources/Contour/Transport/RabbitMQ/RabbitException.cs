@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RabbitException.cs" company="">
 //   
 // </copyright>
@@ -19,7 +19,7 @@ namespace Contour.Transport.RabbitMQ
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.
@@ -30,7 +30,7 @@ namespace Contour.Transport.RabbitMQ
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.

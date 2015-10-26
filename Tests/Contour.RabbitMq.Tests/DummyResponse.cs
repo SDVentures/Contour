@@ -1,15 +1,15 @@
-namespace Contour.RabbitMq.Tests
+п»їnamespace Contour.RabbitMq.Tests
 {
     /// <summary>
-    /// Ответ для интеграционных тестов.
+    /// РћС‚РІРµС‚ РґР»СЏ РёРЅС‚РµРіСЂР°С†РёРѕРЅРЅС‹С… С‚РµСЃС‚РѕРІ.
     /// </summary>
     public class DummyResponse
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="DummyResponse"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DummyResponse"/>.
         /// </summary>
         /// <param name="num">
-        /// Данные ответа.
+        /// Р”Р°РЅРЅС‹Рµ РѕС‚РІРµС‚Р°.
         /// </param>
         public DummyResponse(int num)
         {
@@ -17,14 +17,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="DummyResponse"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DummyResponse"/>.
         /// </summary>
         protected DummyResponse()
         {
         }
 
         /// <summary>
-        /// Данные ответа.
+        /// Р”Р°РЅРЅС‹Рµ РѕС‚РІРµС‚Р°.
         /// </summary>
         public int Num { get; private set; }
     }

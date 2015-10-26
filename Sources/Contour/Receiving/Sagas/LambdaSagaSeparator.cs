@@ -1,32 +1,32 @@
-using System;
+п»їusing System;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Вычленяет идентификатор саги с помощью анонимного метода.
-    /// Переходник между анонимным методом и классом.
+    /// Р’С‹С‡Р»РµРЅСЏРµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё СЃ РїРѕРјРѕС‰СЊСЋ Р°РЅРѕРЅРёРјРЅРѕРіРѕ РјРµС‚РѕРґР°.
+    /// РџРµСЂРµС…РѕРґРЅРёРє РјРµР¶РґСѓ Р°РЅРѕРЅРёРјРЅС‹Рј РјРµС‚РѕРґРѕРј Рё РєР»Р°СЃСЃРѕРј.
     /// </summary>
-    /// <typeparam name="TM">Тип передаваемого сообщения.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TM">РўРёРї РїРµСЂРµРґР°РІР°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class LambdaSagaSeparator<TM, TK> : ISagaIdSeparator<TM, TK>
         where TM : class
     {
         private readonly Func<Message<TM>, TK> separator;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="LambdaSagaSeparator{TM,TK}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LambdaSagaSeparator{TM,TK}"/>. 
         /// </summary>
-        /// <param name="separator">Анонимный метод получения идентификатора саги на основе входящего сообщения.</param>
+        /// <param name="separator">РђРЅРѕРЅРёРјРЅС‹Р№ РјРµС‚РѕРґ РїРѕР»СѓС‡РµРЅРёСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё РЅР° РѕСЃРЅРѕРІРµ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public LambdaSagaSeparator(Func<Message<TM>, TK> separator)
         {
             this.separator = separator;
         }
 
         /// <summary>
-        /// Вычисляет идентификатор саги на основе входящего сообщения.
+        /// Р’С‹С‡РёСЃР»СЏРµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё РЅР° РѕСЃРЅРѕРІРµ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="message">Сообщение, в котором находится идентификатор саги.</param>
-        /// <returns>Идентификатор саги. </returns>
+        /// <param name="message">РЎРѕРѕР±С‰РµРЅРёРµ, РІ РєРѕС‚РѕСЂРѕРј РЅР°С…РѕРґРёС‚СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <returns>РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё. </returns>
         public TK GetId(Message<TM> message)
         {
             return this.separator(message);

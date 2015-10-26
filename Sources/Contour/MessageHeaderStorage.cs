@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 
@@ -16,9 +16,9 @@ namespace Contour
         }
 
         /// <summary>
-        /// Сохраняет заголовки входящего сообщения.
+        /// РЎРѕС…СЂР°РЅСЏРµС‚ Р·Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="headers">Заголовки входящего сообщения.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public void Store(IDictionary<string, object> headers)
         {
             var refindedHeaders = headers
@@ -28,9 +28,9 @@ namespace Contour
         }
 
         /// <summary>
-        /// Возвращает сохраненные заголовки входящего сообщения.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРѕС…СЂР°РЅРµРЅРЅС‹Рµ Р·Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <returns>Заголовки входящего сообщения.</returns>
+        /// <returns>Р—Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public IDictionary<string, object> Load()
         {
             return (IDictionary<string, object>)CallContext.LogicalGetData(this.storageKey);

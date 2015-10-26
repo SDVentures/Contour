@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,91 +7,91 @@ using Contour.Configuration;
 namespace Contour.Sending
 {
     /// <summary>
-    /// Отправитель сообщений.
+    /// РћС‚РїСЂР°РІРёС‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёР№.
     /// </summary>
     public interface ISender : IBusComponent
     {
         /// <summary>
-        /// Проверяет возможность создать маршрут для указанной метки сообщения.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕР·РґР°С‚СЊ РјР°СЂС€СЂСѓС‚ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка сообщения, для которой необходимо построить маршрут.</param>
-        /// <returns><c>true</c> - если для указанной метки можно построить маршрут.</returns>
+        /// <param name="label">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ, РґР»СЏ РєРѕС‚РѕСЂРѕР№ РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕСЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРё РјРѕР¶РЅРѕ РїРѕСЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚.</returns>
         bool CanRoute(MessageLabel label);
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="options">Параметры запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
-        [Obsolete("Необходимо использовать метод Request с указанием метки сообщения.")]
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
+        [Obsolete("РќРµРѕР±С…РѕРґРёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ Request СЃ СѓРєР°Р·Р°РЅРёРµРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.")]
         Task<T> Request<T>(object payload, RequestOptions options) where T : class;
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
-        [Obsolete("Необходимо использовать метод Request с указанием метки сообщения.")]
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
+        [Obsolete("РќРµРѕР±С…РѕРґРёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ Request СЃ СѓРєР°Р·Р°РЅРёРµРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.")]
         Task<T> Request<T>(object payload, IDictionary<string, object> headers) where T : class;
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
+        [Obsolete("РќРµРѕР±С…РѕРґРёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ Send СЃ СѓРєР°Р·Р°РЅРёРµРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.")]
         Task Send(object payload, IDictionary<string, object> headers);
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
+        [Obsolete("РќРµРѕР±С…РѕРґРёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ Send СЃ СѓРєР°Р·Р°РЅРёРµРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.")]
         Task Send(object payload, PublishingOptions options);
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="options">Параметры запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
         Task<T> Request<T>(MessageLabel label, object payload, RequestOptions options) where T : class;
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
         Task<T> Request<T>(MessageLabel label, object payload, IDictionary<string, object> headers) where T : class;
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         Task Send(MessageLabel label, object payload, IDictionary<string, object> headers);
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         Task Send(MessageLabel label, object payload, PublishingOptions options);
     }
 }

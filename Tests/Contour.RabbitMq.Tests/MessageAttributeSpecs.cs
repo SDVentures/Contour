@@ -1,4 +1,4 @@
-namespace Contour.RabbitMq.Tests
+﻿namespace Contour.RabbitMq.Tests
 {
     using System.Diagnostics.CodeAnalysis;
 

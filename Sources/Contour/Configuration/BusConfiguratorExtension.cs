@@ -1,13 +1,13 @@
-using System;
+п»їusing System;
 
 using Contour.Receiving.Sagas;
 
 namespace Contour.Configuration
 {
     /// <summary>
-    /// Класс расширения интерфейса <see cref="IBusConfigurator"/>.
-    /// Нужен для того, чтобы скрыть неготовые для публикации методы, но дать возможность работать с ними внутри библиотеки.
-    /// Для публикации методы переносятся в интерфейс <see cref="IBusConfigurator"/> и его реализации.
+    /// РљР»Р°СЃСЃ СЂР°СЃС€РёСЂРµРЅРёСЏ РёРЅС‚РµСЂС„РµР№СЃР° <see cref="IBusConfigurator"/>.
+    /// РќСѓР¶РµРЅ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СЃРєСЂС‹С‚СЊ РЅРµРіРѕС‚РѕРІС‹Рµ РґР»СЏ РїСѓР±Р»РёРєР°С†РёРё РјРµС‚РѕРґС‹, РЅРѕ РґР°С‚СЊ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЂР°Р±РѕС‚Р°С‚СЊ СЃ РЅРёРјРё РІРЅСѓС‚СЂРё Р±РёР±Р»РёРѕС‚РµРєРё.
+    /// Р”Р»СЏ РїСѓР±Р»РёРєР°С†РёРё РјРµС‚РѕРґС‹ РїРµСЂРµРЅРѕСЃСЏС‚СЃСЏ РІ РёРЅС‚РµСЂС„РµР№СЃ <see cref="IBusConfigurator"/> Рё РµРіРѕ СЂРµР°Р»РёР·Р°С†РёРё.
     /// </summary>
     internal static class BusConfiguratorExtension
     {
@@ -21,7 +21,7 @@ namespace Contour.Configuration
                 new CorrelationIdSeparator<TM, TK>(),
                 SingletonSagaFactory<TS, TK>.Instance, 
                 new LambdaSagaStep<TS, TM, TK>((sc, cc) => { }), 
-                new LambdaFailedHandler<TS, TM, TK>(cc => { throw new ArgumentException("Сага не найдена."); }, (sc, cc, e) => { }));
+                new LambdaFailedHandler<TS, TM, TK>(cc => { throw new ArgumentException("РЎР°РіР° РЅРµ РЅР°Р№РґРµРЅР°."); }, (sc, cc, e) => { }));
         }
     }
 }

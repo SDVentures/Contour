@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -21,86 +21,86 @@ using global::RabbitMQ.Client.Events;
 namespace Contour.Transport.RabbitMQ.Internal
 {
     /// <summary>
-    /// Слушатель канала.
+    /// РЎР»СѓС€Р°С‚РµР»СЊ РєР°РЅР°Р»Р°.
     /// </summary>
     internal class Listener : IDisposable
     {
         /// <summary>
-        /// Поставщик каналов.
+        /// РџРѕСЃС‚Р°РІС‰РёРє РєР°РЅР°Р»РѕРІ.
         /// </summary>
         private readonly IChannelProvider channelProvider;
 
         /// <summary>
-        /// Обработчики сообщений.
-        /// Каждому обработчику соответствует своя метка сообщения.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРєРё СЃРѕРѕР±С‰РµРЅРёР№.
+        /// РљР°Р¶РґРѕРјСѓ РѕР±СЂР°Р±РѕС‚С‡РёРєСѓ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ СЃРІРѕСЏ РјРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         private readonly IDictionary<MessageLabel, ConsumingAction> consumers = new Dictionary<MessageLabel, ConsumingAction>();
 
         /// <summary>
-        /// Порт канала, на который приходит сообщение.
+        /// РџРѕСЂС‚ РєР°РЅР°Р»Р°, РЅР° РєРѕС‚РѕСЂС‹Р№ РїСЂРёС…РѕРґРёС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         private readonly ISubscriptionEndpoint endpoint;
 
         /// <summary>
-        /// Ожидания ответных сообщений на запрос.
+        /// РћР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№ РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         private readonly IDictionary<string, Expectation> expectations = new Dictionary<string, Expectation>();
 
         /// <summary>
-        /// Хранилище заголовков входящего сообщения.
+        /// РҐСЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         private readonly IIncomingMessageHeaderStorage messageHeaderStorage;
 
         /// <summary>
-        /// Объект синхронизации.
+        /// РћР±СЉРµРєС‚ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё.
         /// </summary>
         private readonly object locker = new object();
 
         /// <summary>
-        /// Журнал работы.
+        /// Р–СѓСЂРЅР°Р» СЂР°Р±РѕС‚С‹.
         /// </summary>
         private readonly ILog logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Реестр механизмов проверки сообщений.
+        /// Р РµРµСЃС‚СЂ РјРµС…Р°РЅРёР·РјРѕРІ РїСЂРѕРІРµСЂРєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private readonly MessageValidatorRegistry validatorRegistry;
 
         /// <summary>
-        /// Источник квитков отмены задач.
+        /// РСЃС‚РѕС‡РЅРёРє РєРІРёС‚РєРѕРІ РѕС‚РјРµРЅС‹ Р·Р°РґР°С‡.
         /// </summary>
         private CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
-        /// Признак: слушатель потребляет сообщения.
+        /// РџСЂРёР·РЅР°Рє: СЃР»СѓС€Р°С‚РµР»СЊ РїРѕС‚СЂРµР±Р»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         private bool isConsuming;
 
         /// <summary>
-        /// Таймер, который отслеживает, что время ожидания ответа на запрос вышло.
+        /// РўР°Р№РјРµСЂ, РєРѕС‚РѕСЂС‹Р№ РѕС‚СЃР»РµР¶РёРІР°РµС‚, С‡С‚Рѕ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ РІС‹С€Р»Рѕ.
         /// </summary>
         private ITicketTimer ticketTimer;
 
         /// <summary>
-        /// Рабочие потоки выполняющее обработку сообщений.
+        /// Р Р°Р±РѕС‡РёРµ РїРѕС‚РѕРєРё РІС‹РїРѕР»РЅСЏСЋС‰РµРµ РѕР±СЂР°Р±РѕС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private IList<IWorker> workers;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Listener"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Listener"/>.
         /// </summary>
         /// <param name="channelProvider">
-        /// Поставщик каналов.
+        /// РџРѕСЃС‚Р°РІС‰РёРє РєР°РЅР°Р»РѕРІ.
         /// </param>
         /// <param name="endpoint">
-        /// Прослушиваемый порт.
+        /// РџСЂРѕСЃР»СѓС€РёРІР°РµРјС‹Р№ РїРѕСЂС‚.
         /// </param>
         /// <param name="receiverOptions">
-        /// Настройки получателя.
+        /// РќР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.
         /// </param>
         /// <param name="validatorRegistry">
-        /// Реестр механизмов проверки сообщений.
+        /// Р РµРµСЃС‚СЂ РјРµС…Р°РЅРёР·РјРѕРІ РїСЂРѕРІРµСЂРєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </param>
         public Listener(IChannelProvider channelProvider, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
         {
@@ -126,20 +126,20 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Тип обработчика сообщений.
+        /// РўРёРї РѕР±СЂР°Р±РѕС‚С‡РёРєР° СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         /// <param name="delivery">
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </param>
         internal delegate void ConsumingAction(RabbitDelivery delivery);
 
         /// <summary>
-        /// Событие о сбое во время прослушивания порта.
+        /// РЎРѕР±С‹С‚РёРµ Рѕ СЃР±РѕРµ РІРѕ РІСЂРµРјСЏ РїСЂРѕСЃР»СѓС€РёРІР°РЅРёСЏ РїРѕСЂС‚Р°.
         /// </summary>
         public event Action<Listener> Failed = l => { };
 
         /// <summary>
-        /// Метки сообщений, которые может обработать слушатель.
+        /// РњРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РµС‚ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃР»СѓС€Р°С‚РµР»СЊ.
         /// </summary>
         public IEnumerable<MessageLabel> AcceptedLabels
         {
@@ -150,7 +150,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Порт канала, который прослушивается на входящие сообщения.
+        /// РџРѕСЂС‚ РєР°РЅР°Р»Р°, РєРѕС‚РѕСЂС‹Р№ РїСЂРѕСЃР»СѓС€РёРІР°РµС‚СЃСЏ РЅР° РІС…РѕРґСЏС‰РёРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public ISubscriptionEndpoint Endpoint
         {
@@ -161,23 +161,23 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Настройки получателя.
+        /// РќР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.
         /// </summary>
         public RabbitReceiverOptions ReceiverOptions { get; private set; }
 
         public bool HasFailed { get; private set; }
 
         /// <summary>
-        /// Создает входящее сообщение.
+        /// РЎРѕР·РґР°РµС‚ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         /// <param name="channel">
-        /// Канал, по которому получено сообщение.
+        /// РљР°РЅР°Р», РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РїРѕР»СѓС‡РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </param>
         /// <param name="args">
-        /// Аргументы, с которыми получено сообщение.
+        /// РђСЂРіСѓРјРµРЅС‚С‹, СЃ РєРѕС‚РѕСЂС‹РјРё РїРѕР»СѓС‡РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </param>
         /// <returns>
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </returns>
         public RabbitDelivery BuildDeliveryFrom(RabbitChannel channel, BasicDeliverEventArgs args)
         {
@@ -185,7 +185,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Освобождает ресурсы.
+        /// РћСЃРІРѕР±РѕР¶РґР°РµС‚ СЂРµСЃСѓСЂСЃС‹.
         /// </summary>
         public void Dispose()
         {
@@ -193,19 +193,19 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Возвращает задачу, с ожиданием ответа на запрос.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ Р·Р°РґР°С‡Сѓ, СЃ РѕР¶РёРґР°РЅРёРµРј РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         /// <param name="correlationId">
-        /// Корреляционный идентификатор, с помощью которого определяется принадлежность ответа определенному запросу.
+        /// РљРѕСЂСЂРµР»СЏС†РёРѕРЅРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, СЃ РїРѕРјРѕС‰СЊСЋ РєРѕС‚РѕСЂРѕРіРѕ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РѕС‚РІРµС‚Р° РѕРїСЂРµРґРµР»РµРЅРЅРѕРјСѓ Р·Р°РїСЂРѕСЃСѓ.
         /// </param>
         /// <param name="expectedResponseType">
-        /// Ожидаемый тип ответа.
+        /// РћР¶РёРґР°РµРјС‹Р№ С‚РёРї РѕС‚РІРµС‚Р°.
         /// </param>
         /// <param name="timeout">
-        /// Время ожидания ответа.
+        /// Р’СЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р°.
         /// </param>
         /// <returns>
-        /// Задача ожидания ответа на запрос.
+        /// Р—Р°РґР°С‡Р° РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </returns>
         public Task<IMessage> Expect(string correlationId, Type expectedResponseType, TimeSpan? timeout)
         {
@@ -241,19 +241,19 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Добавляет еще одного обработчика сообщений.
+        /// Р”РѕР±Р°РІР»СЏРµС‚ РµС‰Рµ РѕРґРЅРѕРіРѕ РѕР±СЂР°Р±РѕС‚С‡РёРєР° СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         /// <param name="label">
-        /// Метка сообщения, которое может быть обработано.
+        /// РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ.
         /// </param>
         /// <param name="consumer">
-        /// Обработчик сообщения.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <param name="validator">
-        /// Механизм проверки входящего сообщения.
+        /// РњРµС…Р°РЅРёР·Рј РїСЂРѕРІРµСЂРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <typeparam name="T">
-        /// Тип входящего сообщения.
+        /// РўРёРї РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </typeparam>
         public void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
         {
@@ -277,7 +277,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Запускает обработку входящих сообщений.
+        /// Р—Р°РїСѓСЃРєР°РµС‚ РѕР±СЂР°Р±РѕС‚РєСѓ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public void StartConsuming()
         {
@@ -301,7 +301,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Останавливает обработку входящих сообщений.
+        /// РћСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕР±СЂР°Р±РѕС‚РєСѓ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public void StopConsuming()
         {
@@ -329,13 +329,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Проверяет поддерживает слушатель обработку сообщения с указанной меткой.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЃР»СѓС€Р°С‚РµР»СЊ РѕР±СЂР°Р±РѕС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
         /// <param name="label">
-        /// Метка сообщения.
+        /// РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <returns>
-        /// Если <c>true</c> - слушатель поддерживает обработку сообщений, иначе - <c>false</c>.
+        /// Р•СЃР»Рё <c>true</c> - СЃР»СѓС€Р°С‚РµР»СЊ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РѕР±СЂР°Р±РѕС‚РєСѓ СЃРѕРѕР±С‰РµРЅРёР№, РёРЅР°С‡Рµ - <c>false</c>.
         /// </returns>
         public bool Supports(MessageLabel label)
         {
@@ -343,10 +343,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Доставляет сообщение до обработчика.
+        /// Р”РѕСЃС‚Р°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РґРѕ РѕР±СЂР°Р±РѕС‚С‡РёРєР°.
         /// </summary>
         /// <param name="delivery">
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </param>
         protected void Deliver(RabbitDelivery delivery)
         {
@@ -354,12 +354,12 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             if (delivery.Headers.ContainsKey(Headers.OriginalMessageId))
             {
-                this.logger.Trace(m => m("Сквозной идентификатор сообщения [{0}].", Headers.GetString(delivery.Headers, Headers.OriginalMessageId)));
+                this.logger.Trace(m => m("РЎРєРІРѕР·РЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ [{0}].", Headers.GetString(delivery.Headers, Headers.OriginalMessageId)));
             }
 
             if (delivery.Headers.ContainsKey(Headers.Breadcrumbs))
             {
-                this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
+                this.logger.Trace(m => m("РЎРѕРѕР±С‰РµРЅРёРµ Р±С‹Р»Рѕ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ РІ РєРѕРЅРµС‡РЅС‹С… С‚РѕС‡РєР°С…: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
             }
 
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -389,16 +389,16 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Формирует ответ на запрос.
+        /// Р¤РѕСЂРјРёСЂСѓРµС‚ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         /// <param name="delivery">
-        /// Входящее сообщение, которое является ответом.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ СЏРІР»СЏРµС‚СЃСЏ РѕС‚РІРµС‚РѕРј.
         /// </param>
         /// <param name="responseType">
-        /// Тип ответного сообщения.
+        /// РўРёРї РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <returns>
-        /// Сообщение с ответом на запрос.
+        /// РЎРѕРѕР±С‰РµРЅРёРµ СЃ РѕС‚РІРµС‚РѕРј РЅР° Р·Р°РїСЂРѕСЃ.
         /// </returns>
         private IMessage BuildResponse(IDelivery delivery, Type responseType)
         {
@@ -410,10 +410,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Обрабатывает сообщение.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         /// <param name="cancellationToken">
-        /// Сигнальный объект аварийного досрочного завершения обработки.
+        /// РЎРёРіРЅР°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ Р°РІР°СЂРёР№РЅРѕРіРѕ РґРѕСЃСЂРѕС‡РЅРѕРіРѕ Р·Р°РІРµСЂС€РµРЅРёСЏ РѕР±СЂР°Р±РѕС‚РєРё.
         /// </param>
         private void Consume(CancellationToken cancellationToken)
         {
@@ -470,13 +470,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Обработчик события о сбое обработки сообщения.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ Рѕ СЃР±РѕРµ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         /// <param name="delivery">
-        /// Сообщение, обработка которого привела к сбою.
+        /// РЎРѕРѕР±С‰РµРЅРёРµ, РѕР±СЂР°Р±РѕС‚РєР° РєРѕС‚РѕСЂРѕРіРѕ РїСЂРёРІРµР»Р° Рє СЃР±РѕСЋ.
         /// </param>
         /// <param name="exception">
-        /// Исключение сгенерированное во время сбоя.
+        /// РСЃРєР»СЋС‡РµРЅРёРµ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅРѕРµ РІРѕ РІСЂРµРјСЏ СЃР±РѕСЏ.
         /// </param>
         private void OnFailure(RabbitDelivery delivery, Exception exception)
         {
@@ -487,10 +487,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Обработчик события о ненайденном обработчике сообщений.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ Рѕ РЅРµРЅР°Р№РґРµРЅРЅРѕРј РѕР±СЂР°Р±РѕС‚С‡РёРєРµ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         /// <param name="delivery">
-        /// Сообщение, для которого не найден обработчик.
+        /// РЎРѕРѕР±С‰РµРЅРёРµ, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РЅРµ РЅР°Р№РґРµРЅ РѕР±СЂР°Р±РѕС‚С‡РёРє.
         /// </param>
         private void OnUnhandled(RabbitDelivery delivery)
         {
@@ -501,13 +501,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Пытается обработать сообщение как запрос.
+        /// РџС‹С‚Р°РµС‚СЃСЏ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РєР°Рє Р·Р°РїСЂРѕСЃ.
         /// </summary>
         /// <param name="delivery">
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </param>
         /// <returns>
-        /// Если <c>true</c> - тогда сообщение обработано как запрос, иначе - <c>false</c>.
+        /// Р•СЃР»Рё <c>true</c> - С‚РѕРіРґР° СЃРѕРѕР±С‰РµРЅРёРµ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ РєР°Рє Р·Р°РїСЂРѕСЃ, РёРЅР°С‡Рµ - <c>false</c>.
         /// </returns>
         private bool TryHandleAsResponse(RabbitDelivery delivery)
         {
@@ -539,13 +539,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Пытается обработать сообщение как одностороннее.
+        /// РџС‹С‚Р°РµС‚СЃСЏ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РєР°Рє РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ.
         /// </summary>
         /// <param name="delivery">
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </param>
         /// <returns>
-        /// Если <c>true</c> - входящее сообщение обработано, иначе <c>false</c>.
+        /// Р•СЃР»Рё <c>true</c> - РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ, РёРЅР°С‡Рµ <c>false</c>.
         /// </returns>
         private bool TryHandleAsSubscription(RabbitDelivery delivery)
         {
@@ -575,33 +575,33 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Ожидание ответа на запрос.
+        /// РћР¶РёРґР°РЅРёРµ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
         /// </summary>
         internal class Expectation
         {
             /// <summary>
-            /// Источник сигнальных объектов об аварийном завершении задачи.
+            /// РСЃС‚РѕС‡РЅРёРє СЃРёРіРЅР°Р»СЊРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РѕР± Р°РІР°СЂРёР№РЅРѕРј Р·Р°РІРµСЂС€РµРЅРёРё Р·Р°РґР°С‡Рё.
             /// </summary>
             private readonly TaskCompletionSource<IMessage> completionSource;
 
             /// <summary>
-            /// Построитель ответа.
+            /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РѕС‚РІРµС‚Р°.
             /// </summary>
             private readonly Func<IDelivery, IMessage> responseBuilderFunc;
 
             /// <summary>
-            /// Секундомер для замера длительности ожидания ответа.
+            /// РЎРµРєСѓРЅРґРѕРјРµСЂ РґР»СЏ Р·Р°РјРµСЂР° РґР»РёС‚РµР»СЊРЅРѕСЃС‚Рё РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р°.
             /// </summary>
             private readonly Stopwatch completionStopwatch;
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="Expectation"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Expectation"/>.
             /// </summary>
             /// <param name="responseBuilderFunc">
-            /// Построитель ответа.
+            /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РѕС‚РІРµС‚Р°.
             /// </param>
             /// <param name="timeoutTicket">
-            /// Квиток об учете времени ожидания ответа.
+            /// РљРІРёС‚РѕРє РѕР± СѓС‡РµС‚Рµ РІСЂРµРјРµРЅРё РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р°.
             /// </param>
             public Expectation(Func<IDelivery, IMessage> responseBuilderFunc, long? timeoutTicket)
             {
@@ -613,7 +613,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             /// <summary>
-            /// Задача завершения ожидания.
+            /// Р—Р°РґР°С‡Р° Р·Р°РІРµСЂС€РµРЅРёСЏ РѕР¶РёРґР°РЅРёСЏ.
             /// </summary>
             public Task<IMessage> Task
             {
@@ -624,12 +624,12 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             /// <summary>
-            /// Квиток об учете времени ожидания ответа.
+            /// РљРІРёС‚РѕРє РѕР± СѓС‡РµС‚Рµ РІСЂРµРјРµРЅРё РѕР¶РёРґР°РЅРёСЏ РѕС‚РІРµС‚Р°.
             /// </summary>
             public long? TimeoutTicket { get; private set; }
 
             /// <summary>
-            /// Отменяет ожидание ответа.
+            /// РћС‚РјРµРЅСЏРµС‚ РѕР¶РёРґР°РЅРёРµ РѕС‚РІРµС‚Р°.
             /// </summary>
             public void Cancel()
             {
@@ -637,10 +637,10 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             /// <summary>
-            /// Выполняет обработку ответа на запрос.
+            /// Р’С‹РїРѕР»РЅСЏРµС‚ РѕР±СЂР°Р±РѕС‚РєСѓ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ.
             /// </summary>
             /// <param name="delivery">
-            /// Входящее сообщение - ответ на запрос.
+            /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ - РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ.
             /// </param>
             public void Complete(RabbitDelivery delivery)
             {
@@ -658,7 +658,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             /// <summary>
-            /// Устанавливает, что при ожидании вышло время, за которое должен был быть получен ответ.ё
+            /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚, С‡С‚Рѕ РїСЂРё РѕР¶РёРґР°РЅРёРё РІС‹С€Р»Рѕ РІСЂРµРјСЏ, Р·Р° РєРѕС‚РѕСЂРѕРµ РґРѕР»Р¶РµРЅ Р±С‹Р» Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ РѕС‚РІРµС‚.С‘
             /// </summary>
             public void Timeout()
             {

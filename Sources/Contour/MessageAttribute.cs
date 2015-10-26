@@ -1,4 +1,4 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System;
 
@@ -20,7 +20,7 @@ namespace Contour
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageAttribute"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageAttribute"/>.
         /// </summary>
         /// <param name="label">
         /// The label.

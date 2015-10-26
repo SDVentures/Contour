@@ -1,9 +1,9 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System.Collections.Generic;
 
     /// <summary>
-    ///   Контейнер для сообщения.
+    ///   РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public interface IMessage
     {
@@ -13,32 +13,32 @@ namespace Contour
         IDictionary<string, object> Headers { get; }
 
         /// <summary>
-        ///   Метка сообщения.
+        ///   РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         MessageLabel Label { get; }
 
         /// <summary>
-        ///   Содержимое сообщения.
+        ///   РЎРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         object Payload { get; }
 
         /// <summary>
-        /// Создает копию сообщения с указанной меткой.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРїРёСЋ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
         /// <param name="label">
-        /// Новая метка сообщения.
+        /// РќРѕРІР°СЏ РјРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         /// <returns>
-        /// Новое сообщение.
+        /// РќРѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </returns>
         IMessage WithLabel(MessageLabel label);
 
         /// <summary>
-        /// Создает копию сообщения с указанным содержимым.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРїРёСЋ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј СЃРѕРґРµСЂР¶РёРјС‹Рј.
         /// </summary>
-        /// <typeparam name="T">Тип содержимого.</typeparam>
-        /// <param name="payload">Содержимое сообщения.</param>
-        /// <returns>Новое сообщение.</returns>
+        /// <typeparam name="T">РўРёРї СЃРѕРґРµСЂР¶РёРјРѕРіРѕ.</typeparam>
+        /// <param name="payload">РЎРѕРґРµСЂР¶РёРјРѕРµ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РќРѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</returns>
         IMessage WithPayload<T>(T payload) where T : class;
     }
 }

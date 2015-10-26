@@ -1,22 +1,22 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 
 namespace Contour
 {
     /// <summary>
-    /// Хранилище заголовков входящих сообщений.
+    /// РҐСЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
     /// </summary>
     public interface IIncomingMessageHeaderStorage
     {
         /// <summary>
-        /// Сохраняет заголовки входящего сообщения.
+        /// РЎРѕС…СЂР°РЅСЏРµС‚ Р·Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="headers">Заголовки входящего сообщения.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         void Store(IDictionary<string, object> headers);
 
         /// <summary>
-        /// Возвращает сохраненные заголовки входящего сообщения.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРѕС…СЂР°РЅРµРЅРЅС‹Рµ Р·Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <returns>Заголовки входящего сообщения.</returns>
+        /// <returns>Р—Р°РіРѕР»РѕРІРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         IDictionary<string, object> Load();
     }
 }

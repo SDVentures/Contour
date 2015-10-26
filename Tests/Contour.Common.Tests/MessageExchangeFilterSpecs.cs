@@ -1,4 +1,4 @@
-namespace Contour.Common.Tests
+п»їnamespace Contour.Common.Tests
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -62,7 +62,7 @@ namespace Contour.Common.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="LoggingFilter"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LoggingFilter"/>.
             /// </summary>
             /// <param name="name">
             /// The name.

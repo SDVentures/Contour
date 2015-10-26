@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ.Internal
+п»їnamespace Contour.Transport.RabbitMQ.Internal
 {
     using Common.Logging;
 
@@ -36,7 +36,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitReceiver"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitReceiver"/>.
         /// </summary>
         /// <param name="configuration">
         /// The configuration.

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TaskWorker.cs" company="">
 //   
 // </copyright>
@@ -30,7 +30,7 @@ namespace Contour.Helpers.Scheduler
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="TaskWorker"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="TaskWorker"/>.
         /// </summary>
         /// <param name="cancellationToken">
         /// The cancellation token.

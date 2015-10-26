@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,169 +8,169 @@ using Contour.Sending;
 namespace Contour
 {
     /// <summary>
-    ///   Клиент шины сообщений.
-    ///   Используется для управления циклом жизни клиента шины, а также для передачи сообщений.
+    ///   РљР»РёРµРЅС‚ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
+    ///   РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ С†РёРєР»РѕРј Р¶РёР·РЅРё РєР»РёРµРЅС‚Р° С€РёРЅС‹, Р° С‚Р°РєР¶Рµ РґР»СЏ РїРµСЂРµРґР°С‡Рё СЃРѕРѕР±С‰РµРЅРёР№.
     /// </summary>
     public interface IBus : IBusContext, IDisposable
     {
         /// <summary>
-        ///   Событие подключения к брокеру
+        ///   РЎРѕР±С‹С‚РёРµ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє Р±СЂРѕРєРµСЂСѓ
         /// </summary>
         event Action<IBus, EventArgs> Connected;
 
         /// <summary>
-        ///   Событие разрыва соединения с брокером
+        ///   РЎРѕР±С‹С‚РёРµ СЂР°Р·СЂС‹РІР° СЃРѕРµРґРёРЅРµРЅРёСЏ СЃ Р±СЂРѕРєРµСЂРѕРј
         /// </summary>
         event Action<IBus, EventArgs> Disconnected;
 
         /// <summary>
-        ///   Событие окончания запуска шины
+        ///   РЎРѕР±С‹С‚РёРµ РѕРєРѕРЅС‡Р°РЅРёСЏ Р·Р°РїСѓСЃРєР° С€РёРЅС‹
         /// </summary>
         event Action<IBus, EventArgs> Started;
 
         /// <summary>
-        ///   Событие начала запуска шины
+        ///   РЎРѕР±С‹С‚РёРµ РЅР°С‡Р°Р»Р° Р·Р°РїСѓСЃРєР° С€РёРЅС‹
         /// </summary>
         event Action<IBus, EventArgs> Starting;
 
         /// <summary>
-        ///   Событие окончания остановки шины
+        ///   РЎРѕР±С‹С‚РёРµ РѕРєРѕРЅС‡Р°РЅРёСЏ РѕСЃС‚Р°РЅРѕРІРєРё С€РёРЅС‹
         /// </summary>
         event Action<IBus, EventArgs> Stopped;
 
         /// <summary>
-        ///   Событие начала остановки шины
+        ///   РЎРѕР±С‹С‚РёРµ РЅР°С‡Р°Р»Р° РѕСЃС‚Р°РЅРѕРІРєРё С€РёРЅС‹
         /// </summary>
         event Action<IBus, EventArgs> Stopping;
 
         /// <summary>
-        ///   Конфигурация шины
+        ///   РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С€РёРЅС‹
         /// </summary>
         IBusConfiguration Configuration { get; }
 
         /// <summary>
-        ///   Позволяет определить, запущен ли данный экземпляр шины
+        ///   РџРѕР·РІРѕР»СЏРµС‚ РѕРїСЂРµРґРµР»РёС‚СЊ, Р·Р°РїСѓС‰РµРЅ Р»Рё РґР°РЅРЅС‹Р№ СЌРєР·РµРјРїР»СЏСЂ С€РёРЅС‹
         /// </summary>
         bool IsStarted { get; }
 
         /// <summary>
-        /// Отправляет сообщение с указанной меткой.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <remarks>Метка сообщения должна быть зарегистрирована.</remarks>
-        /// <typeparam name="T"><c>.NET</c> тип отправляемого сообщения.
+        /// <remarks>РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅР°.</remarks>
+        /// <typeparam name="T"><c>.NET</c> С‚РёРї РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </typeparam>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Отправляемое сообщение.</param>
-        /// <param name="options">Настройки отправителя.</param>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
         /// <returns>
-        /// Задача ожидания отправки.
+        /// Р—Р°РґР°С‡Р° РѕР¶РёРґР°РЅРёСЏ РѕС‚РїСЂР°РІРєРё.
         /// </returns>
         new Task Emit<T>(string label, T payload, PublishingOptions options = null) where T : class;
 
         /// <summary>
-        /// Отправляет сообщение с указанной меткой.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <typeparam name="T"><c>.NET</c> тип отправляемого сообщения.</typeparam>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Отправляемое сообщение.</param>
-        /// <param name="options">Настройки отправки.</param>
-        /// <returns>Задача ожидания отправки.</returns>
+        /// <typeparam name="T"><c>.NET</c> С‚РёРї РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРєРё.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РѕР¶РёРґР°РЅРёСЏ РѕС‚РїСЂР°РІРєРё.</returns>
         new Task Emit<T>(MessageLabel label, T payload, PublishingOptions options = null) where T : class;
 
         /// <summary>
-        /// Отправляет сообщение с указанной меткой.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Отправляемое сообщение.</param>
-        /// <param name="headers">Заголовки отправляемого сообщения.</param>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         /// <returns>
-        /// <returns>Задача ожидания отправки.</returns>
+        /// <returns>Р—Р°РґР°С‡Р° РѕР¶РёРґР°РЅРёСЏ РѕС‚РїСЂР°РІРєРё.</returns>
         /// </returns>
         new Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers);
 
         /// <summary>
-        /// Выполняет синхронный запрос данных с указанной меткой.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚ СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа.</typeparam>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="request">Отправляемое сообщение</param>
-        /// <param name="responseAction">Действие которое нужно выполнить при получении ответного сообщения. </param>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РєРѕС‚РѕСЂРѕРµ РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ. </param>
         new void Request<TRequest, TResponse>(string label, TRequest request, Action<TResponse> responseAction)
             where TRequest : class
             where TResponse : class;
 
         /// <summary>
-        /// Выполняет синхронный запрос данных с указанной меткой.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚ СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.
         /// </summary>
-        /// <typeparam name="TRequest">Тип данных запроса. </typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа.</typeparam>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="responseAction">Действие которое нужно выполнить при получении ответного сообщения.</param>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°. </typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РєРѕС‚РѕСЂРѕРµ РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         new void Request<TRequest, TResponse>(MessageLabel label, TRequest request, Action<TResponse> responseAction)
             where TRequest : class
             where TResponse : class;
 
-        /// <summary>Выполняет синхронный запрос данных с указанной меткой.</summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа.</typeparam>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="options">Настройки отправителя.</param>
-        /// <param name="responseAction">Действие которое нужно выполнить при получении ответного сообщения.</param>
+        /// <summary>Р’С‹РїРѕР»РЅСЏРµС‚ СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</summary>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РєРѕС‚РѕСЂРѕРµ РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         new void Request<TRequest, TResponse>(string label, TRequest request, RequestOptions options, Action<TResponse> responseAction)
             where TRequest : class
             where TResponse : class;
 
-        /// <summary>Выполняет синхронный запрос данных с указанной меткой.</summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа.</typeparam>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="options">Настройки отправителя.</param>
-        /// <param name="responseAction">Действие которое нужно выполнить при получении ответного сообщения.</param>
+        /// <summary>Р’С‹РїРѕР»РЅСЏРµС‚ СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</summary>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <param name="responseAction">Р”РµР№СЃС‚РІРёРµ РєРѕС‚РѕСЂРѕРµ РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         new void Request<TRequest, TResponse>(MessageLabel label, TRequest request, RequestOptions options, Action<TResponse> responseAction)
             where TRequest : class
             where TResponse : class;
 
-        /// <summary>Выполняет асинхронный запрос данных с указанной меткой.</summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа.</typeparam>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="options">Настройки запроса.</param>
-        /// <returns>Задача получения ответного сообщения.</returns>
+        /// <summary>Р’С‹РїРѕР»РЅСЏРµС‚ Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</summary>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         new Task<TResponse> RequestAsync<TRequest, TResponse>(string label, TRequest request, RequestOptions options = null)
             where TRequest : class
             where TResponse : class;
 
-        /// <summary>Выполняет асинхронный запрос данных с указанной меткой.</summary>
-        /// <typeparam name="TRequest">Тип данных запроса.</typeparam>
-        /// <typeparam name="TResponse">Тип ожидаемого ответа</typeparam>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="request">Отправляемое сообщение.</param>
-        /// <param name="options">Настройки отправителя.</param>
-        /// <returns>Задача получения ответного сообщения.</returns>
+        /// <summary>Р’С‹РїРѕР»РЅСЏРµС‚ Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РґР°РЅРЅС‹С… СЃ СѓРєР°Р·Р°РЅРЅРѕР№ РјРµС‚РєРѕР№.</summary>
+        /// <typeparam name="TRequest">РўРёРї РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃР°.</typeparam>
+        /// <typeparam name="TResponse">РўРёРї РѕР¶РёРґР°РµРјРѕРіРѕ РѕС‚РІРµС‚Р°</typeparam>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="request">РћС‚РїСЂР°РІР»СЏРµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         new Task<TResponse> RequestAsync<TRequest, TResponse>(MessageLabel label, TRequest request, RequestOptions options = null)
             where TRequest : class
             where TResponse : class;
 
         /// <summary>
-        ///   Остановка шины и освобождение всех ресурсов.
+        ///   РћСЃС‚Р°РЅРѕРІРєР° С€РёРЅС‹ Рё РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РІСЃРµС… СЂРµСЃСѓСЂСЃРѕРІ.
         /// </summary>
         void Shutdown();
 
         /// <summary>
-        /// Конфигурирование и запуск клиента шины.
+        /// РљРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёРµ Рё Р·Р°РїСѓСЃРє РєР»РёРµРЅС‚Р° С€РёРЅС‹.
         /// </summary>
         /// <param name="waitForReadiness">
-        /// Необходимо ожидать полной готовности шины.
+        /// РќРµРѕР±С…РѕРґРёРјРѕ РѕР¶РёРґР°С‚СЊ РїРѕР»РЅРѕР№ РіРѕС‚РѕРІРЅРѕСЃС‚Рё С€РёРЅС‹.
         /// </param>
         void Start(bool waitForReadiness = true);
 
         /// <summary>
-        ///   Остановка клиента шины.
+        ///   РћСЃС‚Р°РЅРѕРІРєР° РєР»РёРµРЅС‚Р° С€РёРЅС‹.
         /// </summary>
         void Stop();
     }

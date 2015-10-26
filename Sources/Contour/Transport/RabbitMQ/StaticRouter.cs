@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StaticRouter.cs" company="">
 //   
 // </copyright>
@@ -29,7 +29,7 @@ namespace Contour.Transport.RabbitMQ
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="StaticRouteResolver"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="StaticRouteResolver"/>.
         /// </summary>
         /// <param name="route">
         /// The route.
@@ -40,7 +40,7 @@ namespace Contour.Transport.RabbitMQ
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="StaticRouteResolver"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="StaticRouteResolver"/>.
         /// </summary>
         /// <param name="exchange">
         /// The exchange.
@@ -54,7 +54,7 @@ namespace Contour.Transport.RabbitMQ
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="StaticRouteResolver"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="StaticRouteResolver"/>.
         /// </summary>
         /// <param name="exchange">
         /// The exchange.

@@ -1,25 +1,25 @@
-using System;
+п»їusing System;
 
 using Contour.Receiving.Consumers;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Получатель сообщения, которое участвует в саге.
+    /// РџРѕР»СѓС‡Р°С‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёСЏ, РєРѕС‚РѕСЂРѕРµ СѓС‡Р°СЃС‚РІСѓРµС‚ РІ СЃР°РіРµ.
     /// </summary>
-    /// <typeparam name="TS">Тип данных для хранения временных данных - состояния саги.</typeparam>
-    /// <typeparam name="TM">Тип входящего сообщения, которое участвует в саге.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РґР°РЅРЅС‹С… РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РІСЂРµРјРµРЅРЅС‹С… РґР°РЅРЅС‹С… - СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.</typeparam>
+    /// <typeparam name="TM">РўРёРї РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ, РєРѕС‚РѕСЂРѕРµ СѓС‡Р°СЃС‚РІСѓРµС‚ РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class SagaConsumerOf<TS, TM, TK> : IConsumerOf<TM>
         where TM : class
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SagaConsumerOf{TS,TM,TK}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SagaConsumerOf{TS,TM,TK}"/>. 
         /// </summary>
-        /// <param name="sagaLifecycle">Управляет жизненным циклом саги.</param>
-        /// <param name="sagaStep">Обработчик шага саги.</param>
-        /// <param name="canInitiate">Если <c>true</c> - тогда сага может быть создана обработчиком сообщения.</param>
-        /// <param name="failedHandler">Обработчик ошибок в саге.</param>
+        /// <param name="sagaLifecycle">РЈРїСЂР°РІР»СЏРµС‚ Р¶РёР·РЅРµРЅРЅС‹Рј С†РёРєР»РѕРј СЃР°РіРё.</param>
+        /// <param name="sagaStep">РћР±СЂР°Р±РѕС‚С‡РёРє С€Р°РіР° СЃР°РіРё.</param>
+        /// <param name="canInitiate">Р•СЃР»Рё <c>true</c> - С‚РѕРіРґР° СЃР°РіР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕР·РґР°РЅР° РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРј СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="failedHandler">РћР±СЂР°Р±РѕС‚С‡РёРє РѕС€РёР±РѕРє РІ СЃР°РіРµ.</param>
         public SagaConsumerOf(ISagaLifecycle<TS, TM, TK> sagaLifecycle, ISagaStep<TS, TM, TK> sagaStep, bool canInitiate, ISagaFailedHandler<TS, TM, TK> failedHandler)
         {
             this.SagaLifecycle = sagaLifecycle;
@@ -29,30 +29,30 @@ namespace Contour.Receiving.Sagas
         }
 
         /// <summary>
-        /// Признак возможности создания саги на этом шаге.
-        /// Если <c>false</c>, тогда шаг не начальный и создавать сагу нельзя, иначе <c>true</c>.
+        /// РџСЂРёР·РЅР°Рє РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЃРѕР·РґР°РЅРёСЏ СЃР°РіРё РЅР° СЌС‚РѕРј С€Р°РіРµ.
+        /// Р•СЃР»Рё <c>false</c>, С‚РѕРіРґР° С€Р°Рі РЅРµ РЅР°С‡Р°Р»СЊРЅС‹Р№ Рё СЃРѕР·РґР°РІР°С‚СЊ СЃР°РіСѓ РЅРµР»СЊР·СЏ, РёРЅР°С‡Рµ <c>true</c>.
         /// </summary>
         public bool CanInitiate { get; internal set; }
 
         /// <summary>
-        /// Выполняемое действие на этом шаге.
+        /// Р’С‹РїРѕР»РЅСЏРµРјРѕРµ РґРµР№СЃС‚РІРёРµ РЅР° СЌС‚РѕРј С€Р°РіРµ.
         /// </summary>
         public ISagaStep<TS, TM, TK> SagaStep { get; internal set; }
 
         /// <summary>
-        /// Обработчик ошибок при обработке сообщений.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє РѕС€РёР±РѕРє РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public ISagaFailedHandler<TS, TM, TK> SagaFailedHandler { get; internal set; }
 
         /// <summary>
-        /// Жизненный цикл саги.
+        /// Р–РёР·РЅРµРЅРЅС‹Р№ С†РёРєР» СЃР°РіРё.
         /// </summary>
         public ISagaLifecycle<TS, TM, TK> SagaLifecycle { get; internal set; }
 
         /// <summary>
-        /// Обрабатывает входящее сообщение.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="context">Контекст обработки входящего сообщения.</param>
+        /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public void Handle(IConsumingContext<TM> context)
         {
             var saga = this.SagaLifecycle.InitializeSaga(context, this.CanInitiate);

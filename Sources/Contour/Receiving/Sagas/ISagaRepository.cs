@@ -1,29 +1,29 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Хранилище состояния саги.
+    /// РҐСЂР°РЅРёР»РёС‰Рµ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TD">Тип сохраняемого состояния саги.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TD">РўРёРї СЃРѕС…СЂР°РЅСЏРµРјРѕРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal interface ISagaRepository<TD, TK>
     {
         /// <summary>
-        /// Получает сохраненную сагу.
+        /// РџРѕР»СѓС‡Р°РµС‚ СЃРѕС…СЂР°РЅРµРЅРЅСѓСЋ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="sagaId">Идентификатор запрашиваемой саги.</param>
-        /// <returns>Запрашиваемая сага если она существует, иначе <c>null</c>.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕР№ СЃР°РіРё.</param>
+        /// <returns>Р—Р°РїСЂР°С€РёРІР°РµРјР°СЏ СЃР°РіР° РµСЃР»Рё РѕРЅР° СЃСѓС‰РµСЃС‚РІСѓРµС‚, РёРЅР°С‡Рµ <c>null</c>.</returns>
         ISagaContext<TD, TK> Get(TK sagaId);
 
         /// <summary>
-        /// Сохраняет сагу.
+        /// РЎРѕС…СЂР°РЅСЏРµС‚ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="sagaContext">Сохраняемая сага.</param>
+        /// <param name="sagaContext">РЎРѕС…СЂР°РЅСЏРµРјР°СЏ СЃР°РіР°.</param>
         void Store(ISagaContext<TD, TK> sagaContext);
 
         /// <summary>
-        /// Удаляет сагу.
+        /// РЈРґР°Р»СЏРµС‚ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="sagaContext">Удаляемая сага.</param>
+        /// <param name="sagaContext">РЈРґР°Р»СЏРµРјР°СЏ СЃР°РіР°.</param>
         void Remove(ISagaContext<TD, TK> sagaContext);
     }
 }

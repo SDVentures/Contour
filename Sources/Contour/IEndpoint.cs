@@ -1,14 +1,14 @@
-namespace Contour
+п»їnamespace Contour
 {
     /// <summary>
-    ///   Описание конечной точки экземпляра шины.
+    ///   РћРїРёСЃР°РЅРёРµ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё СЌРєР·РµРјРїР»СЏСЂР° С€РёРЅС‹.
     /// </summary>
     public interface IEndpoint
     {
         #region Public Properties
 
         /// <summary>
-        ///   Адрес конечной точки.
+        ///   РђРґСЂРµСЃ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё.
         /// </summary>
         string Address { get; }
 

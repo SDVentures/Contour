@@ -1,4 +1,4 @@
-namespace Contour.Testing.Plumbing
+﻿namespace Contour.Testing.Plumbing
 {
     internal class Exchange
     {

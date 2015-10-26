@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Helpers;
 using Contour.Receiving.Consumers;
@@ -7,15 +7,15 @@ using Contour.Validation;
 namespace Contour.Receiving
 {
     /// <summary>
-    /// Конфигурация получателя.
+    /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ.
     /// </summary>
     internal class ReceiverConfiguration : IReceiverConfiguration, IReceiverConfigurator
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ReceiverConfiguration"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ReceiverConfiguration"/>.
         /// </summary>
-        /// <param name="label">Метка получаемого сообщения.</param>
-        /// <param name="parentOptions">Настройки получателя.</param>
+        /// <param name="label">РњРµС‚РєР° РїРѕР»СѓС‡Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="parentOptions">РќР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.</param>
         public ReceiverConfiguration(MessageLabel label, ReceiverOptions parentOptions)
         {
             this.Label = label;
@@ -24,45 +24,45 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Псевдоним получаемого сообщения.
+        /// РџСЃРµРІРґРѕРЅРёРј РїРѕР»СѓС‡Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public string Alias { get; private set; }
 
         /// <summary>
-        /// Метка получаемого сообщения.
+        /// РњРµС‚РєР° РїРѕР»СѓС‡Р°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public MessageLabel Label { get; private set; }
 
         /// <summary>
-        /// Настройки получателя.
+        /// РќР°СЃС‚СЂРѕР№РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.
         /// </summary>
         public ReceiverOptions Options { get; private set; }
 
         /// <summary>
-        /// Регистратор получателя.
+        /// Р РµРіРёСЃС‚СЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ.
         /// </summary>
         public Action<IReceiver> ReceiverRegistration { get; protected internal set; }
 
         /// <summary>
-        /// Механизм проверки получаемых сообщений.
+        /// РњРµС…Р°РЅРёР·Рј РїСЂРѕРІРµСЂРєРё РїРѕР»СѓС‡Р°РµРјС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IMessageValidator Validator { get; private set; }
 
         /// <summary>
-        /// Возвращает типизированный конфигуратор получателя.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ С‚РёРїРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РєРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ.
         /// </summary>
-        /// <typeparam name="T">Тип конфигуратора получателя.</typeparam>
-        /// <returns>Конфигуратор получателя.</returns>
+        /// <typeparam name="T">РўРёРї РєРѕРЅС„РёРіСѓСЂР°С‚РѕСЂР° РїРѕР»СѓС‡Р°С‚РµР»СЏ.</typeparam>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ.</returns>
         public IReceiverConfigurator<T> As<T>() where T : class
         {
             return new TypedReceiverConfigurationDecorator<T>(this);
         }
 
         /// <summary>
-        /// Регистрирует стратегию обработки сообщений, получение которых завершилось провалом.
+        /// Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ СЃС‚СЂР°С‚РµРіРёСЋ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№, РїРѕР»СѓС‡РµРЅРёРµ РєРѕС‚РѕСЂС‹С… Р·Р°РІРµСЂС€РёР»РѕСЃСЊ РїСЂРѕРІР°Р»РѕРј.
         /// </summary>
-        /// <param name="failedDeliveryStrategy">Стратегия обработки сообщений, получение которых завершилось провалом.</param>
-        /// <returns>Конфигуратор получателя с установленной стратегией обработки сообщений.</returns>
+        /// <param name="failedDeliveryStrategy">РЎС‚СЂР°С‚РµРіРёСЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№, РїРѕР»СѓС‡РµРЅРёРµ РєРѕС‚РѕСЂС‹С… Р·Р°РІРµСЂС€РёР»РѕСЃСЊ РїСЂРѕРІР°Р»РѕРј.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ СЃС‚СЂР°С‚РµРіРёРµР№ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator OnFailed(IFailedDeliveryStrategy failedDeliveryStrategy)
         {
             this.Options.FailedDeliveryStrategy = failedDeliveryStrategy.Maybe();
@@ -70,18 +70,18 @@ namespace Contour.Receiving
             return this;
         }
 
-        /// <summary>Регистрирует обработчик сообщений, получение которых завершилось провалом.</summary>
-        /// <param name="failedDeliveryHandler">Обработчик сообщений, получение которых завершилось провалом.</param>
-        /// <returns>Конфигуратор получателя с установленной стратегией обработки сообщений</returns>
+        /// <summary>Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕРѕР±С‰РµРЅРёР№, РїРѕР»СѓС‡РµРЅРёРµ РєРѕС‚РѕСЂС‹С… Р·Р°РІРµСЂС€РёР»РѕСЃСЊ РїСЂРѕРІР°Р»РѕРј.</summary>
+        /// <param name="failedDeliveryHandler">РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕРѕР±С‰РµРЅРёР№, РїРѕР»СѓС‡РµРЅРёРµ РєРѕС‚РѕСЂС‹С… Р·Р°РІРµСЂС€РёР»РѕСЃСЊ РїСЂРѕРІР°Р»РѕРј.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ СЃС‚СЂР°С‚РµРіРёРµР№ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№</returns>
         public IReceiverConfigurator OnFailed(Action<IFailedConsumingContext> failedDeliveryHandler)
         {
             return this.OnFailed(new LambdaFailedDeliveryStrategy(failedDeliveryHandler));
         }
 
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
+        /// <summary>Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</summary>
+        /// <param name="handlerAction">РћР±СЂР°Р±РѕС‚С‡РёРє РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="T">РўРёРї РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator<T> ReactWith<T>(Action<T> handlerAction) where T : class
         {
             this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, new LambdaConsumerOf<T>(ctx => handlerAction(ctx.Message.Payload)));
@@ -89,10 +89,10 @@ namespace Contour.Receiving
             return new TypedReceiverConfigurationDecorator<T>(this);
         }
 
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
+        /// <summary>Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</summary>
+        /// <param name="handlerAction">РћР±СЂР°Р±РѕС‚С‡РёРє РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="T">РўРёРї РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator<T> ReactWith<T>(Action<T, IConsumingContext<T>> handlerAction) where T : class
         {
             this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, new LambdaConsumerOf<T>(ctx => handlerAction(ctx.Message.Payload, ctx)));
@@ -100,10 +100,10 @@ namespace Contour.Receiving
             return new TypedReceiverConfigurationDecorator<T>(this);
         }
 
-        /// <summary>Регистрирует фабрику обработчиков входящего сообщения.</summary>
-        /// <param name="consumerFactoryFunc">Фабрика обработчиков входящих сообщений.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
+        /// <summary>Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ С„Р°Р±СЂРёРєСѓ РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</summary>
+        /// <param name="consumerFactoryFunc">Р¤Р°Р±СЂРёРєР° РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <typeparam name="T">РўРёРї РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator<T> ReactWith<T>(Func<IConsumerOf<T>> consumerFactoryFunc) where T : class
         {
             this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, new FactoryConsumerOf<T>(consumerFactoryFunc));
@@ -111,10 +111,10 @@ namespace Contour.Receiving
             return new TypedReceiverConfigurationDecorator<T>(this);
         }
 
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="consumer">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
+        /// <summary>Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</summary>
+        /// <param name="consumer">РћР±СЂР°Р±РѕС‚С‡РёРє РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <typeparam name="T">РўРёРї РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator<T> ReactWith<T>(IConsumerOf<T> consumer) where T : class
         {
             this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, consumer);
@@ -123,10 +123,10 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Устанавливает необходимость явного подтверждения успешной обработки сообщения.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ СЏРІРЅРѕРіРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ СѓСЃРїРµС€РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         /// <returns>
-        /// Конфигуратор получателя с явным подтверждением успешной обработки сообщения.
+        /// РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СЏРІРЅС‹Рј РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓСЃРїРµС€РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </returns>
         public IReceiverConfigurator RequiresAccept()
         {
@@ -136,7 +136,7 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Проверяет конфигурацию.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ.
         /// </summary>
         public virtual void Validate()
         {
@@ -144,10 +144,10 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Регистрирует механизм проверки входящего сообщения.
+        /// Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РјРµС…Р°РЅРёР·Рј РїСЂРѕРІРµСЂРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="validator">Механизм проверки входящего сообщения.</param>
-        /// <returns>Конфигуратор получателя с установленным механизмом проверки входящих сообщений.</returns>
+        /// <param name="validator">РњРµС…Р°РЅРёР·Рј РїСЂРѕРІРµСЂРєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РјРµС…Р°РЅРёР·РјРѕРј РїСЂРѕРІРµСЂРєРё РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator WhenVerifiedBy(IMessageValidator validator)
         {
             this.Validator = validator;
@@ -156,10 +156,10 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Устанавливает псевдоним входящих сообщений.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїСЃРµРІРґРѕРЅРёРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="alias">Псевдоним входящих сообщений.</param>
-        /// <returns>Конфигуратор получателя с установленным псевдонимом входящих сообщений.</returns>
+        /// <param name="alias">РџСЃРµРІРґРѕРЅРёРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РїСЃРµРІРґРѕРЅРёРјРѕРј РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator WithAlias(string alias)
         {
             this.Alias = MessageLabel.AliasPrefix + alias;
@@ -168,10 +168,10 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Регистрирует построитель порта, по которому проходит получение входящих сообщений.
+        /// Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РїРѕСЃС‚СЂРѕРёС‚РµР»СЊ РїРѕСЂС‚Р°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РїСЂРѕС…РѕРґРёС‚ РїРѕР»СѓС‡РµРЅРёРµ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="endpointBuilder">Построитель порта входящих сообщений.</param>
-        /// <returns>Конфигуратор получателя с установленным построителем порта входящих сообщений.</returns>
+        /// <param name="endpointBuilder">РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РїРѕСЂС‚Р° РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РїРѕСЃС‚СЂРѕРёС‚РµР»РµРј РїРѕСЂС‚Р° РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator WithEndpoint(Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> endpointBuilder)
         {
             this.Options.EndpointBuilder = endpointBuilder;
@@ -180,10 +180,10 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Устанавливает количество одновременных обработчиков входящих сообщений.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕРґРЅРѕРІСЂРµРјРµРЅРЅС‹С… РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <param name="parallelismLevel">Количество одновременных обработчиков входящих сообщений.</param>
-        /// <returns>Конфигуратор получателя с установленным количеством одновременных обработчиков входящих сообщений.</returns>
+        /// <param name="parallelismLevel">РљРѕР»РёС‡РµСЃС‚РІРѕ РѕРґРЅРѕРІСЂРµРјРµРЅРЅС‹С… РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј РєРѕР»РёС‡РµСЃС‚РІРѕРј РѕРґРЅРѕРІСЂРµРјРµРЅРЅС‹С… РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РІС…РѕРґСЏС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public IReceiverConfigurator WithParallelismLevel(uint parallelismLevel)
         {
             this.Options.ParallelismLevel = parallelismLevel;
@@ -192,10 +192,10 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Устанавливает хранилище заголовков входящего сообщения.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С…СЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="storage">Хранилище заголовков входящего сообщения.</param>
-        /// <returns>Конфигуратор получателя с установленным хранилищем заголовков.</returns>
+        /// <param name="storage">РҐСЂР°РЅРёР»РёС‰Рµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј С…СЂР°РЅРёР»РёС‰РµРј Р·Р°РіРѕР»РѕРІРєРѕРІ.</returns>
         public IReceiverConfigurator WithIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage)
         {
             this.Options.IncomingMessageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(storage);

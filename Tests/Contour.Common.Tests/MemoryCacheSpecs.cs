@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+п»їusing System.Diagnostics.CodeAnalysis;
 
 namespace Contour.Common.Tests
 {
@@ -230,14 +230,14 @@ namespace Contour.Common.Tests
         }
 
         /// <summary>
-        /// Проверяет, что при добавлении элемента в кеш, на основе интервала, создается элемент кеша с абсолютным временем.
+        /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё СЌР»РµРјРµРЅС‚Р° РІ РєРµС€, РЅР° РѕСЃРЅРѕРІРµ РёРЅС‚РµСЂРІР°Р»Р°, СЃРѕР·РґР°РµС‚СЃСЏ СЌР»РµРјРµРЅС‚ РєРµС€Р° СЃ Р°Р±СЃРѕР»СЋС‚РЅС‹Рј РІСЂРµРјРµРЅРµРј.
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
         [Category("Unit")]
         public class when_put_item_with_timespan
         {
             /// <summary>
-            /// Должен быть создан элемент кеша с абсолютным временем.
+            /// Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃРѕР·РґР°РЅ СЌР»РµРјРµРЅС‚ РєРµС€Р° СЃ Р°Р±СЃРѕР»СЋС‚РЅС‹Рј РІСЂРµРјРµРЅРµРј.
             /// </summary>
             [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
             [Test]
@@ -251,7 +251,7 @@ namespace Contour.Common.Tests
                 cacheProvider.Get<Boo>("key");
                 Thread.Sleep(3000);
 
-                Assert.Throws<InvalidOperationException>(() => cacheProvider.Get<Boo>("key"), "Объект должен быть удален из кеша.");
+                Assert.Throws<InvalidOperationException>(() => cacheProvider.Get<Boo>("key"), "РћР±СЉРµРєС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРґР°Р»РµРЅ РёР· РєРµС€Р°.");
             }
         }
     }

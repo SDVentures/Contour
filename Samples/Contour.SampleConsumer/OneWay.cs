@@ -1,4 +1,4 @@
-namespace Contour.SampleConsumer
+п»їnamespace Contour.SampleConsumer
 {
     /// <summary>
     /// The one way.
@@ -8,7 +8,7 @@ namespace Contour.SampleConsumer
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="OneWay"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="OneWay"/>.
         /// </summary>
         /// <param name="number">
         /// The number.
@@ -19,7 +19,7 @@ namespace Contour.SampleConsumer
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="OneWay"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="OneWay"/>.
         /// </summary>
         protected OneWay()
         {

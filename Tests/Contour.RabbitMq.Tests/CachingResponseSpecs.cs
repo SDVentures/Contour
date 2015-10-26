@@ -1,4 +1,4 @@
-using System.Linq;
+п»їusing System.Linq;
 using System.Threading.Tasks;
 
 using FluentAssertions;
@@ -14,19 +14,19 @@ namespace Contour.RabbitMq.Tests
     // ReSharper disable InconsistentNaming
 
     /// <summary>
-    /// Проверяет работу кеша.
+    /// РџСЂРѕРІРµСЂСЏРµС‚ СЂР°Р±РѕС‚Сѓ РєРµС€Р°.
     /// </summary>
     public class CachingResponseSpecs
     {
         /// <summary>
-        /// В случае отправки нескольких одинаковых запросов
+        /// Р’ СЃР»СѓС‡Р°Рµ РѕС‚РїСЂР°РІРєРё РЅРµСЃРєРѕР»СЊРєРёС… РѕРґРёРЅР°РєРѕРІС‹С… Р·Р°РїСЂРѕСЃРѕРІ
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenSendingMultipleEqualRequestsToCachingAwareConsumer : RabbitMqFixture
         {
             /// <summary>
-            /// Должно отослаться одно сообщение.
+            /// Р”РѕР»Р¶РЅРѕ РѕС‚РѕСЃР»Р°С‚СЊСЃСЏ РѕРґРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ.
             /// </summary>
             [Test]
             public void ShouldSendOneMessageThroughTransport()

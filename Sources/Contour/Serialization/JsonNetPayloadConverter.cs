@@ -1,4 +1,4 @@
-namespace Contour.Serialization
+﻿namespace Contour.Serialization
 {
     using System;
     using System.Text;

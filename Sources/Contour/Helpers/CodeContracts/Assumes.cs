@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Assumes.cs" company="">
 //   
 // </copyright>
@@ -94,7 +94,7 @@ namespace Contour.Helpers.CodeContracts
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="InternalErrorException"/>. 
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="InternalErrorException"/>. 
             ///   Initializes a new instance of the <see cref="InternalErrorException"/> class.
             /// </summary>
             internal InternalErrorException()
@@ -102,7 +102,7 @@ namespace Contour.Helpers.CodeContracts
             }
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="InternalErrorException"/>. 
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="InternalErrorException"/>. 
             /// Initializes a new instance of the <see cref="InternalErrorException"/> class.
             /// </summary>
             /// <param name="message">
@@ -114,7 +114,7 @@ namespace Contour.Helpers.CodeContracts
             }
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="InternalErrorException"/>. 
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="InternalErrorException"/>. 
             /// Initializes a new instance of the <see cref="InternalErrorException"/> class.
             /// </summary>
             /// <param name="info">

@@ -1,19 +1,19 @@
-using Contour.Configuration;
+п»їusing Contour.Configuration;
 using Contour.Serialization;
 using Contour.Transport.RabbitMQ;
 
 namespace Contour
 {
     /// <summary>
-    /// Построитель конфигурации шины с настройками по умолчанию.
+    /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёРё С€РёРЅС‹ СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
     /// </summary>
     internal static class DefaultBusConfigurationBuilder
     {
         /// <summary>
-        /// Строит конфигурацию шины.
+        /// РЎС‚СЂРѕРёС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ С€РёРЅС‹.
         /// </summary>
         /// <returns>
-        /// Конфигурация шины с настройкми по умолчнаию.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С€РёРЅС‹ СЃ РЅР°СЃС‚СЂРѕР№РєРјРё РїРѕ СѓРјРѕР»С‡РЅР°РёСЋ.
         /// </returns>
         public static BusConfiguration Build()
         {

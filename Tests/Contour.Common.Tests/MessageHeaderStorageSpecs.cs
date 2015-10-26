@@ -1,23 +1,23 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 
 using NUnit.Framework;
 
 namespace Contour.Common.Tests
 {
     /// <summary>
-    /// Тесты для проверки хранилища заголовков входящего сообщения.
+    /// РўРµСЃС‚С‹ РґР»СЏ РїСЂРѕРІРµСЂРєРё С…СЂР°РЅРёР»РёС‰Р° Р·Р°РіРѕР»РѕРІРєРѕРІ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public class MessageHeaderStorageSpecs
     {
         /// <summary>
-        /// При сохранении заголовков.
+        /// РџСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё Р·Р°РіРѕР»РѕРІРєРѕРІ.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class WhenStoreHeaders
         {
             /// <summary>
-            /// Должны исключаться заголовки из черного списка.
+            /// Р”РѕР»Р¶РЅС‹ РёСЃРєР»СЋС‡Р°С‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРєРё РёР· С‡РµСЂРЅРѕРіРѕ СЃРїРёСЃРєР°.
             /// </summary>
             [Test]
             public void ShouldFilterHeadersOfBlackList()
@@ -28,8 +28,8 @@ namespace Contour.Common.Tests
 
                 sut.Store(new Dictionary<string, object> { { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 4 } });
 
-                CollectionAssert.DoesNotContain(sut.Load().Keys, "b", "Заголовок должен быть исключен при сохранении.");
-                CollectionAssert.DoesNotContain(sut.Load().Keys, "c", "Заголовок должен быть исключен при сохранении.");
+                CollectionAssert.DoesNotContain(sut.Load().Keys, "b", "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РёСЃРєР»СЋС‡РµРЅ РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё.");
+                CollectionAssert.DoesNotContain(sut.Load().Keys, "c", "Р—Р°РіРѕР»РѕРІРѕРє РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РёСЃРєР»СЋС‡РµРЅ РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё.");
             }
         }
     }

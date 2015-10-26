@@ -1,4 +1,4 @@
-namespace Contour.Operators
+﻿namespace Contour.Operators
 {
     /// <summary>
     /// Pipeline operator based consumer.

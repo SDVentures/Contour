@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Receiving;
 using Contour.Topology;
@@ -6,15 +6,15 @@ using Contour.Topology;
 namespace Contour.Transport.RabbitMQ.Topology
 {
     /// <summary>
-    /// Описание очереди <c>RabbitMq</c>.
+    /// РћРїРёСЃР°РЅРёРµ РѕС‡РµСЂРµРґРё <c>RabbitMq</c>.
     /// </summary>
     public class Queue : ITopologyEntity, IListeningSource
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Queue"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Queue"/>.
         /// </summary>
         /// <param name="name">
-        /// Имя очереди.
+        /// РРјСЏ РѕС‡РµСЂРµРґРё.
         /// </param>
         internal Queue(string name)
         {
@@ -25,7 +25,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         }
 
         /// <summary>
-        /// Адрес очереди.
+        /// РђРґСЂРµСЃ РѕС‡РµСЂРµРґРё.
         /// </summary>
         public string Address
         {
@@ -36,54 +36,54 @@ namespace Contour.Transport.RabbitMQ.Topology
         }
 
         /// <summary>
-        /// Признак удаляемой очереди.
+        /// РџСЂРёР·РЅР°Рє СѓРґР°Р»СЏРµРјРѕР№ РѕС‡РµСЂРµРґРё.
         /// </summary>
         public bool AutoDelete { get; internal set; }
 
         /// <summary>
-        /// Признак надежности очереди.
+        /// РџСЂРёР·РЅР°Рє РЅР°РґРµР¶РЅРѕСЃС‚Рё РѕС‡РµСЂРµРґРё.
         /// </summary>
         public bool Durable { get; internal set; }
 
         /// <summary>
-        /// Признак эксклюзивности очереди.
+        /// РџСЂРёР·РЅР°Рє СЌРєСЃРєР»СЋР·РёРІРЅРѕСЃС‚Рё РѕС‡РµСЂРµРґРё.
         /// </summary>
         public bool Exclusive { get; internal set; }
 
         /// <summary>
-        /// Имя очереди.
+        /// РРјСЏ РѕС‡РµСЂРµРґРё.
         /// </summary>
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Время жизни сообщений в очереди.
+        /// Р’СЂРµРјСЏ Р¶РёР·РЅРё СЃРѕРѕР±С‰РµРЅРёР№ РІ РѕС‡РµСЂРµРґРё.
         /// </summary>
         public TimeSpan? Ttl { get; internal set; }
 
         /// <summary>
-        /// Создает экземпляр построителя очереди с именем <paramref name="name"/>.
+        /// РЎРѕР·РґР°РµС‚ СЌРєР·РµРјРїР»СЏСЂ РїРѕСЃС‚СЂРѕРёС‚РµР»СЏ РѕС‡РµСЂРµРґРё СЃ РёРјРµРЅРµРј <paramref name="name"/>.
         /// </summary>
         /// <param name="name">
-        /// Имя создаваемой очереди.
+        /// РРјСЏ СЃРѕР·РґР°РІР°РµРјРѕР№ РѕС‡РµСЂРµРґРё.
         /// </param>
         /// <returns>
-        /// Построитель очереди <see cref="QueueBuilder"/>.
+        /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РѕС‡РµСЂРµРґРё <see cref="QueueBuilder"/>.
         /// </returns>
         public static QueueBuilder Named(string name)
         {
             return new QueueBuilder(name);
 
-            // TODO: странная зависимость создаваемого объекта от создателя.
+            // TODO: СЃС‚СЂР°РЅРЅР°СЏ Р·Р°РІРёСЃРёРјРѕСЃС‚СЊ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕР±СЉРµРєС‚Р° РѕС‚ СЃРѕР·РґР°С‚РµР»СЏ.
         }
 
         /// <summary>
-        /// Выполняет сравнение двух очередей.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚ СЃСЂР°РІРЅРµРЅРёРµ РґРІСѓС… РѕС‡РµСЂРµРґРµР№.
         /// </summary>
         /// <param name="obj">
-        /// Сравниваемая очередь.
+        /// РЎСЂР°РІРЅРёРІР°РµРјР°СЏ РѕС‡РµСЂРµРґСЊ.
         /// </param>
         /// <returns>
-        /// <c>true</c> - если объекты равны, иначе <c>false</c>.
+        /// <c>true</c> - РµСЃР»Рё РѕР±СЉРµРєС‚С‹ СЂР°РІРЅС‹, РёРЅР°С‡Рµ <c>false</c>.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -106,10 +106,10 @@ namespace Contour.Transport.RabbitMQ.Topology
         }
 
         /// <summary>
-        /// Рассчитывает код хеширования для очереди.
+        /// Р Р°СЃСЃС‡РёС‚С‹РІР°РµС‚ РєРѕРґ С…РµС€РёСЂРѕРІР°РЅРёСЏ РґР»СЏ РѕС‡РµСЂРµРґРё.
         /// </summary>
         /// <returns>
-        /// Код хеширования значение очереди.
+        /// РљРѕРґ С…РµС€РёСЂРѕРІР°РЅРёСЏ Р·РЅР°С‡РµРЅРёРµ РѕС‡РµСЂРµРґРё.
         /// </returns>
         public override int GetHashCode()
         {
@@ -117,10 +117,10 @@ namespace Contour.Transport.RabbitMQ.Topology
         }
 
         /// <summary>
-        /// Конвертирует очередь в строку.
+        /// РљРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РѕС‡РµСЂРµРґСЊ РІ СЃС‚СЂРѕРєСѓ.
         /// </summary>
         /// <returns>
-        /// Строковое представление очереди.
+        /// РЎС‚СЂРѕРєРѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РѕС‡РµСЂРµРґРё.
         /// </returns>
         public override string ToString()
         {
@@ -128,13 +128,13 @@ namespace Contour.Transport.RabbitMQ.Topology
         }
 
         /// <summary>
-        /// Выполняет сравнение двух очередей.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚ СЃСЂР°РІРЅРµРЅРёРµ РґРІСѓС… РѕС‡РµСЂРµРґРµР№.
         /// </summary>
         /// <param name="other">
-        /// Сравниваемая очередь.
+        /// РЎСЂР°РІРЅРёРІР°РµРјР°СЏ РѕС‡РµСЂРµРґСЊ.
         /// </param>
         /// <returns>
-        /// <c>true</c> - если объекты равны, иначе <c>false</c>.
+        /// <c>true</c> - РµСЃР»Рё РѕР±СЉРµРєС‚С‹ СЂР°РІРЅС‹, РёРЅР°С‡Рµ <c>false</c>.
         /// </returns>
         protected bool Equals(Queue other)
         {

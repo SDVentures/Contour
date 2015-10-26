@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
@@ -6,27 +6,27 @@ using Contour.Receiving.Consumers;
 namespace Contour.Operators
 {
     /// <summary>
-    /// Динамический фильтр. 
-    /// Выполняет вычисление необходимости фильтрации на основе конфигурационных сообщений от других участников.
+    /// Р”РёРЅР°РјРёС‡РµСЃРєРёР№ С„РёР»СЊС‚СЂ. 
+    /// Р’С‹РїРѕР»РЅСЏРµС‚ РІС‹С‡РёСЃР»РµРЅРёРµ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё С„РёР»СЊС‚СЂР°С†РёРё РЅР° РѕСЃРЅРѕРІРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№ РѕС‚ РґСЂСѓРіРёС… СѓС‡Р°СЃС‚РЅРёРєРѕРІ.
     /// </summary>
-    /// <typeparam name="T">Тип сохраняемого признака фильтрации.</typeparam>
+    /// <typeparam name="T">РўРёРї СЃРѕС…СЂР°РЅСЏРµРјРѕРіРѕ РїСЂРёР·РЅР°РєР° С„РёР»СЊС‚СЂР°С†РёРё.</typeparam>
     public class DynamicFilter<T> : Filter
         where T : class
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="DynamicFilter{T}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DynamicFilter{T}"/>. 
         /// </summary>
-        /// <param name="routeFilter">Функция вычисления применяемого правила маршрутизации.</param>
-        /// <param name="storage">Хранилище правил маршрутизации.</param>
+        /// <param name="routeFilter">Р¤СѓРЅРєС†РёСЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїСЂРёРјРµРЅСЏРµРјРѕРіРѕ РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
+        /// <param name="storage">РҐСЂР°РЅРёР»РёС‰Рµ РїСЂР°РІРёР» РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
         public DynamicFilter(Func<IMessage, IKeyValueStorage<T>, bool> routeFilter, IKeyValueStorage<T> storage)
             : base(message => routeFilter(message, storage))
         {
         }
 
         /// <summary>
-        /// Обработчик управляющих сообщений.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє СѓРїСЂР°РІР»СЏСЋС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <typeparam name="TV">Тип правила маршрутизации.</typeparam>
+        /// <typeparam name="TV">РўРёРї РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</typeparam>
         public class DynamicFilterControlConsumer<TV> : IConsumerOf<T>
             where TV : class
         {
@@ -35,10 +35,10 @@ namespace Contour.Operators
             private readonly IKeyValueStorage<TV> storage;
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="DynamicFilterControlConsumer{TV}"/>. 
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DynamicFilterControlConsumer{TV}"/>. 
             /// </summary>
-            /// <param name="createRoute">Функция вычисления правила маршрутизации.</param>
-            /// <param name="storage">Хранилище правил маршрутизации.</param>
+            /// <param name="createRoute">Р¤СѓРЅРєС†РёСЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
+            /// <param name="storage">РҐСЂР°РЅРёР»РёС‰Рµ РїСЂР°РІРёР» РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
             public DynamicFilterControlConsumer(Action<IMessage, IKeyValueStorage<TV>> createRoute, IKeyValueStorage<TV> storage)
             {
                 this.createRoute = createRoute;
@@ -46,9 +46,9 @@ namespace Contour.Operators
             }
 
             /// <summary>
-            /// Обрабатывает управляющие сообщения с целью корректировки правил маршрутизации. 
+            /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СѓРїСЂР°РІР»СЏСЋС‰РёРµ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ С†РµР»СЊСЋ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РїСЂР°РІРёР» РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё. 
             /// </summary>
-            /// <param name="context">Контекст полученного сообщения.</param>
+            /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
             public void Handle(IConsumingContext<T> context)
             {
                 this.createRoute(context.Message, this.storage);

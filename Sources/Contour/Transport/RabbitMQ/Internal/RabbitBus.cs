@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ.Internal
+п»їnamespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Generic;
@@ -51,7 +51,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitBus"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitBus"/>.
         /// </summary>
         /// <param name="configuration">
         /// The configuration.
@@ -159,9 +159,9 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("{0}: resetting state.", this.Endpoint));
             this.IsConfigured = false;
 
-            // если не ожидать завершения задачи до сброса флага IsShuttingDown,
-            // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоятии закрытия)
-            // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
+            // РµСЃР»Рё РЅРµ РѕР¶РёРґР°С‚СЊ Р·Р°РІРµСЂС€РµРЅРёСЏ Р·Р°РґР°С‡Рё РґРѕ СЃР±СЂРѕСЃР° С„Р»Р°РіР° IsShuttingDown,
+            // С‚РѕРіРґР° РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РѕРє (РЅР°РїСЂРёРјРµСЂ, РєРѕРіРґР° РѕР±СЂР°Р±РѕС‚С‡РёРє РїС‹С‚Р°РµС‚СЃСЏ РѕС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ С€РёРЅСѓ, Р° РѕРЅР° РІ СЃРѕСЃС‚РѕСЏС‚РёРё Р·Р°РєСЂС‹С‚РёСЏ)
+            // Р·Р°РґР°С‡Р° РјРѕР¶РµС‚ РЅРµ СѓСЃРїРµС‚СЊ Р·Р°РєСЂС‹С‚СЊСЃСЏ Рё РѕРЅР° РІС…РѕРґРёС‚ РІ Р±РµСЃРєРѕРЅРµС‡РЅРѕРµ РѕР¶РёРґР°РЅРёРµ РІ РјРµС‚РѕРґРµ Restart -> ResetRestartTask.
             this.restartTask.Wait();
             this.IsShuttingDown = false;
         }

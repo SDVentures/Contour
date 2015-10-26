@@ -1,16 +1,16 @@
-namespace Contour.Configuration
+п»їnamespace Contour.Configuration
 {
     using System;
 
     /// <summary>
-    ///   Невозможно подключиться к транспорту (брокеру), либо соединение было потеряно.
+    ///   РќРµРІРѕР·РјРѕР¶РЅРѕ РїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє С‚СЂР°РЅСЃРїРѕСЂС‚Сѓ (Р±СЂРѕРєРµСЂСѓ), Р»РёР±Рѕ СЃРѕРµРґРёРЅРµРЅРёРµ Р±С‹Р»Рѕ РїРѕС‚РµСЂСЏРЅРѕ.
     /// </summary>
     public class BusConnectionException : Exception
     {
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusConnectionException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusConnectionException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.
@@ -21,7 +21,7 @@ namespace Contour.Configuration
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusConnectionException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusConnectionException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.

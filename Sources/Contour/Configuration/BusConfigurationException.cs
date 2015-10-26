@@ -1,16 +1,16 @@
-namespace Contour.Configuration
+п»їnamespace Contour.Configuration
 {
     using System;
 
     /// <summary>
-    ///   Исключение связанное с некорректной конфигурацией шины.
+    ///   РСЃРєР»СЋС‡РµРЅРёРµ СЃРІСЏР·Р°РЅРЅРѕРµ СЃ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№ С€РёРЅС‹.
     /// </summary>
     public class BusConfigurationException : Exception
     {
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusConfigurationException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BusConfigurationException"/>.
         /// </summary>
         /// <param name="message">
         /// The message.

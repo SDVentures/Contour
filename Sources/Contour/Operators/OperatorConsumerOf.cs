@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 
 using Contour.Helpers;
 using Contour.Receiving;
@@ -7,19 +7,19 @@ using Contour.Receiving.Consumers;
 namespace Contour.Operators
 {
     /// <summary>
-    /// Потребитель сообщения, который применяет оператор для обработки сообщения.
+    /// РџРѕС‚СЂРµР±РёС‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Р№ РїСЂРёРјРµРЅСЏРµС‚ РѕРїРµСЂР°С‚РѕСЂ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
-    /// <typeparam name="T">Тип сообщения.</typeparam>
+    /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
     public class OperatorConsumerOf<T> : IConsumerOf<T>
         where T : class
     {
         private readonly IMessageOperator @operator;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="OperatorConsumerOf{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="OperatorConsumerOf{T}"/>.
         /// </summary>
         /// <param name="operator">
-        /// Оператор применяемый для обработки сообщения.
+        /// РћРїРµСЂР°С‚РѕСЂ РїСЂРёРјРµРЅСЏРµРјС‹Р№ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         public OperatorConsumerOf(IMessageOperator @operator)
         {
@@ -27,9 +27,9 @@ namespace Contour.Operators
         }
 
         /// <summary>
-        /// Обрабатывает входящее сообщение.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="context">Контекст обработки сообщения.</param>
+        /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public void Handle(IConsumingContext<T> context)
         {
             BusProcessingContext.Current = new BusProcessingContext(((IDeliveryContext)context).Delivery);

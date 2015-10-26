@@ -1,4 +1,4 @@
-namespace Contour.SampleProducer
+п»їnamespace Contour.SampleProducer
 {
     /// <summary>
     /// The bad request.
@@ -8,7 +8,7 @@ namespace Contour.SampleProducer
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BadRequest"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BadRequest"/>.
         /// </summary>
         /// <param name="number">
         /// The number.

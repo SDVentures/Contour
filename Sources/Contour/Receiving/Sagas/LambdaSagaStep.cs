@@ -1,32 +1,32 @@
-using System;
+п»їusing System;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Шаги выполнения саги.
+    /// РЁР°РіРё РІС‹РїРѕР»РЅРµРЅРёСЏ СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TS">Тип данных сохраняемых в саге.</typeparam>
-    /// <typeparam name="TM">Тип входящего сообщения.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РґР°РЅРЅС‹С… СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TM">РўРёРї РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class LambdaSagaStep<TS, TM, TK> : ISagaStep<TS, TM, TK>
         where TM : class
     {
         private readonly Action<ISagaContext<TS, TK>, IConsumingContext<TM>> action;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="LambdaSagaStep{TS,TM,TK}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LambdaSagaStep{TS,TM,TK}"/>. 
         /// </summary>
-        /// <param name="action">Действие выполняемое на указанном шаге саги.</param>
+        /// <param name="action">Р”РµР№СЃС‚РІРёРµ РІС‹РїРѕР»РЅСЏРµРјРѕРµ РЅР° СѓРєР°Р·Р°РЅРЅРѕРј С€Р°РіРµ СЃР°РіРё.</param>
         public LambdaSagaStep(Action<ISagaContext<TS, TK>, IConsumingContext<TM>> action)
         {
             this.action = action;
         }
 
         /// <summary>
-        /// Выполняет шаг саги.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚ С€Р°Рі СЃР°РіРё.
         /// </summary>
-        /// <param name="sagaContext">Контекст саги доступный на данном шаге выполнения.</param>
-        /// <param name="consumingContext">Контекст обработки входящего сообщения.</param>
+        /// <param name="sagaContext">РљРѕРЅС‚РµРєСЃС‚ СЃР°РіРё РґРѕСЃС‚СѓРїРЅС‹Р№ РЅР° РґР°РЅРЅРѕРј С€Р°РіРµ РІС‹РїРѕР»РЅРµРЅРёСЏ.</param>
+        /// <param name="consumingContext">РљРѕРЅС‚РµРєСЃС‚ РѕР±СЂР°Р±РѕС‚РєРё РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public void Handle(ISagaContext<TS, TK> sagaContext, IConsumingContext<TM> consumingContext)
         {
             this.action(sagaContext, consumingContext);

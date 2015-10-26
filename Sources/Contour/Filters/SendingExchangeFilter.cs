@@ -1,4 +1,4 @@
-namespace Contour.Filters
+п»їnamespace Contour.Filters
 {
     using System;
     using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace Contour.Filters
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SendingExchangeFilter"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SendingExchangeFilter"/>.
         /// </summary>
         /// <param name="sendingAction">
         /// The sending action.

@@ -1,4 +1,4 @@
-namespace Contour.Common.Tests
+﻿namespace Contour.Common.Tests
 {
     using System.Diagnostics;
     using System.Linq;

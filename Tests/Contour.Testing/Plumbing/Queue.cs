@@ -1,12 +1,12 @@
-namespace Contour.Testing.Plumbing
+п»їnamespace Contour.Testing.Plumbing
 {
     /// <summary>
-    /// Очередь сообщений в брокере.
+    /// РћС‡РµСЂРµРґСЊ СЃРѕРѕР±С‰РµРЅРёР№ РІ Р±СЂРѕРєРµСЂРµ.
     /// </summary>
     public class Queue
     {
         /// <summary>
-        /// Имя очереди сообщений в брокере.
+        /// РРјСЏ РѕС‡РµСЂРµРґРё СЃРѕРѕР±С‰РµРЅРёР№ РІ Р±СЂРѕРєРµСЂРµ.
         /// </summary>
         public string Name { get; set; }
     }

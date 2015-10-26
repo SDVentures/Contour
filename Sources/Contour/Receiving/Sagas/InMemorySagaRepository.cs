@@ -1,12 +1,12 @@
-using System.Collections.Concurrent;
+п»їusing System.Collections.Concurrent;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Хранилище саг в памяти.
+    /// РҐСЂР°РЅРёР»РёС‰Рµ СЃР°Рі РІ РїР°РјСЏС‚Рё.
     /// </summary>
-    /// <typeparam name="TS">Тип пользовательских данных сохраняемых в саге.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РґР°РЅРЅС‹С… СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class InMemorySagaRepository<TS, TK> : ISagaRepository<TS, TK>
     {
         private readonly ConcurrentDictionary<TK, TS> sagas = new ConcurrentDictionary<TK, TS>();
@@ -14,19 +14,19 @@ namespace Contour.Receiving.Sagas
         private readonly ISagaFactory<TS, TK> sagaFactory;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="InMemorySagaRepository{TS,TK}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="InMemorySagaRepository{TS,TK}"/>. 
         /// </summary>
-        /// <param name="sagaFactory">Фабрика саг используемая для создания саги возвращаемой из хранилища.</param>
+        /// <param name="sagaFactory">Р¤Р°Р±СЂРёРєР° СЃР°Рі РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЃР°РіРё РІРѕР·РІСЂР°С‰Р°РµРјРѕР№ РёР· С…СЂР°РЅРёР»РёС‰Р°.</param>
         public InMemorySagaRepository(ISagaFactory<TS, TK> sagaFactory)
         {
             this.sagaFactory = sagaFactory;
         }
 
         /// <summary>
-        /// Получает сохраненную сагу.
+        /// РџРѕР»СѓС‡Р°РµС‚ СЃРѕС…СЂР°РЅРµРЅРЅСѓСЋ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="sagaId">Идентификатор запрашиваемой саги.</param>
-        /// <returns>Запрашиваемая сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕР№ СЃР°РіРё.</param>
+        /// <returns>Р—Р°РїСЂР°С€РёРІР°РµРјР°СЏ СЃР°РіР°.</returns>
         public ISagaContext<TS, TK> Get(TK sagaId)
         {
             TS sagaData;
@@ -40,18 +40,18 @@ namespace Contour.Receiving.Sagas
         }
 
         /// <summary>
-        /// Сохраняет сагу.
+        /// РЎРѕС…СЂР°РЅСЏРµС‚ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="sagaContext">Сохраняемая сага.</param>
+        /// <param name="sagaContext">РЎРѕС…СЂР°РЅСЏРµРјР°СЏ СЃР°РіР°.</param>
         public void Store(ISagaContext<TS, TK> sagaContext)
         {
             this.sagas.AddOrUpdate(sagaContext.SagaId, sagaContext.Data, (s, list) => list);
         }
 
         /// <summary>
-        /// Удаляет сагу.
+        /// РЈРґР°Р»СЏРµС‚ СЃР°РіСѓ.
         /// </summary>
-        /// <param name="sagaContext">Удаляемая сага.</param>
+        /// <param name="sagaContext">РЈРґР°Р»СЏРµРјР°СЏ СЃР°РіР°.</param>
         public void Remove(ISagaContext<TS, TK> sagaContext)
         {
             TS sagaData;

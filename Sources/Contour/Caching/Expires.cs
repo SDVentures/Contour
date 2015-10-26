@@ -1,4 +1,4 @@
-namespace Contour.Caching
+п»їnamespace Contour.Caching
 {
     using System;
     using System.Globalization;
@@ -41,7 +41,7 @@ namespace Contour.Caching
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Expires"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Expires"/>.
         /// </summary>
         /// <param name="period">
         /// The period.
@@ -52,7 +52,7 @@ namespace Contour.Caching
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Expires"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Expires"/>.
         /// </summary>
         /// <param name="date">
         /// The date.

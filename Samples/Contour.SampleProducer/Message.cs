@@ -1,4 +1,4 @@
-namespace Contour.SampleProducer
+﻿namespace Contour.SampleProducer
 {
     /// <summary>
     /// The message.

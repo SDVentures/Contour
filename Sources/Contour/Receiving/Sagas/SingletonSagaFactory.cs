@@ -1,16 +1,16 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Гарант того, что фабрика саг используемая по умолчанию будет создаваться в одном экземпляре.
+    /// Р“Р°СЂР°РЅС‚ С‚РѕРіРѕ, С‡С‚Рѕ С„Р°Р±СЂРёРєР° СЃР°Рі РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Р±СѓРґРµС‚ СЃРѕР·РґР°РІР°С‚СЊСЃСЏ РІ РѕРґРЅРѕРј СЌРєР·РµРјРїР»СЏСЂРµ.
     /// </summary>
-    /// <typeparam name="TS">Тип пользовательских данных сохраняемых в саге.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РґР°РЅРЅС‹С… СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class SingletonSagaFactory<TS, TK>
     {
         private static readonly ISagaFactory<TS, TK> SagaFactory = new DefaultSagaFactory<TS, TK>();
 
         /// <summary>
-        /// Возвращает единственный экземпляр фабрики саги.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЌРєР·РµРјРїР»СЏСЂ С„Р°Р±СЂРёРєРё СЃР°РіРё.
         /// </summary>
         public static ISagaFactory<TS, TK> Instance
         {

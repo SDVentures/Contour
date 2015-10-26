@@ -1,4 +1,4 @@
-namespace Contour.Configurator
+п»їnamespace Contour.Configurator
 {
     using System.Configuration;
 
@@ -20,7 +20,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Настройки QoS для конечной точки.
+        /// РќР°СЃС‚СЂРѕР№РєРё QoS РґР»СЏ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё.
         /// </summary>
         [ConfigurationProperty("qos")]
         public QosElement Qos
@@ -32,7 +32,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Настройки динамической маршрутизации.
+        /// РќР°СЃС‚СЂРѕР№РєРё РґРёРЅР°РјРёС‡РµСЃРєРѕР№ РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.
         /// </summary>
         [ConfigurationProperty("dynamic")]
         public DynamicElement Dynamic
@@ -61,7 +61,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Количество одновременных обработчиков сообщений из очередей конечной точки, включая очереди ответных сообщений.
+        /// РљРѕР»РёС‡РµСЃС‚РІРѕ РѕРґРЅРѕРІСЂРµРјРµРЅРЅС‹С… РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ СЃРѕРѕР±С‰РµРЅРёР№ РёР· РѕС‡РµСЂРµРґРµР№ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё, РІРєР»СЋС‡Р°СЏ РѕС‡РµСЂРµРґРё РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         [ConfigurationProperty("parallelismLevel", IsRequired = false)]
         public uint? ParallelismLevel

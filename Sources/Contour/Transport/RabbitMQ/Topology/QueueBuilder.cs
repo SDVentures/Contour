@@ -1,17 +1,17 @@
-using System;
+п»їusing System;
 
 namespace Contour.Transport.RabbitMQ.Topology
 {
     /// <summary>
-    /// Построитель очереди.
+    /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РѕС‡РµСЂРµРґРё.
     /// </summary>
     public class QueueBuilder
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="QueueBuilder"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="QueueBuilder"/>.
         /// </summary>
         /// <param name="name">
-        /// Имя очереди.
+        /// РРјСЏ РѕС‡РµСЂРµРґРё.
         /// </param>
         internal QueueBuilder(string name)
         {
@@ -19,7 +19,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         }
 
         /// <summary>
-        /// Очередь должна удаляться автоматически.
+        /// РћС‡РµСЂРµРґСЊ РґРѕР»Р¶РЅР° СѓРґР°Р»СЏС‚СЊСЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё.
         /// </summary>
         public QueueBuilder AutoDelete
         {
@@ -28,12 +28,12 @@ namespace Contour.Transport.RabbitMQ.Topology
                 this.Instance.AutoDelete = true;
                 return this;
 
-                // TODO: на операции чтения (get) происходит изменение объекта. Надо исправить.
+                // TODO: РЅР° РѕРїРµСЂР°С†РёРё С‡С‚РµРЅРёСЏ (get) РїСЂРѕРёСЃС…РѕРґРёС‚ РёР·РјРµРЅРµРЅРёРµ РѕР±СЉРµРєС‚Р°. РќР°РґРѕ РёСЃРїСЂР°РІРёС‚СЊ.
             }
         }
 
         /// <summary>
-        /// Очередь должна быть надежной.
+        /// РћС‡РµСЂРµРґСЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅР°РґРµР¶РЅРѕР№.
         /// </summary>
         public QueueBuilder Durable
         {
@@ -42,12 +42,12 @@ namespace Contour.Transport.RabbitMQ.Topology
                 this.Instance.Durable = true;
                 return this;
 
-                // TODO: на операции чтения (get) происходит изменение объекта. Надо исправить.
+                // TODO: РЅР° РѕРїРµСЂР°С†РёРё С‡С‚РµРЅРёСЏ (get) РїСЂРѕРёСЃС…РѕРґРёС‚ РёР·РјРµРЅРµРЅРёРµ РѕР±СЉРµРєС‚Р°. РќР°РґРѕ РёСЃРїСЂР°РІРёС‚СЊ.
             }
         }
 
         /// <summary>
-        /// Очередь должна быть эксклюзивной.
+        /// РћС‡РµСЂРµРґСЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЌРєСЃРєР»СЋР·РёРІРЅРѕР№.
         /// </summary>
         public QueueBuilder Exclusive
         {
@@ -56,20 +56,20 @@ namespace Contour.Transport.RabbitMQ.Topology
                 this.Instance.Exclusive = true;
                 return this;
 
-                // TODO: на операции чтения (get) происходит изменение объекта. Надо исправить.
+                // TODO: РЅР° РѕРїРµСЂР°С†РёРё С‡С‚РµРЅРёСЏ (get) РїСЂРѕРёСЃС…РѕРґРёС‚ РёР·РјРµРЅРµРЅРёРµ РѕР±СЉРµРєС‚Р°. РќР°РґРѕ РёСЃРїСЂР°РІРёС‚СЊ.
             }
         }
 
         /// <summary>
-        /// Экземпляр очереди.
+        /// Р­РєР·РµРјРїР»СЏСЂ РѕС‡РµСЂРµРґРё.
         /// </summary>
         internal Queue Instance { get; private set; }
 
         /// <summary>
-        /// Добавляет в построитель настройки времени жизни сообщений в очереди.
+        /// Р”РѕР±Р°РІР»СЏРµС‚ РІ РїРѕСЃС‚СЂРѕРёС‚РµР»СЊ РЅР°СЃС‚СЂРѕР№РєРё РІСЂРµРјРµРЅРё Р¶РёР·РЅРё СЃРѕРѕР±С‰РµРЅРёР№ РІ РѕС‡РµСЂРµРґРё.
         /// </summary>
-        /// <param name="ttl">Время жизни сообщений в очереди.</param>
-        /// <returns>Построитель очереди.</returns>
+        /// <param name="ttl">Р’СЂРµРјСЏ Р¶РёР·РЅРё СЃРѕРѕР±С‰РµРЅРёР№ РІ РѕС‡РµСЂРµРґРё.</param>
+        /// <returns>РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РѕС‡РµСЂРµРґРё.</returns>
         public QueueBuilder WithTtl(TimeSpan ttl)
         {
             this.Instance.Ttl = ttl;

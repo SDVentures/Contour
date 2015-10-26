@@ -1,9 +1,9 @@
-namespace Contour
+п»їnamespace Contour
 {
     using System.Text.RegularExpressions;
 
     /// <summary>
-    ///   Метка сообщения.
+    ///   РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public sealed class MessageLabel
     {
@@ -43,7 +43,7 @@ namespace Contour
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageLabel"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageLabel"/>.
         /// </summary>
         /// <param name="name">
         /// The name.
@@ -58,7 +58,7 @@ namespace Contour
         #region Public Properties
 
         /// <summary>
-        ///   Метка без имени. Используется там, где метка ожидается, но имя не важно.
+        ///   РњРµС‚РєР° Р±РµР· РёРјРµРЅРё. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚Р°Рј, РіРґРµ РјРµС‚РєР° РѕР¶РёРґР°РµС‚СЃСЏ, РЅРѕ РёРјСЏ РЅРµ РІР°Р¶РЅРѕ.
         /// </summary>
         public static MessageLabel Any
         {
@@ -69,7 +69,7 @@ namespace Contour
         }
 
         /// <summary>
-        ///   Пустая метка.
+        ///   РџСѓСЃС‚Р°СЏ РјРµС‚РєР°.
         /// </summary>
         public static MessageLabel Empty
         {
@@ -80,7 +80,7 @@ namespace Contour
         }
 
         /// <summary>
-        ///   Показывает, является ли метка псевдонимом.
+        ///   РџРѕРєР°Р·С‹РІР°РµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РјРµС‚РєР° РїСЃРµРІРґРѕРЅРёРјРѕРј.
         /// </summary>
         public bool IsAlias
         {
@@ -91,7 +91,7 @@ namespace Contour
         }
 
         /// <summary>
-        ///   Показывает, привязана ли метка к конкретному имени.
+        ///   РџРѕРєР°Р·С‹РІР°РµС‚, РїСЂРёРІСЏР·Р°РЅР° Р»Рё РјРµС‚РєР° Рє РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ РёРјРµРЅРё.
         /// </summary>
         public bool IsAny
         {
@@ -102,7 +102,7 @@ namespace Contour
         }
 
         /// <summary>
-        ///   Показывает, является ли метка пустой (отсутствующей).
+        ///   РџРѕРєР°Р·С‹РІР°РµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РјРµС‚РєР° РїСѓСЃС‚РѕР№ (РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РµР№).
         /// </summary>
         public bool IsEmpty
         {
@@ -113,7 +113,7 @@ namespace Contour
         }
 
         /// <summary>
-        ///   Название метки.
+        ///   РќР°Р·РІР°РЅРёРµ РјРµС‚РєРё.
         /// </summary>
         public string Name { get; private set; }
 
@@ -122,10 +122,10 @@ namespace Contour
         #region Public Methods and Operators
 
         /// <summary>
-        /// Создает экземпляр метки сообщения.
+        /// РЎРѕР·РґР°РµС‚ СЌРєР·РµРјРїР»СЏСЂ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         /// <param name="name">
-        /// Название метки.
+        /// РќР°Р·РІР°РЅРёРµ РјРµС‚РєРё.
         /// </param>
         /// <returns>
         /// The <see cref="MessageLabel"/>.

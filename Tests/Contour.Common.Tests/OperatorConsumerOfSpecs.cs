@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 
 using Contour.Operators;
 using Contour.Receiving;
@@ -10,19 +10,19 @@ using NUnit.Framework;
 namespace Contour.Common.Tests
 {
     /// <summary>
-    /// Набор тестов для оператора обработки сообщения.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РґР»СЏ РѕРїРµСЂР°С‚РѕСЂР° РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public class OperatorConsumerOfSpecs
     {
         /// <summary>
-        /// При обработке входящего сообщения
+        /// РџСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class WhenConsumeMessage
         {
             /// <summary>
-            /// Должен подставляться заголовок <c>Breadcrumbs</c>.
+            /// Р”РѕР»Р¶РµРЅ РїРѕРґСЃС‚Р°РІР»СЏС‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРѕРє <c>Breadcrumbs</c>.
             /// </summary>
             [Test]
             public void ShouldAttachBreadcrumb()
@@ -56,11 +56,11 @@ namespace Contour.Common.Tests
                                 value => value.ContainsKey(Headers.Breadcrumbs)
                                     && Headers.GetString(value, Headers.Breadcrumbs) == address)),
                         Times.Once,
-                        "Должен быть установлен заголовок Headers.Breadcrumbs");
+                        "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє Headers.Breadcrumbs");
             }
 
             /// <summary>
-            /// Должен подставляться заголовок <c>OriginalMessageId</c>.
+            /// Р”РѕР»Р¶РµРЅ РїРѕРґСЃС‚Р°РІР»СЏС‚СЊСЃСЏ Р·Р°РіРѕР»РѕРІРѕРє <c>OriginalMessageId</c>.
             /// </summary>
             [Test]
             public void ShouldAttachCorrelationId()
@@ -92,7 +92,7 @@ namespace Contour.Common.Tests
                                 value => value.ContainsKey(Headers.OriginalMessageId)
                                     && !string.IsNullOrEmpty(Headers.GetString(value, Headers.OriginalMessageId)))),
                         Times.Once,
-                        "Должен быть установлен заголовок Headers.CorrelationId");
+                        "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р·Р°РіРѕР»РѕРІРѕРє Headers.CorrelationId");
             }
         }
     }

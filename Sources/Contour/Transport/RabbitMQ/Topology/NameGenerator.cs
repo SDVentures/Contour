@@ -1,18 +1,18 @@
-using System.Security.Cryptography;
+п»їusing System.Security.Cryptography;
 using System.Text;
 
 namespace Contour.Transport.RabbitMQ.Topology
 {
     /// <summary>
-    /// Генератор имен элементов топологии.
+    /// Р“РµРЅРµСЂР°С‚РѕСЂ РёРјРµРЅ СЌР»РµРјРµРЅС‚РѕРІ С‚РѕРїРѕР»РѕРіРёРё.
     /// </summary>
     internal static class NameGenerator
     {
         /// <summary>
-        /// Возвращает имя состоящее из случайного набора цифр и букв.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РёРјСЏ СЃРѕСЃС‚РѕСЏС‰РµРµ РёР· СЃР»СѓС‡Р°Р№РЅРѕРіРѕ РЅР°Р±РѕСЂР° С†РёС„СЂ Рё Р±СѓРєРІ.
         /// </summary>
-        /// <param name="size">Необходимое количество символов в имени.</param>
-        /// <returns>Имя из случайного набора цифр и букв.</returns>
+        /// <param name="size">РќРµРѕР±С…РѕРґРёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ РІ РёРјРµРЅРё.</param>
+        /// <returns>РРјСЏ РёР· СЃР»СѓС‡Р°Р№РЅРѕРіРѕ РЅР°Р±РѕСЂР° С†РёС„СЂ Рё Р±СѓРєРІ.</returns>
         internal static string GetRandomName(int size)
         {
             var cryptoProvider = new RNGCryptoServiceProvider();

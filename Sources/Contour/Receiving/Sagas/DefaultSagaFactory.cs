@@ -1,28 +1,28 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Фабрика саги используемая по умолчанию.
+    /// Р¤Р°Р±СЂРёРєР° СЃР°РіРё РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
     /// </summary>
-    /// <typeparam name="TS">Тип пользовательских данных сохраняемых в саге.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РґР°РЅРЅС‹С… СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class DefaultSagaFactory<TS, TK> : ISagaFactory<TS, TK>
     {
         /// <summary>
-        /// Создает сагу на основе переданного идентификатора.
+        /// РЎРѕР·РґР°РµС‚ СЃР°РіСѓ РЅР° РѕСЃРЅРѕРІРµ РїРµСЂРµРґР°РЅРЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°.
         /// </summary>
-        /// <param name="sagaId">Идентификатор саги.</param>
-        /// <returns>Созданная сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃР°РіР°.</returns>
         public ISagaContext<TS, TK> Create(TK sagaId)
         {
             return new SagaContext<TS, TK>(sagaId);
         }
 
         /// <summary>
-        /// Создает сагу на основе идентификатора и состояния саги.
+        /// РЎРѕР·РґР°РµС‚ СЃР°РіСѓ РЅР° РѕСЃРЅРѕРІРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° Рё СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.
         /// </summary>
-        /// <param name="sagaId">Идентификатор саги.</param>
-        /// <param name="data">Состояние саги.</param>
-        /// <returns>Созданная сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <param name="data">РЎРѕСЃС‚РѕСЏРЅРёРµ СЃР°РіРё.</param>
+        /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃР°РіР°.</returns>
         public ISagaContext<TS, TK> Create(TK sagaId, TS data)
         {
             return new SagaContext<TS, TK>(sagaId, data);

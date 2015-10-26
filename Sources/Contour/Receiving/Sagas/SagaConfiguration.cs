@@ -1,13 +1,13 @@
-using System;
+п»їusing System;
 
 namespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Конфигурация саги.
+    /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TS">Тип пользовательских данных сохраняемых в саге.</typeparam>
-    /// <typeparam name="TM">Тип входящего сообщения.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РґР°РЅРЅС‹С… СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TM">РўРёРї РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class SagaConfiguration<TS, TM, TK> : ISagaConfigurator<TS, TM, TK>
         where TM : class
     {
@@ -18,14 +18,14 @@ namespace Contour.Receiving.Sagas
         private DefaultSagaLifecycle<TS, TM, TK> sagaLifecycle;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SagaConfiguration{TS,TM,TK}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SagaConfiguration{TS,TM,TK}"/>. 
         /// </summary>
-        /// <param name="receiverConfigurator">Конфигурация получателя входящего сообщения.</param>
-        /// <param name="sagaRepository">Хранилище саги.</param>
-        /// <param name="sagaIdSeparator">Вычислитель идентификатора саги.</param>
-        /// <param name="sagaFactory">Фабрика саги.</param>
-        /// <param name="sagaStep">Действие выполняемое при обработке саги.</param>
-        /// <param name="sagaFailedHandler">Обработчик возникающих ошибок.</param>
+        /// <param name="receiverConfigurator">РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="sagaRepository">РҐСЂР°РЅРёР»РёС‰Рµ СЃР°РіРё.</param>
+        /// <param name="sagaIdSeparator">Р’С‹С‡РёСЃР»РёС‚РµР»СЊ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</param>
+        /// <param name="sagaFactory">Р¤Р°Р±СЂРёРєР° СЃР°РіРё.</param>
+        /// <param name="sagaStep">Р”РµР№СЃС‚РІРёРµ РІС‹РїРѕР»РЅСЏРµРјРѕРµ РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ СЃР°РіРё.</param>
+        /// <param name="sagaFailedHandler">РћР±СЂР°Р±РѕС‚С‡РёРє РІРѕР·РЅРёРєР°СЋС‰РёС… РѕС€РёР±РѕРє.</param>
         public SagaConfiguration(
             IReceiverConfigurator<TM> receiverConfigurator,
             ISagaRepository<TS, TK> sagaRepository,

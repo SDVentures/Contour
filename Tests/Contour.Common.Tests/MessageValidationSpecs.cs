@@ -1,4 +1,4 @@
-namespace Contour.Common.Tests
+п»їnamespace Contour.Common.Tests
 {
     using System.Dynamic;
     using System.Linq;
@@ -48,7 +48,7 @@ namespace Contour.Common.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BooValidator"/>.
             /// </summary>
             public BooValidator()
             {
@@ -69,7 +69,7 @@ namespace Contour.Common.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="DynamicValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DynamicValidator"/>.
             /// </summary>
             public DynamicValidator()
             {
@@ -89,7 +89,7 @@ namespace Contour.Common.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="ExpandoValidator"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ExpandoValidator"/>.
             /// </summary>
             public ExpandoValidator()
             {

@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 
 using Contour.Receiving;
@@ -7,11 +7,11 @@ using Contour.Receiving.Consumers;
 namespace Contour.Operators
 {
     /// <summary>
-    /// Динамический маршрутизатор. 
-    /// Выполняет вычисление маршрута на основе конфигурационных сообщений от других участников.
+    /// Р”РёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЂС€СЂСѓС‚РёР·Р°С‚РѕСЂ. 
+    /// Р’С‹РїРѕР»РЅСЏРµС‚ РІС‹С‡РёСЃР»РµРЅРёРµ РјР°СЂС€СЂСѓС‚Р° РЅР° РѕСЃРЅРѕРІРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№ РѕС‚ РґСЂСѓРіРёС… СѓС‡Р°СЃС‚РЅРёРєРѕРІ.
     /// <a href="http://www.eaipatterns.com/DynamicRouter.html"><c>Dynamic Router</c></a>.
     /// </summary>
-    /// <typeparam name="T">Тип сохраняемого правила.</typeparam>
+    /// <typeparam name="T">РўРёРї СЃРѕС…СЂР°РЅСЏРµРјРѕРіРѕ РїСЂР°РІРёР»Р°.</typeparam>
     internal class DynamicRouter<T> : IMessageOperator
         where T : class
     {
@@ -20,10 +20,10 @@ namespace Contour.Operators
         private readonly IKeyValueStorage<T> storage;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="DynamicRouter{T}"/>. 
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DynamicRouter{T}"/>. 
         /// </summary>
-        /// <param name="routeResolverFunc">Функция вычисления применяемого правила маршрутизации.</param>
-        /// <param name="storage">Хранилище правил маршрутизации.</param>
+        /// <param name="routeResolverFunc">Р¤СѓРЅРєС†РёСЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїСЂРёРјРµРЅСЏРµРјРѕРіРѕ РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
+        /// <param name="storage">РҐСЂР°РЅРёР»РёС‰Рµ РїСЂР°РІРёР» РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</param>
         public DynamicRouter(Func<IMessage, IKeyValueStorage<T>, MessageLabel> routeResolverFunc, IKeyValueStorage<T> storage)
         {
             this.routeResolverFunc = routeResolverFunc;
@@ -31,19 +31,19 @@ namespace Contour.Operators
         }
 
         /// <summary>
-        /// Обрабатывает входящее сообщение, вычисляет для него новый маршрут и отправляет как исходящее сообщение.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ, РІС‹С‡РёСЃР»СЏРµС‚ РґР»СЏ РЅРµРіРѕ РЅРѕРІС‹Р№ РјР°СЂС€СЂСѓС‚ Рё РѕС‚РїСЂР°РІР»СЏРµС‚ РєР°Рє РёСЃС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="message">Входящее сообщение.</param>
-        /// <returns>Сообщение с новой меткой.</returns>
+        /// <param name="message">Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <returns>РЎРѕРѕР±С‰РµРЅРёРµ СЃ РЅРѕРІРѕР№ РјРµС‚РєРѕР№.</returns>
         public IEnumerable<IMessage> Apply(IMessage message)
         {
             yield return message.WithLabel(this.routeResolverFunc(message, this.storage));
         }
 
         /// <summary>
-        /// Обработчик управляющих сообщений.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє СѓРїСЂР°РІР»СЏСЋС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
-        /// <typeparam name="TV">Тип правила маршрутизации.</typeparam>
+        /// <typeparam name="TV">РўРёРї РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.</typeparam>
         public class DynamicRouterControlConsumer<TV> : IConsumerOf<T>
             where TV : class
         {
@@ -52,10 +52,10 @@ namespace Contour.Operators
             private readonly IKeyValueStorage<TV> storage;
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="DynamicRouterControlConsumer{TV}"/>. 
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="DynamicRouterControlConsumer{TV}"/>. 
             /// </summary>
-            /// <param name="createRoute"> Функция вычисления правила маршрутизации. </param>
-            /// <param name="storage"> Хранилище правил маршрутизации. </param>
+            /// <param name="createRoute"> Р¤СѓРЅРєС†РёСЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё. </param>
+            /// <param name="storage"> РҐСЂР°РЅРёР»РёС‰Рµ РїСЂР°РІРёР» РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё. </param>
             public DynamicRouterControlConsumer(Action<IMessage, IKeyValueStorage<TV>> createRoute, IKeyValueStorage<TV> storage)
             {
                 this.createRoute = createRoute;
@@ -63,9 +63,9 @@ namespace Contour.Operators
             }
 
             /// <summary>
-            /// Обрабатывает управляющие сообщения с целью корректировки правил маршрутизации. 
+            /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СѓРїСЂР°РІР»СЏСЋС‰РёРµ СЃРѕРѕР±С‰РµРЅРёСЏ СЃ С†РµР»СЊСЋ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РїСЂР°РІРёР» РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё. 
             /// </summary>
-            /// <param name="context">Контекст полученного сообщения.</param>
+            /// <param name="context">РљРѕРЅС‚РµРєСЃС‚ РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
             public void Handle(IConsumingContext<T> context)
             {
                 this.createRoute(context.Message, this.storage);

@@ -1,4 +1,4 @@
-namespace Contour.Configurator
+п»їnamespace Contour.Configurator
 {
     using System;
 
@@ -10,7 +10,7 @@ namespace Contour.Configurator
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RequestConfiguration"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RequestConfiguration"/>.
         /// </summary>
         /// <param name="timeout">
         /// The timeout.

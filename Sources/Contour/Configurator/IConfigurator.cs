@@ -1,14 +1,14 @@
-namespace Contour.Configurator
+п»їnamespace Contour.Configurator
 {
     using Contour.Configuration;
 
     /// <summary>
-    ///   Предоставляет функционал по конфигурированию IBus
+    ///   РџСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ С„СѓРЅРєС†РёРѕРЅР°Р» РїРѕ РєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёСЋ IBus
     /// </summary>
     public interface IConfigurator
     {
         /// <summary>
-        /// Конфигурирует service bus. Устанавливает очереди для отправки сообщений.
+        /// РљРѕРЅС„РёРіСѓСЂРёСЂСѓРµС‚ service bus. РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕС‡РµСЂРµРґРё РґР»СЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         /// <param name="endpointName">
         /// </param>
@@ -20,7 +20,7 @@ namespace Contour.Configurator
         IBusConfigurator Configure(string endpointName, IBusConfigurator currentConfiguration);
 
         /// <summary>
-        /// Получить имя сообщение по его ключу
+        /// РџРѕР»СѓС‡РёС‚СЊ РёРјСЏ СЃРѕРѕР±С‰РµРЅРёРµ РїРѕ РµРіРѕ РєР»СЋС‡Сѓ
         /// </summary>
         /// <param name="endpointName">
         /// </param>

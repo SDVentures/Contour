@@ -1,16 +1,16 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Гарантирует, что хранилище саги используемое по умолчанию создается 
+    /// Р“Р°СЂР°РЅС‚РёСЂСѓРµС‚, С‡С‚Рѕ С…СЂР°РЅРёР»РёС‰Рµ СЃР°РіРё РёСЃРїРѕР»СЊР·СѓРµРјРѕРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЃРѕР·РґР°РµС‚СЃСЏ 
     /// </summary>
-    /// <typeparam name="TS">Тип пользовательских данных сохраняемых в саге.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РґР°РЅРЅС‹С… СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ СЃР°РіРµ.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal class SingletonSagaRepository<TS, TK>
     {
         private static readonly ISagaRepository<TS, TK> SagaRepository = new InMemorySagaRepository<TS, TK>(SingletonSagaFactory<TS, TK>.Instance);
 
         /// <summary>
-        /// Возвращает единственный экземпляр хранилища саги.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЌРєР·РµРјРїР»СЏСЂ С…СЂР°РЅРёР»РёС‰Р° СЃР°РіРё.
         /// </summary>
         public static ISagaRepository<TS, TK> Instance 
         {

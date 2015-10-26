@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ.Internal
+п»їnamespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
 
@@ -10,7 +10,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitClient"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RabbitClient"/>.
         /// </summary>
         /// <param name="channel">
         /// The channel.

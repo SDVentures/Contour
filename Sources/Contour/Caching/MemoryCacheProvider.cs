@@ -1,4 +1,4 @@
-namespace Contour.Caching
+п»їnamespace Contour.Caching
 {
     using System;
     using System.Runtime.Caching;
@@ -32,7 +32,7 @@ namespace Contour.Caching
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MemoryCacheProvider"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MemoryCacheProvider"/>.
         /// </summary>
         /// <param name="cache">
         /// The cache.
@@ -43,7 +43,7 @@ namespace Contour.Caching
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MemoryCacheProvider"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MemoryCacheProvider"/>.
         /// </summary>
         public MemoryCacheProvider()
             : this(MemoryCache.Default)

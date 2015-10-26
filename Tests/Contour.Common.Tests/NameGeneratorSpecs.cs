@@ -1,23 +1,23 @@
-using Contour.Transport.RabbitMQ.Topology;
+п»їusing Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
 
 namespace Contour.Common.Tests
 {
     /// <summary>
-    /// Набор тестов для генератора имен.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РґР»СЏ РіРµРЅРµСЂР°С‚РѕСЂР° РёРјРµРЅ.
     /// </summary>
     public class NameGeneratorSpecs
     {
         /// <summary>
-        /// При генерации случайного имени.
+        /// РџСЂРё РіРµРЅРµСЂР°С†РёРё СЃР»СѓС‡Р°Р№РЅРѕРіРѕ РёРјРµРЅРё.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class WhenGenerateRandomName
         {
             /// <summary>
-            /// Должен вернуть один символ.
+            /// Р”РѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ РѕРґРёРЅ СЃРёРјРІРѕР».
             /// </summary>
             [Test]
             public void ShouldReturnOneSymbol()
@@ -28,7 +28,7 @@ namespace Contour.Common.Tests
             }
 
             /// <summary>
-            /// Должен вернуть пустую строку.
+            /// Р”РѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ.
             /// </summary>
             [Test]
             public void ShouldReturnZeroSymbols()
@@ -39,7 +39,7 @@ namespace Contour.Common.Tests
             }
 
             /// <summary>
-            /// Должен 5 символов.
+            /// Р”РѕР»Р¶РµРЅ 5 СЃРёРјРІРѕР»РѕРІ.
             /// </summary>
             [Test]
             public void ShouldReturnFiveSymbols()
@@ -50,7 +50,7 @@ namespace Contour.Common.Tests
             }
 
             /// <summary>
-            /// Должен 40 символов.
+            /// Р”РѕР»Р¶РµРЅ 40 СЃРёРјРІРѕР»РѕРІ.
             /// </summary>
             [Test]
             public void ShouldReturnFortySymbols()

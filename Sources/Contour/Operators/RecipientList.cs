@@ -1,31 +1,31 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Contour.Operators
 {
     /// <summary>
-    /// Оператор, который перенаправляет запросы динамически определяемым получателям (реализация шаблона <see href="http://www.eaipatterns.com/RecipientList.html"/>).
-    /// Оператор анализирует входящее сообщение, определяет список нужных получателей и перенаправляет сообщения им.
+    /// РћРїРµСЂР°С‚РѕСЂ, РєРѕС‚РѕСЂС‹Р№ РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµС‚ Р·Р°РїСЂРѕСЃС‹ РґРёРЅР°РјРёС‡РµСЃРєРё РѕРїСЂРµРґРµР»СЏРµРјС‹Рј РїРѕР»СѓС‡Р°С‚РµР»СЏРј (СЂРµР°Р»РёР·Р°С†РёСЏ С€Р°Р±Р»РѕРЅР° <see href="http://www.eaipatterns.com/RecipientList.html"/>).
+    /// РћРїРµСЂР°С‚РѕСЂ Р°РЅР°Р»РёР·РёСЂСѓРµС‚ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ, РѕРїСЂРµРґРµР»СЏРµС‚ СЃРїРёСЃРѕРє РЅСѓР¶РЅС‹С… РїРѕР»СѓС‡Р°С‚РµР»РµР№ Рё РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РёРј.
     /// </summary>
     public class RecipientList : IMessageOperator
     {
         private readonly Func<IMessage, MessageLabel[]> determineRecipientList;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RecipientList"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RecipientList"/>.
         /// </summary>
-        /// <param name="determineRecipientList">Функция определения списка получателей сообщения.</param>
+        /// <param name="determineRecipientList">Р¤СѓРЅРєС†РёСЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃРїРёСЃРєР° РїРѕР»СѓС‡Р°С‚РµР»РµР№ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         public RecipientList(Func<IMessage, MessageLabel[]> determineRecipientList)
         {
             this.determineRecipientList = determineRecipientList;
         }
 
         /// <summary>
-        /// Инспектирует входящее сообщение, определяет список получателей и передает сообщение всем получателям.
+        /// РРЅСЃРїРµРєС‚РёСЂСѓРµС‚ РІС…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ, РѕРїСЂРµРґРµР»СЏРµС‚ СЃРїРёСЃРѕРє РїРѕР»СѓС‡Р°С‚РµР»РµР№ Рё РїРµСЂРµРґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІСЃРµРј РїРѕР»СѓС‡Р°С‚РµР»СЏРј.
         /// </summary>
-        /// <param name="message">Входящее сообщение.</param>
-        /// <returns>Сообщения для получателей, определенных на основе содержимого входящего сообщения.</returns>
+        /// <param name="message">Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <returns>РЎРѕРѕР±С‰РµРЅРёСЏ РґР»СЏ РїРѕР»СѓС‡Р°С‚РµР»РµР№, РѕРїСЂРµРґРµР»РµРЅРЅС‹С… РЅР° РѕСЃРЅРѕРІРµ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public virtual IEnumerable<IMessage> Apply(IMessage message)
         {
             return this.determineRecipientList(message).Select(message.WithLabel);

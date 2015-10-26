@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,35 +12,35 @@ using Contour.Helpers;
 namespace Contour.Sending
 {
     /// <summary>
-    /// Отправитель, который не знает о транспортном уровне.
+    /// РћС‚РїСЂР°РІРёС‚РµР»СЊ, РєРѕС‚РѕСЂС‹Р№ РЅРµ Р·РЅР°РµС‚ Рѕ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРј СѓСЂРѕРІРЅРµ.
     /// </summary>
     internal abstract class AbstractSender : ISender
     {
         private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Фильтры обработки сообщений.
+        /// Р¤РёР»СЊС‚СЂС‹ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         private readonly IList<IMessageExchangeFilter> filters;
 
         /// <summary>
-        /// Конечная точка, от имени которой работает отправитель.
+        /// РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР°, РѕС‚ РёРјРµРЅРё РєРѕС‚РѕСЂРѕР№ СЂР°Р±РѕС‚Р°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЊ.
         /// </summary>
         private readonly IEndpoint endpoint;
 
         /// <summary>
-        /// Последняя точка в пути сообщения.
+        /// РџРѕСЃР»РµРґРЅСЏСЏ С‚РѕС‡РєР° РІ РїСѓС‚Рё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         private readonly string breadCrumbsTail;
 
         // TODO: refactor, don't copy filters
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AbstractSender"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AbstractSender"/>.
         /// </summary>
-        /// <param name="endpoint">Конечная точка, от имени которой работает отправитель.</param>
-        /// <param name="configuration">Конфигурация отправителя.</param>
-        /// <param name="filters">Список фильтров обработки сообщения.</param>
+        /// <param name="endpoint">РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР°, РѕС‚ РёРјРµРЅРё РєРѕС‚РѕСЂРѕР№ СЂР°Р±РѕС‚Р°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЊ.</param>
+        /// <param name="configuration">РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <param name="filters">РЎРїРёСЃРѕРє С„РёР»СЊС‚СЂРѕРІ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
         protected AbstractSender(IEndpoint endpoint, ISenderConfiguration configuration, IEnumerable<IMessageExchangeFilter> filters)
         {
             this.endpoint = endpoint;
@@ -55,37 +55,37 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Конфигурация отправителя.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
         /// </summary>
         public ISenderConfiguration Configuration { get; private set; }
 
         /// <summary>
-        /// Есть ли сбои в работе отправителя.
+        /// Р•СЃС‚СЊ Р»Рё СЃР±РѕРё РІ СЂР°Р±РѕС‚Рµ РѕС‚РїСЂР°РІРёС‚РµР»СЏ.
         /// </summary>
         public abstract bool IsHealthy { get; }
 
         /// <summary>
-        /// Проверяет возможность создать маршрут для метки сообщения.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕР·РґР°С‚СЊ РјР°СЂС€СЂСѓС‚ РґР»СЏ РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="label">Метка сообщения, для которой нужно создать маршрут.</param>
-        /// <returns><c>true</c> - если можно создать маршрут.</returns>
+        /// <param name="label">РњРµС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ, РґР»СЏ РєРѕС‚РѕСЂРѕР№ РЅСѓР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РјР°СЂС€СЂСѓС‚.</param>
+        /// <returns><c>true</c> - РµСЃР»Рё РјРѕР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РјР°СЂС€СЂСѓС‚.</returns>
         public virtual bool CanRoute(MessageLabel label)
         {
             return label.IsAlias ? label.Name.Equals(this.Configuration.Alias) : label.Equals(this.Configuration.Label);
         }
 
         /// <summary>
-        /// Освобождает ресурсы.
+        /// РћСЃРІРѕР±РѕР¶РґР°РµС‚ СЂРµСЃСѓСЂСЃС‹.
         /// </summary>
         public abstract void Dispose();
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
         public Task<T> Request<T>(object payload, IDictionary<string, object> headers) where T : class
         {
             var message = new Message(this.Configuration.Label, headers, payload);
@@ -103,12 +103,12 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="options">Параметры запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
         public Task<T> Request<T>(object payload, RequestOptions options) where T : class
         {
             var headers = this.ApplyOptions(options);
@@ -121,12 +121,12 @@ namespace Contour.Sending
         }
 
             /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
+        [Obsolete("РќРµРѕР±С…РѕРґРёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ Send СЃ СѓРєР°Р·Р°РЅРёРµРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.")]
         public Task Send(object payload, IDictionary<string, object> headers)
         {
             var message = new Message(this.Configuration.Label, headers, payload);
@@ -135,25 +135,25 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
+        [Obsolete("РќРµРѕР±С…РѕРґРёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµС‚РѕРґ Send СЃ СѓРєР°Р·Р°РЅРёРµРј РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.")]
         public Task Send(object payload, PublishingOptions options)
         {
             return this.Send(payload, this.ApplyOptions(options));
         }
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="options">Параметры запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="options">РџР°СЂР°РјРµС‚СЂС‹ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
         public Task<T> Request<T>(MessageLabel label, object payload, RequestOptions options) where T : class
         {
             var headers = this.ApplyOptions(options);
@@ -162,13 +162,13 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Р·Р°РїСЂРѕСЃ-РѕС‚РІРµС‚.
         /// </summary>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="payload">РЎРѕРѕР±С‰РµРЅРёРµ Р·Р°РїСЂРѕСЃР°.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё Р·Р°РїСЂРѕСЃР°.</param>
+        /// <typeparam name="T">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚Р°.</typeparam>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°.</returns>
         public Task<T> Request<T>(MessageLabel label, object payload, IDictionary<string, object> headers) where T : class
         {
             if (!headers.ContainsKey(Headers.CorrelationId))
@@ -191,12 +191,12 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="headers">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers)
         {
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
@@ -205,39 +205,39 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
+        /// РћС‚РїСЂР°РІР»СЏРµС‚ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="label">Метка отправляемого сообщения.</param>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
+        /// <param name="label">РњРµС‚РєР° РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="payload">РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <param name="options">Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public Task Send(MessageLabel label, object payload, PublishingOptions options)
         {
             return this.Send(label, payload, this.ApplyOptions(options));
         }
 
         /// <summary>
-        /// Запускает отправитель.
+        /// Р—Р°РїСѓСЃРєР°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЊ.
         /// </summary>
         public abstract void Start();
 
         /// <summary>
-        /// Останавливает отправитель.
+        /// РћСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЊ.
         /// </summary>
         public abstract void Stop();
 
         /// <summary>
-        /// Фильтр обработки сообщения, который отсылает сообщение.
+        /// Р¤РёР»СЊС‚СЂ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Р№ РѕС‚СЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
-        /// <param name="exchange">Отсылаемое сообщение.</param>
-        /// <returns>Задача выполнения фильтра.</returns>
+        /// <param name="exchange">РћС‚СЃС‹Р»Р°РµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РІС‹РїРѕР»РЅРµРЅРёСЏ С„РёР»СЊС‚СЂР°.</returns>
         protected abstract Task<MessageExchange> InternalSend(MessageExchange exchange);
 
         /// <summary>
-        /// Обрабатывает сообщение с помощью зарегистрированных фильтров.
+        /// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРјРѕС‰СЊСЋ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹С… С„РёР»СЊС‚СЂРѕРІ.
         /// </summary>
-        /// <param name="message">Обрабатываемое сообщение.</param>
-        /// <returns>Задача обработки сообщения с помощью фильтров.</returns>
+        /// <param name="message">РћР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ.</param>
+        /// <returns>Р—Р°РґР°С‡Р° РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ СЃ РїРѕРјРѕС‰СЊСЋ С„РёР»СЊС‚СЂРѕРІ.</returns>
         private Task ProcessFilter(IMessage message)
         {
             var exchange = new MessageExchange(message, null);
@@ -247,10 +247,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Конвертирует настройки публикации сообщения в заголовки сообщения.
+        /// РљРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєРё РїСѓР±Р»РёРєР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ РІ Р·Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="options">Настройки публикации сообщения.</param>
-        /// <returns>Заголовки сообщения.</returns>
+        /// <param name="options">РќР°СЃС‚СЂРѕР№РєРё РїСѓР±Р»РёРєР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         private IDictionary<string, object> ApplyOptions(PublishingOptions options)
         {
             var storage = this.Configuration.Options.GetIncomingMessageHeaderStorage().Value;
@@ -260,7 +260,7 @@ namespace Contour.Sending
             Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
             Headers.ApplyOriginalMessageId(outputHeaders);
 
-            Logger.Trace(m => m("Идентификатор первого сообщения [{0}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId)));
+            Logger.Trace(m => m("РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂРІРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ [{0}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId)));
 
             Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
             Headers.ApplyPersistently(outputHeaders, persist);
@@ -272,10 +272,10 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Конвертирует настройки публикации сообщения в заголовки сообщения.
+        /// РљРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєРё РїСѓР±Р»РёРєР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ РІ Р·Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
-        /// <param name="requestOptions">Настройки публикации сообщения.</param>
-        /// <returns>Заголовки сообщения.</returns>
+        /// <param name="requestOptions">РќР°СЃС‚СЂРѕР№РєРё РїСѓР±Р»РёРєР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>Р—Р°РіРѕР»РѕРІРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         private IDictionary<string, object> ApplyOptions(RequestOptions requestOptions)
         {
             IDictionary<string, object> headers = this.ApplyOptions(requestOptions as PublishingOptions);

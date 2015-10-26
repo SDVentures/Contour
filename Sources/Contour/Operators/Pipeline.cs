@@ -1,4 +1,4 @@
-namespace Contour.Operators
+﻿namespace Contour.Operators
 {
     using System.Collections.Generic;
     using System.Linq;

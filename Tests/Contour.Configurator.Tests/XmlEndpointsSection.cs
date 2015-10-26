@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="XmlEndpointsSection.cs" company="">
 //   
 // </copyright>
@@ -20,7 +20,7 @@ namespace Contour.Configurator.Tests
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="XmlEndpointsSection"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="XmlEndpointsSection"/>.
         /// </summary>
         /// <param name="configXml">
         /// The config xml.

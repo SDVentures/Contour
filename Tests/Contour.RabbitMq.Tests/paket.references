@@ -1,4 +1,4 @@
-Common.Logging
+﻿Common.Logging
 FluentAssertions
 FluentValidation
 Newtonsoft.Json

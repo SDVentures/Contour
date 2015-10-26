@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LambdaFailedDeliveryStrategy.cs" company="">
 //   
 // </copyright>
@@ -30,7 +30,7 @@ namespace Contour.Receiving
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="LambdaFailedDeliveryStrategy"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LambdaFailedDeliveryStrategy"/>.
         /// </summary>
         /// <param name="handlerAction">
         /// The handler action.

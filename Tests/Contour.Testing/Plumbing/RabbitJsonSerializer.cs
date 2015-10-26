@@ -1,4 +1,4 @@
-using RestSharp;
+﻿using RestSharp;
 using RestSharp.Serializers;
 
 namespace Contour.Testing.Plumbing

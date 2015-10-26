@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+п»їusing System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading;
@@ -14,19 +14,19 @@ using NUnit.Framework;
 namespace Contour.RabbitMq.Tests
 {
     /// <summary>
-    /// Спецификация операторов шины сообщений.
+    /// РЎРїРµС†РёС„РёРєР°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂРѕРІ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
     /// </summary>
     public class OperatorsSpecs
     {
         /// <summary>
-        /// Когда отсылается запрос с конечной точкой по умолчанию для ответов.
+        /// РљРѕРіРґР° РѕС‚СЃС‹Р»Р°РµС‚СЃСЏ Р·Р°РїСЂРѕСЃ СЃ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРѕР№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РѕС‚РІРµС‚РѕРІ.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenRequestingUsingOperator : RabbitMqFixture
         {
             /// <summary>
-            /// Должен вернуться ответ.
+            /// Р”РѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊСЃСЏ РѕС‚РІРµС‚.
             /// </summary>
             [Test]
             public void ShouldReturnResponse()
@@ -57,14 +57,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// Когда используется фильтрация <c>JsonPath</c>.
+        /// РљРѕРіРґР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С„РёР»СЊС‚СЂР°С†РёСЏ <c>JsonPath</c>.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenFilteringUsingJsonpathExpression : RabbitMqFixture
         {
             /// <summary>
-            /// Тогда должен фильтровать сообщения.
+            /// РўРѕРіРґР° РґРѕР»Р¶РµРЅ С„РёР»СЊС‚СЂРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldFilter()
@@ -103,21 +103,21 @@ namespace Contour.RabbitMq.Tests
             private class Booz
             {
                 /// <summary>
-                /// Список сообщений.
+                /// РЎРїРёСЃРѕРє СЃРѕРѕР±С‰РµРЅРёР№.
                 /// </summary>
                 public IList<BooMessage> Items { get; set; }
             }
         }
 
         /// <summary>
-        /// Если используется динамическая маршрутизация.
+        /// Р•СЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґРёРЅР°РјРёС‡РµСЃРєР°СЏ РјР°СЂС€СЂСѓС‚РёР·Р°С†РёСЏ.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenDynamicRouting : RabbitMqFixture
         {
             /// <summary>
-            /// Тогда сообщения должны отправляться по новому маршруту.
+            /// РўРѕРіРґР° СЃРѕРѕР±С‰РµРЅРёСЏ РґРѕР»Р¶РЅС‹ РѕС‚РїСЂР°РІР»СЏС‚СЊСЃСЏ РїРѕ РЅРѕРІРѕРјСѓ РјР°СЂС€СЂСѓС‚Сѓ.
             /// </summary>
             [Test]
             public void ShouldRoute()
@@ -152,11 +152,11 @@ namespace Contour.RabbitMq.Tests
                 producer.Emit(commandRouteThis, new { });
                 var consumed = consumedEvent.WaitOne(5000);
                 consumed.Should()
-                    .BeTrue("Должно быть получено сообщение перенаправленое роутером.");
+                    .BeTrue("Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРѕРµ СЂРѕСѓС‚РµСЂРѕРј.");
             }
 
             /// <summary>
-            /// Тогда можно поменять маршрут сообщения.
+            /// РўРѕРіРґР° РјРѕР¶РЅРѕ РїРѕРјРµРЅСЏС‚СЊ РјР°СЂС€СЂСѓС‚ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldChangeRoute()
@@ -241,23 +241,23 @@ namespace Contour.RabbitMq.Tests
 
                     if (i < switchCondition)
                     {
-                        directedEvent.WaitOne(5000).Should().BeTrue("Сообщение должно быть обработано.");
+                        directedEvent.WaitOne(5000).Should().BeTrue("РЎРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ.");
                     }
                 }
 
-                consumedEvent.WaitOne(5000).Should().BeTrue("Должно быть получено сообщение перенаправленое роутером.");
+                consumedEvent.WaitOne(5000).Should().BeTrue("Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРѕРµ СЂРѕСѓС‚РµСЂРѕРј.");
             }
         }
 
         /// <summary>
-        /// В случае использования динамической фильтрации.
+        /// Р’ СЃР»СѓС‡Р°Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РґРёРЅР°РјРёС‡РµСЃРєРѕР№ С„РёР»СЊС‚СЂР°С†РёРё.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenDynamicFilter : RabbitMqFixture
         {
             /// <summary>
-            /// Должен фильтровать входящие сообщения.
+            /// Р”РѕР»Р¶РµРЅ С„РёР»СЊС‚СЂРѕРІР°С‚СЊ РІС…РѕРґСЏС‰РёРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldFilter()
@@ -291,11 +291,11 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit(commandFilterThis, new { });
                 var consumed = consumedEvent.WaitOne(5000);
-                consumed.Should().BeTrue("Должно быть получено сообщение обработанное фильтом.");
+                consumed.Should().BeTrue("Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ РѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ С„РёР»СЊС‚РѕРј.");
             }
 
             /// <summary>
-            /// Должно изменятся условие фильтрации.
+            /// Р”РѕР»Р¶РЅРѕ РёР·РјРµРЅСЏС‚СЃСЏ СѓСЃР»РѕРІРёРµ С„РёР»СЊС‚СЂР°С†РёРё.
             /// </summary>
             [Test]
             public void ShouldChangeFilterCondition()
@@ -376,16 +376,16 @@ namespace Contour.RabbitMq.Tests
                     filteredEvent.WaitOne();
                 }
 
-                consumedEvent.WaitOne().Should().BeTrue("Должно быть получено сообщение перенаправленое роутером.");
-                callCount.Should().Be(1, "Сообщение должно быть получено только один раз.");
+                consumedEvent.WaitOne().Should().BeTrue("Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРѕРµ СЂРѕСѓС‚РµСЂРѕРј.");
+                callCount.Should().Be(1, "РЎРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅРѕ С‚РѕР»СЊРєРѕ РѕРґРёРЅ СЂР°Р·.");
             }
         }
 
         /// <summary>
-        /// Хранилище пар ключ-значение в памяти процесса.
+        /// РҐСЂР°РЅРёР»РёС‰Рµ РїР°СЂ РєР»СЋС‡-Р·РЅР°С‡РµРЅРёРµ РІ РїР°РјСЏС‚Рё РїСЂРѕС†РµСЃСЃР°.
         /// </summary>
         /// <typeparam name="T">
-        /// Тип правила маршрутизации.
+        /// РўРёРї РїСЂР°РІРёР»Р° РјР°СЂС€СЂСѓС‚РёР·Р°С†РёРё.
         /// </typeparam>
         internal class InMemoryKeyValueStorage<T> : IKeyValueStorage<T>
             where T : class
@@ -393,13 +393,13 @@ namespace Contour.RabbitMq.Tests
             private readonly ConcurrentDictionary<string, T> storage = new ConcurrentDictionary<string, T>();
 
             /// <summary>
-            /// Возвращает значение по ключу.
+            /// Р’РѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ РїРѕ РєР»СЋС‡Сѓ.
             /// </summary>
             /// <param name="key">
-            /// Ключ, по которому получают значение..
+            /// РљР»СЋС‡, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РїРѕР»СѓС‡Р°СЋС‚ Р·РЅР°С‡РµРЅРёРµ..
             /// </param>
             /// <returns>
-            /// Значение или <c>null</c>, если по ключу ничего не найдено.
+            /// Р—РЅР°С‡РµРЅРёРµ РёР»Рё <c>null</c>, РµСЃР»Рё РїРѕ РєР»СЋС‡Сѓ РЅРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.
             /// </returns>
             public T Get(string key)
             {
@@ -409,13 +409,13 @@ namespace Contour.RabbitMq.Tests
             }
 
             /// <summary>
-            /// Сохраняет значение с указанным ключом.
+            /// РЎРѕС…СЂР°РЅСЏРµС‚ Р·РЅР°С‡РµРЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєР»СЋС‡РѕРј.
             /// </summary>
             /// <param name="key">
-            /// Ключ значения.
+            /// РљР»СЋС‡ Р·РЅР°С‡РµРЅРёСЏ.
             /// </param>
             /// <param name="value">
-            /// Сохраняемое значение.
+            /// РЎРѕС…СЂР°РЅСЏРµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ.
             /// </param>
             public void Set(string key, T value)
             {

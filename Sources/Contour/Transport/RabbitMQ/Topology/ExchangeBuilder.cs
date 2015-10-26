@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ExchangeBuilder.cs" company="">
 //   
 // </copyright>
@@ -19,7 +19,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ExchangeBuilder"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ExchangeBuilder"/>.
         /// </summary>
         /// <param name="name">
         /// The name.

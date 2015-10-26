@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SubscriptionEndpoint.cs" company="">
 //   
 // </copyright>
@@ -19,7 +19,7 @@ namespace Contour.Receiving
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SubscriptionEndpoint"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SubscriptionEndpoint"/>.
         /// </summary>
         /// <param name="listeningSource">
         /// The listening source.

@@ -1,4 +1,4 @@
-namespace Contour
+﻿namespace Contour
 {
     /// <summary>
     /// The ChannelProvider interface.

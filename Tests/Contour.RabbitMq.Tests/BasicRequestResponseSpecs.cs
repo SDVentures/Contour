@@ -1,4 +1,4 @@
-using System.Diagnostics;
+п»їusing System.Diagnostics;
 using System.Linq;
 
 using Contour.Helpers;
@@ -305,14 +305,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// При отравке нескольких запросов
+        /// РџСЂРё РѕС‚СЂР°РІРєРµ РЅРµСЃРєРѕР»СЊРєРёС… Р·Р°РїСЂРѕСЃРѕРІ
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class when_request_multiple : RabbitMqFixture
         {
             /// <summary>
-            /// Ответы должны приходить.
+            /// РћС‚РІРµС‚С‹ РґРѕР»Р¶РЅС‹ РїСЂРёС…РѕРґРёС‚СЊ.
             /// </summary>
             [Test]
             public void should_receive_successfully()
@@ -384,14 +384,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// При потреблении сообщения.
+        /// РџСЂРё РїРѕС‚СЂРµР±Р»РµРЅРёРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class WhenConsumeMessage : RabbitMqFixture
         {
             /// <summary>
-            /// Можно ответить на запрос.
+            /// РњРѕР¶РЅРѕ РѕС‚РІРµС‚РёС‚СЊ РЅР° Р·Р°РїСЂРѕСЃ.
             /// </summary>
             [Test]
             public void CanReplyIfRequest()
@@ -416,11 +416,11 @@ namespace Contour.RabbitMq.Tests
                             }));
 
                 producer.Request<object, object>(messageLabel, new object(), new RequestOptions { Timeout = TimeSpan.FromSeconds(5) }, o => { });
-                Assert.IsTrue(autoReset.WaitOne(TimeSpan.FromSeconds(1)), "Должен быть получен запрос.");
+                Assert.IsTrue(autoReset.WaitOne(TimeSpan.FromSeconds(1)), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ Р·Р°РїСЂРѕСЃ.");
             }
 
             /// <summary>
-            /// Нельзя ответить, если не запрос.
+            /// РќРµР»СЊР·СЏ РѕС‚РІРµС‚РёС‚СЊ, РµСЃР»Рё РЅРµ Р·Р°РїСЂРѕСЃ.
             /// </summary>
             [Test]
             public void CanNotReplyIfEmit()
@@ -443,11 +443,11 @@ namespace Contour.RabbitMq.Tests
                         }));
 
                 producer.Emit(messageLabel, new object());
-                Assert.IsTrue(autoReset.WaitOne(TimeSpan.FromSeconds(1)), "Должен быть получен запрос.");
+                Assert.IsTrue(autoReset.WaitOne(TimeSpan.FromSeconds(1)), "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ Р·Р°РїСЂРѕСЃ.");
             }
 
             /// <summary>
-            /// Можно обработать сообщение, метка которого отличается от метки получателя.
+            /// РњРѕР¶РЅРѕ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ, РјРµС‚РєР° РєРѕС‚РѕСЂРѕРіРѕ РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ РјРµС‚РєРё РїРѕР»СѓС‡Р°С‚РµР»СЏ.
             /// </summary>
             [Test]
             public void CanConsumeWithWrongLabel()
@@ -480,7 +480,7 @@ namespace Contour.RabbitMq.Tests
                                 }));
 
                 producer.Emit(messageLabel, new object());
-                Assert.IsTrue(autoReset.WaitOne(TimeSpan.FromSeconds(1)), "Сообщение должно быть получено.");
+                Assert.IsTrue(autoReset.WaitOne(TimeSpan.FromSeconds(1)), "РЎРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅРѕ.");
                 consumer.WhenReady.WaitOne();
             }
         }

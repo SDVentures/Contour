@@ -1,9 +1,9 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ValidationResult.cs" company="">
 //   
 // </copyright>
 // <summary>
-//   Результат валидации сообщения.
+//   Р РµР·СѓР»СЊС‚Р°С‚ РІР°Р»РёРґР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ namespace Contour.Validation
     using System.Linq;
 
     /// <summary>
-    ///   Результат валидации сообщения.
+    ///   Р РµР·СѓР»СЊС‚Р°С‚ РІР°Р»РёРґР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public sealed class ValidationResult
     {
@@ -29,11 +29,11 @@ namespace Contour.Validation
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ValidationResult"/>. 
-        /// Создание результата валидации.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ValidationResult"/>. 
+        /// РЎРѕР·РґР°РЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІР°Р»РёРґР°С†РёРё.
         /// </summary>
         /// <param name="brokenRules">
-        /// Список нарушенных правил.
+        /// РЎРїРёСЃРѕРє РЅР°СЂСѓС€РµРЅРЅС‹С… РїСЂР°РІРёР».
         /// </param>
         public ValidationResult(IEnumerable<BrokenRule> brokenRules)
         {
@@ -41,11 +41,11 @@ namespace Contour.Validation
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ValidationResult"/>. 
-        /// Создание результата валидации.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ValidationResult"/>. 
+        /// РЎРѕР·РґР°РЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІР°Р»РёРґР°С†РёРё.
         /// </summary>
         /// <param name="brokenRules">
-        /// Список нарушенных правил.
+        /// РЎРїРёСЃРѕРє РЅР°СЂСѓС€РµРЅРЅС‹С… РїСЂР°РІРёР».
         /// </param>
         public ValidationResult(params BrokenRule[] brokenRules)
         {
@@ -53,7 +53,7 @@ namespace Contour.Validation
         }
 
         /// <summary>
-        /// Предотвращает вызов конструктора по умолчанию для класса <see cref="ValidationResult"/>.
+        /// РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµС‚ РІС‹Р·РѕРІ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РєР»Р°СЃСЃР° <see cref="ValidationResult"/>.
         /// </summary>
         private ValidationResult()
         {
@@ -65,7 +65,7 @@ namespace Contour.Validation
         #region Public Properties
 
         /// <summary>
-        ///   Возвращает успешный результат валидации.
+        ///   Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓСЃРїРµС€РЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ РІР°Р»РёРґР°С†РёРё.
         /// </summary>
         public static ValidationResult Valid
         {
@@ -76,7 +76,7 @@ namespace Contour.Validation
         }
 
         /// <summary>
-        ///   Список нарушенных правил.
+        ///   РЎРїРёСЃРѕРє РЅР°СЂСѓС€РµРЅРЅС‹С… РїСЂР°РІРёР».
         /// </summary>
         public IEnumerable<BrokenRule> BrokenRules
         {
@@ -87,7 +87,7 @@ namespace Contour.Validation
         }
 
         /// <summary>
-        ///   Выполнены ли все правила валидации.
+        ///   Р’С‹РїРѕР»РЅРµРЅС‹ Р»Рё РІСЃРµ РїСЂР°РІРёР»Р° РІР°Р»РёРґР°С†РёРё.
         /// </summary>
         public bool IsValid
         {
@@ -102,7 +102,7 @@ namespace Contour.Validation
         #region Public Methods and Operators
 
         /// <summary>
-        ///   Вызывает исключение в случае нарушения хотя бы одного правила валидации.
+        ///   Р’С‹Р·С‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ РІ СЃР»СѓС‡Р°Рµ РЅР°СЂСѓС€РµРЅРёСЏ С…РѕС‚СЏ Р±С‹ РѕРґРЅРѕРіРѕ РїСЂР°РІРёР»Р° РІР°Р»РёРґР°С†РёРё.
         /// </summary>
         public void ThrowIfBroken()
         {

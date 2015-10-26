@@ -1,25 +1,25 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Фабрика саги.
+    /// Р¤Р°Р±СЂРёРєР° СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TD">Тип состояния саги.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TD">РўРёРї СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal interface ISagaFactory<TD, TK>
     {
         /// <summary>
-        /// Создает сагу на основе переданного идентификатора.
+        /// РЎРѕР·РґР°РµС‚ СЃР°РіСѓ РЅР° РѕСЃРЅРѕРІРµ РїРµСЂРµРґР°РЅРЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°.
         /// </summary>
-        /// <param name="sagaId">Идентификатор саги.</param>
-        /// <returns>Созданная сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃР°РіР°.</returns>
         ISagaContext<TD, TK> Create(TK sagaId);
 
         /// <summary>
-        /// Создает сагу на основе идентификатора и состояния саги.
+        /// РЎРѕР·РґР°РµС‚ СЃР°РіСѓ РЅР° РѕСЃРЅРѕРІРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° Рё СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.
         /// </summary>
-        /// <param name="sagaId">Идентификатор саги.</param>
-        /// <param name="data">Состояние саги.</param>
-        /// <returns>Созданная сага.</returns>
+        /// <param name="sagaId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР°РіРё.</param>
+        /// <param name="data">РЎРѕСЃС‚РѕСЏРЅРёРµ СЃР°РіРё.</param>
+        /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃР°РіР°.</returns>
         ISagaContext<TD, TK> Create(TK sagaId, TD data);
     }
 }

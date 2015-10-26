@@ -1,28 +1,28 @@
-namespace Contour.Configuration
+п»їnamespace Contour.Configuration
 {
     using System;
 
     /// <summary>
-    ///   Компонент клиента шины сообщений, существующий в течение срока жизни самого клиента.
+    ///   РљРѕРјРїРѕРЅРµРЅС‚ РєР»РёРµРЅС‚Р° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№, СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РІ С‚РµС‡РµРЅРёРµ СЃСЂРѕРєР° Р¶РёР·РЅРё СЃР°РјРѕРіРѕ РєР»РёРµРЅС‚Р°.
     /// </summary>
     public interface IBusComponent : IDisposable
     {
         #region Public Methods and Operators
 
         /// <summary>
-        ///   Запуск компонента.
+        ///   Р—Р°РїСѓСЃРє РєРѕРјРїРѕРЅРµРЅС‚Р°.
         /// </summary>
         void Start();
 
         /// <summary>
-        ///   Остановка компонента.
+        ///   РћСЃС‚Р°РЅРѕРІРєР° РєРѕРјРїРѕРЅРµРЅС‚Р°.
         /// </summary>
         void Stop();
 
         #endregion
 
         /// <summary>
-        /// Проверка работоспособности компонента.
+        /// РџСЂРѕРІРµСЂРєР° СЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё РєРѕРјРїРѕРЅРµРЅС‚Р°.
         /// </summary>
         bool IsHealthy { get; }
     }

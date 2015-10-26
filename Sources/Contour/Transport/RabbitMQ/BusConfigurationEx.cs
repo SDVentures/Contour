@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 
 using Contour.Configuration;
@@ -10,22 +10,22 @@ using Contour.Transport.RabbitMQ.Topology;
 namespace Contour.Transport.RabbitMQ
 {
     /// <summary>
-    /// Методы расширения конфигуратора.
+    /// РњРµС‚РѕРґС‹ СЂР°СЃС€РёСЂРµРЅРёСЏ РєРѕРЅС„РёРіСѓСЂР°С‚РѕСЂР°.
     /// </summary>
     public static class BusConfigurationEx
     {
         /// <summary>
-        /// Количество дней, которое хранятся сообщения <c>Fault</c> очередей.
+        /// РљРѕР»РёС‡РµСЃС‚РІРѕ РґРЅРµР№, РєРѕС‚РѕСЂРѕРµ С…СЂР°РЅСЏС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёСЏ <c>Fault</c> РѕС‡РµСЂРµРґРµР№.
         /// </summary>
         private static readonly int FaultMessageTtlDays = 21;
 
         /// <summary>
-        /// Устанавливает параметры <c>Quality of service (QoS)</c> по умолчанию для всех получателей.
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїР°СЂР°РјРµС‚СЂС‹ <c>Quality of service (QoS)</c> РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РІСЃРµС… РїРѕР»СѓС‡Р°С‚РµР»РµР№.
         /// </summary>
-        /// <param name="busConfigurator">Конфигуратор шины сообщений.</param>
-        /// <param name="prefetchCount">Количество сообщений получаемых из шины за одно обращение, т.е. размер порции данных.</param>
-        /// <param name="prefetchSize">Количество сообщений, которые должен обработать получатель, прежде чем получит новую порцию данных.</param>
-        /// <returns>Конфигурация экземпляра шины сообщений.</returns>
+        /// <param name="busConfigurator">РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="prefetchCount">РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕРѕР±С‰РµРЅРёР№ РїРѕР»СѓС‡Р°РµРјС‹С… РёР· С€РёРЅС‹ Р·Р° РѕРґРЅРѕ РѕР±СЂР°С‰РµРЅРёРµ, С‚.Рµ. СЂР°Р·РјРµСЂ РїРѕСЂС†РёРё РґР°РЅРЅС‹С….</param>
+        /// <param name="prefetchSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕРѕР±С‰РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РµРЅ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РїРѕР»СѓС‡Р°С‚РµР»СЊ, РїСЂРµР¶РґРµ С‡РµРј РїРѕР»СѓС‡РёС‚ РЅРѕРІСѓСЋ РїРѕСЂС†РёСЋ РґР°РЅРЅС‹С….</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЌРєР·РµРјРїР»СЏСЂР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</returns>
         public static IBusConfigurator SetDefaultQoS(this IBusConfigurator busConfigurator, ushort prefetchCount, uint prefetchSize = 0)
         {
             // TODO: beautify
@@ -35,10 +35,10 @@ namespace Contour.Transport.RabbitMQ
         }
 
         /// <summary>
-        /// Включает использование брокера <c>RabbitMQ</c>.
+        /// Р’РєР»СЋС‡Р°РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Р±СЂРѕРєРµСЂР° <c>RabbitMQ</c>.
         /// </summary>
-        /// <param name="busConfigurator">Конфигуратор шины сообщений.</param>
-        /// <returns>Конфигуратор шины сообщений с включенной поддержкой брокера.</returns>
+        /// <param name="busConfigurator">РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <returns>РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№ СЃ РІРєР»СЋС‡РµРЅРЅРѕР№ РїРѕРґРґРµСЂР¶РєРѕР№ Р±СЂРѕРєРµСЂР°.</returns>
         public static IBusConfigurator UseRabbitMq(this IBusConfigurator busConfigurator)
         {
             var c = (BusConfiguration)busConfigurator;

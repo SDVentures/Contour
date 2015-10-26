@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MessageValidatorGroup.cs" company="">
 //   
 // </copyright>
@@ -31,7 +31,7 @@ namespace Contour.Validation
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageValidatorGroup"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageValidatorGroup"/>.
         /// </summary>
         /// <param name="validators">
         /// The validators.

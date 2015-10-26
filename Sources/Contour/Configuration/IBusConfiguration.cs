@@ -1,4 +1,4 @@
-namespace Contour.Configuration
+п»їnamespace Contour.Configuration
 {
     using System.Collections.Generic;
 
@@ -6,14 +6,14 @@ namespace Contour.Configuration
     using Contour.Serialization;
 
     /// <summary>
-    ///   Конфигурация клиента шины.
+    ///   РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєР»РёРµРЅС‚Р° С€РёРЅС‹.
     /// </summary>
     public interface IBusConfiguration
     {
         #region Public Properties
 
         /// <summary>
-        ///   Строка подключения к транспорту (брокеру).
+        ///   РЎС‚СЂРѕРєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє С‚СЂР°РЅСЃРїРѕСЂС‚Сѓ (Р±СЂРѕРєРµСЂСѓ).
         /// </summary>
         string ConnectionString { get; }
 
@@ -23,12 +23,12 @@ namespace Contour.Configuration
         IEnumerable<IMessageExchangeFilter> Filters { get; }
 
         /// <summary>
-        ///   Обработчик метки сообщений.
+        ///   РћР±СЂР°Р±РѕС‚С‡РёРє РјРµС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         IMessageLabelHandler MessageLabelHandler { get; }
 
         /// <summary>
-        ///   Сериализатор сообщений.
+        ///   РЎРµСЂРёР°Р»РёР·Р°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         IPayloadConverter Serializer { get; }
 

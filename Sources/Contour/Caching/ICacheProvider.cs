@@ -1,4 +1,4 @@
-namespace Contour.Caching
+﻿namespace Contour.Caching
 {
     using System;
 

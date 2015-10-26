@@ -1,4 +1,4 @@
-source https://www.nuget.org/api/v2/
+﻿source https://www.nuget.org/api/v2/
 
 nuget Common.Logging 2.1.2 framework: >= net40
 nuget FluentAssertions 2.1.0.0 framework: >= net40

@@ -1,4 +1,4 @@
-namespace Contour.Common.Tests
+ï»¿namespace Contour.Common.Tests
 {
     using FluentAssertions;
 
@@ -152,7 +152,7 @@ namespace Contour.Common.Tests
             [TestCase(":label", Result = true)]
             [TestCase("_label", Result = false)]
             [TestCase(":13_label", Result = false)]
-            [TestCase(":ìåòêà", Result = false)]
+            [TestCase(":Ğ¼ĞµÑ‚ĞºĞ°", Result = false)]
             public bool should_only_pass_valid_label(string alias)
             {
                 return MessageLabel.IsValidAlias(alias);
@@ -194,7 +194,7 @@ namespace Contour.Common.Tests
             [TestCase(":label", Result = false)]
             [TestCase("13-label", Result = false)]
             [TestCase("_label", Result = true)]
-            [TestCase("ìåòêà", Result = false)]
+            [TestCase("Ğ¼ĞµÑ‚ĞºĞ°", Result = false)]
             public bool should_only_pass_valid_label(string label)
             {
                 return MessageLabel.IsValidLabel(label);

@@ -1,21 +1,21 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 
 namespace Contour
 {
     /// <summary>
-    ///   Сериализуемое описание исключения.
+    ///   РЎРµСЂРёР°Р»РёР·СѓРµРјРѕРµ РѕРїРёСЃР°РЅРёРµ РёСЃРєР»СЋС‡РµРЅРёСЏ.
     /// </summary>
     public sealed class FaultException
     {
         private const int MaxNestingLevel = 5;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="FaultException"/>. 
-        /// Создает экземпляр описания исключения.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FaultException"/>. 
+        /// РЎРѕР·РґР°РµС‚ СЌРєР·РµРјРїР»СЏСЂ РѕРїРёСЃР°РЅРёСЏ РёСЃРєР»СЋС‡РµРЅРёСЏ.
         /// </summary>
         /// <param name="exception">
-        /// Исключение, по которому создается описание.
+        /// РСЃРєР»СЋС‡РµРЅРёРµ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ СЃРѕР·РґР°РµС‚СЃСЏ РѕРїРёСЃР°РЅРёРµ.
         /// </param>
         public FaultException(Exception exception)
             : this(exception, 0)
@@ -23,10 +23,10 @@ namespace Contour
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="FaultException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FaultException"/>.
         /// </summary>
-        /// <param name="exception">Исключение, по которому создается описание.</param>
-        /// <param name="level">Текущий уровень вложенности исключения.</param>
+        /// <param name="exception">РСЃРєР»СЋС‡РµРЅРёРµ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ СЃРѕР·РґР°РµС‚СЃСЏ РѕРїРёСЃР°РЅРёРµ.</param>
+        /// <param name="level">РўРµРєСѓС‰РёР№ СѓСЂРѕРІРµРЅСЊ РІР»РѕР¶РµРЅРЅРѕСЃС‚Рё РёСЃРєР»СЋС‡РµРЅРёСЏ.</param>
         private FaultException(Exception exception, int level)
         {
             this.Message = exception.Message;
@@ -43,30 +43,30 @@ namespace Contour
         }
 
         /// <summary>
-        ///   Сообщение исключения.
+        ///   РЎРѕРѕР±С‰РµРЅРёРµ РёСЃРєР»СЋС‡РµРЅРёСЏ.
         /// </summary>
         public string Message { get; private set; }
 
         /// <summary>
-        ///   Стек исключения.
+        ///   РЎС‚РµРє РёСЃРєР»СЋС‡РµРЅРёСЏ.
         /// </summary>
         public string StackTrace { get; private set; }
 
         /// <summary>
-        ///   Тип исключения.
+        ///   РўРёРї РёСЃРєР»СЋС‡РµРЅРёСЏ.
         /// </summary>
         public string Type { get; private set; }
 
         /// <summary>
-        /// Коллекция исключений, которые стали источником корневого исключения.
+        /// РљРѕР»Р»РµРєС†РёСЏ РёСЃРєР»СЋС‡РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ СЃС‚Р°Р»Рё РёСЃС‚РѕС‡РЅРёРєРѕРј РєРѕСЂРЅРµРІРѕРіРѕ РёСЃРєР»СЋС‡РµРЅРёСЏ.
         /// </summary>
         public IList<FaultException> InnerExceptions { get; private set; }
 
         /// <summary>
-        /// Получает внутренние исключения и конвертирует их в описания.
+        /// РџРѕР»СѓС‡Р°РµС‚ РІРЅСѓС‚СЂРµРЅРЅРёРµ РёСЃРєР»СЋС‡РµРЅРёСЏ Рё РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РёС… РІ РѕРїРёСЃР°РЅРёСЏ.
         /// </summary>
-        /// <param name="exception">Конвертируемое исключение.</param>
-        /// <param name="level">Текущий уровень вложенности исключения.</param>
+        /// <param name="exception">РљРѕРЅРІРµСЂС‚РёСЂСѓРµРјРѕРµ РёСЃРєР»СЋС‡РµРЅРёРµ.</param>
+        /// <param name="level">РўРµРєСѓС‰РёР№ СѓСЂРѕРІРµРЅСЊ РІР»РѕР¶РµРЅРЅРѕСЃС‚Рё РёСЃРєР»СЋС‡РµРЅРёСЏ.</param>
         private void GetInnerExceptionsOf(Exception exception, int level)
         {
             var aggregateException = exception as AggregateException;

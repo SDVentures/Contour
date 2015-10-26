@@ -1,12 +1,12 @@
-namespace Contour.Testing.Plumbing
+п»їnamespace Contour.Testing.Plumbing
 {
     /// <summary>
-    /// Сообщение в очереди брокера.
+    /// РЎРѕРѕР±С‰РµРЅРёРµ РІ РѕС‡РµСЂРµРґРё Р±СЂРѕРєРµСЂР°.
     /// </summary>
     public class Message
     {
         /// <summary>
-        /// Тело сообщения (полезная нагрузка).
+        /// РўРµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ (РїРѕР»РµР·РЅР°СЏ РЅР°РіСЂСѓР·РєР°).
         /// </summary>
         public string Payload { get; set; }
     }

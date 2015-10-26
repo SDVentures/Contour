@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Dynamic;
@@ -19,7 +19,7 @@ namespace Contour.Configurator
 
 
     /// <summary>
-    ///   Конфигуратор клиента шины сообщений, использующий настройки объявленные в стандартном .config-файле.
+    ///   РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РєР»РёРµРЅС‚Р° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№, РёСЃРїРѕР»СЊР·СѓСЋС‰РёР№ РЅР°СЃС‚СЂРѕР№РєРё РѕР±СЉСЏРІР»РµРЅРЅС‹Рµ РІ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРј .config-С„Р°Р№Р»Рµ.
     /// </summary>
     public class AppConfigConfigurator : IConfigurator
     {
@@ -39,7 +39,7 @@ namespace Contour.Configurator
         private readonly EndpointsSection endpointsConfig;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AppConfigConfigurator"/>.
         /// </summary>
         /// <param name="dependencyResolver">
         /// The dependency resolver.
@@ -50,7 +50,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AppConfigConfigurator"/>.
         /// </summary>
         /// <param name="dependencyResolverFunc">
         /// The dependency resolver func.
@@ -61,7 +61,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AppConfigConfigurator"/>.
         /// </summary>
         public AppConfigConfigurator()
             : this((EndpointsSection)ConfigurationManager.GetSection(ServiceBusSectionName), new StubDependencyResolver())
@@ -69,7 +69,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AppConfigConfigurator"/>.
         /// </summary>
         /// <param name="endpointsConfig">
         /// The endpoints config.
@@ -84,7 +84,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="AppConfigConfigurator"/>.
         /// </summary>
         /// <param name="endpointsConfig">
         /// The endpoints config.
@@ -98,7 +98,7 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        ///   Имена точек подключения к шине.
+        ///   РРјРµРЅР° С‚РѕС‡РµРє РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє С€РёРЅРµ.
         /// </summary>
         public IEnumerable<string> Endpoints
         {
@@ -110,22 +110,22 @@ namespace Contour.Configurator
         }
 
         /// <summary>
-        /// Конфигурирует клиента шины сообщений.
+        /// РљРѕРЅС„РёРіСѓСЂРёСЂСѓРµС‚ РєР»РёРµРЅС‚Р° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         /// <param name="endpointName">
-        /// Имя точки подключения к шине.
+        /// РРјСЏ С‚РѕС‡РєРё РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє С€РёРЅРµ.
         /// </param>
         /// <param name="cfg">
-        /// Конфигуратор клиента шины.
+        /// РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РєР»РёРµРЅС‚Р° С€РёРЅС‹.
         /// </param>
         /// <returns>
-        /// Конфигуратор клиента шины, после применения к нему всех настроек.
+        /// РљРѕРЅС„РёРіСѓСЂР°С‚РѕСЂ РєР»РёРµРЅС‚Р° С€РёРЅС‹, РїРѕСЃР»Рµ РїСЂРёРјРµРЅРµРЅРёСЏ Рє РЅРµРјСѓ РІСЃРµС… РЅР°СЃС‚СЂРѕРµРє.
         /// </returns>
         public IBusConfigurator Configure(string endpointName, IBusConfigurator cfg)
         {
             if (cfg == null)
             {
-                throw new ArgumentNullException("cfg", "Файл конфигурации не может быть null");
+                throw new ArgumentNullException("cfg", "Р¤Р°Р№Р» РєРѕРЅС„РёРіСѓСЂР°С†РёРё РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ null");
             }
 
             EndpointElement endpointConfig = this.GetEndPointByName(endpointName);
@@ -272,7 +272,7 @@ namespace Contour.Configurator
             IEnumerable<MessageElement> messages = endpoint.Outgoing.Cast<MessageElement>().
                 Concat(endpoint.Incoming.Cast<MessageElement>());
 
-            // NOTE: Если такого не будет, упадет соответствующий эксэпшн.
+            // NOTE: Р•СЃР»Рё С‚Р°РєРѕРіРѕ РЅРµ Р±СѓРґРµС‚, СѓРїР°РґРµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ СЌРєСЃСЌРїС€РЅ.
             return messages.First(x => x.Key == key).
                 Label;
         }
@@ -430,7 +430,7 @@ namespace Contour.Configurator
 
             if (endpoint == null)
             {
-                throw new ArgumentException(string.Format("Попытка найти конфигурацию для endpoint {0} закончилось провалом, пожалуйста укажите необходимую информацию в конфигурации {1}", endpointName, ServiceBusSectionName));
+                throw new ArgumentException(string.Format("РџРѕРїС‹С‚РєР° РЅР°Р№С‚Рё РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РґР»СЏ endpoint {0} Р·Р°РєРѕРЅС‡РёР»РѕСЃСЊ РїСЂРѕРІР°Р»РѕРј, РїРѕР¶Р°Р»СѓР№СЃС‚Р° СѓРєР°Р¶РёС‚Рµ РЅРµРѕР±С…РѕРґРёРјСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё {1}", endpointName, ServiceBusSectionName));
             }
 
             return endpoint;

@@ -1,4 +1,4 @@
-namespace Contour.Configurator
+﻿namespace Contour.Configurator
 {
     using System;
     using System.Configuration;

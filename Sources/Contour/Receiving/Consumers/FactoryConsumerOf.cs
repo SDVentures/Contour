@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FactoryConsumerOf.cs" company="">
 //   
 // </copyright>
@@ -31,7 +31,7 @@ namespace Contour.Receiving.Consumers
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="FactoryConsumerOf{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FactoryConsumerOf{T}"/>.
         /// </summary>
         /// <param name="handlerResolver">
         /// The handler resolver.
@@ -42,7 +42,7 @@ namespace Contour.Receiving.Consumers
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="FactoryConsumerOf{T}"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="FactoryConsumerOf{T}"/>.
         /// </summary>
         /// <param name="handlerResolver">
         /// The handler resolver.

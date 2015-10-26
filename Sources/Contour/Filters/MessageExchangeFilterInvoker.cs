@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MessageExchangeFilterInvoker.cs" company="">
 //   
 // </copyright>
@@ -30,7 +30,7 @@ namespace Contour.Filters
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageExchangeFilterInvoker"/>.
         /// </summary>
         /// <param name="filters">
         /// The filters.

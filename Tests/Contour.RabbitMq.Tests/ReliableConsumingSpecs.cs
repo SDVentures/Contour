@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+п»їusing System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +61,7 @@ namespace Contour.RabbitMq.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="given_producer_and_consumer_is_set"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="given_producer_and_consumer_is_set"/>.
             /// </summary>
             /// <param name="acceptRequired">
             /// The accept required.
@@ -227,7 +227,7 @@ namespace Contour.RabbitMq.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="when_publishing_for_breaking_consumer_with_accept_required"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="when_publishing_for_breaking_consumer_with_accept_required"/>.
             /// </summary>
             public when_publishing_for_breaking_consumer_with_accept_required()
                 : base(true)
@@ -281,7 +281,7 @@ namespace Contour.RabbitMq.Tests
             #region Constructors and Destructors
 
             /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="when_publishing_for_breaking_consumer_without_accept_required"/>.
+            /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="when_publishing_for_breaking_consumer_without_accept_required"/>.
             /// </summary>
             public when_publishing_for_breaking_consumer_without_accept_required()
                 : base(false)

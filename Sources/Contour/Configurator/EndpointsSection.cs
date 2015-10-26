@@ -1,4 +1,4 @@
-namespace Contour.Configurator
+п»їnamespace Contour.Configurator
 {
     using System.Configuration;
 
@@ -13,7 +13,7 @@ namespace Contour.Configurator
         private static readonly EndpointsSection _current = new EndpointsSection();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="EndpointsSection"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="EndpointsSection"/>.
         /// </summary>
         protected EndpointsSection()
         {

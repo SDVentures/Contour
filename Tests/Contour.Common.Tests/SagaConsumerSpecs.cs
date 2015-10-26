@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Receiving;
 using Contour.Receiving.Sagas;
@@ -10,19 +10,19 @@ using NUnit.Framework;
 namespace Contour.Common.Tests
 {
     /// <summary>
-    /// Набор тестов для получателя сообщения участника саги.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РґР»СЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ СѓС‡Р°СЃС‚РЅРёРєР° СЃР°РіРё.
     /// </summary>
     public class SagaConsumerSpecs
     {
         /// <summary>
-        /// Когда обрабатывается сообщение участник саги.
+        /// РљРѕРіРґР° РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ СѓС‡Р°СЃС‚РЅРёРє СЃР°РіРё.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class WhenHandleMessageOfSaga
         {
             /// <summary>
-            /// Сага должна восстанавливаться из хранилища.
+            /// РЎР°РіР° РґРѕР»Р¶РЅР° РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊСЃСЏ РёР· С…СЂР°РЅРёР»РёС‰Р°.
             /// </summary>
             [Test]
             public void ShouldHandleMessageIfSagaExist()
@@ -45,11 +45,11 @@ namespace Contour.Common.Tests
 
                 sut.Handle(consumingContextMock.Object);
 
-                sagaStepMock.Verify(ss => ss.Handle(It.IsAny<ISagaContext<Data, string>>(), It.IsAny<IConsumingContext<IncomingEvent>>()), "Должна быть вызвана обработка входящего сообщения.");
+                sagaStepMock.Verify(ss => ss.Handle(It.IsAny<ISagaContext<Data, string>>(), It.IsAny<IConsumingContext<IncomingEvent>>()), "Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° РѕР±СЂР°Р±РѕС‚РєР° РІС…РѕРґСЏС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.");
             }
 
             /// <summary>
-            /// Если обработчик не может быть инициатором саги и сага не найдена, тогда вызывается обработчик не найденных саг.
+            /// Р•СЃР»Рё РѕР±СЂР°Р±РѕС‚С‡РёРє РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёРЅРёС†РёР°С‚РѕСЂРѕРј СЃР°РіРё Рё СЃР°РіР° РЅРµ РЅР°Р№РґРµРЅР°, С‚РѕРіРґР° РІС‹Р·С‹РІР°РµС‚СЃСЏ РѕР±СЂР°Р±РѕС‚С‡РёРє РЅРµ РЅР°Р№РґРµРЅРЅС‹С… СЃР°Рі.
             /// </summary>
             [Test]
             public void ShouldHandleSagaNotFound()
@@ -72,11 +72,11 @@ namespace Contour.Common.Tests
 
                 sagaFailedHandlerMock.Verify(
                     sfh => sfh.SagaNotFoundHandle(It.IsAny<IConsumingContext<IncomingEvent>>()), 
-                    "Если сага не может быть создана и не найдена, должен быть вызван обработчик.");
+                    "Р•СЃР»Рё СЃР°РіР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕР·РґР°РЅР° Рё РЅРµ РЅР°Р№РґРµРЅР°, РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІС‹Р·РІР°РЅ РѕР±СЂР°Р±РѕС‚С‡РёРє.");
             }
 
             /// <summary>
-            /// Должен вызываться обработчик исключений сгенерированных при обработке сообщения.
+            /// Р”РѕР»Р¶РµРЅ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РѕР±СЂР°Р±РѕС‚С‡РёРє РёСЃРєР»СЋС‡РµРЅРёР№ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹С… РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void ShouldHandleException()
@@ -109,11 +109,11 @@ namespace Contour.Common.Tests
                 {
                 }
 
-                sagaFailedHandlerMock.Verify(sfh => sfh.SagaFailedHandle(It.IsAny<ISagaContext<Data, string>>(), It.IsAny<IConsumingContext<IncomingEvent>>(), It.IsAny<Exception>()), Times.Once, "Должен быть вызван обработчик исключений.");
+                sagaFailedHandlerMock.Verify(sfh => sfh.SagaFailedHandle(It.IsAny<ISagaContext<Data, string>>(), It.IsAny<IConsumingContext<IncomingEvent>>(), It.IsAny<Exception>()), Times.Once, "Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ РІС‹Р·РІР°РЅ РѕР±СЂР°Р±РѕС‚С‡РёРє РёСЃРєР»СЋС‡РµРЅРёР№.");
             }
 
             /// <summary>
-            /// Исключение должно быть проброшенно дальше.
+            /// РСЃРєР»СЋС‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїСЂРѕР±СЂРѕС€РµРЅРЅРѕ РґР°Р»СЊС€Рµ.
             /// </summary>
             [Test]
             public void ShouldRethrowException()
@@ -137,28 +137,28 @@ namespace Contour.Common.Tests
 
                 var sut = new SagaConsumerOf<Data, IncomingEvent, string>(sagaLifecycleMock.Object, sagaStepMock.Object, false, sagaFailedHandlerMock.Object);
 
-                Assert.Throws<Exception>(() => sut.Handle(consumingContextMock.Object), "Исключение должно быть проброшено из обработчика сообщения.");
+                Assert.Throws<Exception>(() => sut.Handle(consumingContextMock.Object), "РСЃРєР»СЋС‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїСЂРѕР±СЂРѕС€РµРЅРѕ РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° СЃРѕРѕР±С‰РµРЅРёСЏ.");
             }
         }
 
         /// <summary>
-        /// Данные сохраняемые в саге.
+        /// Р”Р°РЅРЅС‹Рµ СЃРѕС…СЂР°РЅСЏРµРјС‹Рµ РІ СЃР°РіРµ.
         /// </summary>
         public class Data
         {
             /// <summary>
-            /// Время запуска саги.
+            /// Р’СЂРµРјСЏ Р·Р°РїСѓСЃРєР° СЃР°РіРё.
             /// </summary>
             public DateTime StartTime { get; set; }
         }
 
         /// <summary>
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         public class IncomingEvent
         {
             /// <summary>
-            /// Идентификатор сообщения.
+            /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             public int Id { get; set; }
         }

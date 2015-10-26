@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RouteResolverBuilder.cs" company="">
 //   
 // </copyright>
@@ -19,7 +19,7 @@ namespace Contour.Sending
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RouteResolverBuilder"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="RouteResolverBuilder"/>.
         /// </summary>
         /// <param name="endpoint">
         /// The endpoint.

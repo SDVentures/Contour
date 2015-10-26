@@ -1,19 +1,19 @@
-using Contour.Sending;
+п»їusing Contour.Sending;
 using Contour.Topology;
 
 namespace Contour.Receiving
 {
     /// <summary>
-    /// Построитель конечной точки подписки на ответные сообщения.
+    /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ РєРѕРЅРµС‡РЅРѕР№ С‚РѕС‡РєРё РїРѕРґРїРёСЃРєРё РЅР° РѕС‚РІРµС‚РЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ.
     /// </summary>
     public class SubscriptionEndpointBuilder : ISubscriptionEndpointBuilder
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SubscriptionEndpointBuilder"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SubscriptionEndpointBuilder"/>.
         /// </summary>
-        /// <param name="endpoint">Конечная точка шины сообщений.</param>
-        /// <param name="topology">Построитель топологии шины сообщений.</param>
-        /// <param name="receiver">Конфигурация получателя ответных сообщений.</param>
+        /// <param name="endpoint">РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="topology">РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ С‚РѕРїРѕР»РѕРіРёРё С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="receiver">РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.</param>
         public SubscriptionEndpointBuilder(IEndpoint endpoint, ITopologyBuilder topology, IReceiverConfiguration receiver)
         {
             this.Endpoint = endpoint;
@@ -22,45 +22,45 @@ namespace Contour.Receiving
         }
 
         /// <summary>
-        /// Конечная точка шины сообщений.
+        /// РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IEndpoint Endpoint { get; private set; }
 
         /// <summary>
-        /// Конфигурация получателя ответных сообщений.
+        /// РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public IReceiverConfiguration Receiver { get; private set; }
 
         /// <summary>
-        /// Построитель топологии шины сообщений.
+        /// РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ С‚РѕРїРѕР»РѕРіРёРё С€РёРЅС‹ СЃРѕРѕР±С‰РµРЅРёР№.
         /// </summary>
         public ITopologyBuilder Topology { get; private set; }
 
         /// <summary>
-        /// Создает подписку на получение ответных сообщений для указанного источника.
+        /// РЎРѕР·РґР°РµС‚ РїРѕРґРїРёСЃРєСѓ РЅР° РїРѕР»СѓС‡РµРЅРёРµ РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ РёСЃС‚РѕС‡РЅРёРєР°.
         /// </summary>
-        /// <param name="listeningSource">Источник ответных сообщений.</param>
-        /// <param name="callbackRouteResolver">Вычислитель маршрута ответного сообщения.</param>
-        /// <returns>Конечная точка подписки.</returns>
+        /// <param name="listeningSource">РСЃС‚РѕС‡РЅРёРє РѕС‚РІРµС‚РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№.</param>
+        /// <param name="callbackRouteResolver">Р’С‹С‡РёСЃР»РёС‚РµР»СЊ РјР°СЂС€СЂСѓС‚Р° РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.</param>
+        /// <returns>РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° РїРѕРґРїРёСЃРєРё.</returns>
         public ISubscriptionEndpoint ListenTo(IListeningSource listeningSource, IRouteResolver callbackRouteResolver)
         {
             return new SubscriptionEndpoint(listeningSource, callbackRouteResolver);
         }
 
         /// <summary>
-        /// Создает конечную точку для ответов с настойками по умолчанию.
+        /// РЎРѕР·РґР°РµС‚ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РґР»СЏ РѕС‚РІРµС‚РѕРІ СЃ РЅР°СЃС‚РѕР№РєР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
         /// </summary>
-        /// <returns>Конечная точка подписки.</returns>
+        /// <returns>РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° РїРѕРґРїРёСЃРєРё.</returns>
         public ISubscriptionEndpoint UseDefaultTempReplyEndpoint()
         {
             return this.Topology.BuildTempReplyEndpoint();
         }
 
         /// <summary>
-        /// Создает конечную точку для ответов с настройками по умолчанию
+        /// РЎРѕР·РґР°РµС‚ РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РґР»СЏ РѕС‚РІРµС‚РѕРІ СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         /// </summary>
-        /// <param name="senderConfiguration">Настройки отправителя.</param>
-        /// <returns>Конечная точка подписки на сообщения.</returns>
+        /// <param name="senderConfiguration">РќР°СЃС‚СЂРѕР№РєРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ.</param>
+        /// <returns>РљРѕРЅРµС‡РЅР°СЏ С‚РѕС‡РєР° РїРѕРґРїРёСЃРєРё РЅР° СЃРѕРѕР±С‰РµРЅРёСЏ.</returns>
         public ISubscriptionEndpoint UseDefaultTempReplyEndpoint(ISenderConfiguration senderConfiguration)
         {
             return this.Topology.BuildTempReplyEndpoint(this.Endpoint, senderConfiguration.Label);

@@ -1,12 +1,12 @@
-namespace Contour.RabbitMq.Tests
+п»їnamespace Contour.RabbitMq.Tests
 {
     public class BooMessage
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BooMessage"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BooMessage"/>.
         /// </summary>
         /// <param name="num">
-        /// Данные сообщения.
+        /// Р”Р°РЅРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         public BooMessage(int num)
         {
@@ -14,14 +14,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BooMessage"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="BooMessage"/>.
         /// </summary>
         protected BooMessage()
         {
         }
 
         /// <summary>
-        /// Данные сообщения.
+        /// Р”Р°РЅРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public int Num { get; private set; }
     }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
@@ -25,7 +25,7 @@ namespace Contour.RabbitMq.Tests
         /// The when_using_dead_letter_queue_unhandled_strategy.
         /// </summary>
         [TestFixture]
-        [Ignore("При текущей конфигурации шины нельзя воспроизвести необработанное исключение.")]
+        [Ignore("РџСЂРё С‚РµРєСѓС‰РµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё С€РёРЅС‹ РЅРµР»СЊР·СЏ РІРѕСЃРїСЂРѕРёР·РІРµСЃС‚Рё РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ РёСЃРєР»СЋС‡РµРЅРёРµ.")]
         [Category("Integration")]
         public class when_using_dead_letter_queue_unhandled_strategy : RabbitMqFixture
         {
@@ -98,7 +98,7 @@ namespace Contour.RabbitMq.Tests
         /// The when_using_default_unhandled_strategy.
         /// </summary>
         [TestFixture]
-        [Ignore("При текущей конфигурации шины нельзя воспроизвести необработанное исключение.")]
+        [Ignore("РџСЂРё С‚РµРєСѓС‰РµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё С€РёРЅС‹ РЅРµР»СЊР·СЏ РІРѕСЃРїСЂРѕРёР·РІРµСЃС‚Рё РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ РёСЃРєР»СЋС‡РµРЅРёРµ.")]
         [Category("Integration")]
         public class when_using_default_unhandled_strategy : RabbitMqFixture
         {
@@ -152,7 +152,7 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         [TestFixture]
         [Category("Integration")]
-        [Ignore("При текущей конфигурации шины нельзя воспроизвести необработанное исключение.")]
+        [Ignore("РџСЂРё С‚РµРєСѓС‰РµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё С€РёРЅС‹ РЅРµР»СЊР·СЏ РІРѕСЃРїСЂРѕРёР·РІРµСЃС‚Рё РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРµ РёСЃРєР»СЋС‡РµРЅРёРµ.")]
         public class when_using_rejecting_unhandled_strategy : RabbitMqFixture
         {
             /// <summary>

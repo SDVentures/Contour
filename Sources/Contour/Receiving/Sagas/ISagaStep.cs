@@ -1,11 +1,11 @@
-namespace Contour.Receiving.Sagas
+п»їnamespace Contour.Receiving.Sagas
 {
     /// <summary>
-    /// Обработчик шага саги.
+    /// РћР±СЂР°Р±РѕС‚С‡РёРє С€Р°РіР° СЃР°РіРё.
     /// </summary>
-    /// <typeparam name="TS">Тип состояния саги.</typeparam>
-    /// <typeparam name="TM">Тип сообщения инициирующего шаг саги.</typeparam>
-    /// <typeparam name="TK">Тип идентификатора саги.</typeparam>
+    /// <typeparam name="TS">РўРёРї СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР°РіРё.</typeparam>
+    /// <typeparam name="TM">РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РёРЅРёС†РёРёСЂСѓСЋС‰РµРіРѕ С€Р°Рі СЃР°РіРё.</typeparam>
+    /// <typeparam name="TK">РўРёРї РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃР°РіРё.</typeparam>
     internal interface ISagaStep<TS, TM, TK>
         where TM : class
     {

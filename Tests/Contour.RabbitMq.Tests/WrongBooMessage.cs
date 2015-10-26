@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 namespace Contour.RabbitMq.Tests
 {
@@ -8,10 +8,10 @@ namespace Contour.RabbitMq.Tests
     public class WrongBooMessage
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="WrongBooMessage"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="WrongBooMessage"/>.
         /// </summary>
         /// <param name="num">
-        /// Данные сообщения.
+        /// Р”Р°РЅРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </param>
         public WrongBooMessage(DateTime num)
         {
@@ -19,14 +19,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="WrongBooMessage"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="WrongBooMessage"/>.
         /// </summary>
         protected WrongBooMessage()
         {
         }
 
         /// <summary>
-        /// Данные сообщения.
+        /// Р”Р°РЅРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         public DateTime Num { get; private set; }
     }

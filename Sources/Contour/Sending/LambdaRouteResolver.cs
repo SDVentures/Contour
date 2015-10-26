@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LambdaRouteResolver.cs" company="">
 //   
 // </copyright>
@@ -28,7 +28,7 @@ namespace Contour.Sending
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="LambdaRouteResolver"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="LambdaRouteResolver"/>.
         /// </summary>
         /// <param name="resolverFunc">
         /// The resolver func.

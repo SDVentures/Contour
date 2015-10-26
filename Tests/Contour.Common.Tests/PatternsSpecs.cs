@@ -1,4 +1,4 @@
-using Contour.Receiving;
+п»їusing Contour.Receiving;
 
 using Moq;
 
@@ -267,14 +267,14 @@ namespace Contour.Common.Tests
         }
 
         /// <summary>
-        /// Тестовая конфигурация для проверки оператора подтверждения обработки сообщения.
+        /// РўРµСЃС‚РѕРІР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕРїРµСЂР°С‚РѕСЂР° РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_applying_acceptor_to_message
         {
             /// <summary>
-            /// Проверяет, что оператор подтверждает сообщение.
+            /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РѕРїРµСЂР°С‚РѕСЂ РїРѕРґС‚РІРµСЂР¶РґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
             /// </summary>
             [Test]
             public void should_accept_message()
@@ -290,20 +290,20 @@ namespace Contour.Common.Tests
                 BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object);
                 var result = processor.Apply(message).ToList();
 
-                result.Should().HaveCount(1, "Сообщение должно быть передано дальше.");
-                deliveryMock.Verify(dm => dm.Accept(), "Должна быть вызвана операция подтверждения обработки.");
+                result.Should().HaveCount(1, "РЎРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРµСЂРµРґР°РЅРѕ РґР°Р»СЊС€Рµ.");
+                deliveryMock.Verify(dm => dm.Accept(), "Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° РѕРїРµСЂР°С†РёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕР±СЂР°Р±РѕС‚РєРё.");
             }
         }
 
         /// <summary>
-        /// Тестовая конфигурация для проверки оператора ответа на запрос с передачей сообщения дальше.
+        /// РўРµСЃС‚РѕРІР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕРїРµСЂР°С‚РѕСЂР° РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ СЃ РїРµСЂРµРґР°С‡РµР№ СЃРѕРѕР±С‰РµРЅРёСЏ РґР°Р»СЊС€Рµ.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_applying_transparent_reply
         {
             /// <summary>
-            /// Проверяет, что оператор ответа на запрос передает сообщение дальше.
+            /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РѕРїРµСЂР°С‚РѕСЂ РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ РїРµСЂРµРґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РґР°Р»СЊС€Рµ.
             /// </summary>
             [Test]
             public void should_pass_through_message()
@@ -319,11 +319,11 @@ namespace Contour.Common.Tests
                 BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object);
                 var result = processor.Apply(message).ToList();
 
-                result.Should().HaveCount(1, "Сообщение должно быть передано дальше.");
+                result.Should().HaveCount(1, "РЎРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРµСЂРµРґР°РЅРѕ РґР°Р»СЊС€Рµ.");
             }
 
             /// <summary>
-            /// Проверяет, что оператор отвечает на запрос переданным сообщением.
+            /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РѕРїРµСЂР°С‚РѕСЂ РѕС‚РІРµС‡Р°РµС‚ РЅР° Р·Р°РїСЂРѕСЃ РїРµСЂРµРґР°РЅРЅС‹Рј СЃРѕРѕР±С‰РµРЅРёРµРј.
             /// </summary>
             [Test]
             public void should_reply_by_message()
@@ -339,19 +339,19 @@ namespace Contour.Common.Tests
                 BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object);
                 processor.Apply(message).ToList();
 
-                deliveryMock.Verify(d => d.ReplyWith(It.IsAny<IMessage>()), "Должна быть вызвана отправка ответного сообщения.");
+                deliveryMock.Verify(d => d.ReplyWith(It.IsAny<IMessage>()), "Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° РѕС‚РїСЂР°РІРєР° РѕС‚РІРµС‚РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ.");
             }
         }
 
         /// <summary>
-        /// Тестовая конфигурация для проверки оператора перенаправления сообщения динамическому списку получателей.
+        /// РўРµСЃС‚РѕРІР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕРїРµСЂР°С‚РѕСЂР° РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ РґРёРЅР°РјРёС‡РµСЃРєРѕРјСѓ СЃРїРёСЃРєСѓ РїРѕР»СѓС‡Р°С‚РµР»РµР№.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_applying_recipient_list
         {
             /// <summary>
-            /// Проверяет, что оператор возвращает список сообщений в соответствии со списком получателей.
+            /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РѕРїРµСЂР°С‚РѕСЂ РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє СЃРѕРѕР±С‰РµРЅРёР№ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃРѕ СЃРїРёСЃРєРѕРј РїРѕР»СѓС‡Р°С‚РµР»РµР№.
             /// </summary>
             [Test]
             public void should_pass_through_message()
@@ -371,22 +371,22 @@ namespace Contour.Common.Tests
 
                 var result = processor.Apply(message).ToList();
 
-                result.Should().HaveCount(labels.Length, "Количество сообщений должно соответствовать полученному списку получателей.");
-                result.Should().Contain(m => m.Label.ToString() == "boo.r1", "Должно быть сообщение c меткой boo.r1");
-                result.Should().Contain(m => m.Label.ToString() == "boo.r2", "Должно быть сообщение c меткой boo.r2");
-                result.Should().Contain(m => m.Label.ToString() == "boo.r3", "Должно быть сообщение c меткой boo.r3");
+                result.Should().HaveCount(labels.Length, "РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕРѕР±С‰РµРЅРёР№ РґРѕР»Р¶РЅРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РїРѕР»СѓС‡РµРЅРЅРѕРјСѓ СЃРїРёСЃРєСѓ РїРѕР»СѓС‡Р°С‚РµР»РµР№.");
+                result.Should().Contain(m => m.Label.ToString() == "boo.r1", "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ c РјРµС‚РєРѕР№ boo.r1");
+                result.Should().Contain(m => m.Label.ToString() == "boo.r2", "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ c РјРµС‚РєРѕР№ boo.r2");
+                result.Should().Contain(m => m.Label.ToString() == "boo.r3", "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ c РјРµС‚РєРѕР№ boo.r3");
             }
         }
 
         /// <summary>
-        /// Тестовая конфигурация для проверки оператора инспеции сообщений в шине.
+        /// РўРµСЃС‚РѕРІР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕРїРµСЂР°С‚РѕСЂР° РёРЅСЃРїРµС†РёРё СЃРѕРѕР±С‰РµРЅРёР№ РІ С€РёРЅРµ.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class when_applying_wire_tap
         {
             /// <summary>
-            /// Проверяет, что оператор возвращает исходное сообщение и его дубликат с другой меткой.
+            /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РѕРїРµСЂР°С‚РѕСЂ РІРѕР·РІСЂР°С‰Р°РµС‚ РёСЃС…РѕРґРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ Рё РµРіРѕ РґСѓР±Р»РёРєР°С‚ СЃ РґСЂСѓРіРѕР№ РјРµС‚РєРѕР№.
             /// </summary>
             [Test]
             public void should_pass_through_message()
@@ -400,9 +400,9 @@ namespace Contour.Common.Tests
 
                 var result = processor.Apply(message).ToList();
 
-                result.Should().HaveCount(2, "Должно быть исходное сообщение и его дубликат.");
-                result.Should().Contain(m => m.Label.ToString() == "boo.r1", "Должно быть сообщение c меткой boo.r1");
-                result.Should().Contain(m => m.Label.ToString() == "boo", "Должно быть сообщение c меткой boo");
+                result.Should().HaveCount(2, "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РёСЃС…РѕРґРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ Рё РµРіРѕ РґСѓР±Р»РёРєР°С‚.");
+                result.Should().Contain(m => m.Label.ToString() == "boo.r1", "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ c РјРµС‚РєРѕР№ boo.r1");
+                result.Should().Contain(m => m.Label.ToString() == "boo", "Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ c РјРµС‚РєРѕР№ boo");
             }
         }
     }

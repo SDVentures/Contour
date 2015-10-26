@@ -1,4 +1,4 @@
-namespace Contour.Configurator
+﻿namespace Contour.Configurator
 {
     /// <summary>
     /// The lifestyle.

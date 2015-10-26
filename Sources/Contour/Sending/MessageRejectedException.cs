@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+п»ї// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MessageRejectedException.cs" company="">
 //   
 // </copyright>
@@ -19,7 +19,7 @@ namespace Contour.Sending
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageRejectedException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageRejectedException"/>.
         /// </summary>
         public MessageRejectedException()
             : base("Message was rejected.")
@@ -27,7 +27,7 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageRejectedException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="MessageRejectedException"/>.
         /// </summary>
         /// <param name="innerException">
         /// The inner exception.

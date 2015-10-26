@@ -1,4 +1,4 @@
-namespace Contour.SampleConsumer
+п»їnamespace Contour.SampleConsumer
 {
     /// <summary>
     /// The request.
@@ -8,7 +8,7 @@ namespace Contour.SampleConsumer
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Request"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Request"/>.
         /// </summary>
         /// <param name="number">
         /// The number.

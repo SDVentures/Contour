@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 
 using Contour.Receiving;
 using Contour.Receiving.Sagas;
@@ -10,19 +10,19 @@ using NUnit.Framework;
 namespace Contour.Common.Tests
 {
     /// <summary>
-    /// Набор тестов для котроллера времени жизни саги.
+    /// РќР°Р±РѕСЂ С‚РµСЃС‚РѕРІ РґР»СЏ РєРѕС‚СЂРѕР»Р»РµСЂР° РІСЂРµРјРµРЅРё Р¶РёР·РЅРё СЃР°РіРё.
     /// </summary>
     public class DefaultSagaLifecycleSpecs
     {
         /// <summary>
-        /// Когда обрабатывается сообщение участник саги.
+        /// РљРѕРіРґР° РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ СѓС‡Р°СЃС‚РЅРёРє СЃР°РіРё.
         /// </summary>
         [TestFixture]
         [Category("Unit")]
         public class WhenHandleMessageOfSaga
         {
             /// <summary>
-            /// Сага должна восстанавливаться из хранилища.
+            /// РЎР°РіР° РґРѕР»Р¶РЅР° РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊСЃСЏ РёР· С…СЂР°РЅРёР»РёС‰Р°.
             /// </summary>
             [Test]
             public void ShouldLoadSagaDataFromRepositoryBySagaId()
@@ -45,11 +45,11 @@ namespace Contour.Common.Tests
 
                 sut.InitializeSaga(consumingContextMock.Object, false);
 
-                sagaRepositoryMock.Verify(sr => sr.Get(It.IsAny<string>()), "Должна быть получена сага из хранилища.");
+                sagaRepositoryMock.Verify(sr => sr.Get(It.IsAny<string>()), "Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅР° СЃР°РіР° РёР· С…СЂР°РЅРёР»РёС‰Р°.");
             }
 
             /// <summary>
-            /// Сага должна сохраняться в хранилище.
+            /// РЎР°РіР° РґРѕР»Р¶РЅР° СЃРѕС…СЂР°РЅСЏС‚СЊСЃСЏ РІ С…СЂР°РЅРёР»РёС‰Рµ.
             /// </summary>
             [Test]
             public void ShouldStoreSagaAfterHandle()
@@ -72,11 +72,11 @@ namespace Contour.Common.Tests
 
                 sut.FinilizeSaga(sagaMock.Object);
 
-                sagaRepositoryMock.Verify(sr => sr.Store(It.IsAny<ISagaContext<Data, string>>()), "Сага должна сохраняться после обработки.");
+                sagaRepositoryMock.Verify(sr => sr.Store(It.IsAny<ISagaContext<Data, string>>()), "РЎР°РіР° РґРѕР»Р¶РЅР° СЃРѕС…СЂР°РЅСЏС‚СЊСЃСЏ РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё.");
             }
 
             /// <summary>
-            /// Сага должна быть создана.
+            /// РЎР°РіР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃРѕР·РґР°РЅР°.
             /// </summary>
             [Test]
             public void ShouldCreateSagaIfNotExist()
@@ -101,11 +101,11 @@ namespace Contour.Common.Tests
 
                 sut.InitializeSaga(consumingContextMock.Object, true);
 
-                sagaFactoryMock.Verify(sf => sf.Create(It.IsAny<string>()), "Сага должна быть создана в случае ее отсутствия.");
+                sagaFactoryMock.Verify(sf => sf.Create(It.IsAny<string>()), "РЎР°РіР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃРѕР·РґР°РЅР° РІ СЃР»СѓС‡Р°Рµ РµРµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ.");
             }
 
             /// <summary>
-            /// Завершенная сага должна быть удалена из хранилища.
+            /// Р—Р°РІРµСЂС€РµРЅРЅР°СЏ СЃР°РіР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СѓРґР°Р»РµРЅР° РёР· С…СЂР°РЅРёР»РёС‰Р°.
             /// </summary>
             [Test]
             public void ShouldRemoveSagaIfCompleted()
@@ -131,28 +131,28 @@ namespace Contour.Common.Tests
 
                 sut.FinilizeSaga(sagaMock.Object);
 
-                sagaRepositoryMock.Verify(sr => sr.Remove(It.IsAny<ISagaContext<Data, string>>()), "Сага должна быть удалена после завершения.");
+                sagaRepositoryMock.Verify(sr => sr.Remove(It.IsAny<ISagaContext<Data, string>>()), "РЎР°РіР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СѓРґР°Р»РµРЅР° РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ.");
             }
         }
 
         /// <summary>
-        /// Данные сохраняемые в саге.
+        /// Р”Р°РЅРЅС‹Рµ СЃРѕС…СЂР°РЅСЏРµРјС‹Рµ РІ СЃР°РіРµ.
         /// </summary>
         public class Data
         {
             /// <summary>
-            /// Время запуска саги.
+            /// Р’СЂРµРјСЏ Р·Р°РїСѓСЃРєР° СЃР°РіРё.
             /// </summary>
             public DateTime StartTime { get; set; }
         }
 
         /// <summary>
-        /// Входящее сообщение.
+        /// Р’С…РѕРґСЏС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ.
         /// </summary>
         public class IncomingEvent
         {
             /// <summary>
-            /// Идентификатор сообщения.
+            /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             public int Id { get; set; }
         }

@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -212,14 +212,14 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// При регистрации отправителя с возможностью послать сообщение с любой меткой.
+        /// РџСЂРё СЂРµРіРёСЃС‚СЂР°С†РёРё РѕС‚РїСЂР°РІРёС‚РµР»СЏ СЃ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊСЋ РїРѕСЃР»Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ СЃ Р»СЋР±РѕР№ РјРµС‚РєРѕР№.
         /// </summary>
         [TestFixture]
         [Category("Integration")]
         public class when_routing_using_any_label : RabbitMqFixture
         {
             /// <summary>
-            /// Не должно генерироваться исключение при отправке сообщения.
+            /// РќРµ РґРѕР»Р¶РЅРѕ РіРµРЅРµСЂРёСЂРѕРІР°С‚СЊСЃСЏ РёСЃРєР»СЋС‡РµРЅРёРµ РїСЂРё РѕС‚РїСЂР°РІРєРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
             /// </summary>
             [Test]
             public void should_not_throw_when_emit()
@@ -231,7 +231,7 @@ namespace Contour.RabbitMq.Tests
             }
 
             /// <summary>
-            /// Сообщение должно быть доставлено до адресата.
+            /// РЎРѕРѕР±С‰РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РґРѕСЃС‚Р°РІР»РµРЅРѕ РґРѕ Р°РґСЂРµСЃР°С‚Р°.
             /// </summary>
             [Test]
             public void should_consuming_message()
@@ -261,7 +261,7 @@ namespace Contour.RabbitMq.Tests
             }
 
             /// <summary>
-            /// Сообщение при динамическом и статическом роутинге должно быть доставлено до адресата.
+            /// РЎРѕРѕР±С‰РµРЅРёРµ РїСЂРё РґРёРЅР°РјРёС‡РµСЃРєРѕРј Рё СЃС‚Р°С‚РёС‡РµСЃРєРѕРј СЂРѕСѓС‚РёРЅРіРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РґРѕСЃС‚Р°РІР»РµРЅРѕ РґРѕ Р°РґСЂРµСЃР°С‚Р°.
             /// </summary>
             [Test]
             public void should_consuming_dynamic_and_static_message()
@@ -304,7 +304,7 @@ namespace Contour.RabbitMq.Tests
             }
 
             /// <summary>
-            /// Может быть получен ответ на такой запрос.
+            /// РњРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ РѕС‚РІРµС‚ РЅР° С‚Р°РєРѕР№ Р·Р°РїСЂРѕСЃ.
             /// </summary>
             [Test]
             public void should_receive_response()
@@ -337,7 +337,7 @@ namespace Contour.RabbitMq.Tests
             }
 
             /// <summary>
-            /// Может быть получен ответ на любые типы запросов..
+            /// РњРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ РѕС‚РІРµС‚ РЅР° Р»СЋР±С‹Рµ С‚РёРїС‹ Р·Р°РїСЂРѕСЃРѕРІ..
             /// </summary>
             [Test]
             public void should_receive_response_from_both()

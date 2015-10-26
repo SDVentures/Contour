@@ -1,4 +1,4 @@
-namespace Contour.Configuration
+﻿namespace Contour.Configuration
 {
     using System.Collections.Generic;
     using System.Linq;

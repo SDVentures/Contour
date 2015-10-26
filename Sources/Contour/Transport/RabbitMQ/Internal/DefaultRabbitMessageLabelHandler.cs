@@ -1,4 +1,4 @@
-namespace Contour.Transport.RabbitMQ.Internal
+﻿namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Generic;
