@@ -154,14 +154,13 @@ namespace Contour.Testing.Plumbing
         /// </summary>
         /// <param name="vhostName">Виртуальный хост брокера.</param>
         /// <param name="user">Имя пользователя.</param>
-        /// <param name="password">Пароль пользователя.</param>
-        public void CreateUser(string vhostName, string user, string password)
+        /// <param name="userPassword">Пароль пользователя.</param>
+        public void CreateUser(string vhostName, string user, string userPassword)
         {
             var client = this.CreateClient();
             var request = CreateRequest("/api/users/{name}", Method.PUT);
-            request.AddUrlSegment("name", vhostName);
-            request.AddUrlSegment("user", user);
-            request.AddBody(new { password, tags = "administrator" });
+            request.AddUrlSegment("name", user);
+            request.AddBody(new { password = userPassword, tags = "administrator" });
             client.Execute(request);
         }
 
@@ -173,8 +172,8 @@ namespace Contour.Testing.Plumbing
         public void SetPermissions(string vhostName, string user)
         {
             var client = this.CreateClient();
-            var request = CreateRequest("/api/permissions/{name}/{user}", Method.PUT);
-            request.AddUrlSegment("name", vhostName);
+            var request = CreateRequest("/api/permissions/{vhost}/{user}", Method.PUT);
+            request.AddUrlSegment("vhost", vhostName);
             request.AddUrlSegment("user", user);
             request.AddBody(new { Configure = ".*", Write = ".*", Read = ".*" });
             client.Execute(request);
