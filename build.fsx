@@ -86,6 +86,7 @@ Target "Deploy" (fun () ->
             ReleaseNotes = toLines release.Notes
             Tags = tags
             OutputPath = buildDir
+            ToolPath = "./packages/NuGet.CommandLine/tools/Nuget.exe"
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies =

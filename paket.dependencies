@@ -11,3 +11,4 @@ nuget RabbitMQ.Client 3.3.0 framework: >= net40
 nuget RestSharp 105.2.3
 nuget FAKE 4.0.3 framework: net40
 nuget NUnit.Runners 2.6.4 framework: net40
+nuget NuGet.CommandLine 2.8.6 framework: net40

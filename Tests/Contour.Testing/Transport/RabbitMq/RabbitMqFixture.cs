@@ -66,6 +66,14 @@ namespace Contour.Testing.Transport.RabbitMq
             }
         }
 
+        protected string AmqpConnection 
+        {
+            get
+            {
+                return this.amqpConnection;
+            }
+        }
+
         /// <summary>
         /// Настраивает окружение перед работой теста.
         /// </summary>

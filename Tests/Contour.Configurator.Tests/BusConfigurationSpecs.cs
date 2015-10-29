@@ -246,14 +246,16 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_handle_state_changes()
             {
-                const string producerConfig = 
+                string producerConfig = string.Format(
                     @"<endpoints>
-                        <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" lifecycleHandler=""ProducerHandler"">
+                        <endpoint name=""producer"" connectionString=""{0}{1}"" lifecycleHandler=""ProducerHandler"">
                             <outgoing>
                                 <route key=""a"" label=""msg.a"" />
                             </outgoing>
                         </endpoint>
-                    </endpoints>";
+                    </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
                 var handler = new Mock<IBusLifecycleHandler>();
 
@@ -297,25 +299,29 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_build_consumer_each_time()
             {
-                const string producerConfig = 
+                string producerConfig = string.Format(
                     @"<endpoints>
-                        <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                        <endpoint name=""producer"" connectionString=""{0}{1}"">
                             <outgoing>
                                 <route key=""a"" label=""msg.a"" />
                                 <route key=""b"" label=""msg.b"" />
                             </outgoing>
                         </endpoint>
-                    </endpoints>";
+                    </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
-                const string consumerConfig = 
-                        @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                string consumerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
                                     <on key=""b"" label=""msg.b"" react=""BooTransformer"" type=""BooMessage"" lifestyle=""Delegated"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
                 BusDependentHandler.Reset();
                 BusDependentTransformer.Reset();
@@ -384,25 +390,29 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_build_consumer_once()
             {
-                const string producerConfig = 
-                        @"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                     <route key=""b"" label=""msg.b"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
-                const string consumerConfig = 
-                        @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                string consumerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Lazy"" />
                                     <on key=""b"" label=""msg.b"" react=""BooTransformer"" type=""BooMessage"" lifestyle=""Lazy"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
                 BusDependentHandler.Reset();
                 BusDependentTransformer.Reset();
@@ -474,23 +484,27 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_receive()
             {
-                const string producerConfig = 
-                        @"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
-                const string consumerConfig = 
-                        @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                string consumerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.AmqpConnection,
+                    this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
@@ -538,22 +552,27 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_receive()
             {
-                const string producerConfig = @"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
-                const string consumerConfig = 
+                string consumerConfig = string.Format(
                         @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""DynamicHandler"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
                 var handler = new ConcreteHandlerOf<ExpandoObject>();
 
@@ -603,18 +622,20 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_validate()
             {
-                const string producerConfig = 
+                string producerConfig = string.Format(
                         @"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
-                const string consumerConfig = 
+                string consumerConfig = string.Format(
                         @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <validators>
                                     <add name=""ValidatorGroup"" group=""true"" />
                                 </validators>
@@ -622,7 +643,9 @@ namespace Contour.Configurator.Tests
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
@@ -683,23 +706,27 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_validate()
             {
-                const string producerConfig = 
+                string producerConfig = string.Format(
                         @"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
-                const string consumerConfig = 
+                string consumerConfig = string.Format(
                         @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" validate=""BooValidator"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
@@ -752,21 +779,27 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_receive()
             {
-                const string producerConfig = @"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
-                const string consumerConfig = @"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""amqp://localhost/integration"">
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooTransformer"" type=""BooMessage"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.AmqpConnection,
+                        this.VhostName);
 
                 var handler = new ConcreteTransformerOf<BooMessage>();
 
