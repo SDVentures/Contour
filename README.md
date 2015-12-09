@@ -1,6 +1,8 @@
 ﻿Contour
 ========
 
+![Contour status](https://ci.appveyor.com/api/projects/status/github/sdventures/contour?branch=master&svg=true)
+
 ## Documentation
 
 ## Library license
