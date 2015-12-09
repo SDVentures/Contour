@@ -85,7 +85,9 @@
             [Test]
             public void should_create_string_with_full_date_in_utc()
             {
-                Expires expires = Expires.At(new DateTimeOffset(new DateTime(2014, 5, 6, 7, 8, 9)));
+                var dateTime = new DateTime(2014, 5, 6, 7, 8, 9);
+                var offset = new TimeSpan(4, 0, 0);
+                Expires expires = Expires.At(new DateTimeOffset(dateTime, offset));
 
                 expires.ToString().
                     Should().
