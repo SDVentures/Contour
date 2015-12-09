@@ -36,7 +36,7 @@ Target "CleanUp" (fun _ ->
 )
 
 Target "BuildVersion" (fun _ ->
-    let buildVersion = sprintf "%s-%s" release.NugetVersion appVeyorRepoCommit
+    let buildVersion = sprintf "%s-build%s" release.NugetVersion appVeyorBuildNumber
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore
 )
 
