@@ -142,7 +142,7 @@
                 Expires expires = Expires.Parse("at 2014-05-06T03:08:09");
 
                 expires.Date.Should().
-                    Be(new DateTimeOffset(new DateTime(2014, 5, 6, 7, 8, 9)));
+                    Be(new DateTimeOffset(new DateTime(2014, 5, 6, 3, 8, 9), new TimeSpan(0, 0, 0)).ToLocalTime());
             }
 
             #endregion
