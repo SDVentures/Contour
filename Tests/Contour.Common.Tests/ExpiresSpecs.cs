@@ -29,14 +29,16 @@
             [Test]
             public void should_create_expires_object_with_date()
             {
-                Expires expires = Expires.At(new DateTimeOffset(new DateTime(2014, 5, 6, 7, 8, 9)));
+                var dateTime = new DateTime(2014, 5, 6, 7, 8, 9);
+                var offset = new TimeSpan(4, 0, 0);
+                Expires expires = Expires.At(new DateTimeOffset(dateTime, offset));
 
                 expires.Period.Should().
                     NotHaveValue();
                 expires.Date.HasValue.Should().
                     BeTrue();
                 expires.Date.Should().
-                    Be(new DateTimeOffset(new DateTime(2014, 5, 6, 7, 8, 9)));
+                    Be(new DateTimeOffset(dateTime, offset));
             }
 
             #endregion
