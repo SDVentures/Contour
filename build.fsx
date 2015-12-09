@@ -26,8 +26,18 @@ let projects =
 let tests =
     !! "Tests/**/*.csproj"
 
+let isAppVeyorBuild = environVar "APPVEYOR" <> null
+let appVeyorBuildNumber = environVar "APPVEYOR_BUILD_NUMBER"
+let appVeyorRepoCommit = environVar "APPVEYOR_REPO_COMMIT"
+
+
 Target "CleanUp" (fun _ ->
     CleanDirs [ buildDir ]
+)
+
+Target "BuildVersion" (fun _ ->
+    let buildVersion = sprintf "%s-%s" release.NugetVersion appVeyorRepoCommit
+    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore
 )
 
 Target "AssemblyInfo" (fun _ ->
@@ -100,6 +110,7 @@ Target "Deploy" (fun () ->
 )
 
 "CleanUp"
+    =?> ("BuildVersion", isAppVeyorBuild)
     ==> "AssemblyInfo"
     ==> "Build"
     ==> "RunUnitTests"
