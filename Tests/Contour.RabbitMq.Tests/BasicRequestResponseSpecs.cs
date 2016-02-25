@@ -1,26 +1,23 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Sending;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
+using Contour.Transport.RabbitMQ.Topology;
+
+using FluentAssertions;
+
+using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using FluentAssertions;
-
-    using Contour.Configuration;
-    using Contour.Receiving;
-    using Contour.Sending;
-    using Contour.Transport.RabbitMQ.Topology;
-
-    using NUnit.Framework;
-
     // ReSharper disable InconsistentNaming
 
     /// <summary>
@@ -74,25 +71,20 @@ namespace Contour.RabbitMq.Tests
             }
         }
 
-        /// <summary>
-        /// The when_replying_to_message_without_reply_address.
-        /// </summary>
-        [TestFixture]
+        [TestFixture(Description = "When replying to message without reply address")]
         [Category("Integration")]
-        public class when_replying_to_message_without_reply_address : RabbitMqFixture
+        internal class when_replying_to_message_without_reply_address : RabbitMqFixture
         {
-            /// <summary>
-            /// The should_throw_bus_configuration_exception.
-            /// </summary>
-            [Test]
-            public void should_throw_bus_configuration_exception()
+            [Test(Description = "Shouldn't throw BusConfigurationException")]
+            public void should_not_throw_bus_configuration_exception()
             {
                 Exception exception = null;
-                var failed = new ManualResetEvent(false);
+                var waitHandle = new ManualResetEvent(false);
 
                 IBus producer = this.StartBus(
                     "producer",
                     cfg => cfg.Route("dummy.request"));
+
                 this.StartBus(
                     "consumer",
                     cfg =>
@@ -102,17 +94,24 @@ namespace Contour.RabbitMq.Tests
                                     {
                                         exception = ctx.Exception;
                                         ctx.Accept();
-                                        failed.Set();
+                                        waitHandle.Set();
                                     });
 
                             cfg.On<DummyRequest>("dummy.request")
-                                .ReactWith((m, ctx) => ctx.Reply(new DummyResponse(m.Num * 2)));
+                                .ReactWith(
+                                    (m, ctx) =>
+                                        {
+                                            ctx.Reply(new DummyResponse(m.Num * 2));
+                                            ctx.Accept();
+                                            waitHandle.Set();
+                                        });
                         });
 
                 producer.Emit("dummy.request", new DummyRequest(13));
 
-                failed.WaitOne(3.Seconds()).Should().BeTrue();
-                exception.Should().BeOfType<BusConfigurationException>();
+                waitHandle.WaitOne(3.Seconds()).Should().BeTrue();
+
+                exception.Should().BeNull();
             }
         }
 
