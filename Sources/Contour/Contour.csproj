@@ -65,6 +65,7 @@
     <Compile Include="MessageExchange.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="MessageHeaderStorage.cs" />
+    <Compile Include="MessageProperties.cs" />
     <Compile Include="Operators\Acceptor.cs" />
     <Compile Include="Operators\BusProcessingContext.cs" />
     <Compile Include="Operators\ContentBasedRouter.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="Transport\RabbitMQ\Internal\DefaultPublishConfirmationTracker.cs" />
     <Compile Include="Sending\PublishingOptions.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFaultMessage.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitMessageProperties.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitUnhandledConsumingContext.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFailedConsumingContext.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitReceiver.cs" />
