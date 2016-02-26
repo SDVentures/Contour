@@ -124,7 +124,10 @@ namespace Contour.Receiving
                 headers[Headers.Expires] = expires.ToString();
             }
 
-            this.Delivery.ReplyWith(new Message<TResponse>(MessageLabel.Empty, headers, response));
+            if (this.Delivery.CanReply)
+            {
+                this.Delivery.ReplyWith(new Message<TResponse>(MessageLabel.Empty, headers, response));
+            }
         }
     }
 }
