@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Common.Logging;
-
-using Contour.Helpers;
-using Contour.Helpers.Scheduler;
-using Contour.Helpers.Timing;
-using Contour.Receiving;
-using Contour.Receiving.Consumers;
-using Contour.Validation;
-
-using global::RabbitMQ.Client.Events;
-
-namespace Contour.Transport.RabbitMQ.Internal
+﻿namespace Contour.Transport.RabbitMQ.Internal
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Common.Logging;
+
+    using Contour.Helpers;
+    using Contour.Helpers.Scheduler;
+    using Contour.Helpers.Timing;
+    using Contour.Receiving;
+    using Contour.Receiving.Consumers;
+    using Contour.Validation;
+
+    using global::RabbitMQ.Client.Events;
+
     /// <summary>
     /// Слушатель канала.
     /// </summary>
@@ -34,7 +35,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Обработчики сообщений.
         /// Каждому обработчику соответствует своя метка сообщения.
         /// </summary>
-        private readonly IDictionary<MessageLabel, ConsumingAction> consumers = new Dictionary<MessageLabel, ConsumingAction>();
+        private readonly IDictionary<MessageLabel, ConsumingAction> consumers = new ConcurrentDictionary<MessageLabel, ConsumingAction>();
 
         /// <summary>
         /// Порт канала, на который приходит сообщение.
@@ -44,7 +45,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Ожидания ответных сообщений на запрос.
         /// </summary>
-        private readonly IDictionary<string, Expectation> expectations = new Dictionary<string, Expectation>();
+        private readonly ConcurrentDictionary<string, Expectation> expectations = new ConcurrentDictionary<string, Expectation>();
 
         /// <summary>
         /// Хранилище заголовков входящего сообщения.
@@ -115,7 +116,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             // TODO: refactor
             this.Failed += _ =>
                 {
-                    if (HasFailed)
+                    if (this.HasFailed)
                     {
                         return;
                     }
@@ -210,34 +211,17 @@ namespace Contour.Transport.RabbitMQ.Internal
         public Task<IMessage> Expect(string correlationId, Type expectedResponseType, TimeSpan? timeout)
         {
             Expectation expectation;
-            long? timeoutTicket = null;
-
-            lock (this.locker)
+            if (this.expectations.TryGetValue(correlationId, out expectation))
             {
-                if (!this.expectations.TryGetValue(correlationId, out expectation))
-                {
-                    // TODO: refactor
-                    if (timeout.HasValue)
-                    {
-                        timeoutTicket = this.ticketTimer.Acquire(
-                            timeout.Value, 
-                            () =>
-                                {
-                                    Expectation ex;
-                                    if (this.expectations.TryGetValue(correlationId, out ex))
-                                    {
-                                        this.expectations.Remove(correlationId);
-                                        ex.Timeout();
-                                    }
-                                });
-                    }
-
-                    expectation = new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
-                    this.expectations[correlationId] = expectation;
-                }
+                return expectation.Task;
             }
 
-            return expectation.Task;
+            // Используется блокировка, чтобы гарантировать что метод CreateExpectation будет вызван один раз, т.к. это не гарантируется реализацией метода GetOrAdd.
+            lock (this.locker)
+            {
+                expectation = this.expectations.GetOrAdd(correlationId, c => this.CreateExpectation(c, expectedResponseType, timeout));
+                return expectation.Task;
+            }
         }
 
         /// <summary>
@@ -439,6 +423,29 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
         }
 
+        /// <summary>
+        /// Создаёт ожидание ответа на запрос.
+        /// </summary>
+        /// <param name="correlationId">Корреляционный идентификатор, с помощью которого определяется принадлежность ответа определенному запросу.</param>
+        /// <param name="expectedResponseType">Ожидаемый тип ответа.</param>
+        /// <param name="timeout">Время ожидания ответа.</param>
+        /// <returns>Ожидание ответа на запрос.</returns>
+        private Expectation CreateExpectation(string correlationId, Type expectedResponseType, TimeSpan? timeout)
+        {
+            long? timeoutTicket = null;
+            if (timeout.HasValue)
+            {
+                timeoutTicket = this.ticketTimer.Acquire(
+                    timeout.Value,
+                    () =>
+                    {
+                        this.OnResponseTimeout(correlationId);
+                    });
+            }
+
+            return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
+        }
+
         private void InternalConsume(CancellationToken cancellationToken)
         {
             var channel = (RabbitChannel)this.channelProvider.OpenChannel();
@@ -487,6 +494,18 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
+        /// Обрабатывает превышение времени ожидания ответа.
+        /// </summary>
+        /// <param name="correlationId">Корреляционный идентификатор, с помощью которого определяется принадлежность ответа определенному запросу.</param>
+        private void OnResponseTimeout(string correlationId)
+        {
+            Expectation expectation;
+            if (this.expectations.TryRemove(correlationId, out expectation))
+            {
+                expectation.Timeout();
+            }
+        }
+
         /// Обработчик события о ненайденном обработчике сообщений.
         /// </summary>
         /// <param name="delivery">
@@ -518,24 +537,19 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             string correlationId = delivery.CorrelationId;
 
-            lock (this.locker)
+            Expectation expectation;
+            if (!this.expectations.TryRemove(correlationId, out expectation))
             {
-                if (this.expectations.ContainsKey(correlationId))
-                {
-                    Expectation e = this.expectations[correlationId];
-
-                    if (e.TimeoutTicket.HasValue)
-                    {
-                        this.ticketTimer.Cancel(e.TimeoutTicket.Value);
-                    }
-
-                    this.expectations.Remove(correlationId);
-                    e.Complete(delivery);
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            if (expectation.TimeoutTicket.HasValue)
+            {
+                this.ticketTimer.Cancel(expectation.TimeoutTicket.Value);
+            }
+
+            expectation.Complete(delivery);
+            return true;
         }
 
         /// <summary>
