@@ -1,6 +1,7 @@
 ﻿namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -25,7 +26,7 @@
         /// <summary>
         /// The _listeners.
         /// </summary>
-        private readonly ISet<Listener> listeners = new HashSet<Listener>();
+        private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
 
         #endregion
 
@@ -65,11 +66,7 @@
         /// </summary>
         public void Dispose()
         {
-            lock (this.listeners)
-            {
-                this.listeners.ForEach(l => l.Dispose());
-                this.listeners.Clear();
-            }
+            this.Reset();
         }
 
         /// <summary>
@@ -77,10 +74,10 @@
         /// </summary>
         public void Reset()
         {
-            lock (this.listeners)
+            Listener listener;
+            while (this.listeners.TryTake(out listener))
             {
-                this.listeners.ForEach(l => l.Dispose());
-                this.listeners.Clear();
+                listener.Dispose();
             }
         }
 
@@ -143,10 +140,7 @@
         /// </summary>
         public void StartConsuming()
         {
-            lock (this.listeners)
-            {
                 this.listeners.ForEach(l => l.StartConsuming());
-            }
         }
 
         /// <summary>
@@ -154,10 +148,7 @@
         /// </summary>
         public void StopConsuming()
         {
-            lock (this.listeners)
-            {
                 this.listeners.ForEach(l => l.StopConsuming());
-            }
         }
 
         #endregion
