@@ -51,14 +51,6 @@ namespace Contour
         }
 
         /// <summary>
-        /// Уничтожает экземпляр класса <see cref="AbstractBus"/>. 
-        /// </summary>
-        ~AbstractBus()
-        {
-            this.Dispose(false);
-        }
-
-        /// <summary>
         /// Событие установки соединения.
         /// </summary>
         public event Action<IBus, EventArgs> Connected = (bus, args) => { };
@@ -250,19 +242,9 @@ namespace Contour
         /// <summary>
         /// Уничтожает шину сообщений.
         /// </summary>
-        /// <param name="disposing"><c>true</c> - если нужно освободить ресурсы.</param>
-        public virtual void Dispose(bool disposing)
-        {
-            this.Shutdown();
-        }
-
-        /// <summary>
-        /// Уничтожает шину сообщений.
-        /// </summary>
         public virtual void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            this.Shutdown();
         }
 
         /// <summary>
