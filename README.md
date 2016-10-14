@@ -7,8 +7,8 @@
 
 ## About
 
-Contour is the message bus implementation to provide communication .NET services via different transport protocols.
-There is support AMQP/RabbitMQ transport now.
+Contour is the message bus implementation which provide communication between .NET services via different transport protocols.
+At this moment it supports only AMQP/RabbitMQ.
 
 ## Configuring via xml-file
 
@@ -296,10 +296,104 @@ Contour comprises the following set of the universal message filters:
 
 Confirms the message processing and forwards it to the next filter.
 
+### ContentBasedRouter
 
+![Content Based Router](https://cloud.githubusercontent.com/assets/888475/19405109/c2778666-927c-11e6-80ae-7b47f2f04bce.png)
 
+Routes each message to the correct recipient based on a message content ([template in EIP](http://www.enterpriseintegrationpatterns.com/patterns/messaging/ContentBasedRouter.html)).
 
+Behavior is defined by the signature:
+```csharp
+public ContentBasedRouter(Func<IMessage, MessageLabel> routeResolverFunc)
+```
 
+### Filter
+![Filter](https://cloud.githubusercontent.com/assets/888475/19405163/4d10f456-927d-11e6-8389-68ec1b27fae4.png)
+
+Filters messages by the predicate ([template in EIP](http://www.enterpriseintegrationpatterns.com/patterns/messaging/Filter.html)).
+
+Behavior is defined by the signature:
+```csharp
+public Filter(Predicate<IMessage> predicateFunc)
+```
+
+### JsonPathFilter
+
+Filter checks node availability at the specified JSONPath.
+
+Behavior is defined by the signature:
+```csharp
+public JsonPathFilter(string jsonPath)
+```
+
+### RecipientList
+
+![Recipient List](https://cloud.githubusercontent.com/assets/888475/19405190/9cbe96fc-927d-11e6-9f56-bb5e9a35428c.png)
+
+Inspects an incoming message, determines the list of desired recipients, and forwards the message to all channels associated with the recipients in the list. ([template in EIP](http://www.enterpriseintegrationpatterns.com/patterns/messaging/RecipientList.html)).
+
+Behavior is defined by the signature:
+```csharp
+public RecipientList(Func<IMessage, MessageLabel[]> determineRecipientList)
+```
+
+### Reply
+
+Sends an incoming message as a reply and breaks the message flow. It is terminal filter in the chain.
+
+### Splitter
+
+![Splitter](https://cloud.githubusercontent.com/assets/888475/19405216/d3f6d788-927d-11e6-9a9a-12061093a2e0.png)
+
+Break out the composite message into a series of individual messages, each of them contains data related to one item. ([template in EIP](http://www.enterpriseintegrationpatterns.com/patterns/messaging/Sequencer.html)).
+
+Behavior is defined by the signature:
+```csharp
+public Splitter(Func<IMessage, IEnumerable<object>> splitterFunc)
+```
+
+### StaticRouter
+
+Forwards the incoming messages to the specified recipient.
+
+Behavior is defined by the signature:
+```csharp
+public StaticRouter(string label)
+```
+
+### Translator
+
+![Translator](https://cloud.githubusercontent.com/assets/888475/19405249/22aee5dc-927e-11e6-9eac-1b2e3b32b467.png)
+
+Translate one data format into another ([template in EIP](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageTranslator.html)).
+
+Behavior is defined by the signature:
+```csharp
+public Translator(Func<IMessage, object> translationFunc)
+```
+
+### TransparentReply
+
+Sends incoming message as a reply and forwards it to the incoming flow.
+
+### WireTap
+
+![wiretap](https://cloud.githubusercontent.com/assets/888475/19405265/57b0802e-927e-11e6-9a97-f82e886b8ac6.png)
+
+A special case of RecipientList, which allows you to listen to the channel ([template in EIP](http://www.enterpriseintegrationpatterns.com/patterns/messaging/WireTap.html)).
+
+Behavior is defined by the signature:
+```csharp
+public WireTap(MessageLabel messageLabel)
+```
+
+### Features
+
+1. All outgoing messages of the last operation are published in the bus.
+2. Synchronous messages processing.
+3. Broker is not used to transmit messages between operators.
+4. Operations that produce multiple messages per message, publish them in the same outgoing channel.
+5. Operations are executed in the same address space and can affect each other. It is not recommended to use Reflection and mutable objects.
 
 ## Build the project
 
