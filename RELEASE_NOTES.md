@@ -1,4 +1,7 @@
-﻿## 1.1.0 
+﻿## 1.1.1
+ - Deleted destructor and overloaded Dispose method to leave only one option for endpoint deletion.
+
+## 1.1.0
  - Added ability to configure a TTL of the fault queue and the maximum queue length of the fault queue.
 
 ## 1.0.2
