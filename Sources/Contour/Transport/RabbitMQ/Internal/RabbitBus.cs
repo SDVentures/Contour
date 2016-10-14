@@ -1,73 +1,48 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Common.Logging;
+
+using Contour.Configuration;
+using Contour.Helpers;
+
+using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Common.Logging;
-
-    using Contour.Configuration;
-    using Contour.Helpers;
-
-    using global::RabbitMQ.Client;
-
-    using global::RabbitMQ.Client.Exceptions;
-
     /// <summary>
     /// The rabbit bus.
     /// </summary>
     internal class RabbitBus : AbstractBus, IBusAdvanced, IChannelProvider
     {
-        #region Fields
-
-        /// <summary>
-        /// The _logger.
-        /// </summary>
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
-
-        /// <summary>
-        /// The _ready.
-        /// </summary>
-        private readonly ManualResetEvent ready = new ManualResetEvent(false);
-
         private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
 
-        /// <summary>
-        /// The _connection cancellation token source.
-        /// </summary>
+        private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
+
+        private readonly ManualResetEvent ready = new ManualResetEvent(false);
+
         private CancellationTokenSource cancellationTokenSource;
 
-        /// <summary>
-        /// The _starter task.
-        /// </summary>
         private Task restartTask;
 
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitBus"/>.
+        /// Инициализирует новый экземпляр класса <see cref="RabbitBus" />.
         /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
+        /// <param name="configuration">The configuration.</param>
         public RabbitBus(BusConfiguration configuration)
             : base(configuration)
         {
-            cancellationTokenSource = new CancellationTokenSource();
+            this.cancellationTokenSource = new CancellationTokenSource();
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
-            restartTask = completion.Task;
+            this.restartTask = completion.Task;
         }
-
-        #endregion
-
-        #region Public Properties
 
         /// <summary>
         /// Gets the connection.
@@ -95,18 +70,37 @@
             }
         }
 
-        #endregion
+        /// <summary>
+        /// The open channel.
+        /// </summary>
+        /// <returns>The <see cref="IChannel" />.</returns>
+        IChannel IBusAdvanced.OpenChannel()
+        {
+            return this.OpenChannel();
+        }
 
-        #region Public Methods and Operators
+        /// <summary>
+        /// The panic.
+        /// </summary>
+        void IBusAdvanced.Panic()
+        {
+            this.Restart();
+        }
 
         /// <summary>
         /// The open channel.
         /// </summary>
-        /// <returns>
-        /// The <see cref="RabbitChannel"/>.
-        /// </returns>
-        /// <exception cref="InvalidOperationException">
-        /// </exception>
+        /// <returns>The <see cref="IChannel" />.</returns>
+        IChannel IChannelProvider.OpenChannel()
+        {
+            return this.OpenChannel();
+        }
+
+        /// <summary>
+        /// The open channel.
+        /// </summary>
+        /// <returns>The <see cref="RabbitChannel" />.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public virtual RabbitChannel OpenChannel()
         {
             if (this.Connection == null || !this.Connection.IsOpen)
@@ -133,9 +127,8 @@
         public override void Shutdown()
         {
             this.logger.InfoFormat(
-                "Shutting down [{0}] with endpoint [{1}].", 
-                this.GetType().
-                    Name, 
+                "Shutting down [{0}] with endpoint [{1}].",
+                this.GetType().Name,
                 this.Endpoint);
 
             this.IsShuttingDown = true;
@@ -169,11 +162,8 @@
         /// <summary>
         /// The start.
         /// </summary>
-        /// <param name="waitForReadiness">
-        /// The wait for readiness.
-        /// </param>
-        /// <exception cref="AggregateException">
-        /// </exception>
+        /// <param name="waitForReadiness">The wait for readiness.</param>
+        /// <exception cref="AggregateException"></exception>
         public override void Start(bool waitForReadiness = true)
         {
             if (this.IsStarted || this.IsShuttingDown)
@@ -186,87 +176,43 @@
 
         private void ResetRestartTask()
         {
-            if (!restartTask.IsCompleted)
+            if (!this.restartTask.IsCompleted)
             {
                 this.cancellationTokenSource.Cancel();
                 try
                 {
-                    restartTask.Wait();
+                    this.restartTask.Wait();
                 }
                 catch (AggregateException ex)
                 {
                     ex.Handle(
                         e =>
                             {
-                                logger.ErrorFormat("{0}: Caught unexpected exception.", e, Endpoint);
+                                this.logger.ErrorFormat("{0}: Caught unexpected exception.", e, this.Endpoint);
                                 return true;
                             });
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("{0}: Caught unexpected exception.", ex, Endpoint);
+                    this.logger.ErrorFormat("{0}: Caught unexpected exception.", ex, this.Endpoint);
                 }
                 finally
                 {
-                    cancellationTokenSource = new CancellationTokenSource();
+                    this.cancellationTokenSource = new CancellationTokenSource();
                 }
             }
         }
 
-        /// <summary>
-        /// The stop.
-        /// </summary>
         public override void Stop()
         {
             this.ResetRestartTask();
 
-            var token = cancellationTokenSource.Token;
-            restartTask = Task.Factory.StartNew(() => this.StopTask(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            var token = this.cancellationTokenSource.Token;
+            this.restartTask = Task.Factory.StartNew(() => this.StopTask(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-            restartTask.Wait(5000);
+            this.restartTask.Wait(5000);
         }
 
-        #endregion
-
-        #region Explicit Interface Methods
-
-        /// <summary>
-        /// The open channel.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="IChannel"/>.
-        /// </returns>
-        IChannel IBusAdvanced.OpenChannel()
-        {
-            return this.OpenChannel();
-        }
-
-        /// <summary>
-        /// The panic.
-        /// </summary>
-        void IBusAdvanced.Panic()
-        {
-            this.Restart();
-        }
-
-        /// <summary>
-        /// The open channel.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="IChannel"/>.
-        /// </returns>
-        IChannel IChannelProvider.OpenChannel()
-        {
-            return this.OpenChannel();
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// The build receivers.
-        /// </summary>
         private void BuildReceivers()
         {
             this.ListenerRegistry = new ListenerRegistry(this);
@@ -279,9 +225,6 @@
                     });
         }
 
-        /// <summary>
-        /// The build senders.
-        /// </summary>
         private void BuildSenders()
         {
             this.ProducerRegistry = new ProducerRegistry(this);
@@ -294,9 +237,6 @@
                     });
         }
 
-        /// <summary>
-        /// The configure.
-        /// </summary>
         private void Configure()
         {
             if (this.IsConfigured)
@@ -306,7 +246,8 @@
 
             this.logger.InfoFormat(
                 "Configuring [{0}] with endpoint [{1}].".FormatEx(
-                    this.GetType().Name, 
+                    this.GetType()
+                        .Name,
                     this.Endpoint));
 
             this.ListenerRegistry = new ListenerRegistry(this);
@@ -318,36 +259,30 @@
             this.IsConfigured = true;
         }
 
-        /// <summary>
-        /// The connect.
-        /// </summary>
-        /// <param name="token">
-        /// The token.
-        /// </param>
         private void Connect(CancellationToken token)
         {
             this.logger.InfoFormat("Connecting to RabbitMQ using [{0}].", this.Configuration.ConnectionString);
 
             var clientProperties = new Dictionary<string, object>
                                        {
-                                           { "Endpoint", this.Endpoint.Address }, 
-                                           { "Machine", Environment.MachineName }, 
+                                           { "Endpoint", this.Endpoint.Address },
+                                           { "Machine", Environment.MachineName },
                                            {
                                                "Location", Path.GetDirectoryName(
-                                                   Assembly.GetExecutingAssembly().
+                                                   Assembly.GetExecutingAssembly()
+                                               .
                                                CodeBase)
                                            }
                                        };
 
             var connectionFactory = new ConnectionFactory
                                         {
-                                            Uri = this.Configuration.ConnectionString, 
-                                            ClientProperties = clientProperties, 
-                                            RequestedConnectionTimeout = 3000, // 3 s
-                                            // RequestedHeartbeat = 5
+                                            Uri = this.Configuration.ConnectionString,
+                                            ClientProperties = clientProperties,
+                                            RequestedConnectionTimeout = 3000 // 3s
                                         };
 
-            int retryCount = 0;
+            var retryCount = 0;
             while (!token.IsCancellationRequested)
             {
                 IConnection newConnection = null;
@@ -362,7 +297,7 @@
                 catch (Exception ex)
                 {
                     var secondsToRetry = Math.Min(10, retryCount);
-                    
+
                     this.logger.WarnFormat("Unable to connect to RabbitMQ. Retrying in {0} seconds...", ex, secondsToRetry);
 
                     if (newConnection != null)
@@ -370,22 +305,13 @@
                         newConnection.ConnectionShutdown -= this.DisconnectEventHandler;
                         newConnection.Abort(500);
                     }
-                    
+
                     Thread.Sleep(TimeSpan.FromSeconds(secondsToRetry));
                     retryCount++;
                 }
             }
         }
 
-        /// <summary>
-        /// The disconnect event handler.
-        /// </summary>
-        /// <param name="connection">
-        /// The connection.
-        /// </param>
-        /// <param name="eventArgs">
-        /// The event args.
-        /// </param>
         private void DisconnectEventHandler(IConnection connection, ShutdownEventArgs eventArgs)
         {
             Task.Factory.StartNew(
@@ -397,9 +323,6 @@
                     });
         }
 
-        /// <summary>
-        /// The drop connection.
-        /// </summary>
         private void DropConnection()
         {
             if (this.Connection != null)
@@ -421,24 +344,12 @@
                     }
 
                     this.logger.Trace(m => m("{0}: disposing connection.", this.Endpoint));
-
-                    // possible exception, wtf
-/*                    if (!this.Connection.TryDispose())
-                    {
-                        this.logger.Trace(m => m("{0}: unable to dispose connection.", this.Endpoint));
-                    }*/
                 }
 
                 this.Connection = null;
             }
         }
 
-        /// <summary>
-        /// The handle bus failure.
-        /// </summary>
-        /// <param name="exception">
-        /// The exception.
-        /// </param>
         private void HandleBusFailure(Exception exception)
         {
             if (this.IsStarted && !this.IsShuttingDown)
@@ -451,7 +362,7 @@
 
         private void StopTask(CancellationToken cancellationToken)
         {
-            if (!IsConfigured)
+            if (!this.IsConfigured)
             {
                 return;
             }
@@ -483,7 +394,7 @@
 
         private void StartTask(CancellationToken cancellationToken)
         {
-            if (IsShuttingDown)
+            if (this.IsShuttingDown)
             {
                 return;
             }
@@ -499,62 +410,45 @@
             this.ComponentTracker.StartAll();
 
             this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
-            IsStarted = true;
-            ready.Set();
+            this.IsStarted = true;
+            this.ready.Set();
 
             this.OnStarted();
         }
 
         protected override void Restart(bool waitForReadiness = true)
         {
-            lock (logger)
+            lock (this.logger)
             {
                 if (this.isRestarting.WaitOne(0) || this.IsShuttingDown)
                 {
                     return;
                 }
-                ready.Reset();
-                isRestarting.Set();
+                this.ready.Reset();
+                this.isRestarting.Set();
             }
 
-            this.logger.Trace(m => m("{0}: Restarting...", Endpoint));
+            this.logger.Trace(m => m("{0}: Restarting...", this.Endpoint));
 
             this.ResetRestartTask();
 
-            var token = cancellationTokenSource.Token;
-            restartTask = Task.Factory.StartNew(() => this.StopTask(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+            var token = this.cancellationTokenSource.Token;
+            this.restartTask = Task.Factory.StartNew(() => this.StopTask(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(_ => this.StartTask(token), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(
                     t =>
                         {
-                            isRestarting.Reset();
+                            this.isRestarting.Reset();
                             if (t.IsFaulted)
                             {
                                 throw t.Exception.InnerException;
                             }
                         });
-/*
-               .ContinueWith(
-                   t =>
-                       {
-                           if (!ComponentTracker.CheckHealth())
-                           {
-                               Task.Factory.StartNew(
-                                   () =>
-                                       {
-                                           Thread.Sleep(1000);
-                                           this.Restart(false);
-                                       });
-                           }
-                       });
-*/
 
             if (waitForReadiness)
             {
-                restartTask.Wait(5000);
+                this.restartTask.Wait(5000);
             }
         }
-
-        #endregion
     }
 }
