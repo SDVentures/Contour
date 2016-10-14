@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,6 +50,7 @@
     <Compile Include="CachingResponseSpecs.cs" />
     <Compile Include="DummyRequest.cs" />
     <Compile Include="DummyResponse.cs" />
+    <Compile Include="FaultStrategySpecs.cs" />
     <Compile Include="FooMessage.cs" />
     <Compile Include="MessageHeaderSpecs.cs" />
     <Compile Include="OperatorsSpecs.cs" />

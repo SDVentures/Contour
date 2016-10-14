@@ -105,7 +105,8 @@ Target "Deploy" (fun () ->
                   "FluentValidation", GetPackageVersion "packages" "FluentValidation";
                   "Newtonsoft.Json", GetPackageVersion "packages" "Newtonsoft.Json" ]
             Files =
-                [ (@"..\" +  buildDir + "Contour.dll", Some "lib/net40", None) ]})
+                [ (@"..\" + buildDir + "Contour.dll", Some "lib/net40", None);
+                  (@"..\" + buildDir + "Contour.pdb", Some "lib/net40", None) ]})
         <| (nugetDir + project + ".nuspec")
 )
 

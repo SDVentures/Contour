@@ -244,6 +244,18 @@
         void UseParallelismLevel(uint parallelismLevel);
 
         /// <summary>
+        /// The fault queue message TTL.
+        /// </summary>
+        /// <param name="messageTtl">the fault queue message TTL.</param>
+        void UseFaultQueueTtl(TimeSpan messageTtl);
+
+        /// <summary>
+        /// The fault message queue length limit.
+        /// </summary>
+        /// <param name="queueLimit">The fault message queue length limit.</param>
+        void UseFaultQueueLimit(int queueLimit);
+
+        /// <summary>
         /// Устанаваливает конвертер тела сообщений.
         /// </summary>
         /// <param name="converter">

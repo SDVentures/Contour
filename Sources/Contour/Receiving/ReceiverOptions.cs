@@ -47,6 +47,16 @@ namespace Contour.Receiving
         public Maybe<uint> ParallelismLevel { protected get; set; }
 
         /// <summary>
+        /// Длительность хранения сообщений в Fault очереди.
+        /// </summary>
+        public Maybe<TimeSpan> FaultQueueTtl { protected get; set; }
+
+        /// <summary>
+        /// Максимальное количество сообщений в Fault очереди.
+        /// </summary>
+        public Maybe<int> FaultQueueLimit { protected get; set; }
+
+        /// <summary>
         /// Обработчик сообщений, для которых не найден потребитель.
         /// </summary>
         public Maybe<IUnhandledDeliveryStrategy> UnhandledDeliveryStrategy { protected get; set; }
@@ -129,6 +139,28 @@ namespace Contour.Receiving
         public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
         {
             return this.Pick(o => ((ReceiverOptions)o).IncomingMessageHeaderStorage);
+        }
+
+        /// <summary>
+        /// Возвращает длительность хранения сообщений в Fault очереди.
+        /// </summary>
+        /// <returns>
+        /// Возвращает длительность хранения сообщений в Fault очереди.
+        /// </returns>
+        public Maybe<TimeSpan> GetFaultQueueTtl()
+        {
+            return this.Pick(o => ((ReceiverOptions)o).FaultQueueTtl);
+        }
+
+        /// <summary>
+        /// Возвращает максимальное количество сообщений в Fault очереди.
+        /// </summary>
+        /// <returns>
+        /// Возвращает максимальное количество сообщений в Fault очереди.
+        /// </returns>
+        public Maybe<int> GetFaultQueueLimit()
+        {
+            return this.Pick(o => ((ReceiverOptions)o).FaultQueueLimit); ;
         }
     }
 }

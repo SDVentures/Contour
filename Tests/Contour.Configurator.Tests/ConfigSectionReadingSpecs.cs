@@ -385,6 +385,88 @@
                 Assert.IsTrue(section.Endpoints["a"].Dynamic.Outgoing.Value, "Должна быть включена динамическая маршрутизация исходящих сообщений.");
             }
         }
+
+        /// <summary>
+        /// Тестовая конфигурация, которая проверяет корректность работы конфигурационных настроек времени хранения сообщений в Fault очереди.
+        /// </summary>
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_fault_queue_ttl
+        {
+            /// <summary>
+            /// Если задано время хранения сообщений в Fault очереди для каждой очереди конечной точки, тогда можно получить описание из конфигурации.
+            /// </summary>
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string Config =
+                    @"<endpoints>
+                        <endpoint name=""a"" connectionString=""amqp://localhost:666"" faultQueueTtl=""00:10:00"">
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                Assert.AreEqual(TimeSpan.Parse("00:10:00"), section.Endpoints["a"].FaultQueueTtl, "Должно быть установлено время хранения сообщений в Fault очереди.");
+            }
+
+            /// <summary>
+            /// Если не задано время хранения сообщений в Fault очереди для каждой очереди конечной точки, тогда используется значение по умолчанию.
+            /// </summary>
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Config =
+                    @"<endpoints>
+                        <endpoint name=""a"" connectionString=""amqp://localhost:666"">
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                Assert.IsNull(section.Endpoints["a"].FaultQueueTtl, "Время хранения сообщений в Fault очереди не должно быть установлено.");
+            }
+        }
+
+        /// <summary>
+        /// Тестовая конфигурация, которая проверяет корректность работы конфигурационных настроек максимального количества сообщений в Fault очереди.
+        /// </summary>
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_fault_queue_limit
+        {
+            /// <summary>
+            /// Если задано максимальное количество сообщений в Fault очереди для каждой очереди конечной точки, тогда можно получить описание из конфигурации.
+            /// </summary>
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const int queueLimit = 100;
+                string config = string.Format(
+                    @"<endpoints>
+                        <endpoint name=""a"" connectionString=""amqp://localhost:666"" faultQueueLimit=""{0}"">
+                        </endpoint>
+                    </endpoints>",
+                    queueLimit);
+
+                var section = new XmlEndpointsSection(config);
+                Assert.AreEqual(queueLimit, section.Endpoints["a"].FaultQueueLimit, "Должно быть установлено время хранения сообщений в Fault очереди.");
+            }
+
+            /// <summary>
+            /// Если не задано максимальное количество сообщений в Fault очереди для каждой очереди конечной точки, тогда используется значение по умолчанию.
+            /// </summary>
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Config =
+                    @"<endpoints>
+                        <endpoint name=""a"" connectionString=""amqp://localhost:666"">
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                Assert.IsNull(section.Endpoints["a"].FaultQueueLimit, "Время хранения сообщений в Fault очереди не должно быть установлено.");
+            }
+        }
     }
 
     // ReSharper restore InconsistentNaming

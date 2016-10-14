@@ -108,6 +108,19 @@ namespace Contour.Testing.Transport.RabbitMq
         }
 
         /// <summary>
+        /// Создает конечную точку шины.
+        /// </summary>
+        /// <param name="createBus">Делегат создания конечной точки.</param>
+        /// <returns>Конечная точка шины.</returns>
+        protected IBus CreateBus(Func<IBus> createBus)
+        {
+            IBus bus = createBus();
+            this.endpoints.Add(bus);
+
+            return bus;
+        }
+
+        /// <summary>
         /// Создает и конфигурирует конечную точку шины сообщений.
         /// Конечная точка автоматически удаляется после выполнения теста.
         /// </summary>
@@ -117,19 +130,17 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <returns>Созданная конечная точка.</returns>
         protected IBus ConfigureBus(string name, Action<IBusConfigurator> configureAction, bool shouldStart = false)
         {
-            IBus bus = new BusFactory().Create(
+            IBus bus = this.CreateBus(
+                () => new BusFactory().Create(
                 c =>
-                {
-                    c.UseRabbitMq();
-                    c.SetEndpoint(name);
-                    c.SetConnectionString(this.amqpConnection + this.vhostName);
+                    {
+                        c.UseRabbitMq();
+                        c.SetEndpoint(name);
+                        c.SetConnectionString(this.amqpConnection + this.vhostName);
 
-                    configureAction(c);
-                },
-                shouldStart);
-
-            this.endpoints.Add(bus);
-
+                        configureAction(c);
+                    },
+                    shouldStart));
             return bus;
         }
 

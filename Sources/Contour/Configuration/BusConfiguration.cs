@@ -474,6 +474,24 @@
         }
 
         /// <summary>
+        /// The fault queue message TTL.
+        /// </summary>
+        /// <param name="messageTtl">the fault queue message TTL.</param>
+        public void UseFaultQueueTtl(TimeSpan messageTtl)
+        {
+            this.ReceiverDefaults.FaultQueueTtl = messageTtl;
+        }
+
+        /// <summary>
+        /// The fault message queue length limit.
+        /// </summary>
+        /// <param name="queueLimit">The fault message queue length limit.</param>
+        public void UseFaultQueueLimit(int queueLimit)
+        {
+            this.ReceiverDefaults.FaultQueueLimit = queueLimit;
+        }
+
+        /// <summary>
         /// The use payload converter.
         /// </summary>
         /// <param name="converter">

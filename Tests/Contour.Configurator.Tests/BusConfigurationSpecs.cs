@@ -936,6 +936,119 @@ namespace Contour.Configurator.Tests
         }
 
         /// <summary>
+        /// Если в конфигурации время хранения сообщений в Fault очереди.
+        /// </summary>
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_fault_queue_ttl
+        {
+            /// <summary>
+            /// Тогда это значение должно быть использовано при конфигурации.
+            /// </summary>
+            [Test]
+            public void should_set_queue_ttl()
+            {
+                const string ProducerConfig =
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" faultQueueTtl=""10:10:00"">
+                            </endpoint>
+                        </endpoints>";
+
+                Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(ProducerConfig);
+                var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
+                var result = sut.Configure("producer", busConfigurator);
+
+                ReceiverOptions receiverOptions = ((BusConfiguration)result).ReceiverDefaults;
+                Assert.IsTrue(receiverOptions.GetFaultQueueTtl().HasValue, "Должно быть установлено время хранения сообщений.");
+                Assert.AreEqual(TimeSpan.Parse("10:10:00"), receiverOptions.GetFaultQueueTtl().Value, "Должно быть устрановлено корректное время хранения.");
+            }
+
+            /// <summary>
+            /// Тогда это значение не должно быть установлено по умолчанию.
+            /// </summary>
+            [Test]
+            public void should_not_be_set_by_default()
+            {
+                const string ProducerConfig =
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                            </endpoint>
+                        </endpoints>";
+
+                Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(ProducerConfig);
+                var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
+                var result = sut.Configure("producer", busConfigurator);
+
+                ReceiverOptions receiverOptions = ((BusConfiguration)result).ReceiverDefaults;
+                Assert.IsFalse(receiverOptions.GetFaultQueueTtl().HasValue, "Не должно быть установлено время хранения сообщений.");
+            }
+        }
+
+        /// <summary>
+        /// Если в конфигурации ограничено количество сообщений в Fault очереди.
+        /// </summary>
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_fault_queue_limit
+        {
+            /// <summary>
+            /// Тогда это значение должно быть использовано при конфигурации.
+            /// </summary>
+            [Test]
+            public void should_set_queue_limit()
+            {
+                const int queueLimit = 100;
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" faultQueueLimit=""{0}"">
+                            </endpoint>
+                        </endpoints>", 
+                        queueLimit);
+
+                Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(producerConfig);
+                var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
+                var result = sut.Configure("producer", busConfigurator);
+
+                ReceiverOptions receiverOptions = ((BusConfiguration)result).ReceiverDefaults;
+                Assert.IsTrue(receiverOptions.GetFaultQueueLimit().HasValue, "Должно быть установлено максимальное количество сообщений.");
+                Assert.AreEqual(queueLimit, receiverOptions.GetFaultQueueLimit().Value, "Должно быть устрановлено корректное максимальное количество сообщений.");
+            }
+
+            /// <summary>
+            /// Тогда это значение не должно быть установлено по умолчанию.
+            /// </summary>
+            [Test]
+            public void should_not_be_set_by_default()
+            {
+                string producerConfig = 
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"">
+                            </endpoint>
+                        </endpoints>";
+
+                Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(producerConfig);
+                var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
+                var result = sut.Configure("producer", busConfigurator);
+
+                ReceiverOptions receiverOptions = ((BusConfiguration)result).ReceiverDefaults;
+                Assert.IsFalse(receiverOptions.GetFaultQueueLimit().HasValue, "Не должно быть установлено максимальное количество сообщений.");
+
+            }
+        }
+
+        /// <summary>
         /// Если в конфигурации динамическая исходящая маршрутизация.
         /// </summary>
         [TestFixture]

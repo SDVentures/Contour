@@ -75,5 +75,16 @@ namespace Contour.Transport.RabbitMQ.Topology
             this.Instance.Ttl = ttl;
             return this;
         }
+
+        /// <summary>
+        /// Добавляет в построитель настройки максимального количества сообщений в очереди.
+        /// </summary>
+        /// <param name="queueLimit">Максимальное количество сообщений в очереди.</param>
+        /// <returns>Построитель очереди.</returns>
+        public QueueBuilder WithLimit(int queueLimit)
+        {
+            this.Instance.Limit = queueLimit;
+            return this;
+        }
     }
 }

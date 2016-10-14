@@ -81,14 +81,23 @@ namespace Contour.Transport.RabbitMQ
                                      };
 
             c.UseMessageLabelHandler(new DefaultRabbitMessageLabelHandler());
-
+           
             // TODO: extract, combine routing and handler definition
-            Func<IRouteResolverBuilder, IRouteResolver> faultRouteResolverBuilder = b =>
+            Func <IRouteResolverBuilder, IRouteResolver> faultRouteResolverBuilder = b =>
                 {
+                    TimeSpan messageTtl = c.ReceiverDefaults.GetFaultQueueTtl().HasValue
+                                              ? c.ReceiverDefaults.GetFaultQueueTtl().Value
+                                              : TimeSpan.FromDays(FaultMessageTtlDays);
+
                     string name = b.Endpoint.Address + ".Fault";
-                    Exchange e = b.Topology.Declare(
-                        Exchange.Named(name).Durable.Topic);
-                    Queue q = b.Topology.Declare(Queue.Named(name).Durable.WithTtl(TimeSpan.FromDays(FaultMessageTtlDays)));
+                    Exchange e = b.Topology.Declare(Exchange.Named(name).Durable.Topic);
+                    QueueBuilder builder = Queue.Named(name).Durable.WithTtl(messageTtl);
+
+                    if (c.ReceiverDefaults.GetFaultQueueLimit().HasValue)
+                    {
+                        builder = builder.WithLimit(c.ReceiverDefaults.GetFaultQueueLimit().Value);
+                    }
+                    Queue q = b.Topology.Declare(builder);
                     b.Topology.Bind(e, q);
                     return e;
                 };

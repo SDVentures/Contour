@@ -61,6 +61,11 @@ namespace Contour.Transport.RabbitMQ.Topology
         public TimeSpan? Ttl { get; internal set; }
 
         /// <summary>
+        /// Максимальное количество сообщений в очереди.
+        /// </summary>
+        public int? Limit { get; internal set; }
+
+        /// <summary>
         /// Создает экземпляр построителя очереди с именем <paramref name="name"/>.
         /// </summary>
         /// <param name="name">

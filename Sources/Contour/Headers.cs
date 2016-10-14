@@ -64,6 +64,11 @@ namespace Contour
         public static readonly string OriginalMessageId = "x-original-message-id";
 
         /// <summary>
+        /// Максимальное количество сообщений в очереди.
+        /// </summary>
+        public static readonly string QueueMaxLength = "x-max-length";
+
+        /// <summary>
         /// Получает значение заголовка из сообщения и удаляет его из списка заголовков сообщения.
         /// </summary>
         /// <param name="headers">

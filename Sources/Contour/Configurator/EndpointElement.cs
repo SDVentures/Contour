@@ -1,4 +1,6 @@
-﻿namespace Contour.Configurator
+﻿using System;
+
+namespace Contour.Configurator
 {
     using System.Configuration;
 
@@ -78,6 +80,27 @@
         }
 
         /// <summary>
+        /// Время хранения сообщений в Fault очереди.
+        /// </summary>
+        [ConfigurationProperty("faultQueueTtl", IsRequired = false)]
+        public TimeSpan? FaultQueueTtl
+        {
+            get
+            {
+                return (TimeSpan?)this["faultQueueTtl"];
+            }
+        }
+
+
+        [ConfigurationProperty("faultQueueLimit", IsRequired = false)]
+        public int? FaultQueueLimit {
+            get
+            {
+                return (int?)this["faultQueueLimit"];
+            }
+        }
+
+        /// <summary>
         /// Gets the incoming.
         /// </summary>
         [ConfigurationProperty("incoming")]
@@ -141,5 +164,6 @@
                 return (ValidatorCollection)base["validators"];
             }
         }
+
     }
 }

@@ -1,4 +1,7 @@
-﻿## 1.0.2
+﻿## 1.1.0 
+ - Added ability to configure a TTL of the fault queue and the maximum queue length of the fault queue.
+
+## 1.0.2
  - Fixed OutOfRangeException when Request/Reply timeouts occur.
 
 ## 1.0.1

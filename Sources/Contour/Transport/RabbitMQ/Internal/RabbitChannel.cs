@@ -206,6 +206,11 @@
             {
                 arguments.Add(Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
             }
+            if (queue.Limit.HasValue)
+            {
+                arguments.Add(Headers.QueueMaxLength, (int)queue.Limit);
+            }
+
 
             this.SafeNativeInvoke(n => n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
         }

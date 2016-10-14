@@ -51,6 +51,7 @@
     <Compile Include="MessageExchangeFilterSpecs.cs" />
     <Compile Include="MemoryCacheSpecs.cs" />
     <Compile Include="MessageValidationSpecs.cs" />
+    <Compile Include="QueueBuilderSpecs.cs" />
     <Compile Include="SagaConsumerSpecs.cs" />
     <Compile Include="TaskCompletionSourceSpecs.cs" />
     <Compile Include="RoughTicketTimerSpecs.cs" />

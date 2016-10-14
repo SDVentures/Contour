@@ -149,6 +149,16 @@ namespace Contour.Configurator
                 cfg.UseParallelismLevel(endpointConfig.ParallelismLevel.Value);
             }
 
+            if (endpointConfig.FaultQueueTtl.HasValue)
+            {
+                cfg.UseFaultQueueTtl(endpointConfig.FaultQueueTtl.Value);
+            }
+
+            if (endpointConfig.FaultQueueLimit.HasValue)
+            {
+                cfg.UseFaultQueueLimit(endpointConfig.FaultQueueLimit.Value);
+            }
+
             if (endpointConfig.Dynamic != null)
             {
                 if (endpointConfig.Dynamic.Outgoing.HasValue)
