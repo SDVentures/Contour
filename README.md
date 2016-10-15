@@ -14,7 +14,7 @@ At this moment it supports only AMQP/RabbitMQ.
 
 ### Connection
 
-Configuration can be set in .config file, declaring the ‘endpoints’ section inside the ‘serviceBus’ group:
+Configuration can be set in .config file, declaring the 'endpoints' section inside the 'serviceBus' group:
 
 ```xml
 <sectionGroup name="serviceBus">
@@ -26,7 +26,7 @@ Configuration can be set in .config file, declaring the ‘endpoints’ section 
 
 Service bus works with the endpoints at which messages are sent. For example, if application has two endpoints, then for service bus it is interaction between different participants. And vice versa. If two different applications use the same endpoints, then it is one interaction participant for service bus (when default routing is used)
 
-Endpoints configuration is defined in ‘serviceBus’ section:
+Endpoints configuration is defined in 'serviceBus' section:
 ```xml
 <serviceBus>
     <endpoints>
@@ -42,7 +42,7 @@ Endpoints configuration is defined in ‘serviceBus’ section:
 
 It is possible to define the configuration for multiple endpoints. Each endpoint has mandatory parameters, unique name and connection string to the broker.
 
-Additionally, we can pass component name of [IBusLifecycleHandler](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/IBusLifecycleHandler.cs) type in the attribute ‘lifecycleHandler’, which will be invoked when the state of service bus client is changed. For example, when it starts or stops.
+Additionally, we can pass component name of [IBusLifecycleHandler](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/IBusLifecycleHandler.cs) type in the attribute 'lifecycleHandler', which will be invoked when the state of service bus client is changed. For example, when it starts or stops.
 
 ```xml
 <serviceBus>
@@ -57,9 +57,9 @@ It may be helpful, if your component needs to know when service bus was started 
 
 ### Declaration of global message validators
 
-Each incoming message passes through global validators, so they can be optionally defined in ‘validators’ section. Each class of validator must implement [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs) interface (for more convenience you can inherit from class [FluentPayloadValidatorOf<T>](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/Fluent/FluentPayloadValidatorOf.cs), which has already implemented this interface).
+Each incoming message passes through global validators, so they can be optionally defined in 'validators' section. Each class of validator must implement [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs) interface (for more convenience you can inherit from class [FluentPayloadValidatorOf<T>](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/Fluent/FluentPayloadValidatorOf.cs), which has already implemented this interface).
 
-Also you can set a value of ‘group’ parameter to ‘true’. This would mean that you don’t need to enumerate all validators in component, and just add the name of a validators group, which will include all classes, implementing interface [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs).
+Also you can set a value of 'group' parameter to 'true'. This would mean that you don’t need to enumerate all validators in component, and just add the name of a validators group, which will include all classes, implementing interface [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs).
 
 ```xml
 <endpoint name="point1" connectionString="amqp://localhost:5672/ ">
@@ -72,11 +72,11 @@ Also you can set a value of ‘group’ parameter to ‘true’. This would mean
 
 ### Caching
 
-To control the caching of Request/Reply queries the tag ‘caching’ is used.
+To control the caching of Request/Reply queries the tag 'caching' is used.
 
-You can enable caching by setting attribute to ‘enabled’. At the requested side response is cached by the key, which is generated on the basis of the request body. Caching time is defined by the responder at the ‘Reply’.
+You can enable caching by setting attribute to ‘enabled’. At the requested side response is cached by the key, which is generated on the basis of the request body. Caching time is defined by the responder at the 'Reply'.
 
-‘Publisher/Subscriber’ requests are not cached.
+'Publisher/Subscriber' requests are not cached.
 
 ```xml
 <endpoint name="point1" connectionString="amqp://localhost:5672/">
@@ -124,11 +124,11 @@ Dynamic routing can be useful in cases, when you don’t have enough information
 
 ### Declaration of outgoing messages
 
-All outgoing messages declare in the ‘outgoing’ collection. Each message label declares with an individual tag ‘route’. ‘Key’ and ‘label’ attributes are mandatory.
+All outgoing messages declare in the 'outgoing' collection. Each message label declares with an individual tag 'route'. 'Key' and 'label' attributes are mandatory.
 
 Key is a label alias and allows you not to mention concrete label of the message. For referring the label from the application, you must specify the alias adding a colon (:) as a prefix.
 
-Additionally, you can set the parameters (as attributes of the ‘route’ element):
+Additionally, you can set the parameters (as attributes of the 'route' element):
 
  - __persist__ – broker saves the message for reliable delivery (_false_ by default);
  - __confirm__ – broker must confirm message receipt for the processing (message will be stored if persist="true", _false_ by default);
@@ -147,14 +147,15 @@ To support requests, you must declare a subscription point for response messages
 
 ### Declaration of incoming messages
 
-All incoming messages are declared in the ‘incoming’ collection. Each message label declares with an individual tag ‘on. ‘Key’ and ‘label’ attributes are mandatory.
+All incoming messages are declared in the 'incoming' collection. Each message label declares with an individual tag 'on'. 'Key' and 'label' attributes are mandatory.
 
-Additionally, you can set the parameters (as attributes of the element ‘on’):
+Additionally, you can set the parameters (as attributes of the element 'on'):
  - __requiresAccept__ – event processing must be explicitly confirmed in the handler. Otherwise message will be returned to the queue (false by default);
  - __react__ – message handler name (for example, the name of the handler is registered in the IoC-container);
  - __type__ – CLR-type of the event body. Can be represented by fully qualified name. In this case, default mechanism of type searching is used. Or you can use a short name type. In this case, it will search for all loaded assemblies in the application domain.  If type isb’t mentioned will be using ExpandoObject by default. If type is not specified, ExpandoObject will be used by default.
  - __validate__ – message validator name (class that implements [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs)), which must operate only within a declared subscription;
  - __lifestyle__ – allows you to specify a handler lifestyle.
+ 
 Lifestyle possible values:
  - __Normal__ – handler is requested, when you create a bus client (default value);
  - __Lazy__ – handler is requested once, when you get the first message;
@@ -262,7 +263,7 @@ x-original-message-id | Message identifier, that started the messages exchange |
 
 In Contour you can organize message processing as a set of sequential atomic message transformations based on a Pipes and Filters template.
 
-For example, you need to forward messages, that has field ‘Tick’ and its value is odd. Other messages should be filtered. It can be done with the following set of filters:
+For example, you need to forward messages, that has field 'Tick' and its value is odd. Other messages should be filtered. It can be done with the following set of filters:
 
 ```csharp
 var configurator = new AppConfigConfigurator((name, type) => kernel.Get(type, name));
