@@ -1,4 +1,4 @@
-﻿Contour
+﻿ ![logo](https://cloud.githubusercontent.com/assets/888475/19428671/00fd0fb8-9454-11e6-8d70-a9355ea3bbda.png) Contour
 ========
 
 ![Contour status](https://ci.appveyor.com/api/projects/status/github/sdventures/contour?branch=master&svg=true)
@@ -54,6 +54,19 @@ Additionally, we can pass component name of [IBusLifecycleHandler](https://githu
 </serviceBus>
 ```
 It may be helpful, if your component needs to know when service bus was started or stopped.
+
+Every message, that failed to process, falls into fault queue. Fault queue has the same name as the endpoint with addition '.Fault' postfix. To control TTL of fault messages in such queues set 'faultQueueTtl' attribute. To limit maximum number of messages - use 'faultQueueLimit' attribute. If number of fault messages reaches this limit, old messages will be substituted.
+
+```xml
+<serviceBus>
+    <endpoints>
+        <endpoint name="point1" connectionString="amqp://localhost:5672/" faultQueueTtl="3.00:00:00" faultQueueLimit="500">
+            <!-- ... -->
+        </endpoint>
+    </endpoints>
+</serviceBus>
+```
+Default value for TTL - 21 days, for maximum size of the fault queue - no limits.
 
 ### Declaration of global message validators
 
