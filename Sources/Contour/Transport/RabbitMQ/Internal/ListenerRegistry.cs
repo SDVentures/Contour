@@ -140,7 +140,7 @@
         /// </summary>
         public void StartConsuming()
         {
-                this.listeners.ForEach(l => l.StartConsuming());
+                this.listeners.ForEach(l => l.Start());
         }
 
         /// <summary>
@@ -148,7 +148,7 @@
         /// </summary>
         public void StopConsuming()
         {
-                this.listeners.ForEach(l => l.StopConsuming());
+                this.listeners.ForEach(l => l.Stop());
         }
 
         #endregion

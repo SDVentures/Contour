@@ -153,7 +153,7 @@
             this.listener = this.listenerRegistry.ResolveFor(this.Configuration);
             this.Configuration.ReceiverRegistration(this);
 
-            this.listener.StartConsuming();
+            this.listener.Start();
         }
 
         /// <summary>

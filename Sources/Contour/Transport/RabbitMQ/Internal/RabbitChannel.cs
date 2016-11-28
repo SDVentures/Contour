@@ -58,17 +58,17 @@
         /// <param name="bus">
         /// The bus.
         /// </param>
-        /// <param name="native">
-        /// The native.
+        /// <param name="model">
+        /// The Model.
         /// </param>
-        public RabbitChannel(RabbitBus bus, IModel native)
+        public RabbitChannel(RabbitBus bus, IModel model)
         {
             this.bus = bus;
-            this.Native = native;
+            this.Model = model;
 
             Logger.TraceFormat("Channel is opened.");
 
-            this.Native.ModelShutdown += (model, reason) =>
+            this.Model.ModelShutdown += (m, reason) =>
                 {
                     this.isClosed = true;
                     Logger.TraceFormat("Channel is closed due to \"{0}\".", reason.ToString());
@@ -103,7 +103,7 @@
         {
             get
             {
-                return (Native != null && Native.IsOpen);
+                return (Model != null && Model.IsOpen);
             }
         }
 
@@ -113,9 +113,9 @@
         #region Properties
 
         /// <summary>
-        /// Gets the native.
+        /// Gets the Model.
         /// </summary>
-        protected IModel Native { get; private set; }
+        protected IModel Model { get; private set; }
 
         #endregion
 
@@ -162,7 +162,7 @@
         /// </returns>
         public CancellableQueueingConsumer BuildCancellableConsumer(CancellationToken cancellationToken)
         {
-            return new CancellableQueueingConsumer(this.Native, cancellationToken);
+            return new CancellableQueueingConsumer(this.Model, cancellationToken);
         }
 
         /// <summary>
@@ -173,12 +173,7 @@
         /// </returns>
         public QueueingBasicConsumer BuildQueueingConsumer()
         {
-            var consumer = new QueueingBasicConsumer(this.Native);
-
-            /* if total reconnection is more desirable
-                consumer.ConsumerCancelled += (sender, args) =>
-                Failed(this, new ErrorEventArgs(new RabbitException("Consumer [{0}] was cancelled.".FormatEx(args.ConsumerTag))));
-            */
+            var consumer = new QueueingBasicConsumer(this.Model);
             return consumer;
         }
 
@@ -235,19 +230,19 @@
         /// </summary>
         public void Dispose()
         {
-            if (this.Native != null)
+            if (this.Model != null)
             {
                 if (this.bus.Connection != null && this.bus.Connection.CloseReason != null)
                 {
                     return;
                 }
 
-                if (this.Native.IsOpen && !this.isClosed)
+                if (this.Model.IsOpen && !this.isClosed)
                 {
-                    this.Native.Close();
+                    this.Model.Close();
                 }
 
-                this.Native.Dispose();
+                this.Model.Dispose();
             }
         }
 
@@ -306,7 +301,7 @@
 
             Logger.Trace(m => m("Emitting message [{0}] ({1}) through [{2}].", message.Label, message.Payload, nativeRoute));
 
-            IBasicProperties props = this.Native.CreateBasicProperties();
+            IBasicProperties props = this.Model.CreateBasicProperties();
             byte[] body = this.Bus.PayloadConverter.FromObject(message.Payload);
 
             if (props.Headers == null)
@@ -434,7 +429,7 @@
         {
             try
             {
-                this.Native.BasicCancel(consumerTag);
+                this.Model.BasicCancel(consumerTag);
                 return true;
             }
             catch
@@ -467,7 +462,7 @@
         #region Methods
 
         /// <summary>
-        /// The safe native invoke.
+        /// The safe Model invoke.
         /// </summary>
         /// <param name="invokeAction">
         /// The invoke action.
@@ -479,7 +474,7 @@
                 if (!this.isClosed)
                 {
                     lock (this.sync)
-                        invokeAction(this.Native);
+                        invokeAction(this.Model);
                 }
             }
             catch (AlreadyClosedException ex)

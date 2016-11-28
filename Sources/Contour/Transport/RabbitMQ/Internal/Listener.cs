@@ -76,7 +76,7 @@
         /// Признак: слушатель потребляет сообщения.
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
-        private bool isConsuming;
+        private bool isListening;
 
         /// <summary>
         /// Таймер, который отслеживает, что время ожидания ответа на запрос вышло.
@@ -190,7 +190,7 @@
         /// </summary>
         public void Dispose()
         {
-            this.StopConsuming();
+            this.Stop();
         }
 
         /// <summary>
@@ -263,9 +263,9 @@
         /// <summary>
         /// Запускает обработку входящих сообщений.
         /// </summary>
-        public void StartConsuming()
+        public void Start()
         {
-            if (this.isConsuming)
+            if (this.isListening)
             {
                 return;
             }
@@ -278,26 +278,26 @@
             this.workers = Enumerable.Range(
                 0, 
                 (int)this.ReceiverOptions.GetParallelismLevel().Value)
-                .Select(_ => ThreadWorker.StartNew(this.Consume, this.cancellationTokenSource.Token))
+                .Select(_ => ThreadWorker.StartNew(this.Listen, this.cancellationTokenSource.Token))
                 .ToList();
 
-            this.isConsuming = true;
+            this.isListening = true;
         }
 
         /// <summary>
         /// Останавливает обработку входящих сообщений.
         /// </summary>
-        public void StopConsuming()
+        public void Stop()
         {
             // TODO: make more reliable
             lock (this.locker)
             {
-                if (!this.isConsuming)
+                if (!this.isListening)
                 {
                     return;
                 }
 
-                this.isConsuming = false;
+                this.isListening = false;
 
                 this.logger.InfoFormat("Stopping consuming on [{0}].", this.endpoint.ListeningSource);
 
@@ -396,19 +396,18 @@
         /// <summary>
         /// Обрабатывает сообщение.
         /// </summary>
-        /// <param name="cancellationToken">
+        /// <param name="token">
         /// Сигнальный объект аварийного досрочного завершения обработки.
         /// </param>
-        private void Consume(CancellationToken cancellationToken)
+        private void Listen(CancellationToken token)
         {
             try
             {
-                this.InternalConsume(cancellationToken);
+                this.ListenInternal(token);
             }
             catch (EndOfStreamException ex)
             {
-                // The consumer was cancelled, the model closed, or the
-                // connection went away.
+                // The consumer was canceled, the model closed, or the connection went away.
                 this.logger.DebugFormat("Reached EOS while listening on [{0}]. Stopping consuming.", ex, this.endpoint.ListeningSource);
                 this.Failed(this);
             }
@@ -446,7 +445,7 @@
             return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
         }
 
-        private void InternalConsume(CancellationToken cancellationToken)
+        private void ListenInternal(CancellationToken token)
         {
             var channel = (RabbitChannel)this.channelProvider.OpenChannel();
             channel.Failed += (ch, args) => this.Failed(this);
@@ -457,23 +456,19 @@
                     this.ReceiverOptions.GetQoS().Value);
             }
 
-            CancellableQueueingConsumer consumer = channel.BuildCancellableConsumer(cancellationToken);
-            channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
-
+            var consumer = channel.BuildCancellableConsumer(token);
             consumer.ConsumerCancelled += (sender, args) =>
             {
-                this.logger.InfoFormat("Consumer [{0}] was cancelled.", args.ConsumerTag);
+                this.logger.InfoFormat("Consumer [{0}] was canceled.", args.ConsumerTag);
                 this.Failed(this);
             };
 
-            while (!cancellationToken.IsCancellationRequested)
+            channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
+            while (!token.IsCancellationRequested)
             {
-                BasicDeliverEventArgs message = consumer.Dequeue();
+                var message = consumer.Dequeue();
                 this.Deliver(this.BuildDeliveryFrom(channel, message));
             }
-
-            // TODO: resolve deadlock
-            // channel.TryStopConsuming(consumerTag);
         }
 
         /// <summary>
@@ -587,98 +582,6 @@
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Ожидание ответа на запрос.
-        /// </summary>
-        internal class Expectation
-        {
-            /// <summary>
-            /// Источник сигнальных объектов об аварийном завершении задачи.
-            /// </summary>
-            private readonly TaskCompletionSource<IMessage> completionSource;
-
-            /// <summary>
-            /// Построитель ответа.
-            /// </summary>
-            private readonly Func<IDelivery, IMessage> responseBuilderFunc;
-
-            /// <summary>
-            /// Секундомер для замера длительности ожидания ответа.
-            /// </summary>
-            private readonly Stopwatch completionStopwatch;
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="Expectation"/>.
-            /// </summary>
-            /// <param name="responseBuilderFunc">
-            /// Построитель ответа.
-            /// </param>
-            /// <param name="timeoutTicket">
-            /// Квиток об учете времени ожидания ответа.
-            /// </param>
-            public Expectation(Func<IDelivery, IMessage> responseBuilderFunc, long? timeoutTicket)
-            {
-                this.responseBuilderFunc = responseBuilderFunc;
-                this.TimeoutTicket = timeoutTicket;
-
-                this.completionSource = new TaskCompletionSource<IMessage>();
-                this.completionStopwatch = Stopwatch.StartNew();
-            }
-
-            /// <summary>
-            /// Задача завершения ожидания.
-            /// </summary>
-            public Task<IMessage> Task
-            {
-                get
-                {
-                    return this.completionSource.Task;
-                }
-            }
-
-            /// <summary>
-            /// Квиток об учете времени ожидания ответа.
-            /// </summary>
-            public long? TimeoutTicket { get; private set; }
-
-            /// <summary>
-            /// Отменяет ожидание ответа.
-            /// </summary>
-            public void Cancel()
-            {
-                this.completionSource.TrySetException(new OperationCanceledException());
-            }
-
-            /// <summary>
-            /// Выполняет обработку ответа на запрос.
-            /// </summary>
-            /// <param name="delivery">
-            /// Входящее сообщение - ответ на запрос.
-            /// </param>
-            public void Complete(RabbitDelivery delivery)
-            {
-                try
-                {
-                    this.completionStopwatch.Stop();
-                    IMessage response = this.responseBuilderFunc(delivery);
-                    this.completionSource.TrySetResult(response);
-                }
-                catch (Exception ex)
-                {
-                    this.completionSource.TrySetException(ex);
-                    throw;
-                }
-            }
-
-            /// <summary>
-            /// Устанавливает, что при ожидании вышло время, за которое должен был быть получен ответ.ё
-            /// </summary>
-            public void Timeout()
-            {
-                this.completionSource.TrySetException(new TimeoutException());
-            }
         }
     }
 }

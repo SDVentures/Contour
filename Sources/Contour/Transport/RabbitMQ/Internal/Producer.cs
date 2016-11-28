@@ -199,7 +199,7 @@
             Logger.Trace(m => m("Starting producer of [{0}].", this.Label));
             if (this.CallbackListener != null)
             {
-                this.CallbackListener.StartConsuming();
+                this.CallbackListener.Start();
             }
         }
 
@@ -211,7 +211,7 @@
             Logger.Trace(m => m("Stopping producer of [{0}].", this.Label));
             if (this.CallbackListener != null)
             {
-                this.CallbackListener.StopConsuming();
+                this.CallbackListener.Stop();
             }
         }
 
