@@ -12,3 +12,9 @@ nuget RestSharp 105.2.3
 nuget FAKE 4.0.3 framework: net40
 nuget NUnit.Runners 2.6.4 framework: net40
 nuget NuGet.CommandLine 2.8.6 framework: net40
+nuget System.Reactive 3.1.1 framework: net45
+nuget System.Reactive.Core 3.1.1 framework: net45
+nuget System.Reactive.Interfaces 3.1.1 framework: net45
+nuget System.Reactive.Linq 3.1.1 framework: net45
+nuget System.Reactive.PlatformServices 3.1.1 framework: net45
+nuget System.Reactive.Windows.Threading 3.1.1 framework: net45

@@ -13,3 +13,9 @@ NUGET
     NUnit.Runners (2.6.4) - framework: net40
     RabbitMQ.Client (3.3.0) - framework: >= net40
     RestSharp (105.2.3)
+    System.Reactive (3.1.1) - framework: >= net45
+    System.Reactive.Core (3.1.1) - framework: >= net45
+    System.Reactive.Interfaces (3.1.1) - framework: >= net45
+    System.Reactive.Linq (3.1.1) - framework: >= net45
+    System.Reactive.PlatformServices (3.1.1) - framework: >= net45
+    System.Reactive.Windows.Threading (3.1.1) - framework: >= net45

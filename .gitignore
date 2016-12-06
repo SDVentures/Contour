@@ -12,3 +12,4 @@ TestResults.xml
 *.userprefs
 *.bak
 .paket/paket.exe
+*.user

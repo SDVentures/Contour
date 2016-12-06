@@ -8,8 +8,9 @@
 
     using global::RabbitMQ.Client.Events;
 
+
     /// <summary>
-    /// The cancellable queueing consumer.
+    /// The cancellable queuing consumer.
     /// </summary>
     internal class CancellableQueueingConsumer : DefaultBasicConsumer
     {
