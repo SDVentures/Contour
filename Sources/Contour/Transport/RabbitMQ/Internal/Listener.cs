@@ -35,7 +35,7 @@
         /// Обработчики сообщений.
         /// Каждому обработчику соответствует своя метка сообщения.
         /// </summary>
-        private readonly IDictionary<MessageLabel, ConsumingAction> consumers = new ConcurrentDictionary<MessageLabel, ConsumingAction>();
+        private readonly IDictionary<MessageLabel, ConsumingAction> consumerActions = new ConcurrentDictionary<MessageLabel, ConsumingAction>();
 
         /// <summary>
         /// Порт канала, на который приходит сообщение.
@@ -146,7 +146,7 @@
         {
             get
             {
-                return this.consumers.Keys;
+                return this.consumerActions.Keys;
             }
         }
 
@@ -239,27 +239,13 @@
         /// <typeparam name="T">
         /// Тип входящего сообщения.
         /// </typeparam>
-        public void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
+        public void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator)
+            where T : class
         {
-            ConsumingAction consumingAction = delivery =>
-                {
-                    IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
-
-                    if (validator != null)
-                    {
-                        validator.Validate(context.Message).ThrowIfBroken();
-                    }
-                    else
-                    {
-                        this.validatorRegistry.Validate(context.Message);
-                    }
-
-                    consumer.Handle(context);
-                };
-
-            this.consumers[label] = consumingAction;
+            var consumingAction = RegisterConsumingAction(label, consumer, validator);
+            this.consumerActions[label] = consumingAction;
         }
-
+        
         /// <summary>
         /// Запускает обработку входящих сообщений.
         /// </summary>
@@ -370,6 +356,25 @@
 
             stopwatch.Stop();
             this.logger.Trace(m => m("Message labeled [{0}] processed in {1} ms.", delivery.Label, stopwatch.ElapsedMilliseconds));
+        }
+
+        private ConsumingAction RegisterConsumingAction<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
+        {
+            return delivery =>
+            {
+                var context = delivery.BuildConsumingContext<T>(label);
+
+                if (validator != null)
+                {
+                    validator.Validate(context.Message).ThrowIfBroken();
+                }
+                else
+                {
+                    this.validatorRegistry.Validate(context.Message);
+                }
+
+                consumer.Handle(context);
+            };
         }
 
         /// <summary>
@@ -560,17 +565,17 @@
         private bool TryHandleAsSubscription(RabbitDelivery delivery)
         {
             ConsumingAction consumingAction;
-            if (!this.consumers.TryGetValue(delivery.Label, out consumingAction))
+            if (!this.consumerActions.TryGetValue(delivery.Label, out consumingAction))
             {
                 // NOTE: this is needed for compatibility with v1 of ServiceBus
-                if (this.consumers.Count == 1)
+                if (this.consumerActions.Count == 1)
                 {
-                    consumingAction = this.consumers.Values.Single();
+                    consumingAction = this.consumerActions.Values.Single();
                 }
 
                 if (consumingAction == null)
                 {
-                    this.consumers.TryGetValue(MessageLabel.Any, out consumingAction);
+                    this.consumerActions.TryGetValue(MessageLabel.Any, out consumingAction);
                 }
             }
 
