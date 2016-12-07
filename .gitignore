@@ -13,3 +13,4 @@ TestResults.xml
 *.bak
 .paket/paket.exe
 *.user
+StyleCop.Cache
