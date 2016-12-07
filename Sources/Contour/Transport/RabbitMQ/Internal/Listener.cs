@@ -242,8 +242,7 @@
         public void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator)
             where T : class
         {
-            var consumingAction = RegisterConsumingAction(label, consumer, validator);
-            this.consumerActions[label] = consumingAction;
+            RegisterConsumingAction(label, consumer, validator);
         }
         
         /// <summary>
@@ -358,9 +357,9 @@
             this.logger.Trace(m => m("Message labeled [{0}] processed in {1} ms.", delivery.Label, stopwatch.ElapsedMilliseconds));
         }
 
-        private ConsumingAction RegisterConsumingAction<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
+        private void RegisterConsumingAction<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
         {
-            return delivery =>
+            ConsumingAction action = delivery =>
             {
                 var context = delivery.BuildConsumingContext<T>(label);
 
@@ -375,6 +374,8 @@
 
                 consumer.Handle(context);
             };
+
+            this.consumerActions[label] = action;
         }
 
         /// <summary>
