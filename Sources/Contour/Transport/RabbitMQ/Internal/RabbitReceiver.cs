@@ -11,25 +11,14 @@
     internal class RabbitReceiver : AbstractReceiver
     {
         #region Static Fields
-
-        /// <summary>
-        /// The logger.
-        /// </summary>
+        
         private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 
         #region Fields
-
-        /// <summary>
-        /// The _listener registry.
-        /// </summary>
-        private readonly ListenerRegistry listenerRegistry;
-
-        /// <summary>
-        /// The _listener.
-        /// </summary>
-        private Listener listener;
+        
+        private readonly Listener listener;
 
         #endregion
 
@@ -47,7 +36,10 @@
         public RabbitReceiver(IReceiverConfiguration configuration, ListenerRegistry listenerRegistry)
             : base(configuration)
         {
-            this.listenerRegistry = listenerRegistry;
+            Logger.Trace(m => m("Binding listener to receiver of [{0}].", this.Configuration.Label));
+
+            this.listener = listenerRegistry.ResolveFor(this.Configuration);
+            this.Configuration.ReceiverRegistration(this);
         }
 
         #endregion
@@ -55,7 +47,7 @@
         #region Public Properties
 
         /// <summary>
-        /// Gets a value indicating whether is started.
+        /// Gets a value indicating whether receiver is started.
         /// </summary>
         public bool IsStarted { get; private set; }
 
@@ -72,22 +64,6 @@
         #region Public Methods and Operators
 
         /// <summary>
-        /// The can receive.
-        /// </summary>
-        /// <param name="label">
-        /// The label.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool CanReceive(MessageLabel label)
-        {
-            this.EnsureListenerIsReady();
-
-            return this.listener.Supports(label);
-        }
-
-        /// <summary>
         /// The register consumer.
         /// </summary>
         /// <param name="label">
@@ -101,7 +77,6 @@
         public override void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer)
         {
             Logger.Trace(m => m("Registering consumer of [{0}] for receiver of [{1}].", typeof(T).Name, label));
-
             this.listener.RegisterConsumer(label, consumer, this.Configuration.Validator);
         }
 
@@ -110,14 +85,17 @@
         /// </summary>
         public override void Start()
         {
-            Logger.Trace(m => m("Starting receiver of [{0}].", this.Configuration.Label));
-
-            this.IsStarted = true;
-
-            if (this.listener == null)
+            if (IsStarted)
             {
-                this.BindListener();
+                Logger.Trace($"Unable to start, receiver of [{this.Configuration.Label}] is already running.");
+                return;
             }
+
+            Logger.Trace(m => m("Starting receiver of [{0}].", this.Configuration.Label));
+            
+            this.listener.Start();
+            this.IsStarted = true;
+            Logger.Trace(m => m("Receiver of [{0}] has started successfully.", this.Configuration.Label));
         }
 
         /// <summary>
@@ -125,59 +103,17 @@
         /// </summary>
         public override void Stop()
         {
-            Logger.Trace(m => m("Stopping receiver of [{0}].", this.Configuration.Label));
-
-            this.IsStarted = false;
-
-            this.UnbindListener();
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// The bind listener.
-        /// </summary>
-        private void BindListener()
-        {
-            this.UnbindListener();
-
-            if (!this.IsStarted)
+            if (!IsStarted)
             {
+                Logger.Trace($"Unable to stop, receiver of [{this.Configuration.Label}] is not running.");
                 return;
             }
 
-            Logger.Trace(m => m("Binding listener to receiver of [{0}].", this.Configuration.Label));
-
-            this.listener = this.listenerRegistry.ResolveFor(this.Configuration);
-            this.Configuration.ReceiverRegistration(this);
-
-            this.listener.Start();
-        }
-
-        /// <summary>
-        /// The ensure listener is ready.
-        /// </summary>
-        private void EnsureListenerIsReady()
-        {
-            if (this.listener == null && this.IsStarted)
-            {
-                this.BindListener();
-            }
-        }
-
-        /// <summary>
-        /// The unbind listener.
-        /// </summary>
-        private void UnbindListener()
-        {
-            if (this.listener != null)
-            {
-                Logger.Trace(m => m("Unbinding listener from receiver of [{0}].", this.Configuration.Label));
-
-                this.listener = null;
-            }
+            Logger.Trace(m => m("Stopping receiver of [{0}].", this.Configuration.Label));
+            
+            listener.Stop();
+            this.IsStarted = false;
+            Logger.Trace(m => m("Receiver of [{0}] has stopped successfully.", this.Configuration.Label));
         }
 
         #endregion
