@@ -48,20 +48,6 @@
         #region Public Methods and Operators
 
         /// <summary>
-        /// The can consume.
-        /// </summary>
-        /// <param name="label">
-        /// The label.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool CanConsume(MessageLabel label)
-        {
-            return this.listeners.Any(l => l.AcceptedLabels.Contains(label));
-        }
-
-        /// <summary>
         /// The dispose.
         /// </summary>
         public void Dispose()
@@ -119,36 +105,6 @@
                     return listener;
                 }
             }
-        }
-
-        /// <summary>
-        /// The resolve for.
-        /// </summary>
-        /// <param name="label">
-        /// The label.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Listener"/>.
-        /// </returns>
-        public Listener ResolveFor(MessageLabel label)
-        {
-            return this.listeners.First(l => l.Supports(label));
-        }
-
-        /// <summary>
-        /// The start consuming.
-        /// </summary>
-        public void StartConsuming()
-        {
-                this.listeners.ForEach(l => l.Start());
-        }
-
-        /// <summary>
-        /// The stop consuming.
-        /// </summary>
-        public void StopConsuming()
-        {
-                this.listeners.ForEach(l => l.Stop());
         }
 
         #endregion

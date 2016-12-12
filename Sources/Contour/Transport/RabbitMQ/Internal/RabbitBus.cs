@@ -249,10 +249,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.GetType()
                         .Name,
                     this.Endpoint));
-
-            this.ListenerRegistry = new ListenerRegistry(this);
-            this.ProducerRegistry = new ProducerRegistry(this);
-
+            
             this.BuildReceivers();
             this.BuildSenders();
 

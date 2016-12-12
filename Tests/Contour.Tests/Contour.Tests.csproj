@@ -50,10 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DebuggerShim.cs" />
-    <Compile Include="describe_delivery_consuming.cs" />
-    <Compile Include="nspec.cs">
-      <Paket>True</Paket>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
