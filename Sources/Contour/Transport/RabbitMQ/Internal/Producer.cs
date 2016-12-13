@@ -82,7 +82,7 @@
         /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.
         /// </summary>
-        protected Listener CallbackListener { get; private set; }
+        protected RabbitListener CallbackListener { get; private set; }
 
         /// <summary>
         /// Канал подключения к брокеру.
@@ -224,7 +224,7 @@
         /// <exception cref="BusConfigurationException">
         /// Генерируется, если уже зарегистрирован слушатель ответа на запрос.
         /// </exception>
-        public void UseCallbackListener(Listener listener)
+        public void UseCallbackListener(RabbitListener listener)
         {
             if (this.CallbackListener != null)
             {

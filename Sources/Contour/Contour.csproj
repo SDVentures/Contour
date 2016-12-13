@@ -198,7 +198,8 @@
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\Expectation.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ListenerConfiguration.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\IRabbitListenerConfiguration.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitListenerConfiguration.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\NullPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\DefaultPublishConfirmationTracker.cs" />
@@ -209,7 +210,6 @@
     <Compile Include="Transport\RabbitMQ\Internal\RabbitReceiver.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitSender.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ProducerRegistry.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ListenerRegistry.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitBusDefaults.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitChannel.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitDelivery.cs" />
@@ -219,7 +219,7 @@
     <Compile Include="IMessage.cs" />
     <Compile Include="Sending\IRouteResolver.cs" />
     <Compile Include="Sending\LambdaRouteResolver.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\Listener.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitListener.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\Producer.cs" />
     <Compile Include="Receiving\DefaultConsumingContext.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitClient.cs" />

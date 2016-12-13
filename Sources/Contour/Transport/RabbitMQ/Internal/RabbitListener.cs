@@ -12,11 +12,13 @@
 
     using Common.Logging;
 
+    using Contour.Configuration;
     using Contour.Helpers;
     using Contour.Helpers.Scheduler;
     using Contour.Helpers.Timing;
     using Contour.Receiving;
     using Contour.Receiving.Consumers;
+    using Contour.Transport.RabbitMQ.Topology;
     using Contour.Validation;
 
     using global::RabbitMQ.Client.Events;
@@ -24,12 +26,12 @@
     /// <summary>
     /// Слушатель канала.
     /// </summary>
-    internal class Listener : IDisposable
+    internal class RabbitListener : IDisposable
     {
         /// <summary>
         /// Поставщик каналов.
         /// </summary>
-        private readonly IChannelProvider channelProvider;
+        private IChannelProvider channelProvider;
 
         /// <summary>
         /// Обработчики сообщений.
@@ -40,7 +42,7 @@
         /// <summary>
         /// Порт канала, на который приходит сообщение.
         /// </summary>
-        private readonly ISubscriptionEndpoint endpoint;
+        private ISubscriptionEndpoint endpoint;
 
         /// <summary>
         /// Ожидания ответных сообщений на запрос.
@@ -50,7 +52,7 @@
         /// <summary>
         /// Хранилище заголовков входящего сообщения.
         /// </summary>
-        private readonly IIncomingMessageHeaderStorage messageHeaderStorage;
+        private IIncomingMessageHeaderStorage messageHeaderStorage;
 
         /// <summary>
         /// Объект синхронизации.
@@ -89,32 +91,28 @@
         private IList<IWorker> workers;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Listener"/>.
+        /// Initializes a new listener using <paramref name="bus"/> and <paramref name="configuration"/>
         /// </summary>
-        /// <param name="channelProvider">
-        /// Поставщик каналов.
-        /// </param>
-        /// <param name="endpoint">
-        /// Прослушиваемый порт.
-        /// </param>
-        /// <param name="receiverOptions">
-        /// Настройки получателя.
-        /// </param>
-        /// <param name="validatorRegistry">
-        /// Реестр механизмов проверки сообщений.
-        /// </param>
-        public Listener(IChannelProvider channelProvider, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
+        /// <param name="bus"></param>
+        /// <param name="configuration"></param>
+        public RabbitListener(RabbitBus bus, IRabbitListenerConfiguration configuration)
         {
-            this.endpoint = endpoint;
-            this.channelProvider = channelProvider;
-            this.validatorRegistry = validatorRegistry;
+            this.channelProvider = bus;
+            this.validatorRegistry = bus.Configuration.ValidatorRegistry;
 
-            this.ReceiverOptions = receiverOptions;
-            this.ReceiverOptions.GetIncomingMessageHeaderStorage();
-            this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
+            using (var channel = channelProvider.OpenChannel())
+            {
+                var topologyBuilder = new TopologyBuilder(channel);
+                var builder = new SubscriptionEndpointBuilder(channel.Bus.Endpoint, topologyBuilder, configuration.ReceiverConfiguration);
 
-            // TODO: refactor
-            this.Failed += _ =>
+                var endpointBuilder = configuration.ReceiverConfiguration.Options.GetEndpointBuilder();
+                this.endpoint = endpointBuilder.Value(builder);
+                
+                this.ReceiverOptions = (RabbitReceiverOptions)configuration.ReceiverConfiguration.Options;
+                this.ReceiverOptions.GetIncomingMessageHeaderStorage();
+                this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
+
+                this.Failed += _ =>
                 {
                     if (this.HasFailed)
                     {
@@ -122,8 +120,9 @@
                     }
 
                     this.HasFailed = true;
-                    ((IBusAdvanced)channelProvider).Panic();
+                    ((IBusAdvanced)bus).Panic();
                 }; // restarting the whole bus
+            }
         }
 
         /// <summary>
@@ -137,7 +136,7 @@
         /// <summary>
         /// Событие о сбое во время прослушивания порта.
         /// </summary>
-        public event Action<Listener> Failed = l => { };
+        public event Action<RabbitListener> Failed = l => { };
 
         /// <summary>
         /// Метки сообщений, которые может обработать слушатель.
@@ -295,20 +294,6 @@
                 this.ticketTimer.Dispose();
                 this.expectations.Values.ForEach(e => e.Cancel());
             }
-        }
-
-        /// <summary>
-        /// Проверяет поддерживает слушатель обработку сообщения с указанной меткой.
-        /// </summary>
-        /// <param name="label">
-        /// Метка сообщения.
-        /// </param>
-        /// <returns>
-        /// Если <c>true</c> - слушатель поддерживает обработку сообщений, иначе - <c>false</c>.
-        /// </returns>
-        public bool Supports(MessageLabel label)
-        {
-            return this.AcceptedLabels.Contains(label);
         }
 
         /// <summary>
@@ -589,5 +574,27 @@
 
             return false;
         }
+
+        private static void EnsureConfigurationIsCompatible(RabbitListener listener, IReceiverConfiguration configuration)
+        {
+            var existing = listener.ReceiverOptions;
+            var other = (RabbitReceiverOptions)configuration.Options;
+
+            Action<Func<RabbitReceiverOptions, object>, string> compareAndThrow = (getOption, optionName) =>
+            {
+                if (getOption(existing) != getOption(other))
+                {
+                    throw new BusConfigurationException(
+                        "Listener on [{0}] is not compatible with subscription of [{1}] due to option mismatch [{2}]."
+                            .FormatEx(listener.Endpoint.ListeningSource, configuration.Label, optionName));
+                }
+            };
+
+            compareAndThrow(o => o.IsAcceptRequired(), "AcceptIsRequired");
+            compareAndThrow(o => o.GetParallelismLevel(), "ParallelismLevel");
+            compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
+            compareAndThrow(o => o.GetQoS(), "QoS");
+        }
+
     }
 }

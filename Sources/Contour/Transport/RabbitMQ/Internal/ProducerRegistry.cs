@@ -106,7 +106,8 @@
 
                 if (configuration.RequiresCallback)
                 {
-                    producer.UseCallbackListener(this._bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
+                    var listener = new RabbitListener(_bus, new RabbitListenerConfiguration(configuration.CallbackConfiguration));
+                    producer.UseCallbackListener(listener);
                 }
             }
 

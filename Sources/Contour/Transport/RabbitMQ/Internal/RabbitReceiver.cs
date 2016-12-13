@@ -18,7 +18,7 @@
 
         #region Fields
         
-        private readonly Listener listener;
+        private readonly RabbitListener rabbitListener;
 
         #endregion
 
@@ -27,18 +27,16 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitReceiver"/>.
         /// </summary>
+        /// <param name="rabbitBus"></param>
         /// <param name="configuration">
-        /// The configuration.
+        ///     The configuration.
         /// </param>
-        /// <param name="listenerRegistry">
-        /// The listener registry.
-        /// </param>
-        public RabbitReceiver(IReceiverConfiguration configuration, ListenerRegistry listenerRegistry)
-            : base(configuration)
+        public RabbitReceiver(RabbitBus rabbitBus, IReceiverConfiguration configuration) : base(configuration)
         {
             Logger.Trace(m => m("Binding listener to receiver of [{0}].", this.Configuration.Label));
 
-            this.listener = listenerRegistry.ResolveFor(this.Configuration);
+            var listenerConfig = new RabbitListenerConfiguration(configuration);
+            this.rabbitListener = new RabbitListener(rabbitBus, listenerConfig);
             this.Configuration.ReceiverRegistration(this);
         }
 
@@ -55,7 +53,7 @@
         {
             get
             {
-                return (listener != null && !listener.HasFailed);
+                return (rabbitListener != null && !rabbitListener.HasFailed);
             }
         }
 
@@ -77,7 +75,7 @@
         public override void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer)
         {
             Logger.Trace(m => m("Registering consumer of [{0}] for receiver of [{1}].", typeof(T).Name, label));
-            this.listener.RegisterConsumer(label, consumer, this.Configuration.Validator);
+            this.rabbitListener.RegisterConsumer(label, consumer, this.Configuration.Validator);
         }
 
         /// <summary>
@@ -93,7 +91,7 @@
 
             Logger.Trace(m => m("Starting receiver of [{0}].", this.Configuration.Label));
             
-            this.listener.Start();
+            this.rabbitListener.Start();
             this.IsStarted = true;
             Logger.Trace(m => m("Receiver of [{0}] has started successfully.", this.Configuration.Label));
         }
@@ -111,7 +109,7 @@
 
             Logger.Trace(m => m("Stopping receiver of [{0}].", this.Configuration.Label));
             
-            listener.Stop();
+            rabbitListener.Stop();
             this.IsStarted = false;
             Logger.Trace(m => m("Receiver of [{0}] has stopped successfully.", this.Configuration.Label));
         }

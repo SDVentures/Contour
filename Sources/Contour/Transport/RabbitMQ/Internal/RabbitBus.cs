@@ -10,7 +10,8 @@ using Common.Logging;
 
 using Contour.Configuration;
 using Contour.Helpers;
-
+using Contour.Receiving;
+using Contour.Transport.RabbitMQ.Topology;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
@@ -21,14 +22,12 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitBus : AbstractBus, IBusAdvanced, IChannelProvider
     {
-        private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
-
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
 
+        private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
         private readonly ManualResetEvent ready = new ManualResetEvent(false);
 
         private CancellationTokenSource cancellationTokenSource;
-
         private Task restartTask;
 
         /// <summary>
@@ -48,11 +47,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Gets the connection.
         /// </summary>
         public IConnection Connection { get; private set; }
-
-        /// <summary>
-        /// Gets the listener registry.
-        /// </summary>
-        public ListenerRegistry ListenerRegistry { get; private set; }
 
         /// <summary>
         /// Gets the producer registry.
@@ -132,16 +126,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.Endpoint);
 
             this.IsShuttingDown = true;
-
             this.Stop();
-
-            if (this.ListenerRegistry != null)
-            {
-                this.logger.Trace(m => m("{0}: disposing listener registry.", this.Endpoint));
-                this.ListenerRegistry.Dispose();
-                this.ListenerRegistry = null;
-            }
-
+            
             if (this.ProducerRegistry != null)
             {
                 this.logger.Trace(m => m("{0}: disposing producer registry.", this.Endpoint));
@@ -215,12 +201,10 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void BuildReceivers()
         {
-            this.ListenerRegistry = new ListenerRegistry(this);
-
             this.Configuration.ReceiverConfigurations.ForEach(
-                c =>
+                config =>
                     {
-                        var receiver = new RabbitReceiver(c, this.ListenerRegistry);
+                        var receiver = new RabbitReceiver(this, config);
                         this.ComponentTracker.Register(receiver);
                     });
         }
@@ -261,7 +245,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.InfoFormat("Connecting to RabbitMQ using [{0}].", this.Configuration.ConnectionString);
 
             var clientProperties = new Dictionary<string, object>
-                                       {
+            {
                                            { "Endpoint", this.Endpoint.Address },
                                            { "Machine", Environment.MachineName },
                                            {
@@ -371,12 +355,6 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(m => m("{0}: stopping bus components.", this.Endpoint));
             this.ComponentTracker.StopAll();
-
-            if (this.ListenerRegistry != null)
-            {
-                this.logger.Trace(m => m("{0}: resetting listener registry.", this.Endpoint));
-                this.ListenerRegistry.Reset();
-            }
 
             if (this.ProducerRegistry != null)
             {
