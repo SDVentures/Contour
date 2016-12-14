@@ -10,8 +10,6 @@ using Common.Logging;
 
 using Contour.Configuration;
 using Contour.Helpers;
-using Contour.Receiving;
-using Contour.Transport.RabbitMQ.Topology;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
@@ -20,7 +18,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// <summary>
     /// The rabbit bus.
     /// </summary>
-    internal class RabbitBus : AbstractBus, IBusAdvanced, IChannelProvider
+    internal class RabbitBus : AbstractBus, IRabbitBus
     {
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
 
@@ -34,7 +32,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Инициализирует новый экземпляр класса <see cref="RabbitBus" />.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        public RabbitBus(BusConfiguration configuration)
+        public RabbitBus(IBusConfiguration configuration)
             : base(configuration)
         {
             this.cancellationTokenSource = new CancellationTokenSource();
@@ -95,7 +93,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         /// <returns>The <see cref="RabbitChannel" />.</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public virtual RabbitChannel OpenChannel()
+        public virtual IChannel OpenChannel()
         {
             if (this.Connection == null || !this.Connection.IsOpen)
             {

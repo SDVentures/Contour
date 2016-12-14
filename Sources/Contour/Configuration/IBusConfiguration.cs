@@ -1,4 +1,8 @@
-﻿namespace Contour.Configuration
+﻿using Contour.Receiving;
+using Contour.Sending;
+using Contour.Validation;
+
+namespace Contour.Configuration
 {
     using System.Collections.Generic;
 
@@ -20,7 +24,12 @@
         /// <summary>
         /// Gets the filters.
         /// </summary>
-        IEnumerable<IMessageExchangeFilter> Filters { get; }
+        IList<IMessageExchangeFilter> Filters { get; }
+
+        /// <summary>
+        /// Gets a bus life-cycle handler
+        /// </summary>
+        IBusLifecycleHandler LifecycleHandler { get; }
 
         /// <summary>
         ///   Обработчик метки сообщений.
@@ -28,9 +37,34 @@
         IMessageLabelHandler MessageLabelHandler { get; }
 
         /// <summary>
-        ///   Сериализатор сообщений.
+        /// Gets a message serializer
         /// </summary>
         IPayloadConverter Serializer { get; }
+
+        /// <summary>
+        /// Gets the endpoint.
+        /// </summary>
+        IEndpoint Endpoint { get; }
+
+        /// <summary>
+        /// Gets the receiver configurations.
+        /// </summary>
+        IList<IReceiverConfiguration> ReceiverConfigurations { get; }
+
+        /// <summary>
+        /// Gets the sender configurations.
+        /// </summary>
+        IList<ISenderConfiguration> SenderConfigurations { get; }
+
+        /// <summary>
+        /// Gets the message label resolver.
+        /// </summary>
+        IMessageLabelResolver MessageLabelResolver { get; }
+
+        /// <summary>
+        /// Gets the validator registry.
+        /// </summary>
+        IMessageValidatorRegistry ValidatorRegistry { get; }
 
         #endregion
     }

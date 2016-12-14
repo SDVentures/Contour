@@ -35,7 +35,7 @@
         /// <summary>
         /// The _bus.
         /// </summary>
-        private readonly RabbitBus bus;
+        private readonly IRabbitBus bus;
 
         /// <summary>
         /// The _sync.
@@ -61,7 +61,7 @@
         /// <param name="model">
         /// The Model.
         /// </param>
-        public RabbitChannel(RabbitBus bus, IModel model)
+        public RabbitChannel(IRabbitBus bus, IModel model)
         {
             this.bus = bus;
             this.Model = model;

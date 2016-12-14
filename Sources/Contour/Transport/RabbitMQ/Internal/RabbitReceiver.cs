@@ -31,7 +31,7 @@
         /// <param name="configuration">
         ///     The configuration.
         /// </param>
-        public RabbitReceiver(RabbitBus rabbitBus, IReceiverConfiguration configuration) : base(configuration)
+        public RabbitReceiver(IRabbitBus rabbitBus, IReceiverConfiguration configuration) : base(configuration)
         {
             Logger.Trace(m => m("Binding listener to receiver of [{0}].", this.Configuration.Label));
 

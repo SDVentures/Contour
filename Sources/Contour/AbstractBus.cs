@@ -22,12 +22,7 @@ namespace Contour
         /// Отслеживает работу компонентов шины сообщений.
         /// </summary>
         private readonly IBusComponentTracker componentTracker = new BusComponentTracker();
-
-        /// <summary>
-        /// Конфигурация шины сообщений.
-        /// </summary>
-        private readonly BusConfiguration configuration;
-
+        
         /// <summary>
         /// Журнал шины сообщений.
         /// </summary>
@@ -37,16 +32,16 @@ namespace Contour
         /// Инициализирует новый экземпляр класса <see cref="AbstractBus"/>.
         /// </summary>
         /// <param name="configuration">Конфигурация шины сообщений.</param>
-        protected AbstractBus(BusConfiguration configuration)
+        protected AbstractBus(IBusConfiguration configuration)
         {
-            this.configuration = configuration;
+            this.Configuration = configuration;
 
-            if (this.configuration.LifecycleHandler != null)
+            if (this.Configuration.LifecycleHandler != null)
             {
-                this.Starting += this.configuration.LifecycleHandler.OnStarting;
-                this.Started += this.configuration.LifecycleHandler.OnStarted;
-                this.Stopping += this.configuration.LifecycleHandler.OnStopping;
-                this.Stopped += this.configuration.LifecycleHandler.OnStopped;
+                this.Starting += this.Configuration.LifecycleHandler.OnStarting;
+                this.Started += this.Configuration.LifecycleHandler.OnStarted;
+                this.Stopping += this.Configuration.LifecycleHandler.OnStopping;
+                this.Stopped += this.Configuration.LifecycleHandler.OnStopped;
             }
         }
 
@@ -92,24 +87,13 @@ namespace Contour
         }
 
         /// <summary>
-        /// Конфигурация шины.
-        /// </summary>
-        public BusConfiguration Configuration
-        {
-            get
-            {
-                return this.configuration;
-            }
-        }
-
-        /// <summary>
         /// Конечная точка шины.
         /// </summary>
         public IEndpoint Endpoint
         {
             get
             {
-                return this.configuration.Endpoint;
+                return this.Configuration.Endpoint;
             }
         }
 
@@ -191,13 +175,7 @@ namespace Contour
         /// <summary>
         /// Конфигурация шины.
         /// </summary>
-        IBusConfiguration IBus.Configuration
-        {
-            get
-            {
-                return this.configuration;
-            }
-        }
+        public IBusConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Проверяет возможность обрабатывать сообщения с указанной меткой.
@@ -216,7 +194,7 @@ namespace Contour
         /// <returns><c>true</c> - если шина сообщения умеет обрабатывать указанную метку сообщений.</returns>
         public bool CanHandle(MessageLabel label)
         {
-            return this.configuration.ReceiverConfigurations.Any(cc => cc.Label.Equals(label));
+            return this.Configuration.ReceiverConfigurations.Any(cc => cc.Label.Equals(label));
         }
 
         /// <summary>
@@ -236,7 +214,7 @@ namespace Contour
         /// <returns><c>true</c> - если шина сообщения умеет строить маршрут для указанной метки сообщений.</returns>
         public bool CanRoute(MessageLabel label)
         {
-            return this.configuration.SenderConfigurations.Any(pc => pc.Label.Equals(label) || (pc.Alias != null && pc.Alias.Equals(label.Name)));
+            return this.Configuration.SenderConfigurations.Any(pc => pc.Label.Equals(label) || (pc.Alias != null && pc.Alias.Equals(label.Name)));
         }
 
         /// <summary>

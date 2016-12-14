@@ -26,30 +26,10 @@
         private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// The _filters.
-        /// </summary>
-        private readonly IList<IMessageExchangeFilter> filters = new List<IMessageExchangeFilter>();
-
-        /// <summary>
         /// The _message label resolver.
         /// </summary>
         private readonly MessageLabelResolver messageLabelResolver = new MessageLabelResolver();
-
-        /// <summary>
-        /// The _receiver configurations.
-        /// </summary>
-        private readonly IList<IReceiverConfiguration> receiverConfigurations = new List<IReceiverConfiguration>();
-
-        /// <summary>
-        /// The _sender configurations.
-        /// </summary>
-        private readonly IList<ISenderConfiguration> senderConfigurations = new List<ISenderConfiguration>();
-
-        /// <summary>
-        /// The _validator registry.
-        /// </summary>
-        private readonly MessageValidatorRegistry validatorRegistry = new MessageValidatorRegistry();
-
+        
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="BusConfiguration"/>.
         /// </summary>
@@ -84,13 +64,7 @@
         /// <summary>
         /// Gets the filters.
         /// </summary>
-        public IEnumerable<IMessageExchangeFilter> Filters
-        {
-            get
-            {
-                return this.filters;
-            }
-        }
+        public IList<IMessageExchangeFilter> Filters { get; } = new List<IMessageExchangeFilter>();
 
         /// <summary>
         /// Gets the lifecycle handler.
@@ -105,7 +79,7 @@
         /// <summary>
         /// Gets the message label resolver.
         /// </summary>
-        public MessageLabelResolver MessageLabelResolver
+        public IMessageLabelResolver MessageLabelResolver
         {
             get
             {
@@ -116,13 +90,7 @@
         /// <summary>
         /// Gets the receiver configurations.
         /// </summary>
-        public IEnumerable<IReceiverConfiguration> ReceiverConfigurations
-        {
-            get
-            {
-                return this.receiverConfigurations;
-            }
-        }
+        public IList<IReceiverConfiguration> ReceiverConfigurations { get; } = new List<IReceiverConfiguration>();
 
         /// <summary>
         /// Gets the receiver defaults.
@@ -132,14 +100,8 @@
         /// <summary>
         /// Gets the sender configurations.
         /// </summary>
-        public IEnumerable<ISenderConfiguration> SenderConfigurations
-        {
-            get
-            {
-                return this.senderConfigurations;
-            }
-        }
-
+        public IList<ISenderConfiguration> SenderConfigurations { get; } = new List<ISenderConfiguration>();
+        
         /// <summary>
         /// Gets the sender defaults.
         /// </summary>
@@ -153,13 +115,7 @@
         /// <summary>
         /// Gets the validator registry.
         /// </summary>
-        public MessageValidatorRegistry ValidatorRegistry
-        {
-            get
-            {
-                return this.validatorRegistry;
-            }
-        }
+        public IMessageValidatorRegistry ValidatorRegistry { get; } = new MessageValidatorRegistry();
 
         /// <summary>
         /// The build bus using.
@@ -274,7 +230,7 @@
             }
 
             var configuration = new ReceiverConfiguration(label, this.ReceiverDefaults);
-            this.receiverConfigurations.Add(configuration);
+            this.ReceiverConfigurations.Add(configuration);
 
             return configuration;
         }
@@ -331,7 +287,7 @@
         /// </param>
         public void RegisterFilter(IMessageExchangeFilter filter)
         {
-            this.filters.Add(filter);
+            this.Filters.Add(filter);
         }
 
         /// <summary>
@@ -390,7 +346,7 @@
 
             var configuration = new SenderConfiguration(label, this.SenderDefaults, this.ReceiverDefaults);
 
-            this.senderConfigurations.Add(configuration);
+            this.SenderConfigurations.Add(configuration);
 
             return configuration;
         }

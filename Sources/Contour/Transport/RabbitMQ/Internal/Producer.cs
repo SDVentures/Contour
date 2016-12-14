@@ -41,9 +41,10 @@
         /// <param name="confirmationIsRequired">
         /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
         /// </param>
-        public Producer(RabbitBus bus, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IRabbitBus bus, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
         {
-            this.Channel = bus.OpenChannel();
+            var provider = (IChannelProvider) bus;
+            this.Channel = (RabbitChannel) provider.OpenChannel();
             this.Label = label;
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;

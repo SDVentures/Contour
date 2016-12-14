@@ -19,7 +19,7 @@
         /// <summary>
         /// The _bus.
         /// </summary>
-        private readonly RabbitBus _bus;
+        private readonly IRabbitBus _bus;
 
         /// <summary>
         /// The _producers.
@@ -36,7 +36,7 @@
         /// <param name="bus">
         /// The bus.
         /// </param>
-        public ProducerRegistry(RabbitBus bus)
+        public ProducerRegistry(IRabbitBus bus)
         {
             this._bus = bus;
         }
@@ -77,10 +77,11 @@
         /// </returns>
         public Producer ResolveFor(ISenderConfiguration configuration)
         {
-            Producer producer = this.TryResolverFor(configuration.Label);
+            var producer = this.TryResolverFor(configuration.Label);
             if (producer == null)
             {
-                using (RabbitChannel channel = this._bus.OpenChannel())
+                var provider = (IChannelProvider) _bus;
+                using (var channel = provider.OpenChannel())
                 {
                     var topologyBuilder = new TopologyBuilder(channel);
                     var builder = new RouteResolverBuilder(this._bus.Endpoint, topologyBuilder, configuration);

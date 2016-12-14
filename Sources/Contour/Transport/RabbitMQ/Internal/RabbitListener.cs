@@ -67,7 +67,7 @@
         /// <summary>
         /// Реестр механизмов проверки сообщений.
         /// </summary>
-        private readonly MessageValidatorRegistry validatorRegistry;
+        private readonly IMessageValidatorRegistry validatorRegistry;
 
         /// <summary>
         /// Источник квитков отмены задач.
@@ -95,11 +95,11 @@
         /// </summary>
         /// <param name="bus"></param>
         /// <param name="configuration"></param>
-        public RabbitListener(RabbitBus bus, IRabbitListenerConfiguration configuration)
+        public RabbitListener(IRabbitBus bus, IRabbitListenerConfiguration configuration)
         {
             this.channelProvider = bus;
             this.validatorRegistry = bus.Configuration.ValidatorRegistry;
-
+            
             using (var channel = channelProvider.OpenChannel())
             {
                 var topologyBuilder = new TopologyBuilder(channel);
