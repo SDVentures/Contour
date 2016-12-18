@@ -360,17 +360,6 @@
         }
 
         /// <summary>
-        /// The request publish.
-        /// </summary>
-        /// <param name="qos">
-        /// The qos.
-        /// </param>
-        public void RequestPublish(QoSParams qos)
-        {
-            this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
-        }
-
-        /// <summary>
         /// The set qos.
         /// </summary>
         /// <param name="qos">

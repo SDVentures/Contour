@@ -4,6 +4,7 @@ NUGET
     FAKE (4.0.3) - framework: net40
     FluentAssertions (2.1) - framework: >= net40
     FluentValidation (5.0.0.1) - framework: >= net40
+    Microsoft.Tpl.Dataflow (4.5.24)
     Moq (4.2.1312.1622) - framework: >= net40
     Newtonsoft.Json (6.0.2) - framework: >= net40
     Ninject (3.0.1.10) - framework: >= net40
@@ -13,18 +14,6 @@ NUGET
     NUnit.Runners (2.6.4) - framework: net40
     RabbitMQ.Client (3.3) - framework: >= net40
     RestSharp (105.2.3)
-    System.Reactive (3.1.1) - framework: net45
-      System.Reactive.PlatformServices (>= 3.1.1)
-      System.Reactive.Windows.Threading (>= 3.1.1) - framework: >= net45, winv4.5.1, wpav8.1
-    System.Reactive.Core (3.1.1) - framework: net45
-      System.Reactive.Interfaces (>= 3.1.1) - framework: >= net45, >= netstandard10
-    System.Reactive.Interfaces (3.1.1) - framework: net45
-    System.Reactive.Linq (3.1.1) - framework: net45
-      System.Reactive.Core (>= 3.1.1) - framework: >= net45, >= netstandard10
-    System.Reactive.PlatformServices (3.1.1) - framework: net45
-      System.Reactive.Linq (>= 3.1.1)
-    System.Reactive.Windows.Threading (3.1.1) - framework: net45
-      System.Reactive.Core (>= 3.1.1)
 
 GROUP BDD
 NUGET

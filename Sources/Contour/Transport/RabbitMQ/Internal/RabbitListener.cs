@@ -31,7 +31,7 @@
         /// <summary>
         /// Поставщик каналов.
         /// </summary>
-        private IChannelProvider channelProvider;
+        private readonly IChannelProvider channelProvider;
 
         /// <summary>
         /// Обработчики сообщений.
@@ -52,7 +52,7 @@
         /// <summary>
         /// Хранилище заголовков входящего сообщения.
         /// </summary>
-        private IIncomingMessageHeaderStorage messageHeaderStorage;
+        private readonly IIncomingMessageHeaderStorage messageHeaderStorage;
 
         /// <summary>
         /// Объект синхронизации.
