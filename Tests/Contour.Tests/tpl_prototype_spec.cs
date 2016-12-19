@@ -2,6 +2,9 @@
 using System.Threading.Tasks.Dataflow;
 using Contour.Flow;
 using Contour.Flow.Configuration;
+using FakeItEasy;
+using FluentAssertions;
+using NSpec;
 
 namespace Contour.Tests
 {
@@ -55,8 +58,9 @@ namespace Contour.Tests
             {
                 it["should configure incoming flow"] = () =>
                 {
-                    var flow = FlowFactory.Build()
-                        .On<Payload>("incoming_label");
+                    FlowFactory.Build().On<Payload>("incoming_label")
+                        .Should()
+                        .BeAssignableTo<IActionableFlow>();
                 };
 
                 it["should configure incoming flow buffering"] = () =>
@@ -83,14 +87,20 @@ namespace Contour.Tests
 
                 it["should configure incoming flow action scalability"] = () =>
                 {
+                    const int scale = 10;
+
                     var flow = FlowFactory.Build()
                         .On<Payload>("incoming_label")
-                        .Act<Payload, Payload>(p => p);
+                        .Act<Payload, Payload>(p => p, scale);
                 };
 
                 it["should configure incoming flow action buffering"] = () =>
                 {
-                    
+                    const int actionCapacity = 100;
+
+                    var flow = FlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act<Payload, Payload>(p => p, capacity: actionCapacity);
                 };
 
                 it["should configure direct response on incoming flow"] = () =>

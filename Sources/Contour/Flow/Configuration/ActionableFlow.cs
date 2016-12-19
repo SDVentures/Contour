@@ -28,20 +28,24 @@ namespace Contour.Flow.Configuration
             throw new NotImplementedException();
         }
 
-        public IActionableFlow Act<TInput, TOutput>(Func<TInput, TOutput> act, int scale = 1)
+        public IActionableFlow Act<TInput, TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1)
         {
             if (block is ISourceBlock<TInput>)
             {
                 var sourceBlock = (ISourceBlock<TInput>) block;
                 var actBlock = new TransformBlock<TInput, TOutput>(act,
-                    new ExecutionDataflowBlockOptions() {MaxDegreeOfParallelism = scale});
+                    new ExecutionDataflowBlockOptions()
+                    {
+                        BoundedCapacity = capacity,
+                        MaxDegreeOfParallelism = scale
+                    });
 
                 sourceBlock.LinkTo(actBlock);
                 var actFlow = new ActionableFlow(actBlock);
                 return actFlow;
             }
             else
-                throw new InvalidFlowTypeException();
+                throw new InvalidFlowTypeException($"The {block} block has invalid type and can't be used as a flow source");
         }
     }
 }

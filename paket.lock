@@ -2,6 +2,7 @@ NUGET
   remote: https://www.nuget.org/api/v2
     Common.Logging (2.1.2) - framework: >= net40
     FAKE (4.0.3) - framework: net40
+    FakeItEasy (2.3.2)
     FluentAssertions (2.1) - framework: >= net40
     FluentValidation (5.0.0.1) - framework: >= net40
     Microsoft.Tpl.Dataflow (4.5.24)
