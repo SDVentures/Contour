@@ -1,7 +1,7 @@
 namespace Contour.Flow.Configuration
 {
-    public interface IIncomingFlow
+    public interface IIncomingFlow: IFlow
     {
-        IActionableFlow On<TInput>(string label, int capacity = 1);
+        IActionableFlow<TOutput> On<TOutput>(string label, int capacity = 1);
     }
 }

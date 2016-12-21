@@ -44,8 +44,12 @@
     <Compile Include="DebuggerShim.cs">
       <Paket>True</Paket>
     </Compile>
+    <Compile Include="message_flow_handling_spec.cs" />
+    <Compile Include="NewPayload.cs" />
+    <Compile Include="Payload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="tpl_prototype_spec.cs" />
+    <Compile Include="message_flow_configuration_spec.cs" />
+    <Compile Include="rabbitmq_client_spec.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -67,27 +71,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
-      <ItemGroup>
-        <Reference Include="nunit.framework">
-          <HintPath>..\..\packages\bdd\NUnit\lib\nunit.framework.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="nunit.mocks">
-          <HintPath>..\..\packages\bdd\NUnit\lib\nunit.mocks.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="pnunit.framework">
-          <HintPath>..\..\packages\bdd\NUnit\lib\pnunit.framework.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
@@ -150,4 +133,16 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="nunit.framework">
+          <HintPath>..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\.paket\paket.targets" />
 </Project>

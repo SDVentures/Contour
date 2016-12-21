@@ -65,16 +65,19 @@
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
     <Compile Include="Flow\Configuration\ActionableFlow.cs" />
+    <Compile Include="Flow\Configuration\CachebleFlow.cs" />
+    <Compile Include="Flow\Configuration\FlowConfigurationException.cs" />
     <Compile Include="Flow\Configuration\IActionableFlow.cs" />
     <Compile Include="Flow\Configuration\ICachebleFlow.cs" />
+    <Compile Include="Flow\Configuration\IFlow.cs" />
     <Compile Include="Flow\Configuration\IIncomingFlow.cs" />
-    <Compile Include="Flow\Configuration\InvalidFlowTypeException.cs" />
+    <Compile Include="Flow\Configuration\IMessageFlowFactory.cs" />
     <Compile Include="Flow\Configuration\IOutgoingFlow.cs" />
-    <Compile Include="Flow\Configuration\FlowFactory.cs" />
     <Compile Include="Flow\Configuration\IMessageFlow.cs" />
-    <Compile Include="Flow\Blocks\DestinationBlock.cs" />
+    <Compile Include="Flow\Blocks\DestinationMessageBlock.cs" />
     <Compile Include="Flow\Configuration\MessageFlow.cs" />
-    <Compile Include="Flow\Blocks\SourceBlock.cs" />
+    <Compile Include="Flow\Blocks\SourceMessageBlock.cs" />
+    <Compile Include="Flow\Configuration\MessageFlowFactory.cs" />
     <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="IIncomingMessageHeaderStorage.cs" />
     <Compile Include="IKeyValueStorage.cs" />
@@ -296,7 +299,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="..\..\.paket\paket.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
@@ -370,4 +372,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\.paket\paket.targets" />
 </Project>

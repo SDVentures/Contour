@@ -15,8 +15,3 @@ NUGET
     NUnit.Runners (2.6.4) - framework: net40
     RabbitMQ.Client (3.3) - framework: >= net40
     RestSharp (105.2.3)
-
-GROUP BDD
-NUGET
-  remote: https://www.nuget.org/api/v2
-    NUnit (2.5.7.10213) - framework: net45

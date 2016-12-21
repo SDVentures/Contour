@@ -2,8 +2,8 @@
 
 namespace Contour.Flow.Configuration
 {
-    public interface IActionableFlow: IOutgoingFlow
+    public interface IActionableFlow<TInput> : IOutgoingFlow
     {
-        IActionableFlow Act<TInput, TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
+        IActionableFlow<TOutput> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
     }
 }

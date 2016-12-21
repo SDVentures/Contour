@@ -1,51 +1,53 @@
 using System;
-using System.Runtime.Remoting.Messaging;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
-    public class ActionableFlow : IActionableFlow
+    public class ActionableFlow<TInput> : IActionableFlow<TInput>
     {
-        private IDataflowBlock block;
+        private readonly ISourceBlock<TInput> sourceBlock;
 
-        public ActionableFlow(IDataflowBlock block)
+        public ActionableFlow(ISourceBlock<TInput> sourceBlock)
         {
-            this.block = block;
+            this.sourceBlock = sourceBlock;
         }
 
-        public ICachebleFlow Respond<TInput, TOutput>(Func<TInput, TOutput> responder)
+        public IActionableFlow<TOutput> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1)
+        {
+            var actBlock = new TransformBlock<TInput, TOutput>(act,
+                new ExecutionDataflowBlockOptions()
+                {
+                    BoundedCapacity = capacity,
+                    MaxDegreeOfParallelism = scale
+                });
+
+            sourceBlock.LinkTo(actBlock);
+            var actSourceBlock = (ISourceBlock<TOutput>) actBlock;
+            var actFlow = new ActionableFlow<TOutput>(actSourceBlock);
+            return actFlow;
+        }
+
+        public Task Completion => sourceBlock.Completion;
+        
+
+        public ICachebleFlow Respond<TOutput>(Func<TOutput> responder) //todo should support configuration here?
         {
             throw new NotImplementedException();
         }
 
-        public ICachebleFlow Respond()
+        public ICachebleFlow Respond() //todo should support configuration here?
         {
-            throw new NotImplementedException();
+            var bufferBlock = new BufferBlock<TInput>();
+            sourceBlock.LinkTo(bufferBlock);
+
+            var cachebleFlow = new CachebleFlow<TInput>(bufferBlock);
+            return cachebleFlow;
         }
 
         public IMessageFlow Forward(string label)
         {
             throw new NotImplementedException();
-        }
-
-        public IActionableFlow Act<TInput, TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1)
-        {
-            if (block is ISourceBlock<TInput>)
-            {
-                var sourceBlock = (ISourceBlock<TInput>) block;
-                var actBlock = new TransformBlock<TInput, TOutput>(act,
-                    new ExecutionDataflowBlockOptions()
-                    {
-                        BoundedCapacity = capacity,
-                        MaxDegreeOfParallelism = scale
-                    });
-
-                sourceBlock.LinkTo(actBlock);
-                var actFlow = new ActionableFlow(actBlock);
-                return actFlow;
-            }
-            else
-                throw new InvalidFlowTypeException($"The {block} block has invalid type and can't be used as a flow source");
         }
     }
 }

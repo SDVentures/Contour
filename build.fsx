@@ -53,7 +53,8 @@ Target "AssemblyInfo" (fun _ ->
           Attribute.InternalsVisibleTo "DynamicProxyGenAssembly2"
           Attribute.InternalsVisibleTo "Contour.Common.Tests"
           Attribute.InternalsVisibleTo "Contour.RabbitMq.Tests"
-          Attribute.InternalsVisibleTo "Contour.Configurator.Tests" ]
+          Attribute.InternalsVisibleTo "Contour.Configurator.Tests"
+          Attribute.InternalsVisibleTo "Contour.Tests" ]
     CreateCSharpAssemblyInfo <| "./Sources/" @@ project @@ "/Properties/AssemblyInfo.cs" <| info
 )
 
@@ -64,6 +65,18 @@ Target "Build" (fun () ->
 Target "RunUnitTests" (fun () ->
     tests |> MSBuildDebug "" "Rebuild" |> ignore
     !! "Tests/**/bin/Debug/*Common.Tests.dll"
+    |> NUnit (fun p ->
+           { p with
+                DisableShadowCopy = false
+                ToolPath = "./packages/NUnit.Runners/tools/"
+                Framework = "4.0"
+                OutputFile = "TestResults.xml"
+                TimeOut = TimeSpan.FromMinutes 20. })
+)
+
+Target "RunUnitSpecs" (fun () ->
+    tests |> MSBuildDebug "" "Rebuild" |> ignore
+    !! "Tests/**/bin/Debug/Contour.Tests.dll"
     |> NUnit (fun p ->
            { p with
                 DisableShadowCopy = false

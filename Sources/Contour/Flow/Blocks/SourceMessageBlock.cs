@@ -9,21 +9,24 @@ namespace Contour.Flow.Blocks
     /// Represents a dataflow message block which can be used as a source in flow processing pipelines
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    public class SourceBlock<TOutput> : MessageBlock, IReceivableSourceBlock<TOutput>
+    public class SourceMessageBlock<TOutput> : MessageBlock, IReceivableSourceBlock<TOutput>
     {
-        private readonly BufferBlock<TOutput> buffer; 
+        private readonly BufferBlock<TOutput> buffer;
+        private readonly ISourceBlock<TOutput> source;
 
         /// <summary>
-        /// Constructs a new instance of <see cref="SourceBlock{TOutput}"/>
+        /// Constructs a new instance of <see cref="SourceMessageBlock{TOutput}"/>
         /// </summary>
         /// <param name="label"></param>
         /// <param name="capacity"></param>
-        public SourceBlock(string label, int capacity = 1)
+        public SourceMessageBlock(string label, int capacity = 1)
         {
             buffer = new BufferBlock<TOutput>(new DataflowBlockOptions()
             {
                 BoundedCapacity = capacity
             });
+
+            source = buffer;
         }
 
         IDisposable ISourceBlock<TOutput>.LinkTo(ITargetBlock<TOutput> target, DataflowLinkOptions linkOptions)
@@ -40,7 +43,6 @@ namespace Contour.Flow.Blocks
         /// <returns></returns>
         TOutput ISourceBlock<TOutput>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target, out bool messageConsumed)
         {
-            ISourceBlock<TOutput> source = buffer;
             return source.ConsumeMessage(messageHeader, target, out messageConsumed);
         }
 
@@ -52,7 +54,6 @@ namespace Contour.Flow.Blocks
         /// <returns></returns>
         bool ISourceBlock<TOutput>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
         {
-            ISourceBlock<TOutput> source = buffer;
             return source.ReserveMessage(messageHeader, target);
         }
 
@@ -63,7 +64,6 @@ namespace Contour.Flow.Blocks
         /// <param name="target"></param>
         void ISourceBlock<TOutput>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
         {
-            ISourceBlock<TOutput> source = buffer;
             source.ReleaseReservation(messageHeader, target);
         }
 

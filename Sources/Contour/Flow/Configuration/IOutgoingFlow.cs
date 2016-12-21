@@ -2,13 +2,13 @@
 
 namespace Contour.Flow.Configuration
 {
-    public interface IOutgoingFlow
+    public interface IOutgoingFlow : IFlow
     {
         /// <summary>
         /// Response on a flow message based on the <paramref name="responder"/> value
         /// </summary>
         /// <returns></returns>
-        ICachebleFlow Respond<TInput, TOutput>(Func<TInput, TOutput> responder);
+        ICachebleFlow Respond<TOutput>(Func<TOutput> responder);
 
         /// <summary>
         /// Response on a flow message

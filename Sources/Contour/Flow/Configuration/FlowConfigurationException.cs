@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace Contour.Flow.Configuration
 {
     [Serializable]
-    public class InvalidFlowTypeException : Exception
+    public class FlowConfigurationException : Exception
     {
         //
         // For guidelines regarding the creation of new exception types, see
@@ -13,19 +13,19 @@ namespace Contour.Flow.Configuration
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
         //
 
-        public InvalidFlowTypeException()
+        public FlowConfigurationException()
         {
         }
 
-        public InvalidFlowTypeException(string message) : base(message)
+        public FlowConfigurationException(string message) : base(message)
         {
         }
 
-        public InvalidFlowTypeException(string message, Exception inner) : base(message, inner)
+        public FlowConfigurationException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected InvalidFlowTypeException(
+        protected FlowConfigurationException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {

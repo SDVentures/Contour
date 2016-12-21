@@ -1,13 +1,15 @@
 ﻿namespace Contour.Flow.Configuration
 {
-    /// <summary>
-    /// Builds an empty message flow
-    /// </summary>
-    public class FlowFactory
+    public class MessageFlowFactory : IMessageFlowFactory
     {
         public static IMessageFlow Build()
         {
             return new MessageFlow();
+        }
+
+        IMessageFlow IMessageFlowFactory.Build()
+        {
+            return Build();
         }
     }
 }

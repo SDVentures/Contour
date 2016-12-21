@@ -2,7 +2,7 @@ using System;
 
 namespace Contour.Flow.Configuration
 {
-    public interface ICachebleFlow
+    public interface ICachebleFlow: IFlow
     {
         /// <summary>
         /// Cache the flow redirected to the initiator for <paramref name="timeSpan"/>

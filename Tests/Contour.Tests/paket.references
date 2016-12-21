@@ -2,5 +2,4 @@ nspec
 FakeItEasy
 Microsoft.Tpl.Dataflow
 FluentAssertions
-group BDD
-NUnit
+nunit
