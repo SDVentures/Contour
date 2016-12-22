@@ -16,7 +16,7 @@ namespace Contour.Tests
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Should()
-                        .BeAssignableTo<IActionableFlow<Payload>>();
+                        .BeAssignableTo<IActingFlow<Payload>>();
                 };
 
                 it["should configure incoming flow buffering"] = () =>
@@ -25,7 +25,7 @@ namespace Contour.Tests
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label", capacity)
                         .Should()
-                        .BeAssignableTo<IActionableFlow<Payload>>();
+                        .BeAssignableTo<IActingFlow<Payload>>();
                 };
 
                 it["should configure incoming flow single action"] = () =>
@@ -65,31 +65,29 @@ namespace Contour.Tests
                 {
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
-                        .Respond();
+                        .Respond<Payload>();
                 };
 
                 it["should configure direct response on incoming flow"] = () =>
-                {
-                    MessageFlowFactory.Build()
-                        .On<Payload>("incoming_label")
-                        .Respond(()=> true);
-                };
+                { };
 
                 it["should configure action response on incoming flow"] = () =>
                 {
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Respond();
+                        .Respond<Payload>();
                 };
 
                 it["should configure response caching"] = () =>
                 {
+                    var duration = TimeSpan.FromSeconds(10);
+
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Respond()
-                        .CacheFor(TimeSpan.FromMinutes(1));
+                        .Cache<NewPayload>(duration)
+                        .Respond();
                 };
 
                 it["should configure direct forward of incoming flow"] = () =>

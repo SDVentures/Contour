@@ -4,21 +4,16 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
-    public class CachebleFlow<TInput> : ICachebleFlow
+    public class CachingFlow<TInput> : ICachingFlow<TInput>
     {
         private readonly ISourceBlock<TInput> sourceBlock;
 
-        public CachebleFlow(ISourceBlock<TInput> sourceBlock)
+        public CachingFlow(ISourceBlock<TInput> sourceBlock)
         {
             this.sourceBlock = sourceBlock;
         }
 
-        public IMessageFlow CacheFor(TimeSpan timeSpan)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IMessageFlow NoCache()
+        public IOutgoingFlow<TInput> Respond()
         {
             throw new NotImplementedException();
         }

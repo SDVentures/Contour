@@ -10,6 +10,8 @@ namespace Contour.Flow.Configuration
     {
         private IDataflowBlock block;
 
+        public Task Completion => block.Completion;
+
         public MessageFlow()
         {
         }
@@ -19,14 +21,12 @@ namespace Contour.Flow.Configuration
             this.block = block;
         }
 
-        public Task Completion => block.Completion;
-
-        public IActionableFlow<TInput> On<TInput>(string label, int capacity)
+        public IActingFlow<TInput> On<TInput>(string label, int capacity)
         {
             if (block == null)
                 block = new SourceMessageBlock<TInput>(label, capacity);
 
-            var flow = new ActionableFlow<TInput>((ISourceBlock<TInput>) block); //todo validate casting
+            var flow = new ActingFlow<TInput>((ISourceBlock<TInput>) block); //todo validate casting
             return flow;
         }
 

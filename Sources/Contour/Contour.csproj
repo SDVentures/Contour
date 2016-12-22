@@ -64,11 +64,12 @@
     <Compile Include="Filters\SendingExchangeFilter.cs" />
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
-    <Compile Include="Flow\Configuration\ActionableFlow.cs" />
-    <Compile Include="Flow\Configuration\CachebleFlow.cs" />
+    <Compile Include="Flow\Blocks\CachingBlock.cs" />
+    <Compile Include="Flow\Configuration\ActingFlow.cs" />
+    <Compile Include="Flow\Configuration\CachingFlow.cs" />
     <Compile Include="Flow\Configuration\FlowConfigurationException.cs" />
-    <Compile Include="Flow\Configuration\IActionableFlow.cs" />
-    <Compile Include="Flow\Configuration\ICachebleFlow.cs" />
+    <Compile Include="Flow\Configuration\IActingFlow.cs" />
+    <Compile Include="Flow\Configuration\ICachingFlow.cs" />
     <Compile Include="Flow\Configuration\IFlow.cs" />
     <Compile Include="Flow\Configuration\IIncomingFlow.cs" />
     <Compile Include="Flow\Configuration\IMessageFlowFactory.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Flow\Configuration\MessageFlow.cs" />
     <Compile Include="Flow\Blocks\SourceMessageBlock.cs" />
     <Compile Include="Flow\Configuration\MessageFlowFactory.cs" />
+    <Compile Include="Flow\Configuration\OutgoingFlow.cs" />
     <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="IIncomingMessageHeaderStorage.cs" />
     <Compile Include="IKeyValueStorage.cs" />
