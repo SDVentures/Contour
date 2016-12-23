@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Contour.Flow.Blocks;
 
@@ -8,8 +7,6 @@ namespace Contour.Flow.Configuration
     public class ActingFlow<TInput> : IActingFlow<TInput>
     {
         private readonly ISourceBlock<TInput> sourceBlock;
-
-        public Task Completion => sourceBlock.Completion;
 
         public ActingFlow(ISourceBlock<TInput> sourceBlock)
         {
@@ -30,25 +27,22 @@ namespace Contour.Flow.Configuration
             return actFlow;
         }
 
-        public IOutgoingFlow<TOutput> Respond<TOutput>()
+        public IOutgoingFlow<TInput> Respond()
         {
-            var destinationBlock = new DestinationMessageBlock<TOutput>();
-            
-            // todo add type validation here as the cast below is only possible after Act is called
-            var propagatorBlock = (IPropagatorBlock<TInput, TOutput>) sourceBlock;
-            propagatorBlock.LinkTo(destinationBlock);
+            var destinationBlock = new DestinationMessageBlock<TInput>();
+            sourceBlock.LinkTo(destinationBlock);
 
-            var outgoingFlow = new OutgoingFlow<TOutput>(destinationBlock);
+            var outgoingFlow = new OutgoingFlow<TInput>(destinationBlock);
             return outgoingFlow;
         }
 
-        public ICachingFlow<TOutput> Cache<TOutput>(TimeSpan duration)
+        public ICachingFlow<TInput> Cache(TimeSpan duration)
         {
-            var cachingBlock = new CachingBlock<TInput, TOutput>(duration);
+            var cachingBlock = new CachingBlock<TInput>(duration);
             sourceBlock.LinkTo(cachingBlock);
 
-            var cachebleFlow = new CachingFlow<TOutput>(cachingBlock);
-            return cachebleFlow;
+            var cachingFlow = new CachingFlow<TInput>(cachingBlock);
+            return cachingFlow;
         }
 
         public IOutgoingFlow<TInput> Forward(string label)

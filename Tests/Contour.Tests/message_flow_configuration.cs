@@ -1,33 +1,34 @@
 ﻿using System;
 using Contour.Flow.Configuration;
-using FluentAssertions;
+// ReSharper disable InconsistentNaming
 
 namespace Contour.Tests
 {
-    // ReSharper disable once InconsistentNaming
-    public class message_flow_configuration_spec: NSpec
+    public class message_flow_configuration
     {
-        public void describe_message_flow_configuration()
+        public class incoming_message_flow : NSpec
         {
-            context["should provide fluent configuration options"] = () =>
+            public void describe_incoming_message_flow()
             {
                 it["should configure incoming flow"] = () =>
                 {
                     MessageFlowFactory.Build()
-                        .On<Payload>("incoming_label")
-                        .Should()
-                        .BeAssignableTo<IActingFlow<Payload>>();
+                        .On<Payload>("incoming_label");
                 };
 
                 it["should configure incoming flow buffering"] = () =>
                 {
                     const int capacity = 10;
                     MessageFlowFactory.Build()
-                        .On<Payload>("incoming_label", capacity)
-                        .Should()
-                        .BeAssignableTo<IActingFlow<Payload>>();
+                        .On<Payload>("incoming_label", capacity);
                 };
+            }
+        }
 
+        public class message_flow_actions : NSpec
+        {
+            public void describe_message_flow_actions()
+            {
                 it["should configure incoming flow single action"] = () =>
                 {
                     MessageFlowFactory.Build()
@@ -42,6 +43,15 @@ namespace Contour.Tests
                         .Act(p => p)
                         .Act(p2 => p2);
                 };
+
+                it["should configure incoming flow multiple type actions"] = () =>
+                {
+                    MessageFlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Act(p2 => new Payload());
+                };
+
 
                 it["should configure incoming flow action scalability"] = () =>
                 {
@@ -58,35 +68,27 @@ namespace Contour.Tests
 
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
-                        .Act(p => p, capacity: actionCapacity);
+                        .Act(p => p, actionCapacity);
                 };
+            }
+        }
 
-                it["should configure direct echo response on incoming flow"] = () =>
+        public class message_flow_propagation: NSpec
+        {
+            public void describe_message_flow_propagation()
+            {
+                it["should configure echo response on incoming flow"] = () =>
                 {
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
-                        .Respond<Payload>();
+                        .Respond();
                 };
-
-                it["should configure direct response on incoming flow"] = () =>
-                { };
 
                 it["should configure action response on incoming flow"] = () =>
                 {
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Respond<Payload>();
-                };
-
-                it["should configure response caching"] = () =>
-                {
-                    var duration = TimeSpan.FromSeconds(10);
-
-                    MessageFlowFactory.Build()
-                        .On<Payload>("incoming_label")
-                        .Act(p => new NewPayload())
-                        .Cache<NewPayload>(duration)
                         .Respond();
                 };
 
@@ -101,10 +103,27 @@ namespace Contour.Tests
                 {
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
-                        .Act(p => p)
+                        .Act(p => new NewPayload())
                         .Forward("outgoing_label");
                 };
-            };
+            }
+        }
+
+        public class message_flow_caching : NSpec
+        {
+            public void describe_message_flow_caching()
+            {
+                it["should configure response caching"] = () =>
+                {
+                    var duration = TimeSpan.FromSeconds(10);
+
+                    MessageFlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Cache(duration)
+                        .Respond();
+                };
+            }
         }
     }
 }

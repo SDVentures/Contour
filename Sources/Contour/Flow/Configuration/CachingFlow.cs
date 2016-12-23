@@ -17,7 +17,5 @@ namespace Contour.Flow.Configuration
         {
             throw new NotImplementedException();
         }
-
-        public Task Completion => sourceBlock.Completion;
     }
 }

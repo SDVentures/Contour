@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
@@ -8,11 +6,9 @@ namespace Contour.Flow.Configuration
     {
         private readonly ITargetBlock<TInput> targetBlock;
 
-        public OutgoingFlow(ITargetBlock<TInput> dataflowBlock)
+        public OutgoingFlow(ITargetBlock<TInput> targetBlock)
         {
-            throw new NotImplementedException();
+            this.targetBlock = targetBlock;
         }
-
-        public Task Completion { get; }
     }
 }

@@ -76,9 +76,13 @@
     <Compile Include="Flow\Configuration\IOutgoingFlow.cs" />
     <Compile Include="Flow\Configuration\IMessageFlow.cs" />
     <Compile Include="Flow\Blocks\DestinationMessageBlock.cs" />
+    <Compile Include="Flow\Configuration\ISourceProvider.cs" />
+    <Compile Include="Flow\Configuration\ITargetProvider.cs" />
     <Compile Include="Flow\Configuration\MessageFlow.cs" />
     <Compile Include="Flow\Blocks\SourceMessageBlock.cs" />
     <Compile Include="Flow\Configuration\MessageFlowFactory.cs" />
+    <Compile Include="Flow\Configuration\MessageSourceProvider.cs" />
+    <Compile Include="Flow\Configuration\MessageTargetProvider.cs" />
     <Compile Include="Flow\Configuration\OutgoingFlow.cs" />
     <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="IIncomingMessageHeaderStorage.cs" />

@@ -3,7 +3,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Blocks
 {
-    public class CachingBlock<TInput, TOutput> : MessageBlock, IPropagatorBlock<TInput, TOutput>
+    public class CachingBlock<TInput> : MessageBlock, IPropagatorBlock<TInput, TInput>
     {
         public CachingBlock(TimeSpan duration)
         {
@@ -15,22 +15,22 @@ namespace Contour.Flow.Blocks
             throw new NotImplementedException();
         }
 
-        public IDisposable LinkTo(ITargetBlock<TOutput> target, DataflowLinkOptions linkOptions)
+        public IDisposable LinkTo(ITargetBlock<TInput> target, DataflowLinkOptions linkOptions)
         {
             throw new NotImplementedException();
         }
 
-        public TOutput ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target, out bool messageConsumed)
+        public TInput ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<TInput> target, out bool messageConsumed)
         {
             throw new NotImplementedException();
         }
 
-        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
+        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<TInput> target)
         {
             throw new NotImplementedException();
         }
 
-        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
+        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<TInput> target)
         {
             throw new NotImplementedException();
         }

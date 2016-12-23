@@ -44,11 +44,11 @@
     <Compile Include="DebuggerShim.cs">
       <Paket>True</Paket>
     </Compile>
-    <Compile Include="message_flow_handling_spec.cs" />
+    <Compile Include="message_flow_handling.cs" />
     <Compile Include="NewPayload.cs" />
     <Compile Include="Payload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="message_flow_configuration_spec.cs" />
+    <Compile Include="message_flow_configuration.cs" />
     <Compile Include="rabbitmq_client_spec.cs" />
   </ItemGroup>
   <ItemGroup>

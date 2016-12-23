@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Contour.Flow.Blocks;
 
@@ -9,8 +7,6 @@ namespace Contour.Flow.Configuration
     public class MessageFlow : IMessageFlow
     {
         private IDataflowBlock block;
-
-        public Task Completion => block.Completion;
 
         public MessageFlow()
         {

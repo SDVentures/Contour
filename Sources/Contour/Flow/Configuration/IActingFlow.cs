@@ -10,11 +10,11 @@ namespace Contour.Flow.Configuration
         /// Directs the flow to the destination specified by the incoming message.
         /// </summary>
         /// <returns></returns>
-        IOutgoingFlow<TOutput> Respond<TOutput>();
+        IOutgoingFlow<TInput> Respond();
 
-        ICachingFlow<TOutput> Cache<TOutput>(TimeSpan duration);
+        ICachingFlow<TInput> Cache(TimeSpan duration);
 
-            /// <summary>
+        /// <summary>
         /// Forwards the flow with the specified <paramref name="label"/>
         /// </summary>
         /// <returns></returns>

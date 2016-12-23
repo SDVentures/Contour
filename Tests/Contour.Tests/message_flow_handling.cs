@@ -7,7 +7,7 @@ using FakeItEasy;
 namespace Contour.Tests
 {
     // ReSharper disable once InconsistentNaming
-    public class message_flow_handling_spec : NSpec
+    public class message_flow_handling : NSpec
     {
         public void describe_flow()
         {
@@ -17,7 +17,6 @@ namespace Contour.Tests
                 var factory = GetMessageFlowFactory(out buffer);
 
                 factory.Build().On<Payload>("incoming_label");
-
                 buffer.Post(new Payload());
             };
 
@@ -35,7 +34,7 @@ namespace Contour.Tests
                 A.CallTo(action).Invokes(() => tcs.SetResult(true));
                 buffer.Post(new Payload());
 
-                tcs.Task.Wait(Minute());
+                tcs.Task.Wait(AMinute());
                 A.CallTo(action).MustHaveHappened();
             };
 
@@ -60,21 +59,18 @@ namespace Contour.Tests
 
                 buffer.Post(new Payload());
 
-                tcs1.Task.Wait(Minute());
+                tcs1.Task.Wait(AMinute());
                 A.CallTo(action1).MustHaveHappened();
 
-                tcs2.Task.Wait(Minute());
+                tcs2.Task.Wait(AMinute());
                 A.CallTo(action2).MustHaveHappened();
             };
 
-            it["should respond with echo directly"] = () =>
+            it["should respond with echo"] = () =>
             {
-                //BufferBlock<Payload> buffer;
-                //var factory = GetMessageFlowFactory(out buffer);
-
-                //var flow = factory.Build()
-                //    .On<Payload>("incoming_label")
-                //    .Respond<Payload>();
+                BufferBlock<Payload> buffer;
+                var factory = GetMessageFlowFactory(out buffer);
+                
             };
         }
 
@@ -91,7 +87,7 @@ namespace Contour.Tests
             return factory;
         }
 
-        private static TimeSpan Minute()
+        private static TimeSpan AMinute()
         {
             return TimeSpan.FromMinutes(1);
         }
