@@ -2,13 +2,19 @@ using System;
 
 namespace Contour.Flow.Configuration
 {
-    public interface ICachingFlow<TInput>: IFlow
+    public interface ICachingFlow<out TInput>: IFlow
     {
         /// <summary>
-        /// Cache the flow directed to the initiator for <paramref name="timeSpan"/>
+        /// Direct the flow using the routing provided by the flow source
         /// </summary>
-        /// <param name="timeSpan"></param>
         /// <returns></returns>
         IOutgoingFlow<TInput> Respond();
+
+        /// <summary>
+        /// Direct the flow forward using <paramref name="label"/> as the destination
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        IOutgoingFlow<TInput> Forward(string label);
     }
 }

@@ -17,5 +17,10 @@ namespace Contour.Flow.Configuration
         {
             throw new NotImplementedException();
         }
+
+        public IOutgoingFlow<TInput> Forward(string label)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

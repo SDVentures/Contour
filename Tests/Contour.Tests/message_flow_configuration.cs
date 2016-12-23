@@ -70,6 +70,11 @@ namespace Contour.Tests
                         .On<Payload>("incoming_label")
                         .Act(p => p, actionCapacity);
                 };
+
+                it["should configure action multiple outgoing flows"] = () =>
+                {
+                    //todo an action should be able to emit messages in-flight while not yet finished
+                };
             }
         }
 
@@ -84,14 +89,6 @@ namespace Contour.Tests
                         .Respond();
                 };
 
-                it["should configure action response on incoming flow"] = () =>
-                {
-                    MessageFlowFactory.Build()
-                        .On<Payload>("incoming_label")
-                        .Act(p => new NewPayload())
-                        .Respond();
-                };
-
                 it["should configure direct forward of incoming flow"] = () =>
                 {
                     MessageFlowFactory.Build()
@@ -99,8 +96,21 @@ namespace Contour.Tests
                         .Forward("outgoing_label");
                 };
 
-                it["should configure action result forward of incoming flow"] = () =>
+                it["should configure action response on incoming flow"] = () =>
                 {
+                    MessageFlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Respond();
+                };
+                
+                it["should configure action result forwarding"] = () =>
+                {
+                    MessageFlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Forward("outgoing_label");
+
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
@@ -113,7 +123,7 @@ namespace Contour.Tests
         {
             public void describe_message_flow_caching()
             {
-                it["should configure response caching"] = () =>
+                it["should configure action result caching"] = () =>
                 {
                     var duration = TimeSpan.FromSeconds(10);
 
@@ -122,6 +132,17 @@ namespace Contour.Tests
                         .Act(p => new NewPayload())
                         .Cache(duration)
                         .Respond();
+                };
+
+                it["should configure action result forwarding"] = () =>
+                {
+                    var duration = TimeSpan.FromSeconds(10);
+
+                    MessageFlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Cache(duration)
+                        .Forward("outgoing_label");
                 };
             }
         }
