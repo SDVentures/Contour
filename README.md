@@ -74,7 +74,7 @@ Default value for TTL - 21 days, for maximum size of the fault queue - no limits
 All incoming messages are declared in the 'incoming' collection section. Each message label declares with an individual element 'on'. 'key' and 'label' attributes are mandatory.
 For each incoming message topology elements are created if they don't exist:
  - exchange with name equal to label attribute value;
- - queue with name "*<endpoint name>.<label>.*" 
+ - queue with name "*&lt;endpoint name>.&lt;label>*" 
  - binding from exchange to queue.
 
 Additionally, you can set the parameters (as attributes of the element 'on'):
@@ -152,9 +152,12 @@ By default, uses the value of 50 messages, which will be read by one access. We 
 
 ### Declaration of outgoing messages
 
-All outgoing messages declare in the 'outgoing' collection. Each message label declares with an individual tag 'route'. 'Key' and 'label' attributes are mandatory.
+All outgoing messages are declared in the 'outgoing' collection section. Each message label is declared with an individual tag 'route'. 'key' and 'label' attributes are mandatory.
 
-Key is a label alias and allows you not to mention concrete label of the message. For referring the label from the application, you must specify the alias adding a colon (:) as a prefix.
+Key is a label alias, which can be used from the code, and allows you to separate concrete label (exchange in RabbitMQ) of the message from its representation in code. 
+Outgoing route may be referenced from the application 
+-	by key, adding a colon (:) as a prefix. 
+-	directly by label.
 
 Additionally, you can set the parameters (as attributes of the 'route' element):
 
@@ -163,7 +166,7 @@ Additionally, you can set the parameters (as attributes of the 'route' element):
  - __ttl__ – message lifetime (unlimited, if the value is not specified);
  - __timeout__ – response time for requests (default value – 30 seconds).
 
-To support requests, you must declare a subscription point for response messages waiting. At the moment you can declare only default subscription point.
+To support request/reply pattern, you must declare a subscription point for awaiting response messages. At the moment you can declare only default subscription point. For each request / reply route unique incoming queue per application is created.
 ```xml
 <outgoing>
     <route key="message" label="message.label" persist="true" ttl="00:01:00" />
@@ -175,9 +178,9 @@ To support requests, you must declare a subscription point for response messages
 
 ### Sender’s dynamic routing
 
-On the sender’s side you can turn on dynamic routing. It allows you to send messages with label, which wasn’t configured during the endpoint creation.
+On the sender’s side you can turn on dynamic routing. It allows you to send messages with labels, which were not configured during the endpoint creation.
 
-Dynamic routing can be useful in cases, when you don’t have enough information about all labels at the moment of the endpoint creation.
+Dynamic routing can be useful in cases, when you don’t have enough information about all the labels at the moment of endpoint creation.
 ```xml
 <endpoints>
     <endpoint name="point1" connectionString="amqp://localhost:5672/">
@@ -188,16 +191,16 @@ Dynamic routing can be useful in cases, when you don’t have enough information
 
 ### Applying configuration
 
-To use configurator, you need to create an instance of the [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) class.
+[AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) class is used for applying xml-configuration.
 
-Class constructor can take an object, implementing [IDependencyResolver](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/IDependencyResolver.cs) interface, which is uses for getting bus client dependencies. It can be used for searching message handlers or specifying life cycle handler. If concrete client configuration is not required to specify external dependencies, this parameter can be omitted. For simplifying, instead of implementing a particular class, you can use the delegate of [DependencyResolverFunc](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/LambdaDependencyResolver.cs) type.
+Class constructor can take an object, implementing [IDependencyResolver](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/IDependencyResolver.cs) interface, which is used for getting bus client dependencies. It is used for searching message handlers, validators or specifying life cycle handler. If concrete client configuration doesn’t require external dependencies, this parameter can be omitted. For simplicity, instead of implementing a particular class, you can pass to the constructor  delegate of [DependencyResolverFunc](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/LambdaDependencyResolver.cs) type.
 
-For example, a typical creation of object [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) using Ninject for obtaining handlers looks as follows: 
+For example, typical creation of [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) object using Ninject container: 
 ```csharp
 var configurator = new AppConfigConfigurator((name, type) => kernel.Get(type, name));
 ```
 
-To apply configuration, method Configure is used, which must be invoked during the bus instance creation.
+To apply configuration ‘Configure’ method is used, which must be invoked during the bus instance creation.
 ```csharp
 var bus = new BusFactory().Create(cfg =>
 {
@@ -205,7 +208,7 @@ var bus = new BusFactory().Create(cfg =>
 });
 ```
 
-The advantage of this method, is that you can combine configuration via code and configuration file.
+Using this method you can combine configuration via code and configuration file.
 
 If endpoints names are unknown (or should not be known) at compile time, they can be accessed through the _Endpoints_ property. Example of creating and configuring all bus clients:
 
@@ -219,9 +222,9 @@ var busInstances = configurator
 
 ## Configuring via C# code
 
-Endpoint with all its parameters (except lifestyle) can be configured via code as well.
+Endpoint can be completely configured via code except incoming message handler lifestyle.
 
-To use dynamic routing, it is necessary to set message label to the value _MessageLabel.Any_.
+To use dynamic routing set message label to  _MessageLabel.Any_ value.
 
 ```csharp
 IBus bus1 = new BusFactory().Create(
@@ -261,25 +264,26 @@ IBus bus2 = new BusFactory().Create(
 
 ```
 
-## Contour headers
+## Contour message headers
+List of used headers is represented in table below.
 
-Often interaction comprises of several components coming one by one in a chain, and a need to track message passing through this chain appears. For this reason, some incoming messages headers are copied in the outgoing messages.
+For message tracking in chain of  application components interaction through service bus several incoming messages headers are copied in the outgoing messages.
 
 Header field name | Description | Copying
 ----------------- | ----------- |--------
-x-correlation-id | The correlation identifier is needed to combine a set of messages in one group. For example, it allows you to match reply message with the request | Yes
+x-correlation-id | The correlation identifier is used to track a set of messages as a single group. For example, it allows you to match reply message with the request or track messages triggered by another incoming messages. | Yes
 x-expires | Header, which contains the rules of data deterioration. For example: x-expires: at 2016-04-01T22:00:33Z or x-expires: in 100 | No
 x-message-type | Message label with which it was sent. Using this header is not recommended | No
-x-persist | Need this message be persistent (saved on disk) or not | No
-x-reply-route | Reply message address to the request. For example, x-reply-route: direct:///amq.gen-n9DsUj1qm4vgCq0MHHPoBQ | No
-x-timeout | Response timeout to the request | No
+x-persist | Marks message persistance (saved on disk) or not | No
+x-reply-route | Reply message address for the request. For example, x-reply-route: direct:///amq.gen-n9DsUj1qm4vgCq0MHHPoBQ | No
+x-timeout | Response timeout for the request | No
 x-ttl | Message TTL | No
-x-breadcrumbs | List of all endpoints, through which message has passed, separated by semicolon (;) | Yes (adding new value)
+x-breadcrumbs | List of all endpoints, through which message has passed, separated by semicolon (;) | Yes (appending new value)
 x-original-message-id | Message identifier, that started the messages exchange | Yes
 
 ## Channels and pipes in Contour
 
-In Contour you can organize message processing as a set of sequential atomic message transformations based on a Pipes and Filters template.
+In Contour you can organize message processing as a set of sequential atomic message transformations based on Pipes and Filters template.
 
 For example, you need to forward messages, that has field 'Tick' and its value is odd. Other messages should be filtered. It can be done with the following set of filters:
 
@@ -408,7 +412,7 @@ public WireTap(MessageLabel messageLabel)
 
 ### Features
 
-1. All outgoing messages of the last operation are published in the bus.
+1. All outgoing messages of the last operation are published to the bus.
 2. Synchronous messages processing.
 3. Broker is not used to transmit messages between operators.
 4. Operations that produce multiple messages per message, publish them in the same outgoing channel.
@@ -417,8 +421,8 @@ public WireTap(MessageLabel messageLabel)
 ## Build the project
 
  - clone the repository
- - run "build.cmd" to make sure all unit tests are still passing.
- - run "build.cmd RunAllTests" to make sure all integration and unit tests are still passing. In this case you have to configure access to the RabbitMQ broker.
+ - run "build.cmd" to make sure all unit tests are passing.
+ - run "build.cmd RunAllTests" to make sure all integration and unit tests are passing. In this case you have to configure access to the RabbitMQ broker.
 
 ## Library license
 
