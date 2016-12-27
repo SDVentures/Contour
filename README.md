@@ -7,7 +7,9 @@
 
 ## About
 
-Contour is the message bus implementation which provides communication between .NET services via different transport protocols and builds all the topology (exchanges, queues with all properties set up) for you. At this moment it supports only AMQP/RabbitMQ.
+Contour is the message bus implementation which provides communication between .NET services via different transport protocols.
+
+**Contour builds all the topology (exchanges, queues with all properties set up) for you.** At this moment it supports only AMQP/RabbitMQ.
 
 ## Configuring via xml-file
 
