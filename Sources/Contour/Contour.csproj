@@ -65,10 +65,13 @@
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
     <Compile Include="Flow\Blocks\CachingBlock.cs" />
+    <Compile Include="Flow\Blocks\ICachingBlock.cs" />
     <Compile Include="Flow\Configuration\ActingFlow.cs" />
+    <Compile Include="Flow\Configuration\CachePolicy.cs" />
     <Compile Include="Flow\Configuration\CachingFlow.cs" />
     <Compile Include="Flow\Configuration\FlowConfigurationException.cs" />
     <Compile Include="Flow\Configuration\IActingFlow.cs" />
+    <Compile Include="Flow\Configuration\ICachePolicy.cs" />
     <Compile Include="Flow\Configuration\ICachingFlow.cs" />
     <Compile Include="Flow\Configuration\IFlow.cs" />
     <Compile Include="Flow\Configuration\IIncomingFlow.cs" />

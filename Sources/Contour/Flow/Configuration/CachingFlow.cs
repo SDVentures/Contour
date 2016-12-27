@@ -1,24 +1,23 @@
 using System;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
-    public class CachingFlow<TInput> : ICachingFlow<TInput>
+    public class CachingFlow<TOutput> : ICachingFlow<TOutput>
     {
-        private readonly ISourceBlock<TInput> sourceBlock;
+        private IDataflowBlock sourceBlock;
 
-        public CachingFlow(ISourceBlock<TInput> sourceBlock)
+        public CachingFlow(IDataflowBlock sourceBlock)
         {
             this.sourceBlock = sourceBlock;
         }
 
-        public IOutgoingFlow<TInput> Respond()
+        public IOutgoingFlow<TOutput> Respond()
         {
             throw new NotImplementedException();
         }
 
-        public IOutgoingFlow<TInput> Forward(string label)
+        public IOutgoingFlow<TOutput> Forward(string label)
         {
             throw new NotImplementedException();
         }

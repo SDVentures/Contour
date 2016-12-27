@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Contour.Flow.Configuration;
@@ -44,12 +46,12 @@ namespace Contour.Tests
                 var factory = GetMessageFlowFactory(out buffer);
 
                 var action1 = A.Fake<Func<Payload, Payload>>();
-                var action2 = A.Fake<Func<Payload, Payload>>();
+                var action2 = A.Fake<Func<Tuple<Payload, Payload>>>();
 
                 factory.Build()
                     .On<Payload>("incoming_label")
                     .Act(action1)
-                    .Act(action2);
+                    .Act(tuple => action2);
 
                 var tcs1 = new TaskCompletionSource<bool>();
                 var tcs2 = new TaskCompletionSource<bool>();
@@ -70,7 +72,7 @@ namespace Contour.Tests
             {
                 BufferBlock<Payload> buffer;
                 var factory = GetMessageFlowFactory(out buffer);
-                
+                //...
             };
         }
 

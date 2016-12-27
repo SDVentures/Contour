@@ -125,23 +125,28 @@ namespace Contour.Tests
             {
                 it["should configure action result caching"] = () =>
                 {
-                    var duration = TimeSpan.FromSeconds(10);
+                    
+                };
+
+                it["should configure action result caching and responding"] = () =>
+                {
+                    var cachePolicy  = new CachePolicy(TimeSpan.FromSeconds(10));
 
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Cache(duration)
+                        .Cache<Payload, NewPayload>(cachePolicy)
                         .Respond();
                 };
 
                 it["should configure action result forwarding"] = () =>
                 {
-                    var duration = TimeSpan.FromSeconds(10);
+                    var cachePolicy = new CachePolicy(TimeSpan.FromSeconds(10));
 
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Cache(duration)
+                        .Cache<Payload, NewPayload>(cachePolicy)
                         .Forward("outgoing_label");
                 };
             }
