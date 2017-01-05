@@ -459,7 +459,9 @@
         {
             object payload = this.Bus.PayloadConverter.ToObject(delivery.Args.Body, type);
 
-            return new Message(delivery.Label, delivery.Headers, payload);
+            MessageProperties properties = new MessageProperties { Timestamp = DateTimeEx.FromUnixTimestamp(delivery.Properties.Timestamp.UnixTime) };
+
+            return new Message(delivery.Label, delivery.Headers, payload, properties);
         }
 
         #endregion

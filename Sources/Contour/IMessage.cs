@@ -23,6 +23,11 @@
         object Payload { get; }
 
         /// <summary>
+        /// Message properties.
+        /// </summary>
+        MessageProperties Properties { get; }
+
+        /// <summary>
         /// Создает копию сообщения с указанной меткой.
         /// </summary>
         /// <param name="label">
