@@ -7,12 +7,13 @@
 
 ## About
 
-Contour is the message bus implementation which provide communication between .NET services via different transport protocols.
-At this moment it supports only AMQP/RabbitMQ.
+Contour is the message bus implementation which provides communication between .NET services via different transport protocols.
+
+**Contour builds all the topology (exchanges, queues with all properties set up) for you.** At this moment it supports only AMQP/RabbitMQ.
 
 ## Configuring via xml-file
 
-### Connection
+### Configuration
 
 Configuration can be set in .config file, declaring the 'endpoints' section inside the 'serviceBus' group:
 
@@ -24,7 +25,7 @@ Configuration can be set in .config file, declaring the 'endpoints' section insi
 
 ### Endpoints declaration
 
-Service bus works with the endpoints at which messages are sent. For example, if application has two endpoints, then for service bus it is interaction between different participants. And vice versa. If two different applications use the same endpoints, then it is one interaction participant for service bus (when default routing is used)
+Each endpoint represents separate service bus instance using which messages are sent and / or received. For example, if application has two endpoints, then from service bus point of view it looks like two different participants (producer or / and consumer). And vice versa, if two different applications use the same endpoint name, then it’s like one interaction participant for service bus (when default routing is used), so you can create concurrent consumers.
 
 Endpoints configuration is defined in 'serviceBus' section:
 ```xml
@@ -40,7 +41,7 @@ Endpoints configuration is defined in 'serviceBus' section:
 </serviceBus>
 ```
 
-It is possible to define the configuration for multiple endpoints. Each endpoint has mandatory parameters, unique name and connection string to the broker.
+It is possible to define the configuration for multiple endpoints. Each endpoint has mandatory parameters: unique name and connection string to the broker.
 
 Additionally, we can pass component name of [IBusLifecycleHandler](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/IBusLifecycleHandler.cs) type in the attribute 'lifecycleHandler', which will be invoked when the state of service bus client is changed. For example, when it starts or stops.
 
@@ -55,7 +56,9 @@ Additionally, we can pass component name of [IBusLifecycleHandler](https://githu
 ```
 It may be helpful, if your component needs to know when service bus was started or stopped.
 
-Every message, that failed to process, falls into fault queue. Fault queue has the same name as the endpoint with addition '.Fault' postfix. To control TTL of fault messages in such queues set 'faultQueueTtl' attribute. To limit maximum number of messages - use 'faultQueueLimit' attribute. If number of fault messages reaches this limit, old messages will be substituted.
+Every message, that failed to be processed, is added to the fault queue. Fault queue has the same name as the endpoint with additional '.Fault' postfix.
+**faultQueueTtl** attribute controls TTL of fault messages in such queues. 
+**faultQueueLimit** attribute limits maximum number of messages. If number of fault messages reaches this limit, old messages will be substituted.
 
 ```xml
 <serviceBus>
@@ -67,6 +70,33 @@ Every message, that failed to process, falls into fault queue. Fault queue has t
 </serviceBus>
 ```
 Default value for TTL - 21 days, for maximum size of the fault queue - no limits.
+
+### Declaration of incoming messages
+
+All incoming messages are declared in the 'incoming' collection section. Each message label declares with an individual element 'on'. 'key' and 'label' attributes are mandatory.
+For each incoming message topology elements are created if they don't exist:
+ - exchange with name equal to label attribute value;
+ - queue with name "*&lt;endpoint name>.&lt;label>*" 
+ - binding from exchange to queue.
+
+Additionally, you can set the parameters (as attributes of the element 'on'):
+ - __requiresAccept__ – event processing must be explicitly confirmed in the handler,otherwise message will be returned to the queue (at-least once delivery). False by default (at-most once delivery);
+ - __react__ – message handler name (for example, the name of the registered handler in the IoC-container);
+ - __type__ – CLR-type of the event body. Can be represented by fully qualified name. In this case, default mechanism of type searching is used. Or you can use a short name type. In this case, it will search for all loaded assemblies in the application domain.If type is not specified, ExpandoObject will be used by default.
+ - __validate__ – message validator name (class that implements [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs)), which operates only within a declared subscription;
+ - __lifestyle__ – allows you to specify a handler lifestyle.
+ 
+Lifestyle possible values:
+ - __Normal__ – handler is requested, when you create a bus client (default value);
+ - __Lazy__ – handler is requested once, when you get the first message;
+ - __Delegated__ – handler is requested every time you get the message, allowing you to manage handler lifetime.
+```xml
+<incoming>
+    <on key="message" label="message.label" react="MessageHandler" />
+    <on key="request" label="request.label" react="RequestHandler" type="RequestPayload" validate="InputValidator" requiresAccept="true" />
+    <on key="lazy" label="lazy.label" react="LazyHandler" lifestyle="Lazy" />
+</incoming>
+```
 
 ### Declaration of global message validators
 
@@ -85,9 +115,9 @@ Also you can set a value of 'group' parameter to 'true'. This would mean that yo
 
 ### Caching
 
-To control the caching of Request/Reply queries the tag 'caching' is used.
+Tag 'caching' controls the caching of incoming Request/Reply messages 
 
-You can enable caching by setting attribute to ‘enabled’. At the requested side response is cached by the key, which is generated on the basis of the request body. Caching time is defined by the responder at the 'Reply'.
+You can enable caching by setting attribute to ‘enabled’. At the requested side response is cached by the key, which is generated on the basis of the request body. Caching time is defined by the responder when calling 'Reply' method.
 
 'Publisher/Subscriber' requests are not cached.
 
@@ -98,9 +128,9 @@ You can enable caching by setting attribute to ‘enabled’. At the requested s
 </endpoint>
 ```
 
-### Configuring ParallelismLevel
+### Configuring parallel consuming
 
-Endpoint provides ability to setup the necessary number of incoming messages handles, each will be run in its own thread. Messages will be distributed between them by the Round-Robin principle.
+Endpoint provides ability to setup the necessary number of handler threads, processing incoming messages, in '**parallelismLevel**' attribute. Messages are distributed between the handlers by the Round-Robin principle.
 ```xml
 <endpoints>
     <endpoint name="Emitter" connectionString="amqp://localhost:5672/" parallelismLevel="4">
@@ -111,7 +141,7 @@ By default, one handler for incoming messages is used.
 
 ### Configuring QoS
 
-Endpoint also provides ability to setup a certain number of incoming messages by one access to the broker.
+Endpoint also provides ability to setup a certain number of incoming messages by one access to the broker. This field specifies the prefetch window size.  When the handler finishes processing a message, the following message is already held locally, rather than needing to be sent down the channel. Prefetching gives a performance improvement.
 ```xml
 <endpoints>
     <endpoint name="Consumer" connectionString="amqp://localhost:5672/">
@@ -120,26 +150,16 @@ Endpoint also provides ability to setup a certain number of incoming messages by
     </endpoint>
 </endpoints>
 ```
-By default, uses the value of 50 messages, which will be read by one access.
-
-### Sender’s dynamic routing
-
-On the sender’s side you can turn on dynamic routing. It allows you to send messages with label, which wasn’t configured during the endpoint creation.
-
-Dynamic routing can be useful in cases, when you don’t have enough information about all labels at the moment of the endpoint creation.
-```xml
-<endpoints>
-    <endpoint name="point1" connectionString="amqp://localhost:5672/">
-        <dynamic outgoing="true" />
-    </endpoint>
-</endpoints>
-```
+By default, uses the value of 50 messages, which will be read by one access. We strongly recommend starting with 1 message, increasing the number of messages after performance testing.
 
 ### Declaration of outgoing messages
 
-All outgoing messages declare in the 'outgoing' collection. Each message label declares with an individual tag 'route'. 'Key' and 'label' attributes are mandatory.
+All outgoing messages are declared in the 'outgoing' collection section. Each message label is declared with an individual tag 'route'. 'key' and 'label' attributes are mandatory.
 
-Key is a label alias and allows you not to mention concrete label of the message. For referring the label from the application, you must specify the alias adding a colon (:) as a prefix.
+Key is a label alias, which can be used from the code, and allows you to separate concrete label (exchange in RabbitMQ) of the message from its representation in code. 
+Outgoing route may be referenced from the application 
+-	by key, adding a colon (:) as a prefix. 
+-	directly by label.
 
 Additionally, you can set the parameters (as attributes of the 'route' element):
 
@@ -148,7 +168,7 @@ Additionally, you can set the parameters (as attributes of the 'route' element):
  - __ttl__ – message lifetime (unlimited, if the value is not specified);
  - __timeout__ – response time for requests (default value – 30 seconds).
 
-To support requests, you must declare a subscription point for response messages waiting. At the moment you can declare only default subscription point.
+To support request/reply pattern, you must declare a subscription point for awaiting response messages. At the moment you can declare only default subscription point. For each request / reply route unique incoming queue per application is created.
 ```xml
 <outgoing>
     <route key="message" label="message.label" persist="true" ttl="00:01:00" />
@@ -158,41 +178,31 @@ To support requests, you must declare a subscription point for response messages
 </outgoing>
 ```
 
-### Declaration of incoming messages
+### Sender’s dynamic routing
 
-All incoming messages are declared in the 'incoming' collection. Each message label declares with an individual tag 'on'. 'Key' and 'label' attributes are mandatory.
+On the sender’s side you can turn on dynamic routing. It allows you to send messages with labels, which were not configured during the endpoint creation.
 
-Additionally, you can set the parameters (as attributes of the element 'on'):
- - __requiresAccept__ – event processing must be explicitly confirmed in the handler. Otherwise message will be returned to the queue (false by default);
- - __react__ – message handler name (for example, the name of the handler is registered in the IoC-container);
- - __type__ – CLR-type of the event body. Can be represented by fully qualified name. In this case, default mechanism of type searching is used. Or you can use a short name type. In this case, it will search for all loaded assemblies in the application domain.  If type isb’t mentioned will be using ExpandoObject by default. If type is not specified, ExpandoObject will be used by default.
- - __validate__ – message validator name (class that implements [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs)), which must operate only within a declared subscription;
- - __lifestyle__ – allows you to specify a handler lifestyle.
- 
-Lifestyle possible values:
- - __Normal__ – handler is requested, when you create a bus client (default value);
- - __Lazy__ – handler is requested once, when you get the first message;
- - __Delegated__ – handler is requested every time you get the message, allowing you to manage handler lifetime more flexible.
+Dynamic routing can be useful in cases, when you don’t have enough information about all the labels at the moment of endpoint creation.
 ```xml
-<incoming>
-    <on key="message" label="message.label" react="MessageHandler" />
-    <on key="request" label="request.label" react="RequestHandler" type="RequestPayload" validate="InputValidator" requiresAccept="true" />
-    <on key="lazy" label="lazy.label" react="LazyHandler" lifestyle="Lazy" />
-</incoming>
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://localhost:5672/">
+        <dynamic outgoing="true" />
+    </endpoint>
+</endpoints>
 ```
 
 ### Applying configuration
 
-To use configurator, you need to create an instance of the [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) class.
+[AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) class is used for applying xml-configuration.
 
-Class constructor can take an object, implementing [IDependencyResolver](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/IDependencyResolver.cs) interface, which is uses for getting bus client dependencies. It can be used for searching message handlers or specifying life cycle handler. If concrete client configuration is not required to specify external dependencies, this parameter can be omitted. For simplifying, instead of implementing a particular class, you can use the delegate of [DependencyResolverFunc](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/LambdaDependencyResolver.cs) type.
+Class constructor can take an object, implementing [IDependencyResolver](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/IDependencyResolver.cs) interface, which is used for getting bus client dependencies. It is used for searching message handlers, validators or specifying life cycle handler. If concrete client configuration doesn’t require external dependencies, this parameter can be omitted. For simplicity, instead of implementing a particular class, you can pass to the constructor  delegate of [DependencyResolverFunc](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/LambdaDependencyResolver.cs) type.
 
-For example, a typical creation of object [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) using Ninject for obtaining handlers looks as follows: 
+For example, typical creation of [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) object using Ninject container: 
 ```csharp
 var configurator = new AppConfigConfigurator((name, type) => kernel.Get(type, name));
 ```
 
-To apply configuration, method Configure is used, which must be invoked during the bus instance creation.
+To apply configuration ‘Configure’ method is used, which must be invoked during the bus instance creation.
 ```csharp
 var bus = new BusFactory().Create(cfg =>
 {
@@ -200,7 +210,7 @@ var bus = new BusFactory().Create(cfg =>
 });
 ```
 
-The advantage of this method, is that you can combine configuration via code and configuration file.
+Using this method you can combine configuration via code and configuration file.
 
 If endpoints names are unknown (or should not be known) at compile time, they can be accessed through the _Endpoints_ property. Example of creating and configuring all bus clients:
 
@@ -214,9 +224,9 @@ var busInstances = configurator
 
 ## Configuring via C# code
 
-Endpoint with all its parameters (except lifestyle) can be configured via code as well.
+Endpoint can be completely configured via code except incoming message handler lifestyle.
 
-To use dynamic routing, it is necessary to set message label to the value _MessageLabel.Any_.
+To use dynamic routing set message label to  _MessageLabel.Any_ value.
 
 ```csharp
 IBus bus1 = new BusFactory().Create(
@@ -256,25 +266,26 @@ IBus bus2 = new BusFactory().Create(
 
 ```
 
-## Contour headers
+## Contour message headers
+List of used headers is represented in table below.
 
-Often interaction comprises of several components coming one by one in a chain, and a need to track message passing through this chain appears. For this reason, some incoming messages headers are copied in the outgoing messages.
+For message tracking in chain of  application components interaction through service bus several incoming messages headers are copied in the outgoing messages.
 
 Header field name | Description | Copying
 ----------------- | ----------- |--------
-x-correlation-id | The correlation identifier is needed to combine a set of messages in one group. For example, it allows you to match reply message with the request | Yes
+x-correlation-id | The correlation identifier is used to track a set of messages as a single group. For example, it allows you to match reply message with the request or track messages triggered by another incoming messages. | Yes
 x-expires | Header, which contains the rules of data deterioration. For example: x-expires: at 2016-04-01T22:00:33Z or x-expires: in 100 | No
 x-message-type | Message label with which it was sent. Using this header is not recommended | No
-x-persist | Need this message be persistent (saved on disk) or not | No
-x-reply-route | Reply message address to the request. For example, x-reply-route: direct:///amq.gen-n9DsUj1qm4vgCq0MHHPoBQ | No
-x-timeout | Response timeout to the request | No
+x-persist | Marks message persistance (saved on disk) or not | No
+x-reply-route | Reply message address for the request. For example, x-reply-route: direct:///amq.gen-n9DsUj1qm4vgCq0MHHPoBQ | No
+x-timeout | Response timeout for the request | No
 x-ttl | Message TTL | No
-x-breadcrumbs | List of all endpoints, through which message has passed, separated by semicolon (;) | Yes (adding new value)
+x-breadcrumbs | List of all endpoints, through which message has passed, separated by semicolon (;) | Yes (appending new value)
 x-original-message-id | Message identifier, that started the messages exchange | Yes
 
 ## Channels and pipes in Contour
 
-In Contour you can organize message processing as a set of sequential atomic message transformations based on a Pipes and Filters template.
+In Contour you can organize message processing as a set of sequential atomic message transformations based on Pipes and Filters template.
 
 For example, you need to forward messages, that has field 'Tick' and its value is odd. Other messages should be filtered. It can be done with the following set of filters:
 
@@ -403,7 +414,7 @@ public WireTap(MessageLabel messageLabel)
 
 ### Features
 
-1. All outgoing messages of the last operation are published in the bus.
+1. All outgoing messages of the last operation are published to the bus.
 2. Synchronous messages processing.
 3. Broker is not used to transmit messages between operators.
 4. Operations that produce multiple messages per message, publish them in the same outgoing channel.
@@ -412,8 +423,8 @@ public WireTap(MessageLabel messageLabel)
 ## Build the project
 
  - clone the repository
- - run "build.cmd" to make sure all unit tests are still passing.
- - run "build.cmd RunAllTests" to make sure all integration and unit tests are still passing. In this case you have to configure access to the RabbitMQ broker.
+ - run "build.cmd" to make sure all unit tests are passing.
+ - run "build.cmd RunAllTests" to make sure all integration and unit tests are passing. In this case you have to configure access to the RabbitMQ broker.
 
 ## Library license
 
