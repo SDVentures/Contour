@@ -1,14 +1,15 @@
 ﻿using System;
+using Contour.Caching;
 using Contour.Flow.Configuration;
-// ReSharper disable InconsistentNaming
+using FakeItEasy;
 
 namespace Contour.Tests
 {
-    public class message_flow_configuration
+    public class MessageFlowConfiguration
     {
-        public class incoming_message_flow : NSpec
+        public class MessageFlowConsumption : NSpec
         {
-            public void describe_incoming_message_flow()
+            public void describe_message_consumption()
             {
                 it["should configure incoming flow"] = () =>
                 {
@@ -25,7 +26,7 @@ namespace Contour.Tests
             }
         }
 
-        public class message_flow_actions : NSpec
+        public class MessageFlowActions : NSpec
         {
             public void describe_message_flow_actions()
             {
@@ -71,14 +72,14 @@ namespace Contour.Tests
                         .Act(p => p, actionCapacity);
                 };
 
-                it["should configure action multiple outgoing flows"] = () =>
+                it["should configure outgoing flow for some actions in a pipeline"] = () =>
                 {
                     //todo an action should be able to emit messages in-flight while not yet finished
                 };
             }
         }
 
-        public class message_flow_propagation: NSpec
+        public class MessageFlowPropagation: NSpec
         {
             public void describe_message_flow_propagation()
             {
@@ -119,18 +120,23 @@ namespace Contour.Tests
             }
         }
 
-        public class message_flow_caching : NSpec
+        public class MessageFlowCaching : NSpec
         {
             public void describe_message_flow_caching()
             {
                 it["should configure action result caching"] = () =>
                 {
-                    
+                    var cachePolicy = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
+
+                    MessageFlowFactory.Build()
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Cache<Payload, NewPayload>(cachePolicy);
                 };
 
                 it["should configure action result caching and responding"] = () =>
                 {
-                    var cachePolicy  = new CachePolicy(TimeSpan.FromSeconds(10));
+                    var cachePolicy  = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
 
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")
@@ -139,9 +145,9 @@ namespace Contour.Tests
                         .Respond();
                 };
 
-                it["should configure action result forwarding"] = () =>
+                it["should configure action result caching and forwarding"] = () =>
                 {
-                    var cachePolicy = new CachePolicy(TimeSpan.FromSeconds(10));
+                    var cachePolicy = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
 
                     MessageFlowFactory.Build()
                         .On<Payload>("incoming_label")

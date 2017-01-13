@@ -1,4 +1,5 @@
 ﻿using System;
+using Contour.Caching;
 
 namespace Contour.Flow.Configuration
 {

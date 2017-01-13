@@ -1,6 +1,11 @@
 NUGET
   remote: https://www.nuget.org/api/v2
-    Common.Logging (2.1.2) - framework: >= net40
+    Common.Logging (3.2)
+      Common.Logging.Core (>= 3.2)
+    Common.Logging.Core (3.2)
+    Common.Logging.NLog32 (3.2)
+      Common.Logging (>= 3.2)
+      NLog (>= 3.2)
     FAKE (4.0.3) - framework: net40
     FakeItEasy (2.3.2)
     FluentAssertions (2.1) - framework: >= net40
@@ -9,6 +14,7 @@ NUGET
     Moq (4.2.1312.1622) - framework: >= net40
     Newtonsoft.Json (6.0.2) - framework: >= net40
     Ninject (3.0.1.10) - framework: >= net40
+    NLog (3.2)
     nspec (1.0.13) - framework: net45
     NuGet.CommandLine (2.8.6) - framework: net40
     NUnit (2.6.4) - framework: net45

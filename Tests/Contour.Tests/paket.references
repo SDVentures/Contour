@@ -3,3 +3,8 @@ FakeItEasy
 Microsoft.Tpl.Dataflow
 FluentAssertions
 nunit
+common.logging.nlog32
+nlog
+common.logging
+common.logging.core
+newtonsoft.json

@@ -1,6 +1,6 @@
 namespace Contour.Tests
 {
-    public class NewPayload
+    public class NewPayload: Payload
     {
     }
 }

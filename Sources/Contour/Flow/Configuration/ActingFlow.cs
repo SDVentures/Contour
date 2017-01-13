@@ -1,15 +1,19 @@
 using System;
 using System.Threading.Tasks.Dataflow;
+using Common.Logging;
+using Contour.Caching;
 using Contour.Flow.Blocks;
 
 namespace Contour.Flow.Configuration
 {
     public class ActingFlow<TInput> : IActingFlow<TInput>
     {
+        private readonly ILog log = LogManager.GetLogger<ActingFlow<TInput>>();
+
         private readonly ISourceBlock<TInput> source;
-        private IDataflowBlock tail;
-        private IDisposable tailLink;
-        
+        private readonly IDataflowBlock tail;
+        private readonly IDisposable tailLink;
+
         public ActingFlow(ISourceBlock<TInput> source, IDataflowBlock tail = null, IDisposable tailLink = null)
         {
             this.source = source;
@@ -21,6 +25,7 @@ namespace Contour.Flow.Configuration
         {
             Func<TInput, Tuple<TInput, TOutput>> func = input =>
             {
+                log.Debug(new {name = nameof(Act), act, input, capacity, scale});
                 var output = act(input);
                 return new Tuple<TInput, TOutput>(input, output);
             };
@@ -54,21 +59,20 @@ namespace Contour.Flow.Configuration
             var cacheAsTarget = (ITargetBlock<Tuple<TIn, TOut>>)cache;
             cacheInTransform.LinkTo(cacheAsTarget);
             
-            //Attach cache to the source to convert cached items back to the source input type
+            //Attach cache to the source to adapt cache output to the source input
             var cacheOutFunc = new Func<Tuple<TIn, TOut>, TIn>(tuple => tuple.Item1);
             var cacheOutTransform = new TransformBlock<Tuple<TIn, TOut>, TIn>(cacheOutFunc);
+            cache.MissLinkTo(cacheOutTransform, new DataflowLinkOptions());
 
-            cache.LinkMissed(cacheOutTransform, new DataflowLinkOptions());
-
-            //The source should be convertible to a target to accept the flow items not found in cache
-            //Attach cache as the source
+            //Attach cache as source via cache out transform
+            //The source should be convertible to a target to accept flow items not found in cache
             var sourceAsTarget = (ITargetBlock<TIn>)source;
             cacheOutTransform.LinkTo(sourceAsTarget);
 
-            //Direct the results back to the cache
+            //Direct source block execution results to the cache
             ((ISourceBlock<Tuple<TIn,TOut>>)source).LinkTo(cacheAsTarget);
 
-            //Attach the cache block as the source for this block
+            //Pass cache block as source for caching flow
             var cachingFlow = new CachingFlow<TOut>(cache);
             return cachingFlow;
         }
