@@ -44,7 +44,7 @@ namespace Contour.Flow.Configuration
         
         public IOutgoingFlow Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
         {
-            //The pipe tail should be a source for the caching flow
+            //The pipe tail should be a source for the outgoing flow
             var tailAsSource = (ISourceBlock<TIn>)tail;
             
             //Detach from original source
@@ -72,7 +72,7 @@ namespace Contour.Flow.Configuration
             //Direct source block execution results to the cache
             ((ISourceBlock<Tuple<TIn,TOut>>)source).LinkTo(cacheAsTarget);
 
-            //Pass cache block as source for caching flow
+            //Pass cache block as source for outgoing flow
             var outgoingFlow = new OutgoingFlow(cache);
             return outgoingFlow;
         }
