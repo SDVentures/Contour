@@ -1,13 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using Contour.Caching;
 using Contour.Flow.Configuration;
 using FakeItEasy;
-using FluentAssertions;
 using NSpec;
 
 namespace Contour.Tests
@@ -18,26 +13,26 @@ namespace Contour.Tests
         {
             it["should buffer incoming messages"] = () =>
             {
-                BufferBlock<Payload> buffer;
-                var factory = GetMessageFlowFactory(out buffer);
-
-                factory.Build().On<Payload>("incoming_label");
-                buffer.Post(new Payload());
+                var factory = GetMessageFlowFactory();
+                var flow = factory.Create("fake");
+                
+                flow.On<Payload>("incoming_label");
+                flow.Post(new Payload());
             };
 
             it["should perform single action on incoming message"] = () =>
             {
-                BufferBlock<Payload> buffer;
-                var factory = GetMessageFlowFactory(out buffer);
-
+                var factory = GetMessageFlowFactory();
+                var flow = factory.Create("fake");
                 var action = A.Fake<Func<Payload, Payload>>();
-                factory.Build()
+
+                factory.Create("fake")
                     .On<Payload>("incoming_label")
                     .Act(action);
 
                 var tcs = new TaskCompletionSource<bool>();
                 A.CallTo(action).Invokes(() => tcs.SetResult(true));
-                buffer.Post(new Payload());
+                flow.Post(new Payload());
 
                 tcs.Task.Wait(AMinute());
                 A.CallTo(action).MustHaveHappened();
@@ -74,14 +69,14 @@ namespace Contour.Tests
                 A.CallTo(() => policy.KeyProvider).Returns(hashKeyProvider);
                 A.CallTo(() => policy.Period).Returns(period);
 
-                BufferBlock<Payload> buffer;
-                var factory = GetMessageFlowFactory(out buffer);
-                factory.Build()
+                var factory = GetMessageFlowFactory();
+                var flow = factory.Create("fake");
+                factory.Create("fake")
                     .On<Payload>("incoming_label")
                     .Act(payload => @out)
                     .Cache<Payload, NewPayload>(policy);
 
-                buffer.Post(@in);
+                flow.Post(@in);
                 putTcs.Task.Wait(AMinute());
                 cached.should_be(@out);
 
@@ -95,17 +90,16 @@ namespace Contour.Tests
                     })
                     .Returns(@out);
 
-                buffer.Post(@in);
+                flow.Post(@in);
                 getTcs.Task.Wait(AMinute());
                 fetched.should_be(@out);
             };
         }
 
-        private static IMessageFlowFactory GetMessageFlowFactory(out BufferBlock<Payload> buffer)
+        private static IFlowFactory GetMessageFlowFactory()
         {
-            var factory = A.Fake<IMessageFlowFactory>();
-            buffer = new BufferBlock<Payload>();
-            A.CallTo(() => factory.Build()).Returns(new MessageFlow(buffer));
+            var factory = A.Fake<IFlowFactory>();
+            A.CallTo(() => factory.Create("fake")).Returns(new InMemoryMessageFlow());
             return factory;
         }
 

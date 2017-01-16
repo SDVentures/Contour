@@ -2,7 +2,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
-    public class OutgoingFlow<TInput>: IOutgoingFlow<TInput>
+    internal class OutgoingFlow<TInput>: IOutgoingFlow<TInput>
     {
         private readonly ITargetBlock<TInput> targetBlock;
 

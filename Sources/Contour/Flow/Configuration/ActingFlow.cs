@@ -6,7 +6,7 @@ using Contour.Flow.Blocks;
 
 namespace Contour.Flow.Configuration
 {
-    public class ActingFlow<TInput> : IActingFlow<TInput>
+    internal class ActingFlow<TInput> : IActingFlow<TInput>
     {
         private readonly ILog log = LogManager.GetLogger<ActingFlow<TInput>>();
 
@@ -40,6 +40,11 @@ namespace Contour.Flow.Configuration
             var link = source.LinkTo(transform);
             var flow = new ActingFlow<Tuple<TInput, TOutput>>(transform, source, link);
             return flow;
+        }
+
+        public IActingFlow<Tuple<TInput, TOutput>> Broadcast<TOutput>()
+        {
+            throw new NotImplementedException();
         }
 
         public ICachingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
@@ -79,7 +84,7 @@ namespace Contour.Flow.Configuration
         
         public IOutgoingFlow<TInput> Respond()
         {
-            var destination = new DestinationMessageBlock<TInput>();
+            var destination = new InMemoryDestinationBlock<TInput>();
             source.LinkTo(destination);
 
             var outgoingFlow = new OutgoingFlow<TInput>(destination);

@@ -1,12 +1,11 @@
 ﻿using System;
-using Contour.Caching;
 
 namespace Contour.Flow.Configuration
 {
-    public interface IActingFlow<TInput> : ICachingFlow<TInput>
+    internal interface IActingFlow<TInput> : ICachingFlow<TInput>
     {
         IActingFlow<Tuple<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
 
-        ICachingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
+        IActingFlow<Tuple<TInput, TOutput>> Broadcast<TOutput>();
     }
 }

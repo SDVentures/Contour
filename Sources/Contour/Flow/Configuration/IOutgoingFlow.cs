@@ -3,7 +3,7 @@
     /// <summary>
     /// Describes an outgoing message flow
     /// </summary>
-    public interface IOutgoingFlow<out TInput>: IFlow
+    internal interface IOutgoingFlow<out TInput>
     {
     }
 }
