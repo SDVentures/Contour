@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Contour.Flow.Configuration
 {
-    internal class FlowFactory : IFlowFactory
+    internal class FlowFactory : IFlowFactory, IFlowRegistry
     {
         private readonly ConcurrentDictionary<string, IFlowTransport> transports = new ConcurrentDictionary<string, IFlowTransport>();
         private readonly ConcurrentBag<IMessageFlow> flows = new ConcurrentBag<IMessageFlow>();

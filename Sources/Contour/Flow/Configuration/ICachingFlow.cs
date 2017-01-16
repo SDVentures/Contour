@@ -3,25 +3,8 @@ using Contour.Caching;
 
 namespace Contour.Flow.Configuration
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    internal interface ICachingFlow<out TOutput>
+    public interface ICachingFlow
     {
-        /// <summary>
-        /// Direct the flow using the routing provided by the flow source
-        /// </summary>
-        /// <returns></returns>
-        IOutgoingFlow<TOutput> Respond();
-
-        /// <summary>
-        /// Direct the flow forward using <paramref name="label"/> as the destination
-        /// </summary>
-        /// <param name="label"></param>
-        /// <returns></returns>
-        IOutgoingFlow<TOutput> Forward(string label);
-
         /// <summary>
         /// Cache the flow using the specified <paramref name="policy"/>
         /// </summary>
@@ -29,6 +12,6 @@ namespace Contour.Flow.Configuration
         /// <typeparam name="TOut"></typeparam>
         /// <param name="policy"></param>
         /// <returns></returns>
-        ICachingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
+        IOutgoingFlow Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
     }
 }

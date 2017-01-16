@@ -2,13 +2,23 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
-    internal class OutgoingFlow<TInput>: IOutgoingFlow<TInput>
+    internal class OutgoingFlow: IOutgoingFlow
     {
-        private readonly ITargetBlock<TInput> targetBlock;
+        private readonly IDataflowBlock source;
 
-        public OutgoingFlow(ITargetBlock<TInput> targetBlock)
+        public OutgoingFlow(IDataflowBlock source)
         {
-            this.targetBlock = targetBlock;
+            this.source = source;
+        }
+
+        public void Respond()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Forward(string label)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

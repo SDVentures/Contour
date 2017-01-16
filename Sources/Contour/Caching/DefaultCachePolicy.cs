@@ -2,7 +2,7 @@
 
 namespace Contour.Caching
 {
-    internal class DefaultCachePolicy : ICachePolicy
+    public class DefaultCachePolicy : ICachePolicy
     {
         public IKeyProvider KeyProvider { get; }
 

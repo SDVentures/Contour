@@ -6,7 +6,7 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides a flow entry point
     /// </summary>
-    internal interface IFlowEntry
+    public interface IFlowEntry
     {
         /// <summary>
         /// Synchronously posts a message of <typeparamref name="TInput"/> type to the flow

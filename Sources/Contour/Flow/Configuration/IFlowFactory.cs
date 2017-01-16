@@ -1,11 +1,7 @@
 namespace Contour.Flow.Configuration
 {
-    internal interface IFlowFactory
+    public interface IFlowFactory
     {
-        void RegisterTransport(string name, IFlowTransport transport);
-        
         IMessageFlow Create(string transportName);
-
-        IFlowEntry Get(string id);
     }
 }

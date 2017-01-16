@@ -41,13 +41,8 @@ namespace Contour.Flow.Configuration
             var flow = new ActingFlow<Tuple<TInput, TOutput>>(transform, source, link);
             return flow;
         }
-
-        public IActingFlow<Tuple<TInput, TOutput>> Broadcast<TOutput>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICachingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
+        
+        public IOutgoingFlow Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
         {
             //The pipe tail should be a source for the caching flow
             var tailAsSource = (ISourceBlock<TIn>)tail;
@@ -78,20 +73,21 @@ namespace Contour.Flow.Configuration
             ((ISourceBlock<Tuple<TIn,TOut>>)source).LinkTo(cacheAsTarget);
 
             //Pass cache block as source for caching flow
-            var cachingFlow = new CachingFlow<TOut>(cache);
-            return cachingFlow;
-        }
-        
-        public IOutgoingFlow<TInput> Respond()
-        {
-            var destination = new InMemoryDestinationBlock<TInput>();
-            source.LinkTo(destination);
-
-            var outgoingFlow = new OutgoingFlow<TInput>(destination);
+            var outgoingFlow = new OutgoingFlow(cache);
             return outgoingFlow;
         }
-        
-        public IOutgoingFlow<TInput> Forward(string label)
+
+        public void Respond()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Forward(string label)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IActingFlowConcatenation<TOutput> Broadcast<TOutput>()
         {
             throw new NotImplementedException();
         }

@@ -78,11 +78,6 @@ namespace Contour.Tests
                         .On<Payload>("incoming_label")
                         .Act(p => p, actionCapacity);
                 };
-
-                it["should configure outgoing flow for some actions in a pipeline"] = () =>
-                {
-                    //todo an action should be able to emit messages in-flight while not yet finished
-                };
             }
         }
 
@@ -122,6 +117,15 @@ namespace Contour.Tests
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
                         .Forward("outgoing_label");
+                };
+
+                xit["should configure action result broadcasting"] = () =>
+                {
+                    var factory = GetMessageFlowFactory();
+                    factory.Create("fake")
+                        .On<Payload>("incoming_label")
+                        .Act(p => new NewPayload())
+                        .Broadcast<NewPayload>();
                 };
             }
         }

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Contour.Caching
 {
-    class HashKeyProvider : IKeyProvider
+    public class HashKeyProvider : IKeyProvider
     {
         private readonly HashAlgorithm algorithm;
 

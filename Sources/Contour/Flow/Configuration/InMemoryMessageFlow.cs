@@ -5,7 +5,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
-    internal class InMemoryMessageFlow : IMessageFlow
+    public class InMemoryMessageFlow : IMessageFlow
     {
         private IDataflowBlock block;
 

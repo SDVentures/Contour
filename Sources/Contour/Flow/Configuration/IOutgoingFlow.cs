@@ -3,7 +3,10 @@
     /// <summary>
     /// Describes an outgoing message flow
     /// </summary>
-    internal interface IOutgoingFlow<out TInput>
+    public interface IOutgoingFlow
     {
+        void Respond();
+        
+        void Forward(string label);
     }
 }
