@@ -87,7 +87,7 @@ namespace Contour.Flow.Configuration
             throw new NotImplementedException();
         }
 
-        public IActingFlowConcatenation<TOutput> Broadcast<TOutput>()
+        public IActingFlowConcatenation<TOutput> Broadcast<TOutput>(string label = null)
         {
             throw new NotImplementedException();
         }

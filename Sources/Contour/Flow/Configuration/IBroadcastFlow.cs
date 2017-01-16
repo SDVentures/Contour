@@ -2,6 +2,6 @@
 {
     public interface IBroadcastFlow
     {
-        IActingFlowConcatenation<TOutput> Broadcast<TOutput>();
+        IActingFlowConcatenation<TOutput> Broadcast<TOutput>(string label = null);
     }
 }
