@@ -6,13 +6,15 @@ using Contour.Flow.Blocks;
 
 namespace Contour.Flow.Configuration
 {
-    internal class ActingFlow<TInput> : IActingFlow<TInput>
+    internal class ActingFlow<TInput> : IActingFlow<TInput>, IActingFlowConcatenation<TInput>
     {
         private readonly ILog log = LogManager.GetLogger<ActingFlow<TInput>>();
 
         private readonly ISourceBlock<TInput> source;
         private readonly IDataflowBlock tail;
         private readonly IDisposable tailLink;
+        
+        public IFlowRegistry Registry { private get; set; }
 
         public ActingFlow(ISourceBlock<TInput> source, IDataflowBlock tail = null, IDisposable tailLink = null)
         {
@@ -38,7 +40,7 @@ namespace Contour.Flow.Configuration
                 });
 
             var link = source.LinkTo(transform);
-            var flow = new ActingFlow<Tuple<TInput, TOutput>>(transform, source, link);
+            var flow = new ActingFlow<Tuple<TInput, TOutput>>(transform, source, link) {Registry = Registry};
             return flow;
         }
         
@@ -77,17 +79,33 @@ namespace Contour.Flow.Configuration
             return outgoingFlow;
         }
 
+        public IActingFlowConcatenation<Tuple<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1)
+        {
+            /* Broadcasting is only possible for action results, i.e. this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows provided by the registry.
+            */
+
+            //The action block should return a tuple of input and output to support results caching, so the source items need to be converted to the action return type
+            var broadcast = new BroadcastBlock<TOut>(p => p, new DataflowBlockOptions() {BoundedCapacity = capacity});
+            var actionOutTransform = new TransformBlock<Tuple<TIn, TOut>, TOut>(t => t.Item2, new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
+
+            ((ISourceBlock<Tuple<TIn, TOut>>)source).LinkTo(actionOutTransform);
+            actionOutTransform.LinkTo(broadcast);
+
+            var flows = Registry.Get<TOut>();
+            foreach (var flow in flows)
+            {
+                broadcast.LinkTo(flow.AsTarget<TOut>());
+            }
+
+            return (IActingFlowConcatenation<Tuple<TIn, TOut>>) this;
+        }
+
         public void Respond()
         {
             throw new NotImplementedException();
         }
 
         public void Forward(string label)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IActingFlowConcatenation<TOutput> Broadcast<TOutput>(string label = null)
         {
             throw new NotImplementedException();
         }

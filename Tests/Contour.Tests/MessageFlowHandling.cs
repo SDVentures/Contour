@@ -15,8 +15,8 @@ namespace Contour.Tests
             {
                 var factory = GetMessageFlowFactory();
                 var flow = factory.Create("fake");
-                
-                flow.On<Payload>("incoming_label");
+                    flow.On<Payload>("incoming_label");
+                    
                 flow.Post(new Payload());
             };
 

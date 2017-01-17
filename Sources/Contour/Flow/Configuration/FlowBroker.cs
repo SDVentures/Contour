@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Contour.Flow.Configuration
 {
-    internal class FlowFactory : IFlowFactory, IFlowRegistry
+    internal class FlowBroker : IFlowFactory, IFlowTransportRegistry, IFlowRegistry
     {
         private readonly ConcurrentDictionary<string, IFlowTransport> transports = new ConcurrentDictionary<string, IFlowTransport>();
-        private readonly ConcurrentBag<IMessageFlow> flows = new ConcurrentBag<IMessageFlow>();
-        
-        public void RegisterTransport(string name, IFlowTransport transport)
+        private readonly ConcurrentBag<IFlowTarget> flows = new ConcurrentBag<IFlowTarget>();
+
+        void IFlowTransportRegistry.Register(string name, IFlowTransport transport)
         {
             try
             {
@@ -21,13 +22,16 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        public IMessageFlow Create(string transportName)
+        IMessageFlow IFlowFactory.Create(string transportName)
         {
             try
             {
                 var transport = transports[transportName];
                 var flow = transport.CreateFlow();
-                flows.Add(flow);
+                var registry = (IFlowRegistry) this;
+                registry.Add(flow);
+                flow.Registry = registry;
+
                 return flow;
             }
             catch (Exception ex)
@@ -36,16 +40,15 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        public IFlowEntry Get(string id)
+        IEnumerable<IFlowTarget> IFlowRegistry.Get<TOutput>()
         {
-            try
-            {
-                return flows.First(f => f.Id == id);
-            }
-            catch (Exception ex)
-            {
-                throw new FlowConfigurationException($"Failed to get a flow entry [{id}]", ex);
-            }
+            var results = flows.Where(ft => ft.AsTarget<TOutput>() != null);
+            return results;
+        }
+
+        void IFlowRegistry.Add(IFlowTarget flow)
+        {
+            flows.Add(flow);
         }
     }
 }

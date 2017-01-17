@@ -1,6 +1,6 @@
 ﻿namespace Contour.Flow.Configuration
 {
-    internal interface IFlowTransport
+    public interface IFlowTransport
     {
         IMessageFlow CreateFlow();
     }

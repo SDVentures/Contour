@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Contour.Caching;
 using Contour.Flow.Configuration;
 using FakeItEasy;
@@ -119,13 +121,25 @@ namespace Contour.Tests
                         .Forward("outgoing_label");
                 };
 
-                xit["should configure action result broadcasting"] = () =>
+                it["should configure action result broadcasting by type"] = () =>
                 {
-                    var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
+                    var factory = A.Fake<IFlowFactory>();
+                    var registry = A.Fake<IFlowRegistry>();
+
+                    A.CallTo(() => factory.Create(A.Dummy<string>()))
+                        .WithAnyArguments()
+                        .ReturnsLazily(() => new InMemoryMessageFlow() {Registry = registry}); //lazily means 'new value from factory function'
+
+                    var flow1 = factory.Create("flow1");
+                    flow1.On<NewPayload>("fake_label") //todo need no label here, provide an overloaded method for in-memory flows
+                        .Act(p => p);
+
+                    A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowTarget>() {flow1});
+
+                    factory.Create("flow0")
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Broadcast<NewPayload>();
+                        .Broadcast<Payload, NewPayload>();
                 };
             }
         }

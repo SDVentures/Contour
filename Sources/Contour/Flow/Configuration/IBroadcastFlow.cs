@@ -1,7 +1,9 @@
-﻿namespace Contour.Flow.Configuration
+﻿using System;
+
+namespace Contour.Flow.Configuration
 {
     public interface IBroadcastFlow
     {
-        IActingFlowConcatenation<TOutput> Broadcast<TOutput>(string label = null);
+        IActingFlowConcatenation<Tuple<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1);
     }
 }

@@ -2,14 +2,21 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Common.Logging;
 
 namespace Contour.Flow.Configuration
 {
+    /// <summary>
+    /// Provides an in-memory flow implementation
+    /// </summary>
     public class InMemoryMessageFlow : IMessageFlow
     {
+        private readonly ILog log = LogManager.GetLogger<InMemoryMessageFlow>();
         private IDataflowBlock block;
 
         public string Id { get; } = Guid.NewGuid().ToString();
+
+        public IFlowRegistry Registry { private get; set; }
 
         public IActingFlow<TOutput> On<TOutput>(string label, int capacity = 1)
         {
@@ -17,10 +24,10 @@ namespace Contour.Flow.Configuration
                 throw new FlowConfigurationException($"Flow [{Id}] has already been configured");
 
             block = new BufferBlock<TOutput>(new DataflowBlockOptions() {BoundedCapacity = capacity});
-            var flow = new ActingFlow<TOutput>((ISourceBlock<TOutput>) block);
+            var flow = new ActingFlow<TOutput>((ISourceBlock<TOutput>) block) {Registry = Registry};
             return flow;
         }
-
+        
         bool IFlowEntry.Post<TInput>(TInput message)
         {
             EnsureSourceConfigured();
@@ -44,7 +51,14 @@ namespace Contour.Flow.Configuration
             var target = (ITargetBlock<TInput>)block;
             return target.SendAsync(message, token);
         }
-        
+
+        ITargetBlock<TOutput> IFlowTarget.AsTarget<TOutput>()
+        {
+            EnsureSourceConfigured();
+            
+            return block as ITargetBlock<TOutput>;
+        }
+
         private void EnsureSourceConfigured()
         {
             if (block == null)

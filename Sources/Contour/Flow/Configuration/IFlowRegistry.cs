@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 namespace Contour.Flow.Configuration
 {
-    internal interface IFlowRegistry
+    public interface IFlowRegistry
     {
-        void RegisterTransport(string name, IFlowTransport transport);
+        IEnumerable<IFlowTarget> Get<TOutput>();
 
-        IFlowEntry Get(string id);
+        void Add(IFlowTarget flow);
     }
 }

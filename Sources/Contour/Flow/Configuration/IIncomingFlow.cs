@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 namespace Contour.Flow.Configuration
 {
     /// <summary>
     /// Provides an entry point for the incoming flow, enables the client code to post or send messages to the flow
     /// </summary>
-    public interface IIncomingFlow
+    public interface IIncomingFlow: IFlowTarget
     {
         /// <summary>
         /// Describes a client subscription for the message flow with <paramref name="label"/> label and <typeparamref name="TOutput" /> type.
