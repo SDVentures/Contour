@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Contour.Caching;
 using Contour.Flow.Configuration;
@@ -26,8 +27,7 @@ namespace Contour.Tests
                 var flow = factory.Create("fake");
                 var action = A.Fake<Func<Payload, Payload>>();
 
-                factory.Create("fake")
-                    .On<Payload>("incoming_label")
+                flow.On<Payload>("incoming_label")
                     .Act(action);
 
                 var tcs = new TaskCompletionSource<bool>();
@@ -71,8 +71,7 @@ namespace Contour.Tests
 
                 var factory = GetMessageFlowFactory();
                 var flow = factory.Create("fake");
-                factory.Create("fake")
-                    .On<Payload>("incoming_label")
+                    flow.On<Payload>("incoming_label")
                     .Act(payload => @out)
                     .Cache<Payload, NewPayload>(policy);
 
@@ -94,12 +93,47 @@ namespace Contour.Tests
                 getTcs.Task.Wait(AMinute());
                 fetched.should_be(@out);
             };
+
+            it["should broadcast action results by type"] = () =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+
+                var registry = A.Fake<IFlowRegistry>();
+                var factory = A.Fake<IFlowFactory>();
+                A.CallTo(() => factory.Create(A.Dummy<string>()))
+                    .WithAnyArguments()
+                    .ReturnsLazily(() => new InMemoryMessageFlow() {Registry = registry});
+
+                var action = A.Fake<Func<Payload, NewPayload>>();
+                A.CallTo(action)
+                    .WithReturnType<NewPayload>()
+                    .Invokes(() => tcs.SetResult(true))
+                    .Returns(new NewPayload() { Value = 123 });
+
+                var receiverFlow = factory.Create("receiver");
+                receiverFlow.On<NewPayload>("receiver_label") //label is irrelevant when broadcasting
+                    .Act(action);
+
+                A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowTarget>() { receiverFlow });
+
+                var senderFlow = factory.Create("sender");
+                senderFlow.On<Payload>("sender_label") //label is irrelevant when broadcasting
+                    .Act(p => new NewPayload())
+                    .Broadcast<Payload, NewPayload>();
+
+                senderFlow.Post(new Payload());
+                tcs.Task.Wait(AMinute());
+
+                A.CallTo(action).MustHaveHappened();
+            };
         }
 
         private static IFlowFactory GetMessageFlowFactory()
         {
             var factory = A.Fake<IFlowFactory>();
-            A.CallTo(() => factory.Create("fake")).Returns(new InMemoryMessageFlow());
+            A.CallTo(() => factory.Create(A.Dummy<string>()))
+                .WithAnyArguments()
+                .ReturnsLazily(() => new InMemoryMessageFlow());
             return factory;
         }
 

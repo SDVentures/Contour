@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-
 namespace Contour.Flow.Configuration
 {
-    public interface IMessageFlow : IIncomingFlow, IFlowEntry, IFlowRegistryItem
+    public interface IMessageFlow : IIncomingFlow, IFlowEntry, IFlowTarget, IFlowRegistryItem
     {
-        string Id { get; }
     }
 }

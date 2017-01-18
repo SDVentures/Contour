@@ -130,16 +130,18 @@ namespace Contour.Tests
                         .WithAnyArguments()
                         .ReturnsLazily(() => new InMemoryMessageFlow() {Registry = registry}); //lazily means 'new value from factory function'
 
-                    var flow1 = factory.Create("flow1");
-                    flow1.On<NewPayload>("fake_label") //todo need no label here, provide an overloaded method for in-memory flows
+                    var flow1 = factory.Create("receiver");
+                    flow1.On<NewPayload>("receiver_label")
                         .Act(p => p);
 
                     A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowTarget>() {flow1});
 
-                    factory.Create("flow0")
-                        .On<Payload>("incoming_label")
+                    factory.Create("sender")
+                        .On<Payload>("sender_label")
                         .Act(p => new NewPayload())
                         .Broadcast<Payload, NewPayload>();
+
+                    A.CallTo(() => registry.Get<NewPayload>()).MustHaveHappened();
                 };
             }
         }
@@ -188,7 +190,7 @@ namespace Contour.Tests
         private static IFlowFactory GetMessageFlowFactory()
         {
             var factory = A.Fake<IFlowFactory>();
-            A.CallTo(() => factory.Create("fake")).Returns(new InMemoryMessageFlow());
+            A.CallTo(() => factory.Create(A.Dummy<string>())).WithAnyArguments().Returns(new InMemoryMessageFlow());
             return factory;
         }
     }

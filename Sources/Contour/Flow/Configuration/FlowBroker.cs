@@ -40,9 +40,15 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        IEnumerable<IFlowTarget> IFlowRegistry.Get<TOutput>()
+        public IEnumerable<IFlowTarget> Get<TOutput>()
         {
             var results = flows.Where(ft => ft.AsTarget<TOutput>() != null);
+            return results;
+        }
+
+        IEnumerable<IFlowTarget> IFlowRegistry.Get(string label)
+        {
+            var results = flows.Where(ft => ft.Label == label);
             return results;
         }
 

@@ -81,8 +81,7 @@ namespace Contour.Flow.Configuration
 
         public IActingFlowConcatenation<Tuple<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1)
         {
-            /* Broadcasting is only possible for action results, i.e. this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows provided by the registry.
-            */
+            //Broadcasting is only possible for action results, i.e. this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows provided by the registry
 
             //The action block should return a tuple of input and output to support results caching, so the source items need to be converted to the action return type
             var broadcast = new BroadcastBlock<TOut>(p => p, new DataflowBlockOptions() {BoundedCapacity = capacity});
@@ -91,6 +90,7 @@ namespace Contour.Flow.Configuration
             ((ISourceBlock<Tuple<TIn, TOut>>)source).LinkTo(actionOutTransform);
             actionOutTransform.LinkTo(broadcast);
 
+            //Get all flows by specific type from the registry (flow label is irrelevant here due to possible flow items type casting errors)
             var flows = Registry.Get<TOut>();
             foreach (var flow in flows)
             {

@@ -14,15 +14,29 @@ namespace Contour.Flow.Configuration
         private readonly ILog log = LogManager.GetLogger<InMemoryMessageFlow>();
         private IDataflowBlock block;
 
-        public string Id { get; } = Guid.NewGuid().ToString();
+        /// <summary>
+        /// Flow label
+        /// </summary>
+        public string Label { get; private set; }
 
+        /// <summary>
+        /// A flow registry which provides flow coordination in request-response and broadcasting scenarios.
+        /// </summary>
         public IFlowRegistry Registry { private get; set; }
 
+        /// <summary>
+        /// Registers a new flow of <typeparamref name="TOutput"/> typed items.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="label">Flow label</param>
+        /// <param name="capacity">Specifies the maximum capacity of the flow pipeline</param>
+        /// <returns></returns>
         public IActingFlow<TOutput> On<TOutput>(string label, int capacity = 1)
         {
             if (block != null)
-                throw new FlowConfigurationException($"Flow [{Id}] has already been configured");
+                throw new FlowConfigurationException($"Flow [{Label}] has already been configured");
 
+            Label = label;
             block = new BufferBlock<TOutput>(new DataflowBlockOptions() {BoundedCapacity = capacity});
             var flow = new ActingFlow<TOutput>((ISourceBlock<TOutput>) block) {Registry = Registry};
             return flow;
@@ -63,7 +77,7 @@ namespace Contour.Flow.Configuration
         {
             if (block == null)
             {
-                throw new FlowConfigurationException($"Flow [{Id}] is not yet configured, call On<> method first.");
+                throw new FlowConfigurationException($"Flow [{Label}] is not yet configured, call On<> method first.");
             }
         }
     }
