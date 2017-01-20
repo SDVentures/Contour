@@ -1,8 +1,10 @@
 using System;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Common.Logging;
 using Contour.Caching;
 using Contour.Flow.Blocks;
+using Contour.Flow.Execution;
 
 namespace Contour.Flow.Configuration
 {
@@ -23,24 +25,36 @@ namespace Contour.Flow.Configuration
             this.tailLink = tailLink;
         }
 
-        public IActingFlow<Tuple<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1)
+        public IActingFlow<ActionContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1)
         {
-            Func<TInput, Tuple<TInput, TOutput>> func = input =>
+            Func<TInput, ActionContext<TInput, TOutput>> func = input =>
             {
                 log.Debug(new {name = nameof(Act), act, input, capacity, scale});
-                var output = act(input);
-                return new Tuple<TInput, TOutput>(input, output);
+
+                var output = default(TOutput);
+                Exception exception = null;
+
+                try
+                {
+                    output = act(input);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(new {name = nameof(Act), error = ex, input, capacity, scale});
+                    exception = ex;
+                }
+                
+                return new ActionContext<TInput, TOutput> {Arg = input, Result = output, Error = exception};
             };
 
-            var transform = new TransformBlock<TInput, Tuple<TInput, TOutput>>(func,
-                new ExecutionDataflowBlockOptions()
-                {
-                    BoundedCapacity = capacity,
-                    MaxDegreeOfParallelism = scale
-                });
-
-            var link = source.LinkTo(transform);
-            var flow = new ActingFlow<Tuple<TInput, TOutput>>(transform, source, link) {Registry = Registry};
+            //Need to stop the flow in case of any errors in the action
+            Predicate<ActionContext<TInput, TOutput>> successPredicate = context => context.Error == null;
+            
+            var action = new ConditionalTransformBlock<TInput, ActionContext<TInput, TOutput>>(func, successPredicate,
+                new ExecutionDataflowBlockOptions {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
+            
+            var link = source.LinkTo(action);
+            var flow = new ActingFlow<ActionContext<TInput, TOutput>>(action, source, link) {Registry = Registry};
             return flow;
         }
         
@@ -53,17 +67,23 @@ namespace Contour.Flow.Configuration
             tailLink.Dispose();
 
             //Attach tail to cache; to do that the source items need to be converted to tuples with empty results
-            var cacheInFunc = new Func<TIn, Tuple<TIn, TOut>>(@in => new Tuple<TIn, TOut>(@in, default(TOut)));
-            var cacheInTransform = new TransformBlock<TIn, Tuple<TIn, TOut>>(cacheInFunc);
+            var cacheInFunc =
+                new Func<TIn, ActionContext<TIn, TOut>>(
+                    @in => new ActionContext<TIn, TOut> {Arg = @in, Result = default(TOut)});
+
+            var cacheInTransform = new TransformBlock<TIn, ActionContext<TIn, TOut>>(cacheInFunc);
 
             tailAsSource.LinkTo(cacheInTransform);
+
+            //WARN: do not limit the caching block capacity to 1 as it can block the flow indefinitely
             var cache = new CachingBlock<TIn, TOut>(policy);
-            var cacheAsTarget = (ITargetBlock<Tuple<TIn, TOut>>)cache;
+
+            var cacheAsTarget = (ITargetBlock<ActionContext<TIn, TOut>>)cache;
             cacheInTransform.LinkTo(cacheAsTarget);
             
             //Attach cache to the source to adapt cache output to the source input
-            var cacheOutFunc = new Func<Tuple<TIn, TOut>, TIn>(tuple => tuple.Item1);
-            var cacheOutTransform = new TransformBlock<Tuple<TIn, TOut>, TIn>(cacheOutFunc);
+            var cacheOutFunc = new Func<ActionContext<TIn, TOut>, TIn>(ctx => ctx.Arg);
+            var cacheOutTransform = new TransformBlock<ActionContext<TIn, TOut>, TIn>(cacheOutFunc);
             cache.MissLinkTo(cacheOutTransform, new DataflowLinkOptions());
 
             //Attach cache as source via cache out transform
@@ -72,22 +92,22 @@ namespace Contour.Flow.Configuration
             cacheOutTransform.LinkTo(sourceAsTarget);
 
             //Direct source block execution results to the cache
-            ((ISourceBlock<Tuple<TIn,TOut>>)source).LinkTo(cacheAsTarget);
+            ((ISourceBlock<ActionContext<TIn,TOut>>)source).LinkTo(cacheAsTarget);
 
             //Pass cache block as source for outgoing flow
             var outgoingFlow = new OutgoingFlow(cache);
             return outgoingFlow;
         }
 
-        public IActingFlowConcatenation<Tuple<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1)
+        public IActingFlowConcatenation<ActionContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1)
         {
             //Broadcasting is only possible for action results, i.e. this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows provided by the registry
 
             //The action block should return a tuple of input and output to support results caching, so the source items need to be converted to the action return type
             var broadcast = new BroadcastBlock<TOut>(p => p, new DataflowBlockOptions() {BoundedCapacity = capacity});
-            var actionOutTransform = new TransformBlock<Tuple<TIn, TOut>, TOut>(t => t.Item2, new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
+            var actionOutTransform = new TransformBlock<ActionContext<TIn, TOut>, TOut>(t => t.Result, new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
 
-            ((ISourceBlock<Tuple<TIn, TOut>>)source).LinkTo(actionOutTransform);
+            ((ISourceBlock<ActionContext<TIn, TOut>>)source).LinkTo(actionOutTransform);
             actionOutTransform.LinkTo(broadcast);
 
             //Get all flows by specific type from the registry (flow label is irrelevant here due to possible flow items type casting errors)
@@ -97,7 +117,7 @@ namespace Contour.Flow.Configuration
                 broadcast.LinkTo(flow.AsTarget<TOut>());
             }
 
-            return (IActingFlowConcatenation<Tuple<TIn, TOut>>) this;
+            return (IActingFlowConcatenation<ActionContext<TIn, TOut>>) this;
         }
 
         public void Respond()
@@ -106,6 +126,11 @@ namespace Contour.Flow.Configuration
         }
 
         public void Forward(string label)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IActingFlow<RequestContext<TInput, TReply>> Request<TRequest, TReply>(string label, Func<TInput, TRequest> requestor, int capacity = 1, int scale = 1)
         {
             throw new NotImplementedException();
         }

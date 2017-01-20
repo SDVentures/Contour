@@ -1,3 +1,5 @@
+using Contour.Flow.Transport;
+
 namespace Contour.Flow.Configuration
 {
     internal interface IFlowTransportRegistry

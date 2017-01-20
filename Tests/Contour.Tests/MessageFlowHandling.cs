@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Contour.Caching;
 using Contour.Flow.Configuration;
+using Contour.Flow.Execution;
 using FakeItEasy;
+using FluentAssertions;
 using NSpec;
 
 namespace Contour.Tests
@@ -36,6 +40,30 @@ namespace Contour.Tests
 
                 tcs.Task.Wait(AMinute());
                 A.CallTo(action).MustHaveHappened();
+            };
+
+            it["should terminate the flow on action errors"] = () =>
+            {
+                var factory = GetMessageFlowFactory();
+                var flow = factory.Create("fake");
+                var tcs = new TaskCompletionSource<bool>();
+
+                var errorAction = A.Fake<Func<Payload, NewPayload>>();
+                A.CallTo(errorAction).WithAnyArguments().Throws(new Exception());
+                A.CallTo(errorAction).Invokes(() => tcs.SetResult(true));
+
+                var nextAction = A.Fake<Func<ActionContext<Payload, NewPayload>, NewPayload>>();
+                A.CallTo(nextAction).DoesNothing();
+                
+                flow.On<Payload>("incoming_label")
+                    .Act(errorAction)
+                    .Act(nextAction);
+
+                flow.Post(new Payload());
+                tcs.Task.Wait(AMinute());
+
+                A.CallTo(errorAction).MustHaveHappened();
+                A.CallTo(nextAction).MustNotHaveHappened();
             };
         }
 

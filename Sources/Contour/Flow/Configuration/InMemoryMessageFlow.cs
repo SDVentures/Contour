@@ -24,6 +24,9 @@ namespace Contour.Flow.Configuration
         /// </summary>
         public IFlowRegistry Registry { private get; set; }
 
+
+        public IFlowLabelProvider LabelProvider { private get; set; }
+
         /// <summary>
         /// Registers a new flow of <typeparamref name="TOutput"/> typed items.
         /// </summary>

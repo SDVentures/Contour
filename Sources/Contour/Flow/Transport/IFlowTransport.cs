@@ -1,4 +1,6 @@
-﻿namespace Contour.Flow.Configuration
+﻿using Contour.Flow.Configuration;
+
+namespace Contour.Flow.Transport
 {
     public interface IFlowTransport
     {

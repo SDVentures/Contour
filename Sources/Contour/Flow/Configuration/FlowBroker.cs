@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Contour.Flow.Transport;
 
 namespace Contour.Flow.Configuration
 {

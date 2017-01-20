@@ -1,4 +1,4 @@
-﻿namespace Contour.Flow.Configuration
+﻿namespace Contour.Flow.Transport
 {
     internal interface IFlowTransportConfiguration
     {

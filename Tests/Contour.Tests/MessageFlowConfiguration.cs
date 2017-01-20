@@ -68,7 +68,7 @@ namespace Contour.Tests
                     var factory = GetMessageFlowFactory();
                     factory.Create("fake")
                         .On<Payload>("incoming_label")
-                        .Act(p => p, scale);
+                        .Act(p => p, scale:scale);
                 };
 
                 it["should configure incoming flow action buffering"] = () =>
@@ -78,7 +78,7 @@ namespace Contour.Tests
                     var factory = GetMessageFlowFactory();
                     factory.Create("fake")
                         .On<Payload>("incoming_label")
-                        .Act(p => p, actionCapacity);
+                        .Act(p => p, capacity:actionCapacity);
                 };
             }
         }
