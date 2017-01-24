@@ -7,6 +7,8 @@ namespace Contour.Flow.Configuration
         IEnumerable<IFlowTarget> Get<TOutput>();
 
         IEnumerable<IFlowTarget> Get(string label);
+
+        IEnumerable<IFlowTarget> Get<TOutput>(string label); 
         
         void Add(IFlowTarget flow);
     }

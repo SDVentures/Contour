@@ -1,7 +1,6 @@
 namespace Contour.Flow.Configuration
 {
-    public interface IMessageFlow : IIncomingFlow, IFlowEntry, IFlowTarget, IFlowRegistryItem
+    public interface IMessageFlow : IIncomingFlow, IFlowTarget, IFlowRegistryItem
     {
-        IFlowLabelProvider LabelProvider { set; }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Contour.Flow.Configuration
@@ -10,8 +11,8 @@ namespace Contour.Flow.Configuration
         /// <summary>
         /// Describes a client subscription for the message flow with <paramref name="label"/> label and <typeparamref name="TOutput" /> type.
         /// </summary>
-        /// <param name="label"></param>
-        /// <param name="capacity"></param>
+        /// <param name="label">A flow label used to identify an incoming flow</param>
+        /// <param name="capacity">Maximum capacity of the incoming flow buffer</param>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         IActingFlow<TOutput> On<TOutput>(string label, int capacity = 1);

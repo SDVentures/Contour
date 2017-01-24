@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Common.Logging;
@@ -29,13 +30,12 @@ namespace Contour.Flow.Configuration
         {
             Func<TInput, ActionContext<TInput, TOutput>> func = input =>
             {
-                log.Debug(new {name = nameof(Act), act, input, capacity, scale});
-
                 var output = default(TOutput);
                 Exception exception = null;
-
+                
                 try
                 {
+                    log.Debug(new { name = nameof(Act), act, input, capacity, scale });
                     output = act(input);
                 }
                 catch (Exception ex)
@@ -43,21 +43,49 @@ namespace Contour.Flow.Configuration
                     log.Error(new {name = nameof(Act), error = ex, input, capacity, scale});
                     exception = ex;
                 }
-                
+
                 return new ActionContext<TInput, TOutput> {Arg = input, Result = output, Error = exception};
             };
 
             //Need to stop the flow in case of any errors in the action
-            Predicate<ActionContext<TInput, TOutput>> successPredicate = context => context.Error == null;
+            Predicate<ActionContext<TInput, TOutput>> onSuccess = context => context.Error == null;
             
-            var action = new ConditionalTransformBlock<TInput, ActionContext<TInput, TOutput>>(func, successPredicate,
+            var action = new ConditionalTransformBlock<TInput, ActionContext<TInput, TOutput>>(func, onSuccess,
                 new ExecutionDataflowBlockOptions {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
-            
             var link = source.LinkTo(action);
+
             var flow = new ActingFlow<ActionContext<TInput, TOutput>>(action, source, link) {Registry = Registry};
             return flow;
         }
-        
+
+        public ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1)
+        {
+            Func<TInput, Task<ActionContext<TInput>>> func = input =>
+            {
+                Exception exception = null;
+
+                try
+                {
+                    log.Debug(new { name = nameof(Act), act, input, capacity, scale });
+                    act(input);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(new {name = nameof(Act), error = ex, input, capacity, scale});
+                    exception = ex;
+                }
+
+                return Task.FromResult(new ActionContext<TInput> {Arg = input, Error = exception});
+            };
+            
+            var action = new ActionBlock<TInput>(func,
+                new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
+
+            source.LinkTo(action);
+            var flow = new TerminatingFlow();
+            return flow;
+        }
+
         public IOutgoingFlow Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
         {
             //The pipe tail should be a source for the outgoing flow

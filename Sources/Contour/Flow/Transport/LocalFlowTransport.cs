@@ -2,11 +2,11 @@
 
 namespace Contour.Flow.Transport
 {
-    internal class InMemoryFlowTransport: IInMemoryFlowTransport
+    internal class LocalFlowTransport: ILocalFlowTransport
     {
         public IMessageFlow CreateFlow()
         {
-            return new InMemoryMessageFlow();
+            return new LocalMessageFlow();
         }
     }
 }

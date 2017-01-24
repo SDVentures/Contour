@@ -53,6 +53,12 @@ namespace Contour.Flow.Configuration
             return results;
         }
 
+        IEnumerable<IFlowTarget> IFlowRegistry.Get<TOutput>(string label)
+        {
+            var results = flows.Where(ft => ft.Label == label && ft.AsTarget<TOutput>() != null);
+            return results;
+        }
+
         void IFlowRegistry.Add(IFlowTarget flow)
         {
             flows.Add(flow);

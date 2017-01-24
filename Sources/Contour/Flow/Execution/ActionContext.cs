@@ -10,4 +10,11 @@ namespace Contour.Flow.Execution
 
         public Exception Error { get; set; }
     }
+
+    public class ActionContext<TIn>
+    {
+        public TIn Arg { get; set; }
+
+        public Exception Error { get; set; }
+    }
 }

@@ -42,6 +42,14 @@ namespace Contour.Tests
                         .Act(p => p);
                 };
 
+                it["should configure incoming flow single action with no result"] = () =>
+                {
+                    var factory = GetMessageFlowFactory();
+                    factory.Create("fake")
+                        .On<Payload>("incoming_label")
+                        .Act(arg => { });
+                };
+
                 it["should configure incoming flow multiple actions"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
@@ -59,8 +67,7 @@ namespace Contour.Tests
                         .Act(p => new NewPayload())
                         .Act(p2 => new Payload());
                 };
-
-
+                
                 it["should configure incoming flow action scalability"] = () =>
                 {
                     const int scale = 10;
@@ -128,7 +135,7 @@ namespace Contour.Tests
 
                     A.CallTo(() => factory.Create(A.Dummy<string>()))
                         .WithAnyArguments()
-                        .ReturnsLazily(() => new InMemoryMessageFlow() {Registry = registry}); //lazily means 'new value from factory function'
+                        .ReturnsLazily(() => new LocalMessageFlow() {Registry = registry}); //lazily means 'new value from factory function'
 
                     var flow1 = factory.Create("receiver");
                     flow1.On<NewPayload>("receiver_label")
@@ -186,11 +193,11 @@ namespace Contour.Tests
                 };
             }
         }
-
+        
         private static IFlowFactory GetMessageFlowFactory()
         {
             var factory = A.Fake<IFlowFactory>();
-            A.CallTo(() => factory.Create(A.Dummy<string>())).WithAnyArguments().Returns(new InMemoryMessageFlow());
+            A.CallTo(() => factory.Create(A.Dummy<string>())).WithAnyArguments().Returns(new LocalMessageFlow());
             return factory;
         }
     }

@@ -42,6 +42,23 @@ namespace Contour.Tests
                 A.CallTo(action).MustHaveHappened();
             };
 
+            it["should perform single action with no result on incoming message"] = () =>
+            {
+                var factory = GetMessageFlowFactory();
+                var flow = factory.Create("fake");
+                var action = A.Fake<Action<Payload>>();
+
+                flow.On<Payload>("incoming_label")
+                    .Act(action);
+
+                var tcs = new TaskCompletionSource<bool>();
+                A.CallTo(action).Invokes(() => tcs.SetResult(true));
+                flow.Post(new Payload());
+
+                tcs.Task.Wait(AMinute());
+                A.CallTo(action).MustHaveHappened();
+            };
+
             it["should terminate the flow on action errors"] = () =>
             {
                 var factory = GetMessageFlowFactory();
@@ -130,7 +147,7 @@ namespace Contour.Tests
                 var factory = A.Fake<IFlowFactory>();
                 A.CallTo(() => factory.Create(A.Dummy<string>()))
                     .WithAnyArguments()
-                    .ReturnsLazily(() => new InMemoryMessageFlow() {Registry = registry});
+                    .ReturnsLazily(() => new LocalMessageFlow() {Registry = registry});
 
                 var action = A.Fake<Func<Payload, NewPayload>>();
                 A.CallTo(action)
@@ -161,7 +178,7 @@ namespace Contour.Tests
             var factory = A.Fake<IFlowFactory>();
             A.CallTo(() => factory.Create(A.Dummy<string>()))
                 .WithAnyArguments()
-                .ReturnsLazily(() => new InMemoryMessageFlow());
+                .ReturnsLazily(() => new LocalMessageFlow());
             return factory;
         }
 

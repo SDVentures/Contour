@@ -11,19 +11,19 @@ namespace Contour.Flow.Blocks
     internal class ConditionalTransformBlock<TInput, TOutput>: MessageBlock, IPropagatorBlock<TInput, TOutput>
     {
         private readonly IPropagatorBlock<TInput, TOutput> incoming;
-        private readonly BufferBlock<TOutput> outgoing;
+        private readonly BroadcastBlock<TOutput> outgoing;
 
-        public ConditionalTransformBlock(Func<TInput, TOutput> func, Predicate<TOutput> predicate)
-            : this(func, predicate, new ExecutionDataflowBlockOptions())
+        public ConditionalTransformBlock(Func<TInput, TOutput> func, Predicate<TOutput> successPredicate)
+            : this(func, successPredicate, new ExecutionDataflowBlockOptions())
         {
         }
 
-        public ConditionalTransformBlock(Func<TInput, TOutput> func, Predicate<TOutput> predicate, ExecutionDataflowBlockOptions options)
+        public ConditionalTransformBlock(Func<TInput, TOutput> func, Predicate<TOutput> successPredicate, ExecutionDataflowBlockOptions options)
         {
             incoming = new TransformBlock<TInput, TOutput>(func, options);
-            outgoing = new BufferBlock<TOutput>(options);
+            outgoing = new BroadcastBlock<TOutput>(output => output, options);
 
-            incoming.LinkTo(outgoing, predicate);
+            incoming.LinkTo(outgoing, successPredicate);
         }
 
         public DataflowMessageStatus OfferMessage(DataflowMessageHeader messageHeader, TInput messageValue, ISourceBlock<TInput> source,
