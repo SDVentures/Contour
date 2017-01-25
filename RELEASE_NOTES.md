@@ -1,4 +1,7 @@
-﻿## 1.1.1
+﻿## 1.2.0
+ - Incoming message listener QoS and parallelism level configuration added.
+
+## 1.1.1
  - Deleted destructor and overloaded Dispose method to leave only one option for endpoint deletion.
 
 ## 1.1.0
