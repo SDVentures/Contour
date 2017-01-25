@@ -186,6 +186,8 @@ namespace Contour.Configurator
                 }
             }
 
+            #region Validation
+
             foreach (ValidatorElement validator in endpointConfig.Validators)
             {
                 if (validator.Group)
@@ -199,6 +201,9 @@ namespace Contour.Configurator
                     cfg.RegisterValidator(v);
                 }
             }
+            #endregion
+
+            #region Outgoing
 
             foreach (OutgoingElement message in endpointConfig.Outgoing)
             {
@@ -230,36 +235,62 @@ namespace Contour.Configurator
                     senderCfg.WithRequestTimeout(message.Timeout);
                 }
             }
+            #endregion
 
-            foreach (IncomingElement message in endpointConfig.Incoming)
+            #region Incoming
+
+            foreach (IncomingElement incomingElement in endpointConfig.Incoming)
             {
-                IReceiverConfigurator receiver = cfg.On(message.Label).
-                    WithAlias(message.Key);
+                var configurator = cfg.On(incomingElement.Label).
+                    WithAlias(incomingElement.Key);
 
-                if (message.RequiresAccept)
+                var incomingQos = endpointConfig.Qos;
+
+                if (incomingElement.Qos != null && (incomingElement.Qos.PrefetchSize.HasValue || incomingElement.Qos.PrefetchCount.HasValue))
                 {
-                    receiver.RequiresAccept();
+                    incomingQos = incomingElement.Qos;
+                }
+
+                ushort count = 0;
+                uint size = 0;
+
+                if (incomingQos.PrefetchCount.HasValue)
+                {
+                    count = incomingQos.PrefetchCount.Value;
+                }
+
+                if (incomingQos.PrefetchSize.HasValue)
+                {
+                    size = incomingQos.PrefetchSize.Value;
+                }
+
+                configurator.WithQoS(new QoSParams(count, size));
+
+                if (incomingElement.RequiresAccept)
+                {
+                    configurator.RequiresAccept();
                 }
 
                 Type messageType = typeof(ExpandoObject);
-                if (!string.IsNullOrWhiteSpace(message.Type))
+                if (!string.IsNullOrWhiteSpace(incomingElement.Type))
                 {
-                    messageType = ResolveType(message.Type);
+                    messageType = ResolveType(incomingElement.Type);
                 }
 
-                var consumerFactory = this.BuildConsumerFactory(message.React, messageType);
+                var consumerFactory = this.BuildConsumerFactory(incomingElement.React, messageType);
 
-                object consumer = BuildConsumer(consumerFactory, messageType, message.Lifestyle);
+                object consumer = BuildConsumer(consumerFactory, messageType, incomingElement.Lifestyle);
 
-                RegisterConsumer(receiver, messageType, consumer);
+                RegisterConsumer(configurator, messageType, consumer);
 
-                if (!string.IsNullOrWhiteSpace(message.Validate))
+                if (!string.IsNullOrWhiteSpace(incomingElement.Validate))
                 {
-                    IMessageValidator validator = this.ResolveValidator(message.Validate, messageType);
+                    IMessageValidator validator = this.ResolveValidator(incomingElement.Validate, messageType);
 
-                    receiver.WhenVerifiedBy(validator);
+                    configurator.WhenVerifiedBy(validator);
                 }
             }
+            #endregion
 
             return cfg;
         }

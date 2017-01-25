@@ -69,6 +69,18 @@
             }
         }
 
+        /// <summary>
+        /// Gets QoS for incoming messages listener
+        /// </summary>
+        [ConfigurationProperty("qos")]
+        public QosElement Qos
+        {
+            get
+            {
+                return (QosElement)base["qos"];
+            }
+        }
+
         #endregion
     }
 }

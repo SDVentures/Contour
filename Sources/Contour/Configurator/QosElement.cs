@@ -18,5 +18,17 @@ namespace Contour.Configurator
                 return (ushort?)base["prefetchCount"];
             }
         }
+
+        /// <summary>
+        /// Количество сообщений, которые должен обработать получатель, прежде чем получит новую порцию данных.
+        /// </summary>
+        [ConfigurationProperty("prefetchSize", IsRequired = true)]
+        public uint? PrefetchSize
+        {
+            get
+            {
+                return (uint?)base["prefetchSize"];
+            }
+        }
     }
 }

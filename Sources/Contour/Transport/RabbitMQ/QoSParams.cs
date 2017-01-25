@@ -18,7 +18,6 @@ namespace Contour.Transport.RabbitMQ
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="QoSParams"/>. 
-        /// The qo s params.
         /// </summary>
         /// <param name="prefetchCount">
         /// Количество сообщений получаемых из шины за одно обращение, т.е. размер порции данных.

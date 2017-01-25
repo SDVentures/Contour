@@ -11,7 +11,8 @@
     using NUnit.Framework;
 
     /// <summary>
-    /// The config section reading specs.
+    /// The configuration section reading specs.
+    /// Please note that setting IsRequired=true on derived configuration elements does not take effect due to configuration system limitations. See https://social.msdn.microsoft.com/Forums/vstudio/en-US/710c69e7-0c70-4905-8a5d-448c1e12a2e5/loading-custom-configurationsection-ignores-isrequired-attribute-on-children-which-are-of?forum=netfxbcl for explanation.
     /// </summary>
     // ReSharper disable InconsistentNaming
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
@@ -465,6 +466,40 @@
 
                 var section = new XmlEndpointsSection(Config);
                 Assert.IsNull(section.Endpoints["a"].FaultQueueLimit, "Время хранения сообщений в Fault очереди не должно быть установлено.");
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_qos_for_incoming
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string endpointName = "ep";
+                const int prefetchCount = 5;
+                const int prefetchSize = 6;
+                const string onKeyName = "key";
+
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"">
+                                        <qos prefetchCount=""{prefetchCount}"" prefetchSize=""{prefetchSize}"" />
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[endpointName];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+
+                var on = elements.First(e => e.Key == onKeyName);
+
+                on.Qos.PrefetchCount.Should().Be(prefetchCount);
+                on.Qos.PrefetchSize.Should().Be(prefetchSize);
             }
         }
     }
