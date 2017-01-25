@@ -244,42 +244,49 @@ namespace Contour.Configurator
                 var configurator = cfg.On(incomingElement.Label).
                     WithAlias(incomingElement.Key);
 
-                var qos = endpointConfig.Qos;
+                //this should be the default value
+                var qos = configurator.GetQoS();
 
-                if (incomingElement.Qos != null && (incomingElement.Qos.PrefetchSize.HasValue || incomingElement.Qos.PrefetchCount.HasValue))
+                if (qos.HasValue)
                 {
-                    qos = incomingElement.Qos;
+                    var size = qos.Value.PrefetchSize;
+                    var count = qos.Value.PrefetchCount;
+                    
+                    if (endpointConfig.Qos.PrefetchSize.HasValue)
+                    {
+                        size = endpointConfig.Qos.PrefetchSize.Value;
+
+                        if (incomingElement.Qos.PrefetchSize.HasValue)
+                        {
+                            size = incomingElement.Qos.PrefetchSize.Value;
+                        }
+                    }
+
+                    if (endpointConfig.Qos.PrefetchCount.HasValue)
+                    {
+                        count = endpointConfig.Qos.PrefetchCount.Value;
+
+                        if (incomingElement.Qos.PrefetchCount.HasValue)
+                        {
+                            count = incomingElement.Qos.PrefetchCount.Value;
+                        }
+                    }
+
+                    configurator.WithQoS(new QoSParams(count, size));
                 }
-
-                ushort count = 0;
-                uint size = 0;
-
-                if (qos.PrefetchCount.HasValue)
-                {
-                    count = qos.PrefetchCount.Value;
-                }
-
-                if (qos.PrefetchSize.HasValue)
-                {
-                    size = qos.PrefetchSize.Value;
-                }
-
-                configurator.WithQoS(new QoSParams(count, size));
-
-                uint level = 0;
 
                 if (endpointConfig.ParallelismLevel.HasValue)
                 {
-                    level = endpointConfig.ParallelismLevel.Value;
+                    var level = endpointConfig.ParallelismLevel.Value;
+
+                    if (incomingElement.ParallelismLevel.HasValue)
+                    {
+                        level = incomingElement.ParallelismLevel.Value;
+                    }
+
+                    configurator.WithParallelismLevel(level);
                 }
-
-                if (incomingElement.ParallelismLevel.HasValue)
-                {
-                    level = incomingElement.ParallelismLevel.Value;
-                }
-
-                configurator.WithParallelismLevel(level);
-
+                
                 if (incomingElement.RequiresAccept)
                 {
                     configurator.RequiresAccept();
