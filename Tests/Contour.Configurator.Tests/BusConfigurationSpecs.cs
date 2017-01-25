@@ -1095,6 +1095,7 @@ namespace Contour.Configurator.Tests
                 string config =
                     $@"<endpoints>
                         <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                            <qos prefetchCount=""123"" prefetchSize=""456"" />
                                 <incoming>
                                     <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"">
                                         <qos prefetchCount=""{prefetchCount}"" prefetchSize=""{prefetchSize}"" />
@@ -1112,18 +1113,14 @@ namespace Contour.Configurator.Tests
 
                 var result = configurator.Configure(endpointName, busConfiguration);
                 var busConfigurationResult = (BusConfiguration) result;
-
-                busConfigurationResult.ReceiverConfigurations.Should().HaveCount(1);
                 var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
-                receiverConfiguration.Options.Should().BeOfType<RabbitReceiverOptions>();
-
                 var receiverOptions = (RabbitReceiverOptions) receiverConfiguration.Options;
                 
                 var qos = receiverOptions.GetQoS();
                 var value = qos.Value;
 
-                value.PrefetchCount.Should().Be(prefetchCount);
-                value.PrefetchSize.Should().Be(prefetchSize);
+                value.PrefetchCount.Should().Be(prefetchCount, "Incoming QoS prefetch count should be set");
+                value.PrefetchSize.Should().Be(prefetchSize, "Incoming QoS prefetch size should be set");
             }
 
             [Test]
@@ -1153,18 +1150,77 @@ namespace Contour.Configurator.Tests
 
                 var result = configurator.Configure(endpointName, busConfiguration);
                 var busConfigurationResult = (BusConfiguration)result;
-
-                busConfigurationResult.ReceiverConfigurations.Should().HaveCount(1);
                 var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
-                receiverConfiguration.Options.Should().BeOfType<RabbitReceiverOptions>();
 
                 var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
 
                 var qos = receiverOptions.GetQoS();
                 var value = qos.Value;
 
-                value.PrefetchCount.Should().Be(prefetchCount);
-                value.PrefetchSize.Should().Be(prefetchSize);
+                value.PrefetchCount.Should().Be(prefetchCount, "Endpoint QoS prefetch count should be used");
+                value.PrefetchSize.Should().Be(prefetchSize, "Endpoint QoS prefetch size should be used");
+            }
+
+            [Test]
+            public void should_set_parallelism_level_if_present()
+            {
+                const string endpointName = "ep";
+                const uint parallelismLevel = 99;
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"" parallelismLevel=""123"">
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" parallelismLevel=""{parallelismLevel}""/>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetParallelismLevel().Value.Should().Be(parallelismLevel, "Incoming parallelism level should be set");
+            }
+
+            [Test]
+            public void should_use_endpoint_parallelism_level_if_not_present()
+            {
+                const string endpointName = "ep";
+                const uint parallelismLevel = 99;
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"" parallelismLevel=""{parallelismLevel}"">
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetParallelismLevel().Value.Should().Be(parallelismLevel, "Endpoint parallelism level should be used");
             }
         }
     }

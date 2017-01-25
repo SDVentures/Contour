@@ -81,6 +81,15 @@
             }
         }
 
+        [ConfigurationProperty("parallelismLevel", IsRequired = false)]
+        public uint? ParallelismLevel
+        {
+            get
+            {
+                return (uint?) base["parallelismLevel"];
+            }
+        }
+
         #endregion
     }
 }

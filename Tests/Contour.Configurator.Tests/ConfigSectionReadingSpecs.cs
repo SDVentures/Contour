@@ -477,8 +477,8 @@
             public void should_read_configuration_property()
             {
                 const string endpointName = "ep";
-                const int prefetchCount = 5;
-                const int prefetchSize = 6;
+                const ushort prefetchCount = 5;
+                const uint prefetchSize = 6;
                 const string onKeyName = "key";
 
                 string Config =
@@ -498,8 +498,62 @@
 
                 var on = elements.First(e => e.Key == onKeyName);
 
-                on.Qos.PrefetchCount.Should().Be(prefetchCount);
-                on.Qos.PrefetchSize.Should().Be(prefetchSize);
+                on.Qos.PrefetchCount.Should().Be(prefetchCount, "Incoming QoS prefetch count should be set");
+                on.Qos.PrefetchSize.Should().Be(prefetchSize, "Incoming QoS prefetch size should be set");
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_parallelism_level_for_incoming
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                const uint parallelismLevel = 7;
+
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" parallelismLevel=""{parallelismLevel}"">
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[endpointName];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+
+                var on = elements.First(e => e.Key == onKeyName);
+                on.ParallelismLevel.Should().Be(parallelismLevel, "Incoming parallelism level should be set");
+            }
+
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" >
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[endpointName];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+
+                var on = elements.First(e => e.Key == onKeyName);
+                on.ParallelismLevel.Should().BeNull("Incoming parallelism level should not be set");
             }
         }
     }

@@ -244,27 +244,41 @@ namespace Contour.Configurator
                 var configurator = cfg.On(incomingElement.Label).
                     WithAlias(incomingElement.Key);
 
-                var incomingQos = endpointConfig.Qos;
+                var qos = endpointConfig.Qos;
 
                 if (incomingElement.Qos != null && (incomingElement.Qos.PrefetchSize.HasValue || incomingElement.Qos.PrefetchCount.HasValue))
                 {
-                    incomingQos = incomingElement.Qos;
+                    qos = incomingElement.Qos;
                 }
 
                 ushort count = 0;
                 uint size = 0;
 
-                if (incomingQos.PrefetchCount.HasValue)
+                if (qos.PrefetchCount.HasValue)
                 {
-                    count = incomingQos.PrefetchCount.Value;
+                    count = qos.PrefetchCount.Value;
                 }
 
-                if (incomingQos.PrefetchSize.HasValue)
+                if (qos.PrefetchSize.HasValue)
                 {
-                    size = incomingQos.PrefetchSize.Value;
+                    size = qos.PrefetchSize.Value;
                 }
 
                 configurator.WithQoS(new QoSParams(count, size));
+
+                uint level = 0;
+
+                if (endpointConfig.ParallelismLevel.HasValue)
+                {
+                    level = endpointConfig.ParallelismLevel.Value;
+                }
+
+                if (incomingElement.ParallelismLevel.HasValue)
+                {
+                    level = incomingElement.ParallelismLevel.Value;
+                }
+
+                configurator.WithParallelismLevel(level);
 
                 if (incomingElement.RequiresAccept)
                 {

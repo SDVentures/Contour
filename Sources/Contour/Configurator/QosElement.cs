@@ -22,7 +22,7 @@ namespace Contour.Configurator
         /// <summary>
         /// Количество сообщений, которые должен обработать получатель, прежде чем получит новую порцию данных.
         /// </summary>
-        [ConfigurationProperty("prefetchSize", IsRequired = true)]
+        [ConfigurationProperty("prefetchSize", IsRequired = false)]
         public uint? PrefetchSize
         {
             get
