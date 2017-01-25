@@ -1,4 +1,7 @@
-﻿## 1.2.0
+﻿## 1.2.1
+ - QoS & PL default settings are now preserved if not specified in configufation.
+
+## 1.2.0
  - Incoming message listener QoS and parallelism level configuration added.
 
 ## 1.1.1
