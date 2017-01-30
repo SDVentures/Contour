@@ -69,6 +69,27 @@
             }
         }
 
+        /// <summary>
+        /// Gets QoS for incoming messages listener
+        /// </summary>
+        [ConfigurationProperty("qos")]
+        public QosElement Qos
+        {
+            get
+            {
+                return (QosElement)base["qos"];
+            }
+        }
+
+        [ConfigurationProperty("parallelismLevel", IsRequired = false)]
+        public uint? ParallelismLevel
+        {
+            get
+            {
+                return (uint?) base["parallelismLevel"];
+            }
+        }
+
         #endregion
     }
 }

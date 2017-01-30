@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using Contour.Helpers;
+
 namespace Contour.Transport.RabbitMQ
 {
     using Contour.Receiving;
@@ -35,6 +37,18 @@ namespace Contour.Transport.RabbitMQ
             ((RabbitReceiverOptions)((ReceiverConfiguration)builder).Options).QoS = qosParams;
 
             return builder;
+        }
+
+        /// <summary>
+        /// Returns current QoS settings
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static Maybe<QoSParams> GetQoS(this IReceiverConfigurator builder)
+        {
+            var config = builder as ReceiverConfiguration;
+            var options = config?.Options as RabbitReceiverOptions;
+            return options != null ? options.GetQoS() : Maybe<QoSParams>.Empty;
         }
 
         /// <summary>

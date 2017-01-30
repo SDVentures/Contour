@@ -1,5 +1,5 @@
 ﻿using System;
-
+using Contour.Helpers;
 using Contour.Receiving.Consumers;
 using Contour.Validation;
 
@@ -88,7 +88,7 @@ namespace Contour.Receiving
         /// <param name="parallelismLevel">Количество одновременных обработчиков входящих сообщений.</param>
         /// <returns>Конфигуратор получателя с установленным количеством одновременных обработчиков входящих сообщений.</returns>
         IReceiverConfigurator WithParallelismLevel(uint parallelismLevel);
-
+        
         /// <summary>
         /// Устанавливает хранилище заголовков входящего сообщения.
         /// </summary>
