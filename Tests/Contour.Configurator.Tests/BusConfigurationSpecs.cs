@@ -1085,11 +1085,10 @@ namespace Contour.Configurator.Tests
         public class when_configuring_endpoint_incoming
         {
             [Test]
-            public void should_set_qos_if_present()
+            public void should_set_qos_prefetch_count_if_present()
             {
                 const string endpointName = "ep";
                 const int prefetchCount = 5;
-                const int prefetchSize = 6;
                 const string onKeyName = "key";
 
                 string config =
@@ -1097,7 +1096,7 @@ namespace Contour.Configurator.Tests
                         <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
                                 <incoming>
                                     <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"">
-                                        <qos prefetchCount=""{prefetchCount}"" prefetchSize=""{prefetchSize}"" />
+                                        <qos prefetchCount=""{prefetchCount}"" />
                                     </on>
                                 </incoming>
                         </endpoint>
@@ -1119,21 +1118,55 @@ namespace Contour.Configurator.Tests
                 var value = qos.Value;
 
                 value.PrefetchCount.Should().Be(prefetchCount, "Incoming QoS prefetch count should be set");
-                value.PrefetchSize.Should().Be(prefetchSize, "Incoming QoS prefetch size should be set");
             }
 
             [Test]
-            public void should_use_endpoint_qos_if_not_present()
+            public void should_set_qos_prefetch_size_if_present()
             {
                 const string endpointName = "ep";
-                const int prefetchCount = 5;
                 const int prefetchSize = 6;
                 const string onKeyName = "key";
 
                 string config =
                     $@"<endpoints>
                         <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
-                            <qos prefetchCount=""{prefetchCount}"" prefetchSize=""{prefetchSize}"" />
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"">
+                                        <qos prefetchCount="""" prefetchSize=""{prefetchSize}"" />
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+
+                var qos = receiverOptions.GetQoS();
+                var value = qos.Value;
+
+                value.PrefetchSize.Should().Be(prefetchSize, "Incoming QoS prefetch size should be set");
+            }
+
+            [Test]
+            public void should_use_endpoint_qos_prefetch_count_if_not_present()
+            {
+                const string endpointName = "ep";
+                const int prefetchCount = 5;
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                            <qos prefetchCount=""{prefetchCount}"" />
                                 <incoming>
                                     <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
                                 </incoming>
@@ -1157,11 +1190,46 @@ namespace Contour.Configurator.Tests
                 var value = qos.Value;
 
                 value.PrefetchCount.Should().Be(prefetchCount, "Endpoint QoS prefetch count should be used");
+            }
+
+            [Test]
+            public void should_use_endpoint_qos_prefetch_size_if_not_present()
+            {
+                const string endpointName = "ep";
+                const int prefetchSize = 6;
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                            <qos prefetchCount="""" prefetchSize=""{prefetchSize}"" />
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+
+                var qos = receiverOptions.GetQoS();
+                var value = qos.Value;
+
                 value.PrefetchSize.Should().Be(prefetchSize, "Endpoint QoS prefetch size should be used");
             }
 
             [Test]
-            public void should_use_qos_defaults_if_no_incoming_and_endpoint_settings_are_present()
+            public void should_use_qos_default_prefetch_count_if_no_incoming_and_endpoint_settings_are_present()
             {
                 const string endpointName = "ep";
                 const string onKeyName = "key";
@@ -1193,6 +1261,40 @@ namespace Contour.Configurator.Tests
                 var defaultQos = receiverDefaults.GetQoS().Value;
                 
                 qos.PrefetchCount.Should().Be(defaultQos.PrefetchCount, "Default QoS prefetch count should be used");
+            }
+
+            [Test]
+            public void should_use_qos_default_prefetch_size_if_no_incoming_and_endpoint_settings_are_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                            <incoming>
+                                <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                            </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                var qos = receiverOptions.GetQoS().Value;
+
+                var receiverDefaults = (RabbitReceiverOptions)busConfiguration.ReceiverDefaults;
+                var defaultQos = receiverDefaults.GetQoS().Value;
+
                 qos.PrefetchSize.Should().Be(defaultQos.PrefetchSize, "Default QoS prefetch size should be used");
             }
 
