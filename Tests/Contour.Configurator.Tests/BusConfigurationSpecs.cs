@@ -1095,7 +1095,6 @@ namespace Contour.Configurator.Tests
                 string config =
                     $@"<endpoints>
                         <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
-                            <qos prefetchCount=""123"" prefetchSize=""456"" />
                                 <incoming>
                                     <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"">
                                         <qos prefetchCount=""{prefetchCount}"" prefetchSize=""{prefetchSize}"" />
@@ -1162,6 +1161,42 @@ namespace Contour.Configurator.Tests
             }
 
             [Test]
+            public void should_use_qos_defaults_if_no_incoming_and_endpoint_settings_are_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"">
+                            <incoming>
+                                <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                            </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                var qos = receiverOptions.GetQoS().Value;
+
+                var receiverDefaults = (RabbitReceiverOptions)busConfiguration.ReceiverDefaults;
+                var defaultQos = receiverDefaults.GetQoS().Value;
+                
+                qos.PrefetchCount.Should().Be(defaultQos.PrefetchCount, "Default QoS prefetch count should be used");
+                qos.PrefetchSize.Should().Be(defaultQos.PrefetchSize, "Default QoS prefetch size should be used");
+            }
+
+            [Test]
             public void should_set_parallelism_level_if_present()
             {
                 const string endpointName = "ep";
@@ -1221,6 +1256,38 @@ namespace Contour.Configurator.Tests
 
                 var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
                 receiverOptions.GetParallelismLevel().Value.Should().Be(parallelismLevel, "Endpoint parallelism level should be used");
+            }
+
+            [Test]
+            public void should_use_parallelism_level_defaults_if_no_incoming_and_endpoint_settings_are_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"" >
+                            <incoming>
+                                <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                            </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                var receiverDefaults = busConfiguration.ReceiverDefaults;
+
+                receiverOptions.GetParallelismLevel().Value.Should().Be(receiverDefaults.GetParallelismLevel().Value, "Default parallelism level should be used");
             }
         }
     }

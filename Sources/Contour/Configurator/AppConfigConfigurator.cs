@@ -244,47 +244,48 @@ namespace Contour.Configurator
                 var configurator = cfg.On(incomingElement.Label).
                     WithAlias(incomingElement.Key);
 
-                //this should be the default value
-                var qos = configurator.GetQoS();
+                //these values will never be used if UseRabbitMq() is not called on IBusConfigurator cfg
+                uint size = 0;
+                ushort count = 50;
 
+                //this should be the default values provided by RabbitMQ configurator (BusConsumerConfigurationEx);
+                var qos = configurator.GetQoS();
                 if (qos.HasValue)
                 {
-                    var size = qos.Value.PrefetchSize;
-                    var count = qos.Value.PrefetchCount;
-                    
-                    if (endpointConfig.Qos.PrefetchSize.HasValue)
-                    {
-                        size = endpointConfig.Qos.PrefetchSize.Value;
-
-                        if (incomingElement.Qos.PrefetchSize.HasValue)
-                        {
-                            size = incomingElement.Qos.PrefetchSize.Value;
-                        }
-                    }
-
-                    if (endpointConfig.Qos.PrefetchCount.HasValue)
-                    {
-                        count = endpointConfig.Qos.PrefetchCount.Value;
-
-                        if (incomingElement.Qos.PrefetchCount.HasValue)
-                        {
-                            count = incomingElement.Qos.PrefetchCount.Value;
-                        }
-                    }
-
-                    configurator.WithQoS(new QoSParams(count, size));
+                    size = qos.Value.PrefetchSize;
+                    count = qos.Value.PrefetchCount;
                 }
+
+                if (endpointConfig.Qos.PrefetchSize.HasValue)
+                {
+                    size = endpointConfig.Qos.PrefetchSize.Value;
+                }
+
+                if (incomingElement.Qos.PrefetchSize.HasValue)
+                {
+                    size = incomingElement.Qos.PrefetchSize.Value;
+                }
+
+                if (endpointConfig.Qos.PrefetchCount.HasValue)
+                {
+                    count = endpointConfig.Qos.PrefetchCount.Value;
+                }
+
+                if (incomingElement.Qos.PrefetchCount.HasValue)
+                {
+                    count = incomingElement.Qos.PrefetchCount.Value;
+                }
+
+                configurator.WithQoS(new QoSParams(count, size));
 
                 if (endpointConfig.ParallelismLevel.HasValue)
                 {
-                    var level = endpointConfig.ParallelismLevel.Value;
+                    configurator.WithParallelismLevel(endpointConfig.ParallelismLevel.Value);
+                }
 
-                    if (incomingElement.ParallelismLevel.HasValue)
-                    {
-                        level = incomingElement.ParallelismLevel.Value;
-                    }
-
-                    configurator.WithParallelismLevel(level);
+                if (incomingElement.ParallelismLevel.HasValue)
+                {
+                    configurator.WithParallelismLevel(incomingElement.ParallelismLevel.Value);
                 }
                 
                 if (incomingElement.RequiresAccept)

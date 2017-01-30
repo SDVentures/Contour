@@ -1,5 +1,5 @@
 ﻿using System;
-
+using Contour.Helpers;
 using Contour.Receiving.Consumers;
 using Contour.Validation;
 
