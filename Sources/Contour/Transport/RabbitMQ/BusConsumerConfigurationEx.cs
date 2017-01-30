@@ -46,8 +46,9 @@ namespace Contour.Transport.RabbitMQ
         /// <returns></returns>
         public static Maybe<QoSParams> GetQoS(this IReceiverConfigurator builder)
         {
-            var qos = ((RabbitReceiverOptions)((ReceiverConfiguration)builder).Options).GetQoS();
-            return qos;
+            var config = builder as ReceiverConfiguration;
+            var options = config?.Options as RabbitReceiverOptions;
+            return options != null ? options.GetQoS() : Maybe<QoSParams>.Empty;
         }
 
         /// <summary>
