@@ -9,7 +9,7 @@ namespace Contour.Flow.Configuration
     internal class FlowBroker : IFlowFactory, IFlowTransportRegistry, IFlowRegistry
     {
         private readonly ConcurrentDictionary<string, IFlowTransport> transports = new ConcurrentDictionary<string, IFlowTransport>();
-        private readonly ConcurrentBag<IFlowTarget> flows = new ConcurrentBag<IFlowTarget>();
+        private readonly ConcurrentBag<IFlowRegistryItem> flows = new ConcurrentBag<IFlowRegistryItem>();
 
         void IFlowTransportRegistry.Register(string name, IFlowTransport transport)
         {
@@ -31,7 +31,7 @@ namespace Contour.Flow.Configuration
                 var flow = transport.CreateFlow();
                 var registry = (IFlowRegistry) this;
                 registry.Add(flow);
-                flow.Registry = registry;
+                flow.Root = registry;
 
                 return flow;
             }
@@ -41,25 +41,25 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        public IEnumerable<IFlowTarget> Get<TOutput>()
+        public IEnumerable<IFlowRegistryItem> Get<TOutput>()
         {
             var results = flows.Where(ft => ft.AsTarget<TOutput>() != null);
             return results;
         }
 
-        IEnumerable<IFlowTarget> IFlowRegistry.Get(string label)
+        IEnumerable<IFlowRegistryItem> IFlowRegistry.Get(string label)
         {
             var results = flows.Where(ft => ft.Label == label);
             return results;
         }
 
-        IEnumerable<IFlowTarget> IFlowRegistry.Get<TOutput>(string label)
+        IEnumerable<IFlowRegistryItem> IFlowRegistry.Get<TOutput>(string label)
         {
             var results = flows.Where(ft => ft.Label == label && ft.AsTarget<TOutput>() != null);
             return results;
         }
 
-        void IFlowRegistry.Add(IFlowTarget flow)
+        void IFlowRegistry.Add(IFlowRegistryItem flow)
         {
             flows.Add(flow);
         }

@@ -4,12 +4,12 @@ namespace Contour.Flow.Configuration
 {
     public interface IFlowRegistry
     {
-        IEnumerable<IFlowTarget> Get<TOutput>();
+        IEnumerable<IFlowRegistryItem> Get<TOutput>();
 
-        IEnumerable<IFlowTarget> Get(string label);
+        IEnumerable<IFlowRegistryItem> Get(string label);
 
-        IEnumerable<IFlowTarget> Get<TOutput>(string label); 
+        IEnumerable<IFlowRegistryItem> Get<TOutput>(string label); 
         
-        void Add(IFlowTarget flow);
+        void Add(IFlowRegistryItem flow);
     }
 }

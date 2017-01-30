@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using Contour.Caching;
 using Contour.Flow.Configuration;
 using Contour.Flow.Execution;
 using FakeItEasy;
-using FluentAssertions;
 using NSpec;
 
 namespace Contour.Tests
@@ -147,7 +144,7 @@ namespace Contour.Tests
                 var factory = A.Fake<IFlowFactory>();
                 A.CallTo(() => factory.Create(A.Dummy<string>()))
                     .WithAnyArguments()
-                    .ReturnsLazily(() => new LocalMessageFlow() {Registry = registry});
+                    .ReturnsLazily(() => new LocalMessageFlow() {Root = registry});
 
                 var action = A.Fake<Func<Payload, NewPayload>>();
                 A.CallTo(action)
@@ -159,7 +156,7 @@ namespace Contour.Tests
                 receiverFlow.On<NewPayload>("receiver_label") //label is irrelevant when broadcasting
                     .Act(action);
 
-                A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowTarget>() { receiverFlow });
+                A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowRegistryItem>() { receiverFlow });
 
                 var senderFlow = factory.Create("sender");
                 senderFlow.On<Payload>("sender_label") //label is irrelevant when broadcasting

@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -9,7 +8,7 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides an in-memory flow implementation
     /// </summary>
-    public class LocalMessageFlow : IMessageFlow
+    public class LocalMessageFlow :  IMessageFlow
     {
         private readonly ILog log = LogManager.GetLogger<LocalMessageFlow>();
         private IDataflowBlock buffer;
@@ -22,7 +21,7 @@ namespace Contour.Flow.Configuration
         /// <summary>
         /// A flow registry which provides flow coordination in request-response and broadcasting scenarios.
         /// </summary>
-        public IFlowRegistry Registry { private get; set; }
+        public IFlowRegistry Root { private get; set; }
 
         /// <summary>
         /// Registers a new flow of <typeparamref name="TOutput"/> typed items.
@@ -37,9 +36,10 @@ namespace Contour.Flow.Configuration
             if (buffer != null)
                 throw new FlowConfigurationException($"Flow [{Label}] has already been configured");
 
-            Label = label;
+            this.Label = label;
             buffer = new BufferBlock<TOutput>(new DataflowBlockOptions() {BoundedCapacity = capacity});
-            var flow = new ActingFlow<TOutput>((ISourceBlock<TOutput>) buffer) {Registry = Registry};
+            var flow = new ActingFlow<TOutput>((ISourceBlock<TOutput>) buffer) {Root = Root};
+            
             return flow;
         }
         

@@ -16,8 +16,9 @@ namespace Contour.Flow.Configuration
         private readonly ISourceBlock<TInput> source;
         private readonly IDataflowBlock tail;
         private readonly IDisposable tailLink;
-        
-        public IFlowRegistry Registry { private get; set; }
+
+        public string Label { get; private set; }
+        public IFlowRegistry Root { private get; set; }
 
         public ActingFlow(ISourceBlock<TInput> source, IDataflowBlock tail = null, IDisposable tailLink = null)
         {
@@ -54,7 +55,7 @@ namespace Contour.Flow.Configuration
                 new ExecutionDataflowBlockOptions {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
             var link = source.LinkTo(action);
 
-            var flow = new ActingFlow<ActionContext<TInput, TOutput>>(action, source, link) {Registry = Registry};
+            var flow = new ActingFlow<ActionContext<TInput, TOutput>>(action, source, link) {Root = Root};
             return flow;
         }
 
@@ -139,7 +140,7 @@ namespace Contour.Flow.Configuration
             actionOutTransform.LinkTo(broadcast);
 
             //Get all flows by specific type from the registry (flow label is irrelevant here due to possible flow items type casting errors)
-            var flows = Registry.Get<TOut>();
+            var flows = Root.Get<TOut>();
             foreach (var flow in flows)
             {
                 broadcast.LinkTo(flow.AsTarget<TOut>());
@@ -148,9 +149,20 @@ namespace Contour.Flow.Configuration
             return (IActingFlowConcatenation<ActionContext<TIn, TOut>>) this;
         }
 
-        public void Respond()
+        public void Respond(IFlowTarget flow)
         {
-            throw new NotImplementedException();
+            // Respond should only be possible on a flow of TInput elements
+            var targetBlock = flow.AsTarget<TInput>();
+            if (targetBlock != null)
+            {
+                source.LinkTo(targetBlock);
+                log.Debug(
+                    new
+                    {
+                        name = nameof(Respond),
+                        message = $"A response flow [{flow}] is configured for acting flow [{this}]"
+                    });
+            }
         }
 
         public void Forward(string label)

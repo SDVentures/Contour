@@ -1,7 +1,18 @@
 namespace Contour.Flow.Configuration
 {
-    public interface IFlowRegistryItem
+    /// <summary>
+    /// A flow item controlled by the flow registry
+    /// </summary>
+    public interface IFlowRegistryItem: IFlowTarget
     {
-        IFlowRegistry Registry { set; }
+        /// <summary>
+        /// Flow originating label
+        /// </summary>
+        string Label { get; }
+
+        /// <summary>
+        /// Flow registry reference
+        /// </summary>
+        IFlowRegistry Root { set; }
     }
 }

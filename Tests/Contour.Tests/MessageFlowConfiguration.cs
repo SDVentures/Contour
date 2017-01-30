@@ -94,12 +94,14 @@ namespace Contour.Tests
         {
             public void describe_message_flow_propagation()
             {
-                xit["should configure echo response on incoming flow"] = () =>
+                it["should configure echo response on incoming flow"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
+                    var receiver = factory.Create("receiver");
+
+                    factory.Create("responder")
                         .On<Payload>("incoming_label")
-                        .Respond();
+                        .Respond(receiver);
                 };
 
                 xit["should configure direct forward of incoming flow"] = () =>
@@ -110,13 +112,15 @@ namespace Contour.Tests
                         .Forward("outgoing_label");
                 };
 
-                xit["should configure action response on incoming flow"] = () =>
+                it["should configure action response on incoming flow"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
+                    var receiver = factory.Create("receiver");
+
+                    factory.Create("responder")
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
-                        .Respond();
+                        .Respond(receiver);
                 };
 
                 xit["should configure action result forwarding"] = () =>
@@ -135,13 +139,13 @@ namespace Contour.Tests
 
                     A.CallTo(() => factory.Create(A.Dummy<string>()))
                         .WithAnyArguments()
-                        .ReturnsLazily(() => new LocalMessageFlow() {Registry = registry}); //lazily means 'new value from factory function'
+                        .ReturnsLazily(() => new LocalMessageFlow() {Root = registry}); //lazily means 'new value from factory function'
 
                     var flow1 = factory.Create("receiver");
                     flow1.On<NewPayload>("receiver_label")
                         .Act(p => p);
 
-                    A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowTarget>() {flow1});
+                    A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowRegistryItem>() {flow1});
 
                     factory.Create("sender")
                         .On<Payload>("sender_label")
@@ -173,11 +177,13 @@ namespace Contour.Tests
                     var cachePolicy = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
 
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
+                    var receiver = factory.Create("receiver");
+
+                    factory.Create("responder")
                         .On<Payload>("incoming_label")
                         .Act(p => new NewPayload())
                         .Cache<Payload, NewPayload>(cachePolicy)
-                        .Respond();
+                        .Respond(receiver);
                 };
 
                 xit["should configure action result caching and forwarding"] = () =>

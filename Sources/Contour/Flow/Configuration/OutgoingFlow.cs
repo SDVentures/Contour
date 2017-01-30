@@ -10,13 +10,13 @@ namespace Contour.Flow.Configuration
         {
             this.source = source;
         }
-
-        public void Respond()
+        
+        public void Forward(string label)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Forward(string label)
+        public void Respond(IFlowTarget flow)
         {
             throw new System.NotImplementedException();
         }
