@@ -1,4 +1,7 @@
-﻿## 1.2.1
+﻿## 1.2.2
+ - QoS & PL settings can now be overriden if no endpoint configuration provided.
+
+## 1.2.1
  - QoS & PL default settings are now preserved if not specified in configufation.
 
 ## 1.2.0

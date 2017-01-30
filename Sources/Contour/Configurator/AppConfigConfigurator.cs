@@ -244,7 +244,6 @@ namespace Contour.Configurator
                 var configurator = cfg.On(incomingElement.Label).
                     WithAlias(incomingElement.Key);
 
-                //these values will never be used if UseRabbitMq() is not called on IBusConfigurator cfg
                 uint size = 0;
                 ushort count = 50;
 
