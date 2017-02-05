@@ -12,6 +12,6 @@ namespace Contour.Flow.Configuration
         /// <typeparam name="TOut"></typeparam>
         /// <param name="policy"></param>
         /// <returns></returns>
-        IOutgoingFlow Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
+        IOutgoingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
     }
 }

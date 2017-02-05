@@ -71,8 +71,10 @@
     <Compile Include="Caching\HashKeyProvider.cs" />
     <Compile Include="Caching\IKeyProvider.cs" />
     <Compile Include="Flow\Blocks\ConditionalTransformBlock.cs" />
-    <Compile Include="Flow\Configuration\ITerminatingFlow.cs" />
-    <Compile Include="Flow\Configuration\TerminatingFlow.cs" />
+    <Compile Include="Flow\Configuration\IFlowRequestEntry.cs" />
+    <Compile Include="Flow\Configuration\IFlowSource.cs" />
+    <Compile Include="Flow\Configuration\ITailFlow.cs" />
+    <Compile Include="Flow\Configuration\TailFlow.cs" />
     <Compile Include="Flow\Execution\ActionContext.cs" />
     <Compile Include="Flow\Configuration\FlowBroker.cs" />
     <Compile Include="Flow\Configuration\FlowConfigurationException.cs" />

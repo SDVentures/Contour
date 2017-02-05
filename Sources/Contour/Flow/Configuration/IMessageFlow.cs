@@ -1,6 +1,10 @@
 namespace Contour.Flow.Configuration
 {
-    public interface IMessageFlow : IIncomingFlow, IFlowRegistryItem
+    /// <summary>
+    /// A generic flow of messages
+    /// </summary>
+    public interface IMessageFlow<TInput> : IIncomingFlow<TInput>, IFlowEntry<TInput>, IFlowTarget<TInput>, IFlowRegistryItem
     {
+        
     }
 }

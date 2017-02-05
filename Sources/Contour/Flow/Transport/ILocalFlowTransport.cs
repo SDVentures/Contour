@@ -2,7 +2,7 @@
 
 namespace Contour.Flow.Transport
 {
-    internal interface ILocalFlowTransport: IFlowTransport
+    public interface ILocalFlowTransport: IFlowTransport
     {
          
     }

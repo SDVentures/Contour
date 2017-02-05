@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Contour.Caching;
 using Contour.Flow.Configuration;
 using Contour.Flow.Execution;
+using Contour.Flow.Transport;
 using FakeItEasy;
 using NSpec;
 
@@ -16,8 +20,8 @@ namespace Contour.Tests
             it["should buffer incoming messages"] = () =>
             {
                 var factory = GetMessageFlowFactory();
-                var flow = factory.Create("fake");
-                    flow.On<Payload>("incoming_label");
+                var flow = factory.Create<Payload>("fake");
+                    flow.On("incoming_label");
                     
                 flow.Post(new Payload());
             };
@@ -25,10 +29,10 @@ namespace Contour.Tests
             it["should perform single action on incoming message"] = () =>
             {
                 var factory = GetMessageFlowFactory();
-                var flow = factory.Create("fake");
+                var flow = factory.Create<Payload>("fake");
                 var action = A.Fake<Func<Payload, Payload>>();
 
-                flow.On<Payload>("incoming_label")
+                flow.On("incoming_label")
                     .Act(action);
 
                 var tcs = new TaskCompletionSource<bool>();
@@ -42,10 +46,10 @@ namespace Contour.Tests
             it["should perform single action with no result on incoming message"] = () =>
             {
                 var factory = GetMessageFlowFactory();
-                var flow = factory.Create("fake");
+                var flow = factory.Create<Payload>("fake");
                 var action = A.Fake<Action<Payload>>();
 
-                flow.On<Payload>("incoming_label")
+                flow.On("incoming_label")
                     .Act(action);
 
                 var tcs = new TaskCompletionSource<bool>();
@@ -59,7 +63,7 @@ namespace Contour.Tests
             it["should terminate the flow on action errors"] = () =>
             {
                 var factory = GetMessageFlowFactory();
-                var flow = factory.Create("fake");
+                var flow = factory.Create<Payload>("fake");
                 var tcs = new TaskCompletionSource<bool>();
 
                 var errorAction = A.Fake<Func<Payload, NewPayload>>();
@@ -69,7 +73,7 @@ namespace Contour.Tests
                 var nextAction = A.Fake<Func<ActionContext<Payload, NewPayload>, NewPayload>>();
                 A.CallTo(nextAction).DoesNothing();
                 
-                flow.On<Payload>("incoming_label")
+                flow.On("incoming_label")
                     .Act(errorAction)
                     .Act(nextAction);
 
@@ -112,8 +116,8 @@ namespace Contour.Tests
                 A.CallTo(() => policy.Period).Returns(period);
 
                 var factory = GetMessageFlowFactory();
-                var flow = factory.Create("fake");
-                    flow.On<Payload>("incoming_label")
+                var flow = factory.Create<Payload>("fake");
+                    flow.On("incoming_label")
                     .Act(payload => @out)
                     .Cache<Payload, NewPayload>(policy);
 
@@ -142,9 +146,15 @@ namespace Contour.Tests
 
                 var registry = A.Fake<IFlowRegistry>();
                 var factory = A.Fake<IFlowFactory>();
-                A.CallTo(() => factory.Create(A.Dummy<string>()))
+
+                A.CallTo(() => factory.Create<Payload>(A.Dummy<string>()))
                     .WithAnyArguments()
-                    .ReturnsLazily(() => new LocalMessageFlow() {Root = registry});
+                    .ReturnsLazily(() => new LocalMessageFlow<Payload>(new LocalFlowTransport()) {Registry = registry});
+
+                A.CallTo(() => factory.Create<NewPayload>(A.Dummy<string>()))
+                    .WithAnyArguments()
+                    .ReturnsLazily(
+                        () => new LocalMessageFlow<NewPayload>(new LocalFlowTransport()) {Registry = registry});
 
                 var action = A.Fake<Func<Payload, NewPayload>>();
                 A.CallTo(action)
@@ -152,14 +162,14 @@ namespace Contour.Tests
                     .Invokes(() => tcs.SetResult(true))
                     .Returns(new NewPayload() { Value = 123 });
 
-                var receiverFlow = factory.Create("receiver");
-                receiverFlow.On<NewPayload>("receiver_label") //label is irrelevant when broadcasting
+                var receiverFlow = factory.Create<NewPayload>("receiver");
+                receiverFlow.On("receiver_label") //label is irrelevant when broadcasting
                     .Act(action);
 
-                A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowRegistryItem>() { receiverFlow });
+                A.CallTo(() => registry.GetAll<NewPayload>()).Returns(new List<IFlowRegistryItem>() { receiverFlow });
 
-                var senderFlow = factory.Create("sender");
-                senderFlow.On<Payload>("sender_label") //label is irrelevant when broadcasting
+                var senderFlow = factory.Create<Payload>("sender");
+                senderFlow.On("sender_label") //label is irrelevant when broadcasting
                     .Act(p => new NewPayload())
                     .Broadcast<Payload, NewPayload>();
 
@@ -168,14 +178,33 @@ namespace Contour.Tests
 
                 A.CallTo(action).MustHaveHappened();
             };
+
+            it[""] = () =>
+            {
+                //var transport = new LocalFlowTransport();
+                //var broker = new FlowBroker();
+                //broker.Register("local", transport);
+                
+                //var flow = broker.Create<int>("local")
+                //.On("label")
+                //    .Act(p => new NewPayload() {Value = 2})
+                //    .Act(p => new NewPayload() {Value = 3})
+                //    .Act(p => new NewPayload() {Value = 4})
+                //    .Respond();
+
+                //var entry = flow.OnRequest<int>("requestor_id", ctx => ctx.Unwind().GetArg(), ctx => { });
+                //entry.Post(1);
+                
+                //Thread.Sleep(TimeSpan.FromMinutes(10));
+            };
         }
 
         private static IFlowFactory GetMessageFlowFactory()
         {
             var factory = A.Fake<IFlowFactory>();
-            A.CallTo(() => factory.Create(A.Dummy<string>()))
+            A.CallTo(() => factory.Create<Payload>(A.Dummy<string>()))
                 .WithAnyArguments()
-                .ReturnsLazily(() => new LocalMessageFlow());
+                .ReturnsLazily(() => new LocalMessageFlow<Payload>(new LocalFlowTransport()));
             return factory;
         }
 

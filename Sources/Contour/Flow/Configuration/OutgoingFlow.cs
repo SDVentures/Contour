@@ -1,8 +1,10 @@
+using System;
 using System.Threading.Tasks.Dataflow;
+using Contour.Flow.Transport;
 
 namespace Contour.Flow.Configuration
 {
-    internal class OutgoingFlow: IOutgoingFlow
+    internal class OutgoingFlow<TInput>: IOutgoingFlow<TInput>
     {
         private readonly IDataflowBlock source;
 
@@ -10,15 +12,18 @@ namespace Contour.Flow.Configuration
         {
             this.source = source;
         }
-        
-        public void Forward(string label)
+
+        public string Label { get; set; }
+
+        public IFlowTransport Transport { private get; set; }
+        public ITailFlow<TInput> Respond(int capacity = 1)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public void Respond(IFlowTarget flow)
+        public ITailFlow<TInput> Forward(string label)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Contour.Flow.Configuration
         private readonly ConcurrentDictionary<string, IFlowTransport> transports = new ConcurrentDictionary<string, IFlowTransport>();
         private readonly ConcurrentBag<IFlowRegistryItem> flows = new ConcurrentBag<IFlowRegistryItem>();
 
-        void IFlowTransportRegistry.Register(string name, IFlowTransport transport)
+        public void Register(string name, IFlowTransport transport)
         {
             try
             {
@@ -23,43 +23,36 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        IMessageFlow IFlowFactory.Create(string transportName)
+        public IMessageFlow<TOutput> Create<TOutput>(string transportName)
         {
             try
             {
                 var transport = transports[transportName];
-                var flow = transport.CreateFlow();
+                var flow = transport.CreateFlow<TOutput>();
+
                 var registry = (IFlowRegistry) this;
                 registry.Add(flow);
-                flow.Root = registry;
+                flow.Registry = registry;
 
                 return flow;
             }
             catch (Exception ex)
             {
-                throw new FlowConfigurationException($"Failed to get a message flow [{transportName}]", ex);
+                throw new FlowConfigurationException($"Failed to create a message flow", ex);
             }
         }
 
-        public IEnumerable<IFlowRegistryItem> Get<TOutput>()
+        public IEnumerable<IFlowRegistryItem> GetAll<TOutput>()
         {
-            var results = flows.Where(ft => ft.AsTarget<TOutput>() != null);
-            return results;
+            return flows.Where(f => f.Type == typeof (TOutput));
         }
 
-        IEnumerable<IFlowRegistryItem> IFlowRegistry.Get(string label)
+        public IFlowRegistryItem Get(string label)
         {
-            var results = flows.Where(ft => ft.Label == label);
-            return results;
+            return flows.Single(f => f.Label == label);
         }
-
-        IEnumerable<IFlowRegistryItem> IFlowRegistry.Get<TOutput>(string label)
-        {
-            var results = flows.Where(ft => ft.Label == label && ft.AsTarget<TOutput>() != null);
-            return results;
-        }
-
-        void IFlowRegistry.Add(IFlowRegistryItem flow)
+        
+        public void Add(IFlowRegistryItem flow)
         {
             flows.Add(flow);
         }

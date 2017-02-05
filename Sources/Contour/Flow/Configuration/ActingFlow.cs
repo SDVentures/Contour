@@ -6,6 +6,7 @@ using Common.Logging;
 using Contour.Caching;
 using Contour.Flow.Blocks;
 using Contour.Flow.Execution;
+using Contour.Flow.Transport;
 
 namespace Contour.Flow.Configuration
 {
@@ -17,8 +18,11 @@ namespace Contour.Flow.Configuration
         private readonly IDataflowBlock tail;
         private readonly IDisposable tailLink;
 
-        public string Label { get; private set; }
-        public IFlowRegistry Root { private get; set; }
+        public IFlowRegistry Registry { private get; set; }
+        
+        public IFlowTransport Transport { private get; set; }
+
+        public string Label { private get; set; }
 
         public ActingFlow(ISourceBlock<TInput> source, IDataflowBlock tail = null, IDisposable tailLink = null)
         {
@@ -55,11 +59,15 @@ namespace Contour.Flow.Configuration
                 new ExecutionDataflowBlockOptions {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
             var link = source.LinkTo(action);
 
-            var flow = new ActingFlow<ActionContext<TInput, TOutput>>(action, source, link) {Root = Root};
+            var flow = new ActingFlow<ActionContext<TInput, TOutput>>(action, source, link)
+            {
+                Registry = this.Registry,
+                Transport = this.Transport
+            };
             return flow;
         }
 
-        public ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1)
+        public ITailFlow<TInput> Act(Action<TInput> act, int capacity = 1, int scale = 1)
         {
             Func<TInput, Task<ActionContext<TInput>>> func = input =>
             {
@@ -83,11 +91,11 @@ namespace Contour.Flow.Configuration
                 new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
 
             source.LinkTo(action);
-            var flow = new TerminatingFlow();
+            var flow = new TailFlow<TInput>(null);
             return flow;
         }
 
-        public IOutgoingFlow Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
+        public IOutgoingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
         {
             //The pipe tail should be a source for the outgoing flow
             var tailAsSource = (ISourceBlock<TIn>)tail;
@@ -124,48 +132,53 @@ namespace Contour.Flow.Configuration
             ((ISourceBlock<ActionContext<TIn,TOut>>)source).LinkTo(cacheAsTarget);
 
             //Pass cache block as source for outgoing flow
-            var outgoingFlow = new OutgoingFlow(cache);
+            var outgoingFlow = new OutgoingFlow<TOut>(cache);
             return outgoingFlow;
         }
 
         public IActingFlowConcatenation<ActionContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1)
         {
-            //Broadcasting is only possible for action results, i.e. this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows provided by the registry
+            //Broadcasting for action results: this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows provided by the registry
 
             //The action block should return a tuple of input and output to support results caching, so the source items need to be converted to the action return type
-            var broadcast = new BroadcastBlock<TOut>(p => p, new DataflowBlockOptions() {BoundedCapacity = capacity});
+
+            var broadcast = new BroadcastBlock<TOut>(p => p, new DataflowBlockOptions() { BoundedCapacity = capacity });
             var actionOutTransform = new TransformBlock<ActionContext<TIn, TOut>, TOut>(t => t.Result, new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
 
+            //todo: check the source type before
             ((ISourceBlock<ActionContext<TIn, TOut>>)source).LinkTo(actionOutTransform);
             actionOutTransform.LinkTo(broadcast);
 
             //Get all flows by specific type from the registry (flow label is irrelevant here due to possible flow items type casting errors)
-            var flows = Root.Get<TOut>();
+            var flows = Registry.GetAll<TOut>();
             foreach (var flow in flows)
             {
-                broadcast.LinkTo(flow.AsTarget<TOut>());
+                if (flow is IMessageFlow<TOut>)
+                {
+                    var messageFlow = flow as IMessageFlow<TOut>;
+                    broadcast.LinkTo(messageFlow.AsTarget());
+                }
             }
 
             return (IActingFlowConcatenation<ActionContext<TIn, TOut>>) this;
         }
 
-        public void Respond(IFlowTarget flow)
+        public ITailFlow<TInput> Respond(int capacity = 1)
         {
-            // Respond should only be possible on a flow of TInput elements
-            var targetBlock = flow.AsTarget<TInput>();
-            if (targetBlock != null)
-            {
-                source.LinkTo(targetBlock);
-                log.Debug(
-                    new
-                    {
-                        name = nameof(Respond),
-                        message = $"A response flow [{flow}] is configured for acting flow [{this}]"
-                    });
-            }
+            //Register a tail flow to broadcast flow results; only clients with specific correlation queries will get the results
+
+            //var broadcast = new BroadcastBlock<TInput>(p => p, new DataflowBlockOptions() {BoundedCapacity = capacity});
+            //source.LinkTo(broadcast);
+
+            //var flow = new TailFlow<TInput>(broadcast) {Label = Transport.GetTailLabel(this.Label)};
+            //Registry.Add(flow);
+
+            //return flow;
+
+            throw new NotImplementedException();
         }
 
-        public void Forward(string label)
+        public ITailFlow<TInput> Forward(string label)
         {
             throw new NotImplementedException();
         }

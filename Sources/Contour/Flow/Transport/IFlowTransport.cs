@@ -4,6 +4,8 @@ namespace Contour.Flow.Transport
 {
     public interface IFlowTransport
     {
-        IMessageFlow CreateFlow();
+        IMessageFlow<TOutput> CreateFlow<TOutput>();
+
+        string GetTailLabel(string sourceLabel);
     }
 }

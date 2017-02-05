@@ -1,9 +1,12 @@
+using System;
+using Contour.Flow.Transport;
+
 namespace Contour.Flow.Configuration
 {
     /// <summary>
     /// A flow item controlled by the flow registry
     /// </summary>
-    public interface IFlowRegistryItem: IFlowTarget
+    public interface IFlowRegistryItem
     {
         /// <summary>
         /// Flow originating label
@@ -11,8 +14,18 @@ namespace Contour.Flow.Configuration
         string Label { get; }
 
         /// <summary>
+        /// Flow message type
+        /// </summary>
+        Type Type { get; }
+
+        /// <summary>
         /// Flow registry reference
         /// </summary>
-        IFlowRegistry Root { set; }
+        IFlowRegistry Registry { set; }
+
+        /// <summary>
+        /// Gets a transport used to create a flow
+        /// </summary>
+        IFlowTransport Transport { get; }
     }
 }

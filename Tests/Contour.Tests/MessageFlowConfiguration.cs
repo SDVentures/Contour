@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Contour.Caching;
 using Contour.Flow.Configuration;
+using Contour.Flow.Transport;
 using FakeItEasy;
 
 namespace Contour.Tests
@@ -16,16 +17,16 @@ namespace Contour.Tests
                 it["should configure incoming flow"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label");
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label");
                 };
 
                 it["should configure incoming flow buffering"] = () =>
                 {
                     const int capacity = 10;
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label", capacity);
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label", capacity);
                 };
             }
         }
@@ -37,24 +38,24 @@ namespace Contour.Tests
                 it["should configure incoming flow single action"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => p);
                 };
 
                 it["should configure incoming flow single action with no result"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(arg => { });
                 };
 
                 it["should configure incoming flow multiple actions"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => p)
                         .Act(p2 => p2);
                 };
@@ -62,8 +63,8 @@ namespace Contour.Tests
                 it["should configure incoming flow multiple type actions"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => new NewPayload())
                         .Act(p2 => new Payload());
                 };
@@ -73,8 +74,8 @@ namespace Contour.Tests
                     const int scale = 10;
 
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => p, scale:scale);
                 };
 
@@ -83,8 +84,8 @@ namespace Contour.Tests
                     const int actionCapacity = 100;
 
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => p, capacity:actionCapacity);
                 };
             }
@@ -94,40 +95,38 @@ namespace Contour.Tests
         {
             public void describe_message_flow_propagation()
             {
-                it["should configure echo response on incoming flow"] = () =>
+                xit["should configure echo response on incoming flow"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    var receiver = factory.Create("receiver");
 
-                    factory.Create("responder")
-                        .On<Payload>("incoming_label")
-                        .Respond(receiver);
+                    factory.Create<Payload>("responder")
+                        .On("incoming_label")
+                        .Respond();
                 };
 
                 xit["should configure direct forward of incoming flow"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Forward("outgoing_label");
                 };
 
-                it["should configure action response on incoming flow"] = () =>
+                xit["should configure action response on incoming flow"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    var receiver = factory.Create("receiver");
 
-                    factory.Create("responder")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("responder")
+                        .On("incoming_label")
                         .Act(p => new NewPayload())
-                        .Respond(receiver);
+                        .Respond();
                 };
 
                 xit["should configure action result forwarding"] = () =>
                 {
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => new NewPayload())
                         .Forward("outgoing_label");
                 };
@@ -137,22 +136,22 @@ namespace Contour.Tests
                     var factory = A.Fake<IFlowFactory>();
                     var registry = A.Fake<IFlowRegistry>();
 
-                    A.CallTo(() => factory.Create(A.Dummy<string>()))
+                    A.CallTo(() => factory.Create<Payload>(A.Dummy<string>()))
                         .WithAnyArguments()
-                        .ReturnsLazily(() => new LocalMessageFlow() {Root = registry}); //lazily means 'new value from factory function'
+                        .ReturnsLazily(() => new LocalMessageFlow<Payload>(new LocalFlowTransport()) {Registry = registry}); //lazily means 'new value from factory function'
 
-                    var flow1 = factory.Create("receiver");
-                    flow1.On<NewPayload>("receiver_label")
+                    var flow1 = factory.Create<Payload>("receiver");
+                    flow1.On("receiver_label")
                         .Act(p => p);
 
-                    A.CallTo(() => registry.Get<NewPayload>()).Returns(new List<IFlowRegistryItem>() {flow1});
+                    A.CallTo(() => registry.GetAll<NewPayload>()).Returns(new List<IFlowRegistryItem>() {flow1});
 
-                    factory.Create("sender")
-                        .On<Payload>("sender_label")
+                    factory.Create<Payload>("sender")
+                        .On("sender_label")
                         .Act(p => new NewPayload())
                         .Broadcast<Payload, NewPayload>();
 
-                    A.CallTo(() => registry.Get<NewPayload>()).MustHaveHappened();
+                    A.CallTo(() => registry.GetAll<NewPayload>()).MustHaveHappened();
                 };
             }
         }
@@ -166,8 +165,8 @@ namespace Contour.Tests
                     var cachePolicy = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
 
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => new NewPayload())
                         .Cache<Payload, NewPayload>(cachePolicy);
                 };
@@ -177,13 +176,12 @@ namespace Contour.Tests
                     var cachePolicy = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
 
                     var factory = GetMessageFlowFactory();
-                    var receiver = factory.Create("receiver");
 
-                    factory.Create("responder")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("responder")
+                        .On("incoming_label")
                         .Act(p => new NewPayload())
                         .Cache<Payload, NewPayload>(cachePolicy)
-                        .Respond(receiver);
+                        .Respond();
                 };
 
                 xit["should configure action result caching and forwarding"] = () =>
@@ -191,8 +189,8 @@ namespace Contour.Tests
                     var cachePolicy = new DefaultCachePolicy(TimeSpan.FromSeconds(10));
 
                     var factory = GetMessageFlowFactory();
-                    factory.Create("fake")
-                        .On<Payload>("incoming_label")
+                    factory.Create<Payload>("fake")
+                        .On("incoming_label")
                         .Act(p => new NewPayload())
                         .Cache<Payload, NewPayload>(cachePolicy)
                         .Forward("outgoing_label");
@@ -203,7 +201,9 @@ namespace Contour.Tests
         private static IFlowFactory GetMessageFlowFactory()
         {
             var factory = A.Fake<IFlowFactory>();
-            A.CallTo(() => factory.Create(A.Dummy<string>())).WithAnyArguments().Returns(new LocalMessageFlow());
+            A.CallTo(() => factory.Create<Payload>(A.Dummy<string>()))
+                .WithAnyArguments()
+                .Returns(new LocalMessageFlow<Payload>(new LocalFlowTransport()));
             return factory;
         }
     }
