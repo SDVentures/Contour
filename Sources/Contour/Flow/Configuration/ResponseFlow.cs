@@ -4,30 +4,27 @@ using Contour.Flow.Transport;
 
 namespace Contour.Flow.Configuration
 {
-    internal class TailFlow<TOutput> : ITailFlow<TOutput>, IFlowSource<TOutput>
+    internal class ResponseFlow<TOutput> : IResponseFlow<TOutput>
     {
         private readonly ISourceBlock<TOutput> source;
 
         public string Label { get; }
+
         public Type Type { get; }
 
         public IFlowRegistry Registry { get; set; }
 
         public IFlowTransport Transport { get; }
 
-        public TailFlow(ISourceBlock<TOutput> source)
+        public ResponseFlow(ISourceBlock<TOutput> source)
         {
             this.source = source;
         }
 
-        public IFlowEntry<TIn> OnRequest<TIn>(string id, Predicate<TOutput> correlationQuery, Action<TOutput> callback)
+        public IFlowEntry<TInput> OnResponse<TInput>(Action<TOutput> callback)
         {
-            throw new NotImplementedException();
-        }
-
-        public ISourceBlock<TOutput> AsSource()
-        {
-            throw new NotImplementedException();
+            var requestFlow = new RequestFlow<TInput, TOutput>(source, callback);
+            return requestFlow;
         }
     }
 }

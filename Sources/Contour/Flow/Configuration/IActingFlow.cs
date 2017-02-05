@@ -7,10 +7,10 @@ namespace Contour.Flow.Configuration
     /// A message flow which enables user actions, caching intermediate event broadcasting and requests
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public interface IActingFlow<TInput> : IOutgoingFlow<TInput>, ICachingFlow, IRequestFlow<TInput>, IBroadcastFlow
+    public interface IActingFlow<TInput> : IOutgoingFlow<TInput>, ICachingFlow, IBroadcastFlow
     {
-        IActingFlow<ActionContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
+        IActingFlow<FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
 
-        ITailFlow<TInput> Act(Action<TInput> act, int capacity = 1, int scale = 1);
+        ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1);
     }
 }

@@ -70,7 +70,7 @@ namespace Contour.Tests
                 A.CallTo(errorAction).WithAnyArguments().Throws(new Exception());
                 A.CallTo(errorAction).Invokes(() => tcs.SetResult(true));
 
-                var nextAction = A.Fake<Func<ActionContext<Payload, NewPayload>, NewPayload>>();
+                var nextAction = A.Fake<Func<FlowContext<Payload, NewPayload>, NewPayload>>();
                 A.CallTo(nextAction).DoesNothing();
                 
                 flow.On("incoming_label")
@@ -184,17 +184,16 @@ namespace Contour.Tests
                 //var transport = new LocalFlowTransport();
                 //var broker = new FlowBroker();
                 //broker.Register("local", transport);
-                
+
                 //var flow = broker.Create<int>("local")
                 //.On("label")
-                //    .Act(p => new NewPayload() {Value = 2})
-                //    .Act(p => new NewPayload() {Value = 3})
-                //    .Act(p => new NewPayload() {Value = 4})
+                //    .Act(p => new NewPayload() { Value = 3 })
+                //    .Act(p => "abc")
                 //    .Respond();
 
-                //var entry = flow.OnRequest<int>("requestor_id", ctx => ctx.Unwind().GetArg(), ctx => { });
+                //var entry = flow.OnResponse<int>(ctx => { });
                 //entry.Post(1);
-                
+
                 //Thread.Sleep(TimeSpan.FromMinutes(10));
             };
         }

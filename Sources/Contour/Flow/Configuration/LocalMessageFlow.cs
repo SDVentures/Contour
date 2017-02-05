@@ -89,33 +89,14 @@ namespace Contour.Flow.Configuration
             var target = (ITargetBlock<TInput>)buffer;
             return target.SendAsync(message, token);
         }
-
-        public void OnRequest<TIn>(TIn message, Predicate<TInput> correlationQuery, Action<TInput> callback)
-        {
-            var flow = Registry.Get(Transport.GetTailLabel(this.Label));
-
-            if (flow is TailFlow<TInput>)
-            {
-                var tailFlow = flow as TailFlow<TInput>;
-                var source = tailFlow.AsSource();
-
-                var action = new ActionBlock<TInput>(callback);
-                source.LinkTo(action, correlationQuery);
-            }
-            else
-            {
-                throw new FlowConfigurationException(
-                    $"Unable to locate a tail flow for [{Label}] label. Check if the target flow is configured to respond");
-            }
-        }
-
+        
         ITargetBlock<TInput> IFlowTarget<TInput>.AsTarget()
         {
             EnsureSourceConfigured();
-            
+
             return buffer as ITargetBlock<TInput>;
         }
-        
+
         private void EnsureSourceConfigured()
         {
             if (buffer == null)

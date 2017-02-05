@@ -12,11 +12,11 @@ namespace Contour.Flow.Blocks
     /// </summary>
     /// <typeparam name="TIn"></typeparam>
     /// <typeparam name="TOut"></typeparam>
-    public class CachingBlock<TIn, TOut> : MessageBlock, IPropagatorBlock<ActionContext<TIn, TOut>, ActionContext<TIn, TOut>>, ICachingBlock<TIn, TOut> where TOut: class
+    public class CachingBlock<TIn, TOut> : MessageBlock, IPropagatorBlock<FlowContext<TIn, TOut>, FlowContext<TIn, TOut>>, ICachingBlock<TIn, TOut> where TOut: class
     {
         private readonly ILog log = LogManager.GetLogger<CachingBlock<TIn, TOut>>();
-        private readonly TransformBlock<ActionContext<TIn, TOut>, ActionContext<TIn, TOut>> cacheTransform;
-        private readonly IPropagatorBlock<ActionContext<TIn, TOut>, ActionContext<TIn, TOut>> propagator;
+        private readonly TransformBlock<FlowContext<TIn, TOut>, FlowContext<TIn, TOut>> cacheTransform;
+        private readonly IPropagatorBlock<FlowContext<TIn, TOut>, FlowContext<TIn, TOut>> propagator;
         private readonly ICachePolicy policy;
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Contour.Flow.Blocks
         {
             this.policy = policy;
 
-            cacheTransform = new TransformBlock<ActionContext<TIn, TOut>, ActionContext<TIn, TOut>>(new Func<ActionContext<TIn, TOut>, ActionContext<TIn, TOut>>(CachingFunction), options);
+            cacheTransform = new TransformBlock<FlowContext<TIn, TOut>, FlowContext<TIn, TOut>>(new Func<FlowContext<TIn, TOut>, FlowContext<TIn, TOut>>(CachingFunction), options);
             propagator = cacheTransform;
         }
 
@@ -48,7 +48,7 @@ namespace Contour.Flow.Blocks
         /// <param name="source"></param>
         /// <param name="consumeToAccept"></param>
         /// <returns></returns>
-        public DataflowMessageStatus OfferMessage(DataflowMessageHeader messageHeader, ActionContext<TIn, TOut> messageValue, ISourceBlock<ActionContext<TIn, TOut>> source,
+        public DataflowMessageStatus OfferMessage(DataflowMessageHeader messageHeader, FlowContext<TIn, TOut> messageValue, ISourceBlock<FlowContext<TIn, TOut>> source,
             bool consumeToAccept)
         {
             var status = propagator.OfferMessage(messageHeader, messageValue, source, consumeToAccept);
@@ -63,9 +63,9 @@ namespace Contour.Flow.Blocks
         /// <param name="target"></param>
         /// <param name="linkOptions"></param>
         /// <returns></returns>
-        public IDisposable LinkTo(ITargetBlock<ActionContext<TIn, TOut>> target, DataflowLinkOptions linkOptions)
+        public IDisposable LinkTo(ITargetBlock<FlowContext<TIn, TOut>> target, DataflowLinkOptions linkOptions)
         {
-            return cacheTransform.LinkTo(target, linkOptions, item => item.Result != default(TOut));
+            return cacheTransform.LinkTo(target, linkOptions, item => item.Out != default(TOut));
         }
         
         /// <summary>
@@ -74,9 +74,9 @@ namespace Contour.Flow.Blocks
         /// <param name="target"></param>
         /// <param name="linkOptions"></param>
         /// <returns></returns>
-        public IDisposable MissLinkTo(ITargetBlock<ActionContext<TIn, TOut>> target, DataflowLinkOptions linkOptions)
+        public IDisposable MissLinkTo(ITargetBlock<FlowContext<TIn, TOut>> target, DataflowLinkOptions linkOptions)
         {
-            return cacheTransform.LinkTo(target, linkOptions, item => item.Result == default(TOut));
+            return cacheTransform.LinkTo(target, linkOptions, item => item.Out == default(TOut));
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace Contour.Flow.Blocks
         /// <param name="target"></param>
         /// <param name="messageConsumed"></param>
         /// <returns></returns>
-        public ActionContext<TIn, TOut> ConsumeMessage(DataflowMessageHeader messageHeader,
-            ITargetBlock<ActionContext<TIn, TOut>> target, out bool messageConsumed)
+        public FlowContext<TIn, TOut> ConsumeMessage(DataflowMessageHeader messageHeader,
+            ITargetBlock<FlowContext<TIn, TOut>> target, out bool messageConsumed)
         {
             var message = propagator.ConsumeMessage(messageHeader, target, out messageConsumed);
             log.Debug(new {name = nameof(ConsumeMessage), header = messageHeader, target, messageConsumed});
@@ -101,7 +101,7 @@ namespace Contour.Flow.Blocks
         /// <param name="messageHeader"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<ActionContext<TIn, TOut>> target)
+        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<FlowContext<TIn, TOut>> target)
         {
             var result = propagator.ReserveMessage(messageHeader, target);
             log.Debug(new {name = nameof(ReserveMessage), header = messageHeader, target, result});
@@ -114,20 +114,20 @@ namespace Contour.Flow.Blocks
         /// </summary>
         /// <param name="messageHeader"></param>
         /// <param name="target"></param>
-        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<ActionContext<TIn, TOut>> target)
+        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<FlowContext<TIn, TOut>> target)
         {
             propagator.ReleaseReservation(messageHeader, target);
             log.Debug(new {name = nameof(ReleaseReservation), header = messageHeader, target});
         }
 
-        private ActionContext<TIn, TOut> CachingFunction(ActionContext<TIn, TOut> @in)
+        private FlowContext<TIn, TOut> CachingFunction(FlowContext<TIn, TOut> @in)
         {
-            var key = policy.KeyProvider.Get(@in.Arg);
+            var key = policy.KeyProvider.Get(@in.In);
             log.Debug(new {name = nameof(CachingFunction), key});
             
-            if (@in.Result != default(TOut))
+            if (@in.Out != default(TOut))
             {
-                policy.CacheProvider.Put(key, @in.Result, policy.Period);
+                policy.CacheProvider.Put(key, @in.Out, policy.Period);
                 log.Debug($"An output with key=[{key}] has been cached for [{policy.Period}]");
 
                 return @in;
@@ -145,7 +145,7 @@ namespace Contour.Flow.Blocks
                 log.Debug($"Cache miss or failure: key=[{key}]", ex);
             }
 
-            return new ActionContext<TIn, TOut> {Arg = @in.Arg, Result = value};
+            return new FlowContext<TIn, TOut> {In = @in.In, Out = value};
         }
     }
 }

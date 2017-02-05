@@ -6,6 +6,6 @@ namespace Contour.Flow.Configuration
     {
         IFlowRegistry Registry { set; }
 
-        IActingFlowConcatenation<ActionContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1);
+        IActingFlowConcatenation<FlowContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1);
     }
 }

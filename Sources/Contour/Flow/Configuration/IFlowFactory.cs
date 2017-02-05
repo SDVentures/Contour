@@ -1,9 +1,9 @@
-using System;
+using Contour.Flow.Execution;
 
 namespace Contour.Flow.Configuration
 {
     public interface IFlowFactory
     {
-        IMessageFlow<TOutput> Create<TOutput>(string transportName);
+        IMessageFlow<TInput> Create<TInput>(string transportName);
     }
 }

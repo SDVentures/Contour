@@ -7,8 +7,8 @@ namespace Contour.Flow.Blocks
 {
     public interface ICachingBlock<TIn, TOut> where TOut : class
     {
-        IDisposable LinkTo(ITargetBlock<ActionContext<TIn, TOut>> target, DataflowLinkOptions linkOptions);
+        IDisposable LinkTo(ITargetBlock<FlowContext<TIn, TOut>> target, DataflowLinkOptions linkOptions);
 
-        IDisposable MissLinkTo(ITargetBlock<ActionContext<TIn, TOut>> target, DataflowLinkOptions linkOptions);
+        IDisposable MissLinkTo(ITargetBlock<FlowContext<TIn, TOut>> target, DataflowLinkOptions linkOptions);
     }
 }

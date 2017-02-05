@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Contour.Flow.Execution;
 using Contour.Flow.Transport;
 
 namespace Contour.Flow.Configuration
@@ -23,12 +24,12 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        public IMessageFlow<TOutput> Create<TOutput>(string transportName)
+        public IMessageFlow<TInput> Create<TInput>(string transportName)
         {
             try
             {
                 var transport = transports[transportName];
-                var flow = transport.CreateFlow<TOutput>();
+                var flow = transport.CreateFlow<TInput>();
 
                 var registry = (IFlowRegistry) this;
                 registry.Add(flow);
