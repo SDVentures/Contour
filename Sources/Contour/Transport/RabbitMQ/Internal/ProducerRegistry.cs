@@ -4,54 +4,42 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    using Contour.Helpers;
-    using Contour.Helpers.CodeContracts;
-    using Contour.Sending;
-    using Contour.Transport.RabbitMQ.Topology;
+    using Helpers;
+    using Helpers.CodeContracts;
+    using Sending;
+    using Topology;
 
     /// <summary>
     /// The producer registry.
     /// </summary>
     internal class ProducerRegistry : IDisposable
     {
-        #region Fields
-
         /// <summary>
         /// The _bus.
         /// </summary>
-        private readonly RabbitBus _bus;
+        private readonly IRabbitConnection connection;
 
         /// <summary>
         /// The _producers.
         /// </summary>
-        private readonly IDictionary<MessageLabel, Producer> _producers = new ConcurrentDictionary<MessageLabel, Producer>();
-
-        #endregion
-
-        #region Constructors and Destructors
+        private readonly IDictionary<MessageLabel, Producer> producers = new ConcurrentDictionary<MessageLabel, Producer>();
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ProducerRegistry"/>.
         /// </summary>
-        /// <param name="bus">
-        /// The bus.
-        /// </param>
-        public ProducerRegistry(RabbitBus bus)
+        /// <param name="connection">Соединение с шиной сообщений</param>
+        public ProducerRegistry(IRabbitConnection connection)
         {
-            this._bus = bus;
+            this.connection = connection;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
+        
         /// <summary>
         /// The dispose.
         /// </summary>
         public void Dispose()
         {
-            this._producers.Values.ForEach(l => l.Dispose());
-            this._producers.Clear();
+            this.producers.Values.ForEach(l => l.Dispose());
+            this.producers.Clear();
         }
 
         /// <summary>
@@ -61,8 +49,8 @@
         {
             {
                 // lock (_producers)
-                this._producers.Values.ForEach(l => l.Dispose());
-                this._producers.Clear();
+                this.producers.Values.ForEach(l => l.Dispose());
+                this.producers.Clear();
             }
         }
 
@@ -77,46 +65,42 @@
         /// </returns>
         public Producer ResolveFor(ISenderConfiguration configuration)
         {
-            Producer producer = this.TryResolverFor(configuration.Label);
+            var producer = this.TryResolverFor(configuration.Label);
             if (producer == null)
             {
-                using (RabbitChannel channel = this._bus.OpenChannel())
+                using (var channel = this.connection.OpenChannel())
                 {
                     var topologyBuilder = new TopologyBuilder(channel);
-                    var builder = new RouteResolverBuilder(this._bus.Endpoint, topologyBuilder, configuration);
+                    var builder = new RouteResolverBuilder(this.connection.Bus.Endpoint, topologyBuilder, configuration);
                     Maybe<Func<IRouteResolverBuilder, IRouteResolver>> routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
 
                     Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]", configuration.Label);
 
-                    IRouteResolver routeResolver = routeResolverBuilder.Value(builder);
+                    var routeResolver = routeResolverBuilder.Value(builder);
 
-                    producer = new Producer(this._bus, configuration.Label, routeResolver, configuration.Options.IsConfirmationRequired());
+                    producer = new Producer(connection, configuration.Label, routeResolver, configuration.Options.IsConfirmationRequired());
                     producer.Failed += p =>
                         {
                             {
                                 // lock (_producers)
                                 p.Dispose();
-                                this._producers.Remove(p.Label);
+                                this.producers.Remove(p.Label);
                             }
                         };
 
                     // lock (_producers)
-                    this._producers.Add(configuration.Label, producer);
+                    this.producers.Add(configuration.Label, producer);
                 }
 
                 if (configuration.RequiresCallback)
                 {
-                    producer.UseCallbackListener(this._bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
+                    producer.UseCallbackListener(this.connection.Bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
                 }
             }
 
             return producer;
         }
-
-        #endregion
-
-        #region Methods
-
+        
         /// <summary>
         /// The try resolver for.
         /// </summary>
@@ -129,10 +113,8 @@
         private Producer TryResolverFor(MessageLabel label)
         {
             Producer producer;
-            this._producers.TryGetValue(label, out producer);
+            this.producers.TryGetValue(label, out producer);
             return producer;
         }
-
-        #endregion
     }
 }

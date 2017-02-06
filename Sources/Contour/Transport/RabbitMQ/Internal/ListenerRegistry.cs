@@ -2,51 +2,38 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Linq;
 
-    using Contour.Configuration;
-    using Contour.Helpers;
-    using Contour.Helpers.CodeContracts;
-    using Contour.Receiving;
-    using Contour.Transport.RabbitMQ.Topology;
+    using Configuration;
+    using Helpers;
+    using Helpers.CodeContracts;
+    using Receiving;
+    using Topology;
 
     /// <summary>
     /// The listener registry.
     /// </summary>
     internal class ListenerRegistry : IDisposable
     {
-        #region Fields
-
         /// <summary>
         /// The _bus.
         /// </summary>
-        private readonly RabbitBus bus;
+        private readonly IRabbitConnection connection;
 
         /// <summary>
         /// The _listeners.
         /// </summary>
         private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
 
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ListenerRegistry"/>.
         /// </summary>
-        /// <param name="bus">
-        /// The bus.
-        /// </param>
-        public ListenerRegistry(RabbitBus bus)
+        /// <param name="connection">Соединение с шиной сообщений</param>
+        public ListenerRegistry(IRabbitConnection connection)
         {
-            this.bus = bus;
+            this.connection = connection;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
+        
         /// <summary>
         /// The can consume.
         /// </summary>
@@ -92,23 +79,26 @@
         /// </returns>
         public Listener ResolveFor(IReceiverConfiguration configuration)
         {
-            using (RabbitChannel channel = this.bus.OpenChannel())
+            using (var channel = this.connection.OpenChannel())
             {
-                var topologyBuilder = new TopologyBuilder(channel);
-                var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, configuration);
+                channel.Failed += (c, a) => connection.Bus.Panic();
 
-                Maybe<Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint>> endpointBuilder = configuration.Options.GetEndpointBuilder();
+                var topologyBuilder = new TopologyBuilder(channel);
+                var builder = new SubscriptionEndpointBuilder(this.connection.Bus.Endpoint, topologyBuilder, configuration);
+
+                var endpointBuilder = configuration.Options.GetEndpointBuilder();
 
                 Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", configuration.Label);
 
-                ISubscriptionEndpoint endpoint = endpointBuilder.Value(builder);
+                var endpoint = endpointBuilder.Value(builder);
 
                 lock (this.listeners)
                 {
-                    Listener listener = this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
+                    var listener = this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
                     if (listener == null)
                     {
-                        listener = new Listener(this.bus, endpoint, (RabbitReceiverOptions)configuration.Options, this.bus.Configuration.ValidatorRegistry);
+                        listener = new Listener(channel, endpoint, (RabbitReceiverOptions) configuration.Options,
+                            this.connection.Bus.Configuration.ValidatorRegistry);
                         this.listeners.Add(listener);
                     }
                     else
@@ -150,11 +140,7 @@
         {
                 this.listeners.ForEach(l => l.StopConsuming());
         }
-
-        #endregion
-
-        #region Methods
-
+        
         /// <summary>
         /// The ensure configuration is compatible.
         /// </summary>
@@ -184,7 +170,5 @@
             compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
             compareAndThrow(o => o.GetQoS(), "QoS");
         }
-
-        #endregion
     }
 }

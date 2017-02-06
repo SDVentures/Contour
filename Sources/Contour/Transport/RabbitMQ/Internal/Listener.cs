@@ -12,12 +12,12 @@
 
     using Common.Logging;
 
-    using Contour.Helpers;
-    using Contour.Helpers.Scheduler;
-    using Contour.Helpers.Timing;
-    using Contour.Receiving;
-    using Contour.Receiving.Consumers;
-    using Contour.Validation;
+    using Helpers;
+    using Helpers.Scheduler;
+    using Helpers.Timing;
+    using Receiving;
+    using Receiving.Consumers;
+    using Validation;
 
     using global::RabbitMQ.Client.Events;
 
@@ -27,9 +27,9 @@
     internal class Listener : IDisposable
     {
         /// <summary>
-        /// Поставщик каналов.
+        /// Канал в контексте соединения
         /// </summary>
-        private readonly IChannelProvider channelProvider;
+        private readonly RabbitChannel channel;
 
         /// <summary>
         /// Обработчики сообщений.
@@ -91,8 +91,8 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Listener"/>.
         /// </summary>
-        /// <param name="channelProvider">
-        /// Поставщик каналов.
+        /// <param name="channel">
+        /// Канал в контексте соединения.
         /// </param>
         /// <param name="endpoint">
         /// Прослушиваемый порт.
@@ -103,17 +103,16 @@
         /// <param name="validatorRegistry">
         /// Реестр механизмов проверки сообщений.
         /// </param>
-        public Listener(IChannelProvider channelProvider, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
+        public Listener(RabbitChannel channel, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
         {
             this.endpoint = endpoint;
-            this.channelProvider = channelProvider;
+            this.channel = channel;
             this.validatorRegistry = validatorRegistry;
 
             this.ReceiverOptions = receiverOptions;
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
-
-            // TODO: refactor
+            
             this.Failed += _ =>
                 {
                     if (this.HasFailed)
@@ -122,8 +121,9 @@
                     }
 
                     this.HasFailed = true;
-                    ((IBusAdvanced)channelProvider).Panic();
-                }; // restarting the whole bus
+                }; 
+            
+            channel.Failed += (ch, args) => this.Failed(this);
         }
 
         /// <summary>
@@ -448,9 +448,6 @@
 
         private void InternalConsume(CancellationToken cancellationToken)
         {
-            var channel = (RabbitChannel)this.channelProvider.OpenChannel();
-            channel.Failed += (ch, args) => this.Failed(this);
-
             if (this.ReceiverOptions.GetQoS().HasValue)
             {
                 channel.SetQos(

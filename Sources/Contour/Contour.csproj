@@ -192,11 +192,16 @@
     <Compile Include="Configuration\IBusComponent.cs" />
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ChannelFailureEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionProvider.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\IRabbitConnection.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\IRabbitConnectionProvider.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerConfiguration.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\NullPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\DefaultPublishConfirmationTracker.cs" />
     <Compile Include="Sending\PublishingOptions.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitConnection.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFaultMessage.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitUnhandledConsumingContext.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFailedConsumingContext.cs" />

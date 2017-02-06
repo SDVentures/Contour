@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,24 +9,26 @@ using Contour.Configuration;
 using Contour.Helpers;
 
 using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
     /// <summary>
     /// The rabbit bus.
     /// </summary>
-    internal class RabbitBus : AbstractBus, IBusAdvanced, IChannelProvider
+    internal class RabbitBus : AbstractBus, IBusAdvanced
     {
-        private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
-
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
+
+        private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
 
         private readonly ManualResetEvent ready = new ManualResetEvent(false);
 
         private CancellationTokenSource cancellationTokenSource;
 
         private Task restartTask;
+
+        private readonly IRabbitConnectionProvider connectionProvider;
+        private readonly IRabbitConnection connection;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitBus" />.
@@ -42,6 +41,11 @@ namespace Contour.Transport.RabbitMQ.Internal
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
             this.restartTask = completion.Task;
+
+            this.connectionProvider = new RabbitConnectionProvider(this);
+            this.connection = connectionProvider.Create();
+            this.connection.Closed += this.Closed;
+            this.connection.ChannelFailed += this.ChannelFailed;
         }
 
         /// <summary>
@@ -71,54 +75,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// The open channel.
-        /// </summary>
-        /// <returns>The <see cref="IChannel" />.</returns>
-        IChannel IBusAdvanced.OpenChannel()
-        {
-            return this.OpenChannel();
-        }
-
-        /// <summary>
         /// The panic.
         /// </summary>
-        void IBusAdvanced.Panic()
+        public void Panic()
         {
             this.Restart();
-        }
-
-        /// <summary>
-        /// The open channel.
-        /// </summary>
-        /// <returns>The <see cref="IChannel" />.</returns>
-        IChannel IChannelProvider.OpenChannel()
-        {
-            return this.OpenChannel();
-        }
-
-        /// <summary>
-        /// The open channel.
-        /// </summary>
-        /// <returns>The <see cref="RabbitChannel" />.</returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public virtual RabbitChannel OpenChannel()
-        {
-            if (this.Connection == null || !this.Connection.IsOpen)
-            {
-                throw new InvalidOperationException("RabbitMQ Connection is not open.");
-            }
-
-            try
-            {
-                var channel = new RabbitChannel(this, this.Connection.CreateModel());
-                channel.Failed += (ch, args) => this.HandleBusFailure(args.GetException());
-                return channel;
-            }
-            catch (Exception ex)
-            {
-                this.HandleBusFailure(ex);
-                throw;
-            }
         }
 
         /// <summary>
@@ -215,7 +176,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void BuildReceivers()
         {
-            this.ListenerRegistry = new ListenerRegistry(this);
+            this.ListenerRegistry = new ListenerRegistry(connection);
 
             this.Configuration.ReceiverConfigurations.ForEach(
                 c =>
@@ -227,7 +188,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void BuildSenders()
         {
-            this.ProducerRegistry = new ProducerRegistry(this);
+            this.ProducerRegistry = new ProducerRegistry(connection);
 
             this.Configuration.SenderConfigurations.ForEach(
                 c =>
@@ -250,112 +211,31 @@ namespace Contour.Transport.RabbitMQ.Internal
                         .Name,
                     this.Endpoint));
 
-            this.ListenerRegistry = new ListenerRegistry(this);
-            this.ProducerRegistry = new ProducerRegistry(this);
-
             this.BuildReceivers();
             this.BuildSenders();
 
             this.IsConfigured = true;
         }
 
-        private void Connect(CancellationToken token)
+        private void Closed(object sender, EventArgs args)
         {
-            this.logger.InfoFormat("Connecting to RabbitMQ using [{0}].", this.Configuration.ConnectionString);
-
-            var clientProperties = new Dictionary<string, object>
-                                       {
-                                           { "Endpoint", this.Endpoint.Address },
-                                           { "Machine", Environment.MachineName },
-                                           {
-                                               "Location", Path.GetDirectoryName(
-                                                   Assembly.GetExecutingAssembly()
-                                               .
-                                               CodeBase)
-                                           }
-                                       };
-
-            var connectionFactory = new ConnectionFactory
-                                        {
-                                            Uri = this.Configuration.ConnectionString,
-                                            ClientProperties = clientProperties,
-                                            RequestedConnectionTimeout = 3000 // 3s
-                                        };
-
-            var retryCount = 0;
-            while (!token.IsCancellationRequested)
+            Task.Factory.StartNew(() =>
             {
-                IConnection newConnection = null;
-                try
-                {
-                    newConnection = connectionFactory.CreateConnection();
-                    newConnection.ConnectionShutdown += this.DisconnectEventHandler;
-                    this.Connection = newConnection;
-                    this.OnConnected();
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    var secondsToRetry = Math.Min(10, retryCount);
-
-                    this.logger.WarnFormat("Unable to connect to RabbitMQ. Retrying in {0} seconds...", ex, secondsToRetry);
-
-                    if (newConnection != null)
-                    {
-                        newConnection.ConnectionShutdown -= this.DisconnectEventHandler;
-                        newConnection.Abort(500);
-                    }
-
-                    Thread.Sleep(TimeSpan.FromSeconds(secondsToRetry));
-                    retryCount++;
-                }
-            }
+                this.connection.Closed -= this.Closed;
+                this.OnDisconnected();
+                this.ChannelFailed(this,
+                    new ChannelFailureEventArgs(
+                        new BusConnectionException("Connection was shut down on [{0}].".FormatEx(this.Endpoint))));
+            });
         }
 
-        private void DisconnectEventHandler(IConnection connection, ShutdownEventArgs eventArgs)
-        {
-            Task.Factory.StartNew(
-                () =>
-                    {
-                        connection.ConnectionShutdown -= this.DisconnectEventHandler;
-                        this.OnDisconnected();
-                        this.HandleBusFailure(new BusConnectionException("Connection was shut down on [{0}].".FormatEx(this.Endpoint)));
-                    });
-        }
-
-        private void DropConnection()
-        {
-            if (this.Connection != null)
-            {
-                if (this.Connection.CloseReason == null)
-                {
-                    this.logger.Trace(m => m("{0}: closing connection.", this.Endpoint));
-                    try
-                    {
-                        this.Connection.Close(500);
-                        if (this.Connection.CloseReason != null)
-                        {
-                            this.Connection.Abort(500);
-                        }
-                    }
-                    catch (AlreadyClosedException ex)
-                    {
-                        this.logger.WarnFormat("{0}: connection is already closed. Possible race condition.", ex, this.Endpoint);
-                    }
-
-                    this.logger.Trace(m => m("{0}: disposing connection.", this.Endpoint));
-                }
-
-                this.Connection = null;
-            }
-        }
-
-        private void HandleBusFailure(Exception exception)
+        private void ChannelFailed(object sender, ChannelFailureEventArgs args)
         {
             if (this.IsStarted && !this.IsShuttingDown)
             {
                 // restarting only if not already stopping/stopped
-                this.logger.ErrorFormat("Channel failure was detected. Trying to restart the bus instance [{0}].", exception, this.Endpoint);
+                this.logger.ErrorFormat("Channel failure was detected. Trying to restart the bus instance [{0}].",
+                    args.Exception, this.Endpoint);
                 this.Restart();
             }
         }
@@ -387,8 +267,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.ProducerRegistry.Reset();
             }
 
-            this.DropConnection();
-
+            this.connection.Close();
             this.OnStopped();
         }
 
@@ -403,8 +282,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.Configure();
 
             this.OnStarting();
-
-            this.Connect(cancellationToken);
+            this.connection.Open(cancellationToken);
 
             this.logger.Trace(m => m("{0}: starting components.", this.Endpoint));
             this.ComponentTracker.StartAll();

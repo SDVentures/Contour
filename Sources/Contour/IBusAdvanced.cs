@@ -33,14 +33,6 @@
         #region Public Methods and Operators
 
         /// <summary>
-        /// Открытие/создание нового канала, используя текущее подключение.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="IChannel"/>.
-        /// </returns>
-        IChannel OpenChannel();
-
-        /// <summary>
         ///   Принудительный перезапуск клиента шины.
         /// </summary>
         void Panic();

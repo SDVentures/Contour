@@ -3,18 +3,8 @@
     /// <summary>
     /// The ChannelProvider interface.
     /// </summary>
-    public interface IChannelProvider
+    public interface IChannelProvider<out TChannel> where TChannel: IChannel
     {
-        #region Public Methods and Operators
-
-        /// <summary>
-        /// The open channel.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="IChannel"/>.
-        /// </returns>
-        IChannel OpenChannel();
-
-        #endregion
+        TChannel OpenChannel();
     }
 }

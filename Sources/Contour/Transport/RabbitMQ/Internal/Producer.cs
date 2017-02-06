@@ -29,9 +29,7 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Producer"/>.
         /// </summary>
-        /// <param name="bus">
-        /// Конечная точка, для которой создается отправитель.
-        /// </param>
+        /// <param name="connection">Соединение с шиной сообщений</param>
         /// <param name="label">
         /// Метка сообщения, которая будет использоваться при отправлении сообщений.
         /// </param>
@@ -41,9 +39,9 @@
         /// <param name="confirmationIsRequired">
         /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
         /// </param>
-        public Producer(RabbitBus bus, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
         {
-            this.Channel = bus.OpenChannel();
+            this.Channel = connection.OpenChannel();
             this.Label = label;
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
@@ -55,7 +53,7 @@
                 this.Channel.OnConfirmation(this.confirmationTracker.HandleConfirmation);
             }
 
-            this.Failed += _ => ((IBusAdvanced)bus).Panic();
+            this.Failed += _ => ((IBusAdvanced)connection.Bus).Panic();
         }
 
         /// <summary>
