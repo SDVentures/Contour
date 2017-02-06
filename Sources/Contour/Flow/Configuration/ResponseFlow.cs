@@ -21,7 +21,7 @@ namespace Contour.Flow.Configuration
             this.source = source;
         }
 
-        public IFlowEntry<TInput> OnResponse<TInput>(Action<TOutput> callback)
+        public IFlowEntry<TInput> Entry<TInput>(Action<TOutput> callback)
         {
             var requestFlow = new RequestFlow<TInput, TOutput>(source, callback);
             return requestFlow;

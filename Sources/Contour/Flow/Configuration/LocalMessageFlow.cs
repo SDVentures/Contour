@@ -13,7 +13,8 @@ namespace Contour.Flow.Configuration
     public class LocalMessageFlow<TInput> :  IMessageFlow<TInput>
     {
         private readonly ILog log = LogManager.GetLogger<LocalMessageFlow<TInput>>();
-        private IDataflowBlock buffer;
+        private IPropagatorBlock<TInput, TInput> buffer;
+        private IIncomingFlow<TInput> incomingFlow;
 
         /// <summary>
         /// Flow label
@@ -34,6 +35,12 @@ namespace Contour.Flow.Configuration
         /// Flow transport reference
         /// </summary>
         public IFlowTransport Transport { get; }
+
+        /// <summary>
+        /// Describes a flow entry point
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public IFlowEntry<TInput> Entry => incomingFlow;
 
         /// <summary>
         /// Creates a new local message flow
@@ -57,44 +64,20 @@ namespace Contour.Flow.Configuration
 
             this.Label = label;
             buffer = new BufferBlock<TInput>(new DataflowBlockOptions() {BoundedCapacity = capacity});
-            var flow = new ActingFlow<TInput>((ISourceBlock<TInput>) buffer)
+            var flow = new ActingFlow<TInput>(buffer)
             {
                 Registry = Registry,
                 Transport = Transport
             };
-            
+
+            incomingFlow = new LocalIncomingFlow<TInput>(buffer);
             return flow;
         }
 
-        public bool Post(TInput message)
-        {
-            EnsureSourceConfigured();
-
-            var target = (ITargetBlock<TInput>) buffer;
-            return target.Post(message);
-        }
-
-        public Task<bool> PostAsync(TInput message)
-        {
-            EnsureSourceConfigured();
-
-            var target = (ITargetBlock<TInput>)buffer;
-            return target.SendAsync(message);
-        }
-
-        public Task<bool> PostAsync(TInput message, CancellationToken token)
-        {
-            EnsureSourceConfigured();
-
-            var target = (ITargetBlock<TInput>)buffer;
-            return target.SendAsync(message, token);
-        }
-        
         ITargetBlock<TInput> IFlowTarget<TInput>.AsTarget()
         {
             EnsureSourceConfigured();
-
-            return buffer as ITargetBlock<TInput>;
+            return buffer;
         }
 
         private void EnsureSourceConfigured()

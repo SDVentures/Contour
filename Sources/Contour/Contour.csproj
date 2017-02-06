@@ -71,6 +71,8 @@
     <Compile Include="Caching\HashKeyProvider.cs" />
     <Compile Include="Caching\IKeyProvider.cs" />
     <Compile Include="Flow\Blocks\ConditionalTransformBlock.cs" />
+    <Compile Include="Flow\Configuration\IIncomingFlow.cs" />
+    <Compile Include="Flow\Configuration\LocalIncomingFlow.cs" />
     <Compile Include="Flow\Configuration\IRequestFlow.cs" />
     <Compile Include="Flow\Configuration\IResponseFlow.cs" />
     <Compile Include="Flow\Configuration\ITerminatingFlow.cs" />
@@ -91,7 +93,6 @@
     <Compile Include="Flow\Configuration\IFlowTransportRegistry.cs" />
     <Compile Include="Flow\Transport\IFlowTransport.cs" />
     <Compile Include="Flow\Transport\IFlowTransportConfiguration.cs" />
-    <Compile Include="Flow\Configuration\IIncomingFlow.cs" />
     <Compile Include="Flow\Configuration\IMessageFlow.cs" />
     <Compile Include="Flow\Configuration\IBroadcastFlow.cs" />
     <Compile Include="Flow\Configuration\IOutgoingFlow.cs" />
