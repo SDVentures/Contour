@@ -97,7 +97,8 @@
                     var listener = this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
                     if (listener == null)
                     {
-                        listener = new Listener(channel, endpoint, (RabbitReceiverOptions) configuration.Options,
+                        var listenerChannel = connection.OpenChannel();
+                        listener = new Listener(listenerChannel, endpoint, (RabbitReceiverOptions) configuration.Options,
                             this.connection.Bus.Configuration.ValidatorRegistry);
                         this.listeners.Add(listener);
                     }

@@ -102,8 +102,7 @@ namespace Contour.RabbitMq.Tests
                     () =>
                         {
                             Thread.Sleep(2.Seconds());
-
-                            ((RabbitBus)bus).Connection.Abort();
+                            Broker.DropConnections();
                         });
 
                 int counter = 10;

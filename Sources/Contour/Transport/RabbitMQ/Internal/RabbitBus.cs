@@ -28,6 +28,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private Task restartTask;
 
         private readonly IRabbitConnectionProvider connectionProvider;
+
         private readonly IRabbitConnection connection;
 
         /// <summary>
@@ -48,11 +49,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.connection.Closed += this.ConnectionClosed;
             this.connection.ChannelFailed += this.ChannelFailed;
         }
-
-        /// <summary>
-        /// Gets the connection.
-        /// </summary>
-        public IConnection Connection { get; private set; }
 
         /// <summary>
         /// Gets the listener registry.
@@ -284,11 +280,11 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return;
             }
 
-            this.logger.Trace(m => m("{0}: configuring.", this.Endpoint));
-            this.Configure();
-
             this.OnStarting();
             this.connection.Open(cancellationToken);
+
+            this.logger.Trace(m => m("{0}: configuring.", this.Endpoint));
+            this.Configure();
 
             this.logger.Trace(m => m("{0}: starting components.", this.Endpoint));
             this.ComponentTracker.StartAll();

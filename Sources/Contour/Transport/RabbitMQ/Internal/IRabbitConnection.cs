@@ -16,5 +16,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         void Open(CancellationToken token);
 
         void Close();
+
+        void Abort();
     }
 }

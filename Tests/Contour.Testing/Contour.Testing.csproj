@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plumbing\Broker.cs" />
+    <Compile Include="Plumbing\Connection.cs" />
     <Compile Include="Plumbing\Exchange.cs" />
     <Compile Include="Plumbing\Message.cs" />
     <Compile Include="Plumbing\Queue.cs" />

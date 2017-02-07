@@ -533,10 +533,7 @@ namespace Contour.Configurator.Tests
                         });
 
                 producer.Emit("msg.a", new { Num = 13 });
-
-                handler.Received.WaitOne(5.Seconds()).
-                    Should().
-                    BeTrue();
+                handler.Received.WaitOne(5.Seconds()).Should().BeTrue();
             }
         }
 

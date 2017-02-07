@@ -8,12 +8,11 @@
 
     using Common.Logging;
 
-    using Contour.Helpers;
-    using Contour.Receiving;
-    using Contour.Transport.RabbitMQ.Topology;
+    using Helpers;
+    using Receiving;
+    using Topology;
 
     using global::RabbitMQ.Client;
-
     using global::RabbitMQ.Client.Exceptions;
 
     /// <summary>
@@ -55,15 +54,11 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitChannel"/>.
         /// </summary>
-        /// <param name="bus">
-        /// The bus.
-        /// </param>
-        /// <param name="model">
-        /// The native.
-        /// </param>
-        public RabbitChannel(RabbitBus bus, IModel model)
+        /// <param name="connection">Bus connection</param>
+        /// <param name="model"></param>
+        public RabbitChannel(IRabbitConnection connection, IModel model)
         {
-            this.bus = bus;
+            this.bus = connection.Bus;
             this.Model = model;
 
             Logger.TraceFormat("Channel is opened.");
@@ -237,11 +232,6 @@
         {
             if (this.Model != null)
             {
-                if (this.bus.Connection != null && this.bus.Connection.CloseReason != null)
-                {
-                    return;
-                }
-
                 if (this.Model.IsOpen && !this.isClosed)
                 {
                     this.Model.Close();

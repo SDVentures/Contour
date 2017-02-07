@@ -4,6 +4,7 @@ using System.Net;
 
 using RestSharp;
 using RestSharp.Authenticators;
+using RestSharp.Deserializers;
 
 namespace Contour.Testing.Plumbing
 {
@@ -209,6 +210,21 @@ namespace Contour.Testing.Plumbing
                              };
             client.AddDefaultHeader("Content-Type", "application/json; charset=utf-8");
             return client;
+        }
+
+        public void DropConnections()
+        {
+            var client = this.CreateClient();
+            var connectionsRequest = CreateRequest("/api/connections", Method.GET);
+
+            var response = client.Execute<List<Connection>>(connectionsRequest);
+            var connections = response.Data;
+
+            foreach (var con in connections)
+            {
+                var dropRequest = CreateRequest($"/api/connections/{con.name}", Method.DELETE);
+                client.Execute(dropRequest);
+            }
         }
     }
 }

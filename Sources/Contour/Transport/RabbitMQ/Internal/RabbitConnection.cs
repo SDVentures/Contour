@@ -90,7 +90,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             try
             {
-                var channel = new RabbitChannel(Bus, this.connection.CreateModel());
+                var model = connection.CreateModel();
+                var channel = new RabbitChannel(this, model);
                 channel.Failed += (ch, args) => this.OnChannelFailed(args.GetException());
                 return channel;
             }
@@ -126,6 +127,19 @@ namespace Contour.Transport.RabbitMQ.Internal
                 }
 
                 this.connection = null;
+            }
+        }
+
+        public void Abort()
+        {
+            try
+            {
+                connection?.Abort();
+            }
+            catch (Exception ex)
+            {
+                this.logger.Error($"[{this.Bus.Configuration.Endpoint}]: failed to abort the underlying connection due to: {ex.Message}", ex);
+                throw;
             }
         }
 
