@@ -32,9 +32,9 @@ namespace Contour.Testing.Transport.RabbitMq
 
         private IList<IBus> endpoints = new List<IBus>();
 
-        private string managementConnection = "http://rabbitmq-test:15672/";
+        private string managementConnection = "http://192.168.99.100:15672/";
 
-        private string amqpConnection = "amqp://rabbitmq-test:5672/";
+        private string amqpConnection = "amqp://192.168.99.100:5672/";
 
         private string testUsername = "guest";
 

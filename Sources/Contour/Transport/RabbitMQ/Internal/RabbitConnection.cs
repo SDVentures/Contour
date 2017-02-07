@@ -37,7 +37,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             var clientProperties = new Dictionary<string, object>
             {
-                {"Endpoint", this.Bus.Configuration.Endpoint},
+                {"Endpoint", this.Bus.Configuration.Endpoint.Address},
                 {"Machine", Environment.MachineName},
                 {"Location", Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)}
             };
@@ -52,13 +52,14 @@ namespace Contour.Transport.RabbitMQ.Internal
             var retryCount = 0;
             while (!token.IsCancellationRequested)
             {
-                IConnection conn = null;
+                IConnection con = null;
                 try
                 {
-                    conn = connectionFactory.CreateConnection();
-                    conn.ConnectionShutdown += this.OnConnectionShutdown;
-
+                    con = connectionFactory.CreateConnection();
+                    con.ConnectionShutdown += this.OnConnectionShutdown;
+                    this.connection = con;
                     this.OnOpened();
+
                     return;
                 }
                 catch (Exception ex)
@@ -68,10 +69,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.logger.WarnFormat("Unable to connect to RabbitMQ. Retrying in {0} seconds...", ex,
                         secondsToRetry);
 
-                    if (conn != null)
+                    if (con != null)
                     {
-                        conn.ConnectionShutdown -= this.OnConnectionShutdown;
-                        conn.Abort(OperationTimeout);
+                        con.ConnectionShutdown -= this.OnConnectionShutdown;
+                        con.Abort(OperationTimeout);
                     }
 
                     Thread.Sleep(TimeSpan.FromSeconds(secondsToRetry));

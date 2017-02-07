@@ -44,7 +44,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.connectionProvider = new RabbitConnectionProvider(this);
             this.connection = connectionProvider.Create();
-            this.connection.Closed += this.Closed;
+            this.connection.Opened += this.ConnectionOpened;
+            this.connection.Closed += this.ConnectionClosed;
             this.connection.ChannelFailed += this.ChannelFailed;
         }
 
@@ -217,11 +218,16 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.IsConfigured = true;
         }
 
-        private void Closed(object sender, EventArgs args)
+        private void ConnectionOpened(object sender, EventArgs e)
+        {
+            this.OnConnected();
+        }
+
+        private void ConnectionClosed(object sender, EventArgs args)
         {
             Task.Factory.StartNew(() =>
             {
-                this.connection.Closed -= this.Closed;
+                this.connection.Closed -= this.ConnectionClosed;
                 this.OnDisconnected();
                 this.ChannelFailed(this,
                     new ChannelFailureEventArgs(
