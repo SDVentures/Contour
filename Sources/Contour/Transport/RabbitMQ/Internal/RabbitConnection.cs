@@ -9,6 +9,8 @@ using Contour.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
+using INativeConnection = RabbitMQ.Client.IConnection;
+
 namespace Contour.Transport.RabbitMQ.Internal
 {
     class RabbitConnection : IRabbitConnection
@@ -16,7 +18,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private const int ConnectionTimeout = 3000;
         private const int OperationTimeout = 500;
         private readonly ILog logger = LogManager.GetLogger<RabbitConnection>();
-        private IConnection connection;
+        private INativeConnection connection;
 
         public RabbitConnection(RabbitBus bus)
         {
@@ -52,7 +54,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             var retryCount = 0;
             while (!token.IsCancellationRequested)
             {
-                IConnection con = null;
+                INativeConnection con = null;
                 try
                 {
                     con = connectionFactory.CreateConnection();
@@ -143,7 +145,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
         }
 
-        private void OnConnectionShutdown(IConnection conn, ShutdownEventArgs eventArgs)
+        private void OnConnectionShutdown(INativeConnection conn, ShutdownEventArgs eventArgs)
         {
             Task.Factory.StartNew(
                 () =>

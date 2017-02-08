@@ -8,8 +8,6 @@ using Common.Logging;
 using Contour.Configuration;
 using Contour.Helpers;
 
-using RabbitMQ.Client;
-
 namespace Contour.Transport.RabbitMQ.Internal
 {
     /// <summary>
@@ -27,8 +25,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private Task restartTask;
 
-        private readonly IRabbitConnectionProvider connectionProvider;
-
+        private readonly IConnectionPool<IRabbitConnection> pool;
         private readonly IRabbitConnection connection;
 
         /// <summary>
@@ -43,8 +40,10 @@ namespace Contour.Transport.RabbitMQ.Internal
             completion.SetResult(new object());
             this.restartTask = completion.Task;
 
-            this.connectionProvider = new RabbitConnectionProvider(this);
-            this.connection = connectionProvider.Create();
+            var connectionPoolMaxSize = Configuration.ReceiverConfigurations.Count() + Configuration.SenderConfigurations.Count();
+            this.pool = new RabbitConnectionPool(this, connectionPoolMaxSize);
+
+            this.connection = pool.Get();
             this.connection.Opened += this.ConnectionOpened;
             this.connection.Closed += this.ConnectionClosed;
             this.connection.ChannelFailed += this.ChannelFailed;

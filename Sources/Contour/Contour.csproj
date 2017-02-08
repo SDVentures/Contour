@@ -84,6 +84,7 @@
     <Compile Include="Operators\Reply.cs" />
     <Compile Include="Operators\TransparentReply.cs" />
     <Compile Include="Operators\WireTap.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionPool.cs" />
     <Compile Include="Receiving\Sagas\CorrelationIdSeparator.cs" />
     <Compile Include="Receiving\Sagas\DefaultSagaFactory.cs" />
     <Compile Include="Receiving\Sagas\DefaultSagaLifecycle.cs" />
@@ -193,9 +194,12 @@
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ChannelFailureEventArgs.cs" />
+    <Compile Include="IConnection.cs" />
+    <Compile Include="ConnectionPool.cs" />
+    <Compile Include="IConnectionPool.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionProvider.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IRabbitConnection.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\IRabbitConnectionProvider.cs" />
+    <Compile Include="IConnectionProvider.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerConfiguration.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\NullPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IPublishConfirmationTracker.cs" />

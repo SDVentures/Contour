@@ -1,6 +1,6 @@
 ﻿namespace Contour.Transport.RabbitMQ.Internal
 {
-    internal class RabbitConnectionProvider : IRabbitConnectionProvider
+    internal class RabbitConnectionProvider : IConnectionProvider<IRabbitConnection>
     {
         private readonly RabbitBus bus;
 
@@ -8,7 +8,7 @@
         {
             this.bus = bus;
         }
-
+        
         public IRabbitConnection Create()
         {
             return new RabbitConnection(bus);
