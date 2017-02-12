@@ -53,11 +53,13 @@ namespace Contour
         /// <summary>
         /// Событие установки соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         public event Action<IBus, EventArgs> Connected = (bus, args) => { };
 
         /// <summary>
         /// Событие разрыва соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         public event Action<IBus, EventArgs> Disconnected = (bus, args) => { };
 
         /// <summary>
@@ -597,6 +599,7 @@ namespace Contour
         /// <summary>
         /// Генерирует событие об установке соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         protected virtual void OnConnected()
         {
             this.Connected(this, null);
@@ -605,6 +608,7 @@ namespace Contour
         /// <summary>
         /// Генерирует событие о разрыве соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         protected virtual void OnDisconnected()
         {
             this.Disconnected(this, null);

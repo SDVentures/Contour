@@ -1,4 +1,5 @@
-﻿namespace Contour.Testing.Plumbing
+﻿// ReSharper disable InconsistentNaming
+namespace Contour.Testing.Plumbing
 {
 
     public class Capabilities

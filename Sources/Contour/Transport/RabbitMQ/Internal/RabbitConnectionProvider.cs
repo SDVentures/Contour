@@ -1,7 +1,10 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class RabbitConnectionProvider : IConnectionProvider<IRabbitConnection>
     {
+        private readonly ILog logger = LogManager.GetLogger<RabbitConnectionProvider>();
         private readonly RabbitBus bus;
 
         public RabbitConnectionProvider(RabbitBus bus)
@@ -11,6 +14,7 @@
         
         public IRabbitConnection Create()
         {
+            logger.Trace($"Creating a new connection: [{typeof(IRabbitConnection).Name}]");
             return new RabbitConnection(bus);
         }
     }

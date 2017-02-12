@@ -54,7 +54,7 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitChannel"/>.
         /// </summary>
-        /// <param name="connection">Bus connection</param>
+        /// <param name="connection"></param>
         /// <param name="model"></param>
         public RabbitChannel(IRabbitConnection connection, IModel model)
         {

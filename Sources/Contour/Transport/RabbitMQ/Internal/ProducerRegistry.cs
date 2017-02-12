@@ -1,4 +1,7 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System.Threading;
+using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -14,9 +17,12 @@
     /// </summary>
     internal class ProducerRegistry : IDisposable
     {
+        private readonly ILog logger = LogManager.GetLogger<ProducerRegistry>();
+
         /// <summary>
         /// The _bus.
         /// </summary>
+        private readonly RabbitBus bus;
         private readonly IRabbitConnection connection;
 
         /// <summary>
@@ -27,9 +33,9 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ProducerRegistry"/>.
         /// </summary>
-        /// <param name="connection">Соединение с шиной сообщений</param>
-        public ProducerRegistry(IRabbitConnection connection)
+        public ProducerRegistry(RabbitBus bus, IRabbitConnection connection)
         {
+            this.bus = bus;
             this.connection = connection;
         }
         
@@ -68,39 +74,42 @@
             var producer = this.TryResolverFor(configuration.Label);
             if (producer == null)
             {
-                using (var channel = this.connection.OpenChannel())
+                using (var channel = connection.OpenChannel())
                 {
                     var topologyBuilder = new TopologyBuilder(channel);
-                    var builder = new RouteResolverBuilder(this.connection.Bus.Endpoint, topologyBuilder, configuration);
-                    Maybe<Func<IRouteResolverBuilder, IRouteResolver>> routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
+                    var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, configuration);
+                    var routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
 
-                    Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]", configuration.Label);
+                    Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]",
+                        configuration.Label);
 
                     var routeResolver = routeResolverBuilder.Value(builder);
 
-                    producer = new Producer(connection, configuration.Label, routeResolver, configuration.Options.IsConfirmationRequired());
-                    producer.Failed += p =>
-                        {
-                            {
-                                // lock (_producers)
-                                p.Dispose();
-                                this.producers.Remove(p.Label);
-                            }
-                        };
+                    logger.Trace($"Using connection [{connection.Id}] to start a producer");
 
-                    // lock (_producers)
+                    producer = new Producer(connection, configuration.Label, routeResolver,
+                        configuration.Options.IsConfirmationRequired());
+                    producer.Failed += p =>
+                    {
+                        {
+                            p.Dispose();
+                            this.producers.Remove(p.Label);
+                        }
+                    };
+
                     this.producers.Add(configuration.Label, producer);
                 }
 
                 if (configuration.RequiresCallback)
                 {
-                    producer.UseCallbackListener(this.connection.Bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
+                    producer.UseCallbackListener(
+                        this.bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
                 }
             }
 
             return producer;
         }
-        
+
         /// <summary>
         /// The try resolver for.
         /// </summary>

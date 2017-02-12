@@ -1,4 +1,7 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System.Threading;
+using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -15,22 +18,17 @@
     /// </summary>
     internal class ListenerRegistry : IDisposable
     {
-        /// <summary>
-        /// The _bus.
-        /// </summary>
-        private readonly IRabbitConnection connection;
-
-        /// <summary>
-        /// The _listeners.
-        /// </summary>
+        private readonly ILog logger = LogManager.GetLogger<ListenerRegistry>();
+        private readonly RabbitBus bus;
         private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
+        private readonly IRabbitConnection connection;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ListenerRegistry"/>.
         /// </summary>
-        /// <param name="connection">Соединение с шиной сообщений</param>
-        public ListenerRegistry(IRabbitConnection connection)
+        public ListenerRegistry(RabbitBus bus, IRabbitConnection connection)
         {
+            this.bus = bus;
             this.connection = connection;
         }
         
@@ -79,12 +77,10 @@
         /// </returns>
         public Listener ResolveFor(IReceiverConfiguration configuration)
         {
-            using (var channel = this.connection.OpenChannel())
+            using (var channel = connection.OpenChannel())
             {
-                channel.Failed += (c, a) => connection.Bus.Panic();
-
                 var topologyBuilder = new TopologyBuilder(channel);
-                var builder = new SubscriptionEndpointBuilder(this.connection.Bus.Endpoint, topologyBuilder, configuration);
+                var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, configuration);
 
                 var endpointBuilder = configuration.Options.GetEndpointBuilder();
 
@@ -94,12 +90,17 @@
 
                 lock (this.listeners)
                 {
-                    var listener = this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
+                    var listener =
+                        this.listeners.FirstOrDefault(
+                            l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
                     if (listener == null)
                     {
-                        var listenerChannel = connection.OpenChannel();
-                        listener = new Listener(listenerChannel, endpoint, (RabbitReceiverOptions) configuration.Options,
-                            this.connection.Bus.Configuration.ValidatorRegistry);
+                        logger.Trace($"Using connection [{connection.Id}] to start a listener");
+
+                        listener = new Listener(connection, endpoint,
+                            (RabbitReceiverOptions) configuration.Options,
+                            this.bus.Configuration.ValidatorRegistry);
+
                         this.listeners.Add(listener);
                     }
                     else

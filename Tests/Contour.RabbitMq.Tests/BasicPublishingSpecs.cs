@@ -361,7 +361,7 @@ namespace Contour.RabbitMq.Tests
                 var rand1 = new Random(Environment.TickCount);
                 var rand2 = new Random(Environment.TickCount / 2);
 
-                int iterations = 1000;
+                int iterations = 100;
                 var countdown = new CountdownEvent(iterations * 2);
 
                 this.StartBus(

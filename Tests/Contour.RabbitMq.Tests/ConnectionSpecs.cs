@@ -7,8 +7,7 @@ using FluentAssertions;
 
 using Contour.Configuration;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMQ.Internal;
-
+using Contour.Transport.RabbitMQ.Topology;
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
@@ -20,6 +19,47 @@ namespace Contour.RabbitMq.Tests
     /// </summary>
     public class ConnectionSpecs
     {
+
+        [Ignore]
+        [TestFixture]
+        [Category("Integration")]
+        public class when_initializing_bus : RabbitMqFixture
+        {
+            [Test]
+            public void should_create_separate_connection_for_each_consumer()
+            {
+                var bus = this.ConfigureBus(
+                    "Test",
+                    cfg =>
+                    {
+                        cfg.On<BooMessage>("one")
+                            .ReactWith(m => { })
+                            .WithEndpoint(
+                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))));
+
+                        cfg.On<FooMessage>("two")
+                            .ReactWith(m => { })
+                            .WithEndpoint(
+                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("two.queue"))));
+
+                        cfg.On<GooMessage>("three")
+                            .ReactWith(m => { })
+                            .WithEndpoint(
+                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("three.queue"))));
+                    });
+
+                bus.Start();
+                var cons = Broker.GetConnections();
+                
+                Assert.IsTrue(cons.Count() == 3 + 2); // two extra senders are registered for failed and unhandled messages; can't find a way to verify it in another fashion
+            }
+
+            [Test]
+            public void should_create_separate_connection_for_each_producer()
+            {
+            }
+        }
+
         /// <summary>
         /// The when_connecting_to_invalid_broker_endpoint.
         /// </summary>

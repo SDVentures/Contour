@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -212,18 +213,36 @@ namespace Contour.Testing.Plumbing
             return client;
         }
 
-        public void DropConnections()
+        public IEnumerable<Connection> GetConnections()
         {
             var client = this.CreateClient();
             var connectionsRequest = CreateRequest("/api/connections", Method.GET);
 
             var response = client.Execute<List<Connection>>(connectionsRequest);
-            var connections = response.Data;
 
+            if (response.ErrorException != null)
+            {
+                throw new Exception("Failed to get connections", response.ErrorException);
+            }
+
+            var connections = response.Data;
+            return connections;
+        }
+
+        public void DropConnections()
+        {
+            var connections = GetConnections();
+
+            var client = this.CreateClient();
             foreach (var con in connections)
             {
                 var dropRequest = CreateRequest($"/api/connections/{con.name}", Method.DELETE);
-                client.Execute(dropRequest);
+                var response = client.Execute(dropRequest);
+
+                if (response.ErrorException != null)
+                {
+                    throw new Exception("Failed to drop a connection", response.ErrorException);
+                }
             }
         }
     }

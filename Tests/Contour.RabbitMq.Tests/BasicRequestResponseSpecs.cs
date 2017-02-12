@@ -189,7 +189,7 @@
 
                 var timeout = TimeSpan.FromMilliseconds(100);
                 var options = new RequestOptions { Timeout = timeout };
-                var requestCount = 100000;
+                var requestCount = 100;
 
                 var tasks = new List<Task<DummyResponse>>();
                 Assert.DoesNotThrow(
@@ -401,7 +401,7 @@
                 var rand1 = new Random(Environment.TickCount);
                 var rand2 = new Random(Environment.TickCount / 2);
 
-                const int Iterations = 1000;
+                const int Iterations = 100;
                 var countdown = new CountdownEvent(Iterations * 2);
 
                 this.StartBus(

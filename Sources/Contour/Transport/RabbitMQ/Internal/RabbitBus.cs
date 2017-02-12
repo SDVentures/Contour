@@ -25,8 +25,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private Task restartTask;
 
-        private readonly IConnectionPool<IRabbitConnection> pool;
-        private readonly IRabbitConnection connection;
+        private readonly IConnectionPool<IRabbitConnection> connectionPool;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitBus" />.
@@ -40,13 +39,12 @@ namespace Contour.Transport.RabbitMQ.Internal
             completion.SetResult(new object());
             this.restartTask = completion.Task;
 
-            var connectionPoolMaxSize = Configuration.ReceiverConfigurations.Count() + Configuration.SenderConfigurations.Count();
-            this.pool = new RabbitConnectionPool(this, connectionPoolMaxSize);
+            //A number of transient connections is created while the bus is building its topology; if the pool size is limited by the number of senders and receivers while this is happening some connections may get reused because connection bound operations may execute asynchronously. To force the pool to use separate connection for each producer and consumer the size needs to be greater than the total number of senders and receivers
+            var poolSize = -1;
 
-            this.connection = pool.Get();
-            this.connection.Opened += this.ConnectionOpened;
-            this.connection.Closed += this.ConnectionClosed;
-            this.connection.ChannelFailed += this.ChannelFailed;
+            this.connectionPool = new RabbitConnectionPool(this, poolSize);
+            this.connectionPool.ConnectionClosed += ConnectionClosed;
+            this.connectionPool.ConnectionOpened += (sender, args) => this.OnConnected();
         }
 
         /// <summary>
@@ -108,11 +106,15 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(m => m("{0}: resetting state.", this.Endpoint));
             this.IsConfigured = false;
-
+            
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
             // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоятии закрытия)
             // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
             this.restartTask.Wait();
+
+            ComponentTracker.UnregisterAll();
+            connectionPool.Drop();
+
             this.IsShuttingDown = false;
         }
 
@@ -172,7 +174,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void BuildReceivers()
         {
-            this.ListenerRegistry = new ListenerRegistry(connection);
+            this.ListenerRegistry = new ListenerRegistry(this, connectionPool.Get(new CancellationToken()));
 
             this.Configuration.ReceiverConfigurations.ForEach(
                 c =>
@@ -184,7 +186,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void BuildSenders()
         {
-            this.ProducerRegistry = new ProducerRegistry(connection);
+            this.ProducerRegistry = new ProducerRegistry(this, connectionPool.Get(new CancellationToken()));
 
             this.Configuration.SenderConfigurations.ForEach(
                 c =>
@@ -213,30 +215,13 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.IsConfigured = true;
         }
 
-        private void ConnectionOpened(object sender, EventArgs e)
+        private void ConnectionClosed(object sender, EventArgs e)
         {
-            this.OnConnected();
-        }
+            this.OnDisconnected();
 
-        private void ConnectionClosed(object sender, EventArgs args)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                this.connection.Closed -= this.ConnectionClosed;
-                this.OnDisconnected();
-                this.ChannelFailed(this,
-                    new ChannelFailureEventArgs(
-                        new BusConnectionException("Connection was shut down on [{0}].".FormatEx(this.Endpoint))));
-            });
-        }
-
-        private void ChannelFailed(object sender, ChannelFailureEventArgs args)
-        {
             if (this.IsStarted && !this.IsShuttingDown)
             {
-                // restarting only if not already stopping/stopped
-                this.logger.ErrorFormat("Channel failure was detected. Trying to restart the bus instance [{0}].",
-                    args.Exception, this.Endpoint);
+                this.logger.Warn($"A pooled connection has been closed. Trying to restart the bus on [{this.Endpoint}]");
                 this.Restart();
             }
         }
@@ -267,12 +252,11 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("{0}: resetting producer registry.", this.Endpoint));
                 this.ProducerRegistry.Reset();
             }
-
-            this.connection.Close();
+            
             this.OnStopped();
         }
 
-        private void StartTask(CancellationToken cancellationToken)
+        private void StartTask(CancellationToken token)
         {
             if (this.IsShuttingDown)
             {
@@ -280,7 +264,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             this.OnStarting();
-            this.connection.Open(cancellationToken);
+
 
             this.logger.Trace(m => m("{0}: configuring.", this.Endpoint));
             this.Configure();

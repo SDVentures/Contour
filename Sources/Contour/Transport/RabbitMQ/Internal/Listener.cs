@@ -91,9 +91,7 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Listener"/>.
         /// </summary>
-        /// <param name="channel">
-        /// Канал в контексте соединения.
-        /// </param>
+        /// <param name="connection">Соединение с шиной сообщений</param>
         /// <param name="endpoint">
         /// Прослушиваемый порт.
         /// </param>
@@ -103,10 +101,10 @@
         /// <param name="validatorRegistry">
         /// Реестр механизмов проверки сообщений.
         /// </param>
-        public Listener(RabbitChannel channel, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
+        public Listener(IRabbitConnection connection, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
         {
+            this.channel = connection.OpenChannel();
             this.endpoint = endpoint;
-            this.channel = channel;
             this.validatorRegistry = validatorRegistry;
 
             this.ReceiverOptions = receiverOptions;

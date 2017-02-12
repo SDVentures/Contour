@@ -2,11 +2,11 @@
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
-    internal class ChannelFailureEventArgs : EventArgs
+    public class ChannelFailedEventArgs : EventArgs
     {
         public Exception Exception { get; }
 
-        public ChannelFailureEventArgs(Exception ex)
+        public ChannelFailedEventArgs(Exception ex)
         {
             this.Exception = ex;
         }

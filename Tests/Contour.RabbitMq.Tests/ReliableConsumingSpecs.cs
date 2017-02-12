@@ -112,7 +112,8 @@ namespace Contour.RabbitMq.Tests
             [Test]
             public void should_not_cause_channel_exception()
             {
-                var countdown = new CountdownEvent(10000);
+                const int count = 100;
+                var countdown = new CountdownEvent(count);
                 var random = new Randomizer();
 
                 IBus producer = this.StartBus(
@@ -133,7 +134,7 @@ namespace Contour.RabbitMq.Tests
                                            })).
                                RequiresAccept());
 
-                Enumerable.Range(0, 10000).
+                Enumerable.Range(0, count).
                     ForEach(i => producer.RequestAsync<DummyRequest, DummyResponse>("request", new DummyRequest(i)));
 
                 countdown.Wait(40.Seconds()).

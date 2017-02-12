@@ -193,7 +193,7 @@
     <Compile Include="Configuration\IBusComponent.cs" />
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ChannelFailureEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ChannelFailedEventArgs.cs" />
     <Compile Include="IConnection.cs" />
     <Compile Include="ConnectionPool.cs" />
     <Compile Include="IConnectionPool.cs" />
