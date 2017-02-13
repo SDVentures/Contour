@@ -34,10 +34,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
             this.restartTask = completion.Task;
-
-            // A number of transient connections is created while the bus is building its topology; if the pool size is limited by the number of senders and receivers while this is happening some connections may get reused because connection bound operations may execute asynchronously. To force the pool to use separate connection for each producer and consumer the size needs to be greater than the total number of senders and receivers
-            var poolSize = -1;
-
+            
+            var poolSize = this.Configuration.SenderConfigurations.Count() + this.Configuration.ReceiverConfigurations.Count();
             this.connectionPool = new RabbitConnectionPool(this, poolSize);
             this.connectionPool.ConnectionClosed += this.ConnectionClosed;
             this.connectionPool.ConnectionOpened += (sender, args) => this.OnConnected();
