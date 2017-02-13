@@ -45,6 +45,7 @@
     <Compile Include="BusConfigurationSpecs.cs" />
     <Compile Include="BasicPublishingSpecs.cs" />
     <Compile Include="BasicRequestResponseSpecs.cs" />
+    <Compile Include="ConnectionPoolSpecs.cs" />
     <Compile Include="ConnectionSpecs.cs" />
     <Compile Include="AliasSpecs.cs" />
     <Compile Include="CachingResponseSpecs.cs" />

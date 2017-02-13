@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+
 using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
@@ -9,7 +10,9 @@ namespace Contour.Transport.RabbitMQ.Internal
 
     using Helpers;
     using Helpers.CodeContracts;
+
     using Sending;
+
     using Topology;
 
     /// <summary>
@@ -23,7 +26,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// The _bus.
         /// </summary>
         private readonly RabbitBus bus;
-        private readonly IRabbitConnection connection;
+        private readonly IConnectionPool<IRabbitConnection> pool; 
 
         /// <summary>
         /// The _producers.
@@ -33,12 +36,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ProducerRegistry"/>.
         /// </summary>
-        public ProducerRegistry(RabbitBus bus, IRabbitConnection connection)
+        public ProducerRegistry(RabbitBus bus, IConnectionPool<IRabbitConnection> pool)
         {
             this.bus = bus;
-            this.connection = connection;
+            this.pool = pool;
         }
         
+
         /// <summary>
         /// The dispose.
         /// </summary>
@@ -71,6 +75,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Producer ResolveFor(ISenderConfiguration configuration)
         {
+            var source = new CancellationTokenSource();
+            var connection = this.pool.Get(source.Token);
+            this.logger.Trace($"Using connection [{connection.Id}] to resolve a producer");
+
             var producer = this.TryResolverFor(configuration.Label);
             if (producer == null)
             {
@@ -80,14 +88,12 @@ namespace Contour.Transport.RabbitMQ.Internal
                     var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, configuration);
                     var routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
 
-                    Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]",
+                    Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]", 
                         configuration.Label);
 
                     var routeResolver = routeResolverBuilder.Value(builder);
-
-                    logger.Trace($"Using connection [{connection.Id}] to start a producer");
-
-                    producer = new Producer(connection, configuration.Label, routeResolver,
+                    
+                    producer = new Producer(connection, configuration.Label, routeResolver, 
                         configuration.Options.IsConfirmationRequired());
                     producer.Failed += p =>
                     {

@@ -4,7 +4,9 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Common.Logging;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
@@ -19,15 +21,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly ILog logger = LogManager.GetLogger<RabbitConnection>();
         private INativeConnection connection;
 
-        public Guid Id { get; }
-
         public RabbitConnection(RabbitBus bus)
         {
             this.Id = Guid.NewGuid();
             this.Bus = bus;
         }
-
-        public RabbitBus Bus { get; }
 
         public event EventHandler Opened;
 
@@ -37,23 +35,34 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public event EventHandler<ChannelFailedEventArgs> ChannelFailed;
 
+        public Guid Id { get; }
+
+        public RabbitBus Bus { get; }
+
         public void Open(CancellationToken token)
         {
             this.logger.Info($"Connecting to RabbitMQ using [{this.Bus.Configuration.ConnectionString}].");
 
             var clientProperties = new Dictionary<string, object>
-            {
-                {"Endpoint", this.Bus.Configuration.Endpoint.Address},
-                {"Machine", Environment.MachineName},
-                {"Location", Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)}
-            };
+                                       {
+                                           {
+                                               "Endpoint",
+                                               this.Bus.Configuration.Endpoint.Address
+                                           },
+                                           { "Machine", Environment.MachineName },
+                                           {
+                                               "Location",
+                                               Path.GetDirectoryName(
+                                                   Assembly.GetExecutingAssembly().CodeBase)
+                                           }
+                                       };
 
             var connectionFactory = new ConnectionFactory
-            {
-                Uri = this.Bus.Configuration.ConnectionString,
-                ClientProperties = clientProperties,
-                RequestedConnectionTimeout = ConnectionTimeout
-            };
+                                        {
+                                            Uri = this.Bus.Configuration.ConnectionString,
+                                            ClientProperties = clientProperties,
+                                            RequestedConnectionTimeout = ConnectionTimeout
+                                        };
 
             var retryCount = 0;
             while (!token.IsCancellationRequested)
@@ -65,7 +74,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     con.ConnectionShutdown += this.OnConnectionShutdown;
                     this.connection = con;
                     this.OnOpened();
-                    this.logger.Info($"Connection [{Id}] opened at [{connection.Endpoint}]");
+                    this.logger.Info($"Connection [{this.Id}] opened at [{this.connection.Endpoint}]");
 
                     return;
                 }
@@ -73,7 +82,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     var secondsToRetry = Math.Min(10, retryCount);
 
-                    this.logger.WarnFormat("Unable to connect to RabbitMQ. Retrying in {0} seconds...", ex,
+                    this.logger.WarnFormat(
+                        "Unable to connect to RabbitMQ. Retrying in {0} seconds...",
+                        ex,
                         secondsToRetry);
 
                     if (con != null)
@@ -95,9 +106,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                 throw new InvalidOperationException("RabbitMQ connection is not open.");
             }
 
-            var model = connection.CreateModel();
+            var model = this.connection.CreateModel();
             var channel = new RabbitChannel(this, model);
-            channel.Failed += (ch, args) => OnChannelFailed(args.GetException());
+            channel.Failed += (ch, args) => this.OnChannelFailed(args.GetException());
             return channel;
         }
 
@@ -129,15 +140,55 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             try
             {
-                connection?.Abort();
+                this.connection?.Abort();
             }
             catch (Exception ex)
             {
                 this.logger.Error(
-                    $"[{this.Bus.Configuration.Endpoint}]: failed to abort the underlying connection due to: {ex.Message}",
+                    $"[{this.Bus.Configuration.Endpoint}]: failed to abort the underlying connection due to: {ex.Message}", 
                     ex);
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                this.Close();
+
+                if (this.connection != null)
+                {
+                    this.logger.Trace(
+                        $"[{this.Bus.Configuration.Endpoint}]: disposing connection [{this.Id}] at [{this.connection.Endpoint}].");
+                    this.connection?.Dispose();
+                    this.connection = null;
+                }
+            }
+            finally
+            {
+                this.OnDisposed();
+            }
+        }
+
+        protected virtual void OnOpened()
+        {
+            this.Opened?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnClosed()
+        {
+            this.Closed?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnDisposed()
+        {
+            this.Disposed?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnChannelFailed(Exception ex)
+        {
+            this.ChannelFailed?.Invoke(this, new ChannelFailedEventArgs(ex));
         }
 
         private void OnConnectionShutdown(INativeConnection conn, ShutdownEventArgs eventArgs)
@@ -148,46 +199,6 @@ namespace Contour.Transport.RabbitMQ.Internal
                     conn.ConnectionShutdown -= this.OnConnectionShutdown;
                     this.OnClosed();
                 });
-        }
-
-        protected virtual void OnOpened()
-        {
-            Opened?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnClosed()
-        {
-            Closed?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnDisposed()
-        {
-            Disposed?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnChannelFailed(Exception ex)
-        {
-            ChannelFailed?.Invoke(this, new ChannelFailedEventArgs(ex));
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                this.Close();
-
-                if (connection != null)
-                {
-                    this.logger.Trace(
-                        $"[{this.Bus.Configuration.Endpoint}]: disposing connection [{Id}] at [{connection.Endpoint}].");
-                    connection?.Dispose();
-                    connection = null;
-                }
-            }
-            finally
-            {
-                this.OnDisposed();
-            }
         }
     }
 }

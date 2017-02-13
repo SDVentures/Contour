@@ -47,6 +47,7 @@
     <Compile Include="Caching\ICacheProvider.cs" />
     <Compile Include="Caching\MemoryCacheProvider.cs" />
     <Compile Include="Caching\Expires.cs" />
+    <Compile Include="ChannelFailedEventArgs.cs" />
     <Compile Include="Configuration\BusComponentTracker.cs" />
     <Compile Include="Configuration\BusConfiguratorExtension.cs" />
     <Compile Include="Configuration\BusConnectionException.cs" />
@@ -193,7 +194,6 @@
     <Compile Include="Configuration\IBusComponent.cs" />
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ChannelFailedEventArgs.cs" />
     <Compile Include="IConnection.cs" />
     <Compile Include="ConnectionPool.cs" />
     <Compile Include="IConnectionPool.cs" />

@@ -14,8 +14,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         
         public IRabbitConnection Create()
         {
-            logger.Trace($"Creating a new connection: [{typeof(IRabbitConnection).Name}]");
-            return new RabbitConnection(bus);
+            this.logger.Trace($"Creating a new connection: [{typeof(IRabbitConnection).Name}]");
+            return new RabbitConnection(this.bus);
         }
     }
 }

@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Common.Logging;
-
-using Contour.Configuration;
-using Contour.Receiving;
-using Contour.Sending;
-using Contour.Serialization;
-
-namespace Contour
+﻿namespace Contour
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common.Logging;
+    using Configuration;
+    using Receiving;
+    using Sending;
+    using Serialization;
+
     /// <summary>
     /// Шина сообщений, которая не знает о транспортном уровне.
     /// </summary>
@@ -34,7 +32,7 @@ namespace Contour
         private readonly ILog logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AbstractBus"/>.
+        /// Initializes a new instance of the <see cref="AbstractBus"/> class.
         /// </summary>
         /// <param name="configuration">Конфигурация шины сообщений.</param>
         protected AbstractBus(BusConfiguration configuration)

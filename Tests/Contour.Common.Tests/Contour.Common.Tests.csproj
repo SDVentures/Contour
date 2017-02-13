@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="ConnectionPoolSpecs.cs" />
     <Compile Include="DefaultSagaLifecycleSpecs.cs" />
+    <Compile Include="FakeConnectionPool.cs" />
     <Compile Include="FaultExceptionSpecs.cs" />
     <Compile Include="MessageHeaderStorageSpecs.cs" />
     <Compile Include="NameGeneratorSpecs.cs" />

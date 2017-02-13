@@ -16,19 +16,15 @@ namespace Contour.Transport.RabbitMQ.Internal
     internal class RabbitBus : AbstractBus, IBusAdvanced
     {
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
-
         private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
-
         private readonly ManualResetEvent ready = new ManualResetEvent(false);
-
-        private CancellationTokenSource cancellationTokenSource;
-
-        private Task restartTask;
-
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
 
+        private CancellationTokenSource cancellationTokenSource;
+        private Task restartTask;
+
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitBus" />.
+        /// Initializes a new instance of the <see cref="RabbitBus" /> class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         public RabbitBus(BusConfiguration configuration)
@@ -39,11 +35,11 @@ namespace Contour.Transport.RabbitMQ.Internal
             completion.SetResult(new object());
             this.restartTask = completion.Task;
 
-            //A number of transient connections is created while the bus is building its topology; if the pool size is limited by the number of senders and receivers while this is happening some connections may get reused because connection bound operations may execute asynchronously. To force the pool to use separate connection for each producer and consumer the size needs to be greater than the total number of senders and receivers
+            // A number of transient connections is created while the bus is building its topology; if the pool size is limited by the number of senders and receivers while this is happening some connections may get reused because connection bound operations may execute asynchronously. To force the pool to use separate connection for each producer and consumer the size needs to be greater than the total number of senders and receivers
             var poolSize = -1;
 
             this.connectionPool = new RabbitConnectionPool(this, poolSize);
-            this.connectionPool.ConnectionClosed += ConnectionClosed;
+            this.connectionPool.ConnectionClosed += this.ConnectionClosed;
             this.connectionPool.ConnectionOpened += (sender, args) => this.OnConnected();
         }
 
@@ -60,13 +56,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Gets the when ready.
         /// </summary>
-        public override WaitHandle WhenReady
-        {
-            get
-            {
-                return this.ready;
-            }
-        }
+        public override WaitHandle WhenReady => this.ready;
 
         /// <summary>
         /// The panic.
@@ -77,16 +67,42 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// The shutdown.
+        /// Starts a bus
+        /// </summary>
+        /// <param name="waitForReadiness">The wait for readiness.</param>
+        /// <exception cref="AggregateException">Any exceptions thrown during the bus start</exception>
+        public override void Start(bool waitForReadiness = true)
+        {
+            if (this.IsStarted || this.IsShuttingDown)
+            {
+                return;
+            }
+
+            this.Restart(waitForReadiness);
+        }
+
+        public override void Stop()
+        {
+            this.ResetRestartTask();
+
+            var token = this.cancellationTokenSource.Token;
+            this.restartTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+            this.restartTask.Wait(5000);
+        }
+
+        /// <summary>
+        /// Shuts the bus down
         /// </summary>
         public override void Shutdown()
         {
             this.logger.InfoFormat(
-                "Shutting down [{0}] with endpoint [{1}].",
-                this.GetType().Name,
+                "Shutting down [{0}] with endpoint [{1}].", 
+                this.GetType().Name, 
                 this.Endpoint);
 
             this.IsShuttingDown = true;
+            this.connectionPool.Drop();
 
             this.Stop();
 
@@ -106,127 +122,75 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(m => m("{0}: resetting state.", this.Endpoint));
             this.IsConfigured = false;
-            
+
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
             // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоятии закрытия)
             // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
             this.restartTask.Wait();
 
-            ComponentTracker.UnregisterAll();
-            connectionPool.Drop();
-
+            this.ComponentTracker.UnregisterAll();
             this.IsShuttingDown = false;
         }
-
-        /// <summary>
-        /// The start.
-        /// </summary>
-        /// <param name="waitForReadiness">The wait for readiness.</param>
-        /// <exception cref="AggregateException"></exception>
-        public override void Start(bool waitForReadiness = true)
+        
+        protected override void Restart(bool waitForReadiness = true)
         {
-            if (this.IsStarted || this.IsShuttingDown)
+            lock (this.logger)
             {
-                return;
+                if (this.isRestarting.WaitOne(0) || this.IsShuttingDown)
+                {
+                    return;
+                }
+
+                this.ready.Reset();
+                this.isRestarting.Set();
             }
 
-            this.Restart(waitForReadiness);
-        }
+            this.logger.Trace(m => m("{0}: Restarting...", this.Endpoint));
 
-        private void ResetRestartTask()
-        {
-            if (!this.restartTask.IsCompleted)
-            {
-                this.cancellationTokenSource.Cancel();
-                try
-                {
-                    this.restartTask.Wait();
-                }
-                catch (AggregateException ex)
-                {
-                    ex.Handle(
-                        e =>
-                            {
-                                this.logger.ErrorFormat("{0}: Caught unexpected exception.", e, this.Endpoint);
-                                return true;
-                            });
-                }
-                catch (Exception ex)
-                {
-                    this.logger.ErrorFormat("{0}: Caught unexpected exception.", ex, this.Endpoint);
-                }
-                finally
-                {
-                    this.cancellationTokenSource = new CancellationTokenSource();
-                }
-            }
-        }
-
-        public override void Stop()
-        {
             this.ResetRestartTask();
 
             var token = this.cancellationTokenSource.Token;
-            this.restartTask = Task.Factory.StartNew(() => this.StopTask(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            this.restartTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(_ => this.StartTask(), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            this.isRestarting.Reset();
+                            if (t.IsFaulted)
+                            {
+                                throw t.Exception.InnerException;
+                            }
+                        });
 
-            this.restartTask.Wait(5000);
+            if (waitForReadiness)
+            {
+                this.restartTask.Wait(5000);
+            }
         }
 
-        private void BuildReceivers()
+        private void StartTask()
         {
-            this.ListenerRegistry = new ListenerRegistry(this, connectionPool.Get(new CancellationToken()));
-
-            this.Configuration.ReceiverConfigurations.ForEach(
-                c =>
-                    {
-                        var receiver = new RabbitReceiver(c, this.ListenerRegistry);
-                        this.ComponentTracker.Register(receiver);
-                    });
-        }
-
-        private void BuildSenders()
-        {
-            this.ProducerRegistry = new ProducerRegistry(this, connectionPool.Get(new CancellationToken()));
-
-            this.Configuration.SenderConfigurations.ForEach(
-                c =>
-                    {
-                        var sender = new RabbitSender(this.Configuration.Endpoint, c, this.ProducerRegistry, this.Configuration.Filters.ToList());
-                        this.ComponentTracker.Register(sender);
-                    });
-        }
-
-        private void Configure()
-        {
-            if (this.IsConfigured)
+            if (this.IsShuttingDown)
             {
                 return;
             }
 
-            this.logger.InfoFormat(
-                "Configuring [{0}] with endpoint [{1}].".FormatEx(
-                    this.GetType()
-                        .Name,
-                    this.Endpoint));
+            this.OnStarting();
 
-            this.BuildReceivers();
-            this.BuildSenders();
+            this.logger.Trace(m => m("{0}: configuring.", this.Endpoint));
+            this.Configure();
 
-            this.IsConfigured = true;
+            this.logger.Trace(m => m("{0}: starting components.", this.Endpoint));
+            this.ComponentTracker.StartAll();
+
+            this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
+            this.IsStarted = true;
+            this.ready.Set();
+
+            this.OnStarted();
         }
 
-        private void ConnectionClosed(object sender, EventArgs e)
-        {
-            this.OnDisconnected();
-
-            if (this.IsStarted && !this.IsShuttingDown)
-            {
-                this.logger.Warn($"A pooled connection has been closed. Trying to restart the bus on [{this.Endpoint}]");
-                this.Restart();
-            }
-        }
-
-        private void StopTask(CancellationToken cancellationToken)
+        private void StopTask()
         {
             if (!this.IsConfigured)
             {
@@ -252,65 +216,90 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("{0}: resetting producer registry.", this.Endpoint));
                 this.ProducerRegistry.Reset();
             }
-            
+
             this.OnStopped();
         }
 
-        private void StartTask(CancellationToken token)
+        private void ResetRestartTask()
         {
-            if (this.IsShuttingDown)
+            if (!this.restartTask.IsCompleted)
+            {
+                this.cancellationTokenSource.Cancel();
+                try
+                {
+                    this.restartTask.Wait();
+                }
+                catch (AggregateException ex)
+                {
+                    ex.Handle(
+                        e =>
+                        {
+                            this.logger.ErrorFormat("{0}: Caught unexpected exception.", e, this.Endpoint);
+                            return true;
+                        });
+                }
+                catch (Exception ex)
+                {
+                    this.logger.ErrorFormat("{0}: Caught unexpected exception.", ex, this.Endpoint);
+                }
+                finally
+                {
+                    this.cancellationTokenSource = new CancellationTokenSource();
+                }
+            }
+        }
+
+        private void Configure()
+        {
+            if (this.IsConfigured)
             {
                 return;
             }
 
-            this.OnStarting();
+            this.logger.InfoFormat(
+                "Configuring [{0}] with endpoint [{1}].".FormatEx(
+                    this.GetType()
+                        .Name, 
+                    this.Endpoint));
 
+            this.BuildSenders();
+            this.BuildReceivers();
 
-            this.logger.Trace(m => m("{0}: configuring.", this.Endpoint));
-            this.Configure();
-
-            this.logger.Trace(m => m("{0}: starting components.", this.Endpoint));
-            this.ComponentTracker.StartAll();
-
-            this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
-            this.IsStarted = true;
-            this.ready.Set();
-
-            this.OnStarted();
+            this.IsConfigured = true;
         }
 
-        protected override void Restart(bool waitForReadiness = true)
+        private void BuildReceivers()
         {
-            lock (this.logger)
-            {
-                if (this.isRestarting.WaitOne(0) || this.IsShuttingDown)
+            this.ListenerRegistry = new ListenerRegistry(this, this.connectionPool);
+
+            this.Configuration.ReceiverConfigurations.ForEach(
+                c =>
                 {
-                    return;
-                }
-                this.ready.Reset();
-                this.isRestarting.Set();
-            }
+                    var receiver = new RabbitReceiver(c, this.ListenerRegistry);
+                    this.ComponentTracker.Register(receiver);
+                });
+        }
 
-            this.logger.Trace(m => m("{0}: Restarting...", this.Endpoint));
+        private void BuildSenders()
+        {
+            this.ProducerRegistry = new ProducerRegistry(this, this.connectionPool);
 
-            this.ResetRestartTask();
+            this.Configuration.SenderConfigurations.ForEach(
+                c =>
+                {
+                    var sender = new RabbitSender(this.Configuration.Endpoint, c, this.ProducerRegistry, this.Configuration.Filters.ToList());
+                    this.ComponentTracker.Register(sender);
+                });
+        }
 
-            var token = this.cancellationTokenSource.Token;
-            this.restartTask = Task.Factory.StartNew(() => this.StopTask(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(_ => this.StartTask(token), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(
-                    t =>
-                        {
-                            this.isRestarting.Reset();
-                            if (t.IsFaulted)
-                            {
-                                throw t.Exception.InnerException;
-                            }
-                        });
+        private void ConnectionClosed(object sender, EventArgs e)
+        {
+            this.OnDisconnected();
 
-            if (waitForReadiness)
+            if (this.IsStarted && !this.IsShuttingDown)
             {
-                this.restartTask.Wait(5000);
+                this.logger.Warn($"A pooled connection has been closed. Trying to restart the bus on [{this.Endpoint}]");
+                this.Restart();
             }
         }
     }

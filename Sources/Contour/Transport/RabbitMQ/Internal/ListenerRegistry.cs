@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+
 using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
@@ -8,9 +9,12 @@ namespace Contour.Transport.RabbitMQ.Internal
     using System.Linq;
 
     using Configuration;
+
     using Helpers;
     using Helpers.CodeContracts;
+
     using Receiving;
+
     using Topology;
 
     /// <summary>
@@ -21,17 +25,18 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly ILog logger = LogManager.GetLogger<ListenerRegistry>();
         private readonly RabbitBus bus;
         private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
-        private readonly IRabbitConnection connection;
+        private readonly IConnectionPool<IRabbitConnection> pool;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ListenerRegistry"/>.
         /// </summary>
-        public ListenerRegistry(RabbitBus bus, IRabbitConnection connection)
+        public ListenerRegistry(RabbitBus bus, IConnectionPool<IRabbitConnection> pool)
         {
             this.bus = bus;
-            this.connection = connection;
+            this.pool = pool;
         }
         
+
         /// <summary>
         /// The can consume.
         /// </summary>
@@ -77,6 +82,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Listener ResolveFor(IReceiverConfiguration configuration)
         {
+            var source = new CancellationTokenSource();
+            var connection = this.pool.Get(source.Token);
+            this.logger.Trace($"Using connection [{connection.Id}] to resolve a listener");
+
             using (var channel = connection.OpenChannel())
             {
                 var topologyBuilder = new TopologyBuilder(channel);
@@ -95,10 +104,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                             l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
                     if (listener == null)
                     {
-                        logger.Trace($"Using connection [{connection.Id}] to start a listener");
-
-                        listener = new Listener(connection, endpoint,
-                            (RabbitReceiverOptions) configuration.Options,
+                        listener = new Listener(connection, endpoint, 
+                            (RabbitReceiverOptions) configuration.Options, 
                             this.bus.Configuration.ValidatorRegistry);
 
                         this.listeners.Add(listener);
@@ -143,6 +150,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.listeners.ForEach(l => l.StopConsuming());
         }
         
+
         /// <summary>
         /// The ensure configuration is compatible.
         /// </summary>

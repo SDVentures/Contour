@@ -1,30 +1,25 @@
 ﻿// ReSharper disable InconsistentNaming
 
-
-using System;
-using System.Linq;
-using System.Threading;
-
 namespace Contour.Common.Tests
 {
+    using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
+    using System.Threading;
+
     using Moq;
     using NUnit.Framework;
 
+    /// <summary>
+    /// Connection pool specifications
+    /// </summary>
     public class ConnectionPoolSpecs
     {
-        [TestFixture]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."),SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."), TestFixture]
         [Category("Unit")]
         public class when_declaring_connection_pool
         {
-            internal class FakeConnectionPool : ConnectionPool<IConnection>
-            {
-                public FakeConnectionPool(IConnectionProvider<IConnection> provider, int maxSize) : base(maxSize)
-                {
-                    this.Provider = provider;
-                }
-            }
-
             [Test]
             public void should_use_positive_size_limit_if_provided()
             {
@@ -54,9 +49,9 @@ namespace Contour.Common.Tests
                 var list = new List<IConnection>();
 
                 var pool = new FakeConnectionPool(provider.Object, size);
-                var source = new CancellationTokenSource();
                 for (var i = 0; i < size; i++)
                 {
+                    var source = new CancellationTokenSource();
                     var con = pool.Get(source.Token);
                     Assert.IsFalse(list.Contains(con));
 
@@ -73,11 +68,11 @@ namespace Contour.Common.Tests
                 provider.Setup(cp => cp.Create()).Returns(() => new Mock<IConnection>().Object);
 
                 var list = new List<IConnection>();
-
                 var pool = new FakeConnectionPool(provider.Object, size);
-                var source = new CancellationTokenSource();
+
                 for (var i = 0; i < 2 * size; i++)
                 {
+                    var source = new CancellationTokenSource();
                     var con = pool.Get(source.Token);
                     if (i < size)
                     {
@@ -142,13 +137,14 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var count = 5;
+                const int count = 5;
                 var pool = new FakeConnectionPool(provider.Object, count);
 
                 var i = 0;
+                var source = new CancellationTokenSource();
                 while (i++ < count)
                 {
-                    pool.Get(new CancellationToken());
+                    pool.Get(source.Token);
                 }
 
                 pool.Drop();
@@ -164,9 +160,22 @@ namespace Contour.Common.Tests
             }
 
             [Test]
-            public void should_remove_disposed_connections()
+            public void should_cancel_not_started_get_operation()
             {
-                
+                var provider = new Mock<IConnectionProvider<IConnection>>();
+                provider.Setup(cp => cp.Create()).Returns(() =>
+                {
+                    var con = new Mock<IConnection>();
+                    return con.Object;
+                });
+
+                var pool = new FakeConnectionPool(provider.Object, 1);
+
+                var source = new CancellationTokenSource();
+                source.Cancel();
+
+                var result = pool.Get(source.Token);
+                Assert.IsTrue(result == null);
             }
         }
     }

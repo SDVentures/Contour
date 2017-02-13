@@ -19,8 +19,6 @@ namespace Contour.RabbitMq.Tests
     /// </summary>
     public class ConnectionSpecs
     {
-
-        [Ignore]
         [TestFixture]
         [Category("Integration")]
         public class when_initializing_bus : RabbitMqFixture
@@ -57,6 +55,20 @@ namespace Contour.RabbitMq.Tests
             [Test]
             public void should_create_separate_connection_for_each_producer()
             {
+                var bus = this.ConfigureBus(
+                    "Test",
+                    cfg =>
+                    {
+                        cfg.Route("one.label");
+                        cfg.Route("two.label");
+                        cfg.Route("three.label");
+                        cfg.Route("four.label");
+                    });
+
+                bus.Start();
+                var cons = Broker.GetConnections();
+
+                Assert.IsTrue(cons.Count() == 4 + 2);
             }
         }
 

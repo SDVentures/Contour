@@ -5,15 +5,15 @@ namespace Contour
 {
     internal interface IConnectionPool<out TConnection> : IDisposable where TConnection : class, IConnection
     {
-        int MaxSize { get; }
-
-        int Count { get; }
-
         event EventHandler ConnectionOpened;
 
         event EventHandler ConnectionClosed;
 
         event EventHandler ConnectionDisposed;
+
+        int MaxSize { get; }
+
+        int Count { get; }
 
         TConnection Get(CancellationToken token);
 
