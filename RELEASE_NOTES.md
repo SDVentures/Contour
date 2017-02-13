@@ -1,4 +1,7 @@
-﻿## 1.2.2
+﻿## 1.3.0
+ - Separate connection for each sender and receiver (connection per label) feature introduced.
+
+## 1.2.2
  - QoS & PL settings can now be overriden if no endpoint configuration provided.
 
 ## 1.2.1
