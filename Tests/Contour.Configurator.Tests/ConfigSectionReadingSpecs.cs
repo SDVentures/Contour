@@ -15,36 +15,10 @@
     /// Please note that setting IsRequired=true on derived configuration elements does not take effect due to configuration system limitations. See https://social.msdn.microsoft.com/Forums/vstudio/en-US/710c69e7-0c70-4905-8a5d-448c1e12a2e5/loading-custom-configurationsection-ignores-isrequired-attribute-on-children-which-are-of?forum=netfxbcl for explanation.
     /// </summary>
     // ReSharper disable InconsistentNaming
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."),
+     SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here.")]
     public class ConfigSectionReadingSpecs
     {
-        /// <summary>
-        /// The when_connection_string_is_not_provided.
-        /// </summary>
-        [TestFixture]
-        [Category("Unit")]
-        public class when_connection_string_is_not_provided
-        {
-            #region Public Methods and Operators
-
-            /// <summary>
-            /// The should_throw.
-            /// </summary>
-            [Test]
-            public void should_throw()
-            {
-                const string config = @"<endpoints>
-							<endpoint name=""Tester"" />
-						</endpoints>";
-
-                Action readingConfig = () => new XmlEndpointsSection(config);
-
-                readingConfig.ShouldThrow<ConfigurationErrorsException>();
-            }
-
-            #endregion
-        }
-
         /// <summary>
         /// The when_declaring_caching_for_endpoint.
         /// </summary>
@@ -52,8 +26,6 @@
         [Category("Unit")]
         public class when_declaring_caching_for_endpoint
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_read_configuration_property.
             /// </summary>
@@ -76,8 +48,6 @@
                 section.Endpoints["b"].Caching.Enabled.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -87,8 +57,6 @@
         [Category("Unit")]
         public class when_declaring_complex_configuration
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_read_everything.
             /// </summary>
@@ -128,8 +96,6 @@
                 incoming[1].RequiresAccept.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -139,8 +105,6 @@
         [Category("Unit")]
         public class when_declaring_endpoint_with_name
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_read_endpoint.
             /// </summary>
@@ -159,8 +123,6 @@
                 section.Endpoints["tester"].Should().
                     NotBeNull();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -170,8 +132,6 @@
         [Category("Unit")]
         public class when_declaring_endpoint_without_name
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_throw.
             /// </summary>
@@ -187,8 +147,6 @@
 
                 readingConfig.ShouldThrow<ConfigurationErrorsException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -198,8 +156,6 @@
         [Category("Unit")]
         public class when_declaring_multiple_endpoints_with_different_names
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_read_endpoints.
             /// </summary>
@@ -222,8 +178,6 @@
                 section.Endpoints["b"].Should().
                     NotBeNull();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -233,8 +187,6 @@
         [Category("Unit")]
         public class when_declaring_multiple_endpoints_with_same_name
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_throw.
             /// </summary>
@@ -252,38 +204,8 @@
 
                 readingConfig.ShouldThrow<ConfigurationErrorsException>();
             }
-
-            #endregion
         }
-
-        /// <summary>
-        /// The when_endpoint_connection_string_is_provided.
-        /// </summary>
-        [TestFixture]
-        [Category("Unit")]
-        public class when_endpoint_connection_string_is_provided
-        {
-            #region Public Methods and Operators
-
-            /// <summary>
-            /// The should_read_connection_string.
-            /// </summary>
-            [Test]
-            public void should_read_connection_string()
-            {
-                const string config = @"<endpoints>
-							<endpoint name=""Tester"" connectionString=""amqp://localhost:666"" />
-						</endpoints>";
-
-                var section = new XmlEndpointsSection(config);
-
-                section.Endpoints["Tester"].ConnectionString.Should().
-                    Be("amqp://localhost:666");
-            }
-
-            #endregion
-        }
-
+        
         /// <summary>
         /// The when_endpoint_lifecycle_handler_is_provided.
         /// </summary>
@@ -291,8 +213,6 @@
         [Category("Unit")]
         public class when_endpoint_lifecycle_handler_is_provided
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_read_handler_name.
             /// </summary>
@@ -308,8 +228,6 @@
                 section.Endpoints["Tester"].LifecycleHandler.Should().
                     Be("handler");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -554,6 +472,267 @@
 
                 var on = elements.First(e => e.Key == onKeyName);
                 on.ParallelismLevel.Should().BeNull("Incoming parallelism level should not be set");
+            }
+        }
+        
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_endpoint_connection_string
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string config = @"<endpoints>
+							<endpoint name=""Tester"" connectionString=""amqp://localhost:666"" />
+						</endpoints>";
+
+                var section = new XmlEndpointsSection(config);
+
+                section.Endpoints["Tester"].ConnectionString.Should().
+                    Be("amqp://localhost:666");
+            }
+
+            [Test]
+            public void should_throw_if_not_set()
+            {
+                const string config = @"<endpoints>
+                                            <endpoint name=""Tester"" />
+                                        </endpoints>";
+
+                Action readingConfig = () => new XmlEndpointsSection(config);
+                readingConfig.ShouldThrow<ConfigurationErrorsException>();
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_endpoint_connection_reuse
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string Name = "ep";
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString=""amqp://localhost:666"" reuseConnection=""true"">
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(config);
+                var property = section.Endpoints[Name].ReuseConnection;
+                property.Should().HaveValue();
+                property.Value.Should().BeTrue();
+            }
+
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Name = "ep";
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString=""amqp://localhost:666"">
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(config);
+                var property = section.Endpoints[Name].ReuseConnection;
+
+                property.Should().NotHaveValue();
+            }
+        }
+
+
+        [TestFixture]
+        public class when_declaring_connection_string_for_incoming
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <incoming>
+                                    <on key=""key"" label=""label"" react=""reactor"" requiresAccept=""true"" connectionString=""amqp://localhost:777"">
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+                var property = elements.First().ConnectionString;
+                
+                property.Should().NotBeNullOrEmpty();
+            }
+
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <incoming>
+                                    <on key=""key"" label=""label"" react=""reactor"" requiresAccept=""true"" >
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+                var property = elements.First().ConnectionString;
+
+                property.Should().BeNullOrEmpty();
+            }
+        }
+
+        [TestFixture]
+        public class when_declaring_connection_reuse_for_incoming
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <incoming>
+                                    <on key=""key"" label=""label"" react=""reactor"" requiresAccept=""true"" reuseConnection=""true"">
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+                var property = elements.First().ReuseConnection;
+
+                property.Should().HaveValue();
+                property.Value.Should().BeTrue();
+            }
+
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <incoming>
+                                    <on key=""key"" label=""label"" react=""reactor"" requiresAccept=""true"" >
+                                    </on>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Incoming.OfType<IncomingElement>();
+                var property = elements.First().ReuseConnection;
+
+                property.Should().NotHaveValue();
+            }
+        }
+
+        [TestFixture]
+        public class when_declaring_connection_string_for_outgoing
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <outgoing>
+                                    <route key=""key"" label=""label"" connectionString=""amqp://localhost:999"">
+									</route>
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Outgoing.OfType<OutgoingElement>();
+                var property = elements.First().ConnectionString;
+
+                property.Should().NotBeNullOrEmpty();
+            }
+
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <outgoing>
+                                    <route key=""key"" label=""label"">
+									</route>
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Outgoing.OfType<OutgoingElement>();
+                var property = elements.First().ConnectionString;
+
+                property.Should().BeNullOrEmpty();
+            }
+        }
+
+        [TestFixture]
+        public class when_declaring_connection_reuse_for_outgoing
+        {
+            [Test]
+            public void should_read_configuration_property()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <outgoing>
+                                    <route key=""key"" label=""label"" reuseConnection=""true"">
+									</route>
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Outgoing.OfType<OutgoingElement>();
+                var property = elements.First().ReuseConnection;
+
+                property.Should().HaveValue();
+                property.Should().BeTrue();
+            }
+
+            [Test]
+            public void should_use_default_value_if_not_set()
+            {
+                const string Name = "ep";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint name=""{Name}"" connectionString="""">
+                                <outgoing>
+                                    <route key=""key"" label=""label"">
+									</route>
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var section = new XmlEndpointsSection(Config);
+                var endpoint = section.Endpoints[Name];
+                var elements = endpoint.Outgoing.OfType<OutgoingElement>();
+                var property = elements.First().ReuseConnection;
+
+                property.Should().NotHaveValue();
             }
         }
     }

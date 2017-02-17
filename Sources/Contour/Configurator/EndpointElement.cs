@@ -62,6 +62,13 @@ namespace Contour.Configurator
             }
         }
 
+        [ConfigurationProperty("reuseConnection", IsRequired = false)]
+        public bool? ReuseConnection
+        {
+            get { return (bool?)this["reuseConnection"]; }
+            set { this["reuseConnection"] = value; }
+        }
+
         /// <summary>
         /// Количество одновременных обработчиков сообщений из очередей конечной точки, включая очереди ответных сообщений.
         /// </summary>

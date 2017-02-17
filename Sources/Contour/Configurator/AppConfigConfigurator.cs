@@ -134,6 +134,11 @@ namespace Contour.Configurator
 
             cfg.SetConnectionString(endpointConfig.ConnectionString);
 
+            if (endpointConfig.ReuseConnection.HasValue && endpointConfig.ReuseConnection.Value)
+            {
+                cfg.ReuseConnection();
+            }
+
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
             {
                 cfg.HandleLifecycleWith(this.ResolveLifecycleHandler(endpointConfig.LifecycleHandler));

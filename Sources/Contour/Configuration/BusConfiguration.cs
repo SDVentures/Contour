@@ -58,6 +58,7 @@
             Logger.Trace(m => m("Вызван конструктор BusConfiguration"));
 
             this.EndpointOptions = new EndpointOptions();
+
             this.SenderDefaults = new SenderOptions(this.EndpointOptions);
             this.ReceiverDefaults = new ReceiverOptions(this.EndpointOptions);
         }
@@ -429,6 +430,13 @@
             this.EndpointOptions.ConnectionString = connectionString;
 
             Logger.Debug(m => m("Установлена строка подключения [{0}].", this.ConnectionString));
+        }
+
+        public void ReuseConnection()
+        {
+            Logger.Trace("Setting connection reuse");
+            this.EndpointOptions.ReuseConnection = true;
+            Logger.Debug("Connection reuse is set");
         }
 
         /// <summary>

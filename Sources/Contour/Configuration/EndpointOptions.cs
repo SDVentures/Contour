@@ -7,6 +7,7 @@ namespace Contour.Configuration
     /// </summary>
     public class EndpointOptions : BusOptions
     {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EndpointOptions"/> class.
         /// </summary>
@@ -24,7 +25,7 @@ namespace Contour.Configuration
         {
         }
 
-        public Maybe<bool> ReuseConnection { protected get; set; }
+        public bool? ReuseConnection {protected get; set; }
 
         public Maybe<string> ConnectionString { protected get; set; }
 
@@ -39,7 +40,7 @@ namespace Contour.Configuration
             return this.Pick<EndpointOptions, string>((o) => o.ConnectionString);
         }
 
-        public Maybe<bool> GetReuseConnection()
+        public bool? GetReuseConnection()
         {
             return this.Pick<EndpointOptions, bool>((o) => o.ReuseConnection);
         }

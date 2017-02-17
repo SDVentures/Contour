@@ -1,4 +1,7 @@
-﻿## 1.4.0
+﻿## 1.5.0
+ - Connection reuse property switched to bool? due to Maybe<bool>(false) bug.
+
+## 1.4.0
  - Connection configuration per label (connection string and reuse flag) feature introduced.
 
 ## 1.3.0
