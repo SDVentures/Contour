@@ -1,4 +1,7 @@
-﻿## 1.3.0
+﻿## 1.4.0
+ - Connection configuration per label (connection string and reuse flag) feature introduced.
+
+## 1.3.0
  - Separate connection for each sender and receiver (connection per label) feature introduced.
 
 ## 1.2.2
