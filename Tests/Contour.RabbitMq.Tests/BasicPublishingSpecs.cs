@@ -16,6 +16,8 @@ using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
+    using Configuration;
+
     /// <summary>
     /// The basic publishing specs.
     /// </summary>
@@ -187,26 +189,6 @@ namespace Contour.RabbitMq.Tests
                 IBus producer = this.StartBus("producer", cfg => cfg.Route(MessageLabel.Any));
 
                 producer.Invoking(p => p.Emit(MessageLabel.Any, new BooMessage(13)))
-                    .ShouldThrow<InvalidOperationException>();
-            }
-        }
-
-        /// <summary>
-        /// The when_publishing_using_empty_label.
-        /// </summary>
-        [TestFixture]
-        [Category("Integration")]
-        public class when_publishing_using_empty_label : RabbitMqFixture
-        {
-            /// <summary>
-            /// The should_throw.
-            /// </summary>
-            [Test]
-            public void should_throw()
-            {
-                IBus producer = this.StartBus("producer", cfg => cfg.Route(MessageLabel.Empty));
-
-                producer.Invoking(p => p.Emit(MessageLabel.Empty, new BooMessage(13)))
                     .ShouldThrow<InvalidOperationException>();
             }
         }

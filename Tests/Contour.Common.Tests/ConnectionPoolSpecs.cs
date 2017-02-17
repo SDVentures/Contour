@@ -10,7 +10,7 @@ namespace Contour.Common.Tests
 
     using Moq;
     using NUnit.Framework;
-
+    
     /// <summary>
     /// Connection pool specifications
     /// </summary>
@@ -21,103 +21,35 @@ namespace Contour.Common.Tests
         public class when_declaring_connection_pool
         {
             [Test]
-            public void should_use_positive_size_limit_if_provided()
-            {
-                var size = 1;
-                var pool = new FakeConnectionPool(null, size);
-                Assert.IsTrue(pool.MaxSize == size);
-            }
-
-            [Test]
-            public void should_use_max_size_limit_if_zero_or_negative_is_provided()
-            {
-                var pool = new FakeConnectionPool(null, -1);
-                Assert.IsTrue(pool.MaxSize == int.MaxValue);
-
-                pool = new FakeConnectionPool(null, 0);
-                Assert.IsTrue(pool.MaxSize == int.MaxValue);
-            }
-
-            [Test]
-            public void should_create_new_connections_until_max_size_reached()
-            {
-                const int size = 3;
-
-                var provider = new Mock<IConnectionProvider<IConnection>>();
-                provider.Setup(cp => cp.Create()).Returns(() => new Mock<IConnection>().Object);
-
-                var list = new List<IConnection>();
-
-                var pool = new FakeConnectionPool(provider.Object, size);
-                for (var i = 0; i < size; i++)
-                {
-                    var source = new CancellationTokenSource();
-                    var con = pool.Get(source.Token);
-                    Assert.IsFalse(list.Contains(con));
-
-                    list.Add(con);
-                }
-            }
-
-            [Test]
-            public void should_reuse_existing_connections_when_max_size_reached()
-            {
-                const int size = 3;
-
-                var provider = new Mock<IConnectionProvider<IConnection>>();
-                provider.Setup(cp => cp.Create()).Returns(() => new Mock<IConnection>().Object);
-
-                var list = new List<IConnection>();
-                var pool = new FakeConnectionPool(provider.Object, size);
-
-                for (var i = 0; i < 2 * size; i++)
-                {
-                    var source = new CancellationTokenSource();
-                    var con = pool.Get(source.Token);
-                    if (i < size)
-                    {
-                        Assert.IsFalse(list.Contains(con));
-                        list.Add(con);
-                    }
-                    else
-                    {
-                        Assert.IsTrue(list.Contains(con));
-                    }
-                }
-
-                Assert.IsTrue(pool.Count == size);
-            }
-
-            [Test]
             public void should_dispose_connections_on_pool_disposal()
             {
+                var conString = string.Empty;
                 var connection = new Mock<IConnection>();
 
                 var provider = new Mock<IConnectionProvider<IConnection>>();
-                provider.Setup(cp => cp.Create()).Returns(() => connection.Object);
+                provider.Setup(cp => cp.Create(conString)).Returns(() => connection.Object);
                 
                 var pool = new FakeConnectionPool(provider.Object, 1);
-                var source = new CancellationTokenSource();
-                pool.Get(source.Token);
+                pool.Get(conString, false, CancellationToken.None);
                 pool.Dispose();
-                
-                connection.Verify(c=> c.Dispose());
+
+                connection.Verify(c => c.Dispose());
             }
 
             [Test]
             public void should_throw_if_disposed_pool_is_accessed()
             {
+                var conString = string.Empty;
                 var connection = new Mock<IConnection>();
 
                 var provider = new Mock<IConnectionProvider<IConnection>>();
-                provider.Setup(cp => cp.Create()).Returns(() => connection.Object);
+                provider.Setup(cp => cp.Create(conString)).Returns(() => connection.Object);
 
                 var pool = new FakeConnectionPool(provider.Object, 1);
                 pool.Dispose();
                 try
                 {
-                    var source = new CancellationTokenSource();
-                    pool.Get(source.Token);
+                    pool.Get(conString, false, CancellationToken.None);
                     Assert.Fail("Should throw if a disposed pool is accessed");
                 }
                 catch (Exception)
@@ -128,23 +60,23 @@ namespace Contour.Common.Tests
             [Test]
             public void should_close_and_dispose_all_connections_on_pool_drop()
             {
+                var conString = string.Empty;
                 var cons = new List<Mock<IConnection>>();
                 var provider = new Mock<IConnectionProvider<IConnection>>();
-                provider.Setup(cp => cp.Create()).Returns(() =>
+                provider.Setup(cp => cp.Create(conString)).Returns(() =>
                 {
                     var con = new Mock<IConnection>();
                     cons.Add(con);
                     return con.Object;
                 });
 
-                const int count = 5;
-                var pool = new FakeConnectionPool(provider.Object, count);
+                const int Count = 5;
+                var pool = new FakeConnectionPool(provider.Object, Count);
 
                 var i = 0;
-                var source = new CancellationTokenSource();
-                while (i++ < count)
+                while (i++ < Count)
                 {
-                    pool.Get(source.Token);
+                    pool.Get(conString, false, CancellationToken.None);
                 }
 
                 pool.Drop();
@@ -162,8 +94,9 @@ namespace Contour.Common.Tests
             [Test]
             public void should_cancel_not_started_get_operation()
             {
+                var conString = string.Empty;
                 var provider = new Mock<IConnectionProvider<IConnection>>();
-                provider.Setup(cp => cp.Create()).Returns(() =>
+                provider.Setup(cp => cp.Create(conString)).Returns(() =>
                 {
                     var con = new Mock<IConnection>();
                     return con.Object;
@@ -174,8 +107,103 @@ namespace Contour.Common.Tests
                 var source = new CancellationTokenSource();
                 source.Cancel();
 
-                var result = pool.Get(source.Token);
+                var result = pool.Get(conString, false, source.Token);
                 Assert.IsTrue(result == null);
+            }
+
+            [Test]
+            public void should_create_and_use_connection_if_reusable_for_empty_pool_group()
+            {
+                var conString = string.Empty;
+                var provider = new Mock<IConnectionProvider<IConnection>>();
+                provider.Setup(cp => cp.Create(conString)).Returns(() =>
+                {
+                    var con = new Mock<IConnection>();
+                    return con.Object;
+                });
+
+                var pool = new FakeConnectionPool(provider.Object, 1);
+                var connection = pool.Get(conString, true, CancellationToken.None);
+
+                Assert.IsNotNull(connection);
+            }
+
+            [Test]
+            public void should_reuse_connections_in_group_if_reusable()
+            {
+                var conString = string.Empty;
+                var provider = new Mock<IConnectionProvider<IConnection>>();
+                provider.Setup(cp => cp.Create(conString)).Returns(() =>
+                {
+                    var con = new Mock<IConnection>();
+                    return con.Object;
+                });
+
+                var pool = new FakeConnectionPool(provider.Object, 1);
+                var c1 = pool.Get(conString, true, CancellationToken.None);
+                var c2 = pool.Get(conString, true, CancellationToken.None);
+
+                Assert.IsTrue(c1 == c2);
+            }
+
+            [Test]
+            public void should_not_reuse_connections_in_group_if_not_reusable()
+            {
+                var conString = string.Empty;
+                var provider = new Mock<IConnectionProvider<IConnection>>();
+                provider.Setup(cp => cp.Create(conString)).Returns(() =>
+                {
+                    var con = new Mock<IConnection>();
+                    return con.Object;
+                });
+
+                var pool = new FakeConnectionPool(provider.Object, 1);
+                var c1 = pool.Get(conString, false, CancellationToken.None);
+                var c2 = pool.Get(conString, false, CancellationToken.None);
+
+                Assert.IsTrue(c1 != c2);
+            }
+
+            [Test]
+            public void should_not_reuse_connections_marked_as_non_reusable()
+            {
+                var conString = string.Empty;
+                var provider = new Mock<IConnectionProvider<IConnection>>();
+                provider.Setup(cp => cp.Create(conString)).Returns(() =>
+                {
+                    var con = new Mock<IConnection>();
+                    return con.Object;
+                });
+
+                var pool = new FakeConnectionPool(provider.Object, 1);
+                var c1 = pool.Get(conString, false, CancellationToken.None);
+                var c2 = pool.Get(conString, true, CancellationToken.None);
+
+                Assert.IsTrue(c1 != c2);
+
+                var c3 = pool.Get(conString, true, CancellationToken.None);
+                Assert.IsTrue(c1 != c3);
+                Assert.IsTrue(c2 == c3);
+            }
+
+            [Test]
+            public void should_not_reuse_connections_in_different_groups()
+            {
+                const string ConnectionString1 = "1";
+                const string ConnectionString2 = "2";
+
+                var provider = new Mock<IConnectionProvider<IConnection>>();
+                provider.Setup(cp => cp.Create(It.IsAny<string>())).Returns(() =>
+                {
+                    var con = new Mock<IConnection>();
+                    return con.Object;
+                });
+
+                var pool = new FakeConnectionPool(provider.Object, 1);
+                var c1 = pool.Get(ConnectionString1, true, CancellationToken.None);
+                var c2 = pool.Get(ConnectionString2, true, CancellationToken.None);
+
+                Assert.False(c1 == c2);
             }
         }
     }

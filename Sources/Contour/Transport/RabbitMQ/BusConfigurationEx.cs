@@ -61,24 +61,26 @@ namespace Contour.Transport.RabbitMQ
 
             c.BuildBusUsing(bc => new RabbitBus(c));
 
-            c.SenderDefaults = new SenderOptions
-                                   {
-                                       ConfirmationIsRequired = false, 
-                                       Persistently = false, 
-                                       RequestTimeout = default(TimeSpan?), 
-                                       Ttl = default(TimeSpan?), 
-                                       RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
-                                       IncomingMessageHeaderStorage = messageHeaderStorage
-                                   };
+            c.SenderDefaults = new RabbitSenderOptions(c.EndpointOptions)
+            {
+                ConfirmationIsRequired = false,
+                Persistently = false,
+                RequestTimeout = default(TimeSpan?),
+                Ttl = default(TimeSpan?),
+                RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
+                IncomingMessageHeaderStorage = messageHeaderStorage,
+                ReuseConnection = false
+            };
 
-            c.ReceiverDefaults = new RabbitReceiverOptions
-                                     {
-                                         AcceptIsRequired = false, 
-                                         ParallelismLevel = 1, 
-                                         EndpointBuilder = RabbitBusDefaults.SubscriptionEndpointBuilder,
-                                         QoS = new QoSParams(50, 0),
-                                         IncomingMessageHeaderStorage = messageHeaderStorage
-                                     };
+            c.ReceiverDefaults = new RabbitReceiverOptions(c.EndpointOptions)
+            {
+                AcceptIsRequired = false,
+                ParallelismLevel = 1,
+                EndpointBuilder = RabbitBusDefaults.SubscriptionEndpointBuilder,
+                QoS = new QoSParams(50, 0),
+                IncomingMessageHeaderStorage = messageHeaderStorage,
+                ReuseConnection = false
+            };
 
             c.UseMessageLabelHandler(new DefaultRabbitMessageLabelHandler());
            

@@ -2,10 +2,12 @@
 
 namespace Contour.Topology
 {
+    using System;
+
     /// <summary>
     /// Построитель топологии.
     /// </summary>
-    public interface ITopologyBuilder
+    public interface ITopologyBuilder : IDisposable
     {
         /// <summary>
         /// Создает временную конечную точку для получения сообщений.

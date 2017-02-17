@@ -11,11 +11,9 @@ namespace Contour
 
         event EventHandler ConnectionDisposed;
 
-        int MaxSize { get; }
-
         int Count { get; }
 
-        TConnection Get(CancellationToken token);
+        TConnection Get(string connectionString, bool reusable, CancellationToken token);
 
         void Drop();
     }

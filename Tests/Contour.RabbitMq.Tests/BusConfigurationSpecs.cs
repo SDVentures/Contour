@@ -188,6 +188,27 @@ namespace Contour.RabbitMq.Tests
                 Assert.IsNotEmpty(notEmptyMessages, "Сообщения должны быть в очереди.");
             }
         }
+
+
+        /// <summary>
+        /// The when_configuring_producer_with_empty_label.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_configuring_producer_with_empty_label : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_throw.
+            /// </summary>
+            [Test]
+            public void should_throw()
+            {
+                var factory = new BusFactory();
+                
+                factory.Invoking(b => b.Create(cfg => cfg.Route(MessageLabel.Empty)))
+                    .ShouldThrow<BusConfigurationException>();
+            }
+        }
     }
 
     // ReSharper restore InconsistentNaming

@@ -9,17 +9,15 @@
     /// </summary>
     public abstract class BusOptions
     {
-        #region Constructors and Destructors
-
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusOptions"/>.
+        /// Initializes a new instance of the <see cref="BusOptions"/> class. 
         /// </summary>
         protected BusOptions()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusOptions"/>.
+        /// Initializes a new instance of the <see cref="BusOptions"/> class. 
         /// </summary>
         /// <param name="parent">
         /// The parent.
@@ -29,18 +27,10 @@
             this.Parent = parent;
         }
 
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the parent.
         /// </summary>
         public BusOptions Parent { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The pick.
@@ -74,14 +64,10 @@
         /// </returns>
         public abstract BusOptions Derive();
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The pick.
         /// </summary>
-        /// <param name="getValueFunc">
+        /// <param name="getValue">
         /// The get value func.
         /// </param>
         /// <typeparam name="T">
@@ -89,22 +75,23 @@
         /// <returns>
         /// The <see cref="Maybe{T}"/>.
         /// </returns>
-        protected Maybe<T> Pick<T>(Func<BusOptions, Maybe<T>> getValueFunc)
+        protected Maybe<T> Pick<P,T>(Func<P, Maybe<T>> getValue) where P: BusOptions
         {
-            Maybe<T> value = getValueFunc(this);
-            if (value != null && value.HasValue)
+            if (this is P)
             {
-                return value;
-            }
+                var value = getValue(this as P);
+                if (value != null && value.HasValue)
+                {
+                    return value;
+                }
 
-            if (this.Parent != null)
-            {
-                return getValueFunc(this.Parent);
+                if (this.Parent != null)
+                {
+                    return this.Parent.Pick(getValue);
+                }
             }
 
             return Maybe<T>.Empty;
         }
-
-        #endregion
     }
 }

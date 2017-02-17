@@ -4,9 +4,9 @@
     using Configuration;
 
     /// <summary>
-    ///   Фабрика для создания клиента шины сообщений на основе конфигурации.
+    /// The BusFactory interface.
     /// </summary>
-    public class BusFactory : IBusFactory
+    public interface IBusFactory
     {
         /// <summary>
         /// Создает экземпляр шины событий
@@ -20,22 +20,6 @@
         /// <returns>
         /// сконфигурированный экземпляр шины событий
         /// </returns>
-        public IBus Create(Action<IBusConfigurator> configure, bool autoStart = true)
-        {
-            var config = DefaultBusConfigurationBuilder.Build();
-
-            configure(config);
-
-            config.Validate();
-
-            var bus = config.BusFactoryFunc(config);
-
-            if (autoStart)
-            {
-                bus.Start();
-            }
-
-            return bus;
-        }
+        IBus Create(Action<IBusConfigurator> configure, bool autoStart = true);
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace Contour.Transport.RabbitMQ
 {
-    using Contour.Configuration;
-    using Contour.Helpers;
-    using Contour.Receiving;
+    using Configuration;
+    using Helpers;
+    using Receiving;
 
     /// <summary>
     /// The rabbit receiver options.
@@ -10,14 +10,14 @@
     public class RabbitReceiverOptions : ReceiverOptions
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitReceiverOptions"/>.
+        /// Initializes a new instance of the <see cref="RabbitReceiverOptions"/> class.
         /// </summary>
         public RabbitReceiverOptions()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitReceiverOptions"/>.
+        /// Initializes a new instance of the <see cref="RabbitReceiverOptions"/> class.
         /// </summary>
         /// <param name="parent">
         /// The parent.
@@ -28,9 +28,20 @@
         }
 
         /// <summary>
-        /// Gets or sets the qo s.
+        /// Gets or sets the QoS.
         /// </summary>
         public Maybe<QoSParams> QoS { protected get; set; }
+        
+        /// <summary>
+        /// Get the QoS settings.
+        /// </summary>
+        /// <returns>
+        /// QoS settings
+        /// </returns>
+        public Maybe<QoSParams> GetQoS()
+        {
+            return this.Pick<RabbitReceiverOptions, QoSParams>((o) => o.QoS);
+        }
 
         /// <summary>
         /// The derive.
@@ -43,15 +54,5 @@
             return new RabbitReceiverOptions(this);
         }
 
-        /// <summary>
-        /// The get qo s.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Maybe{T}"/>.
-        /// </returns>
-        public Maybe<QoSParams> GetQoS()
-        {
-            return this.Pick(o => ((RabbitReceiverOptions)o).QoS);
-        }
     }
 }

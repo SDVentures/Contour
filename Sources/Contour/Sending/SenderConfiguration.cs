@@ -6,6 +6,8 @@ using Contour.Receiving;
 
 namespace Contour.Sending
 {
+    using Configuration;
+
     /// <summary>
     /// Конфигурация отправителя сообщений.
     /// Используется для конфигурирования вариантов односторонних коммуникаций и коммуникаций в формате запрос-ответ.
@@ -19,11 +21,17 @@ namespace Contour.Sending
         private readonly ReceiverOptions receiverOptions;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="SenderConfiguration"/>.
+        /// Initializes a new instance of the <see cref="SenderConfiguration"/> class. 
         /// </summary>
-        /// <param name="label">Метка отправляемых сообщений.</param>
-        /// <param name="parentOptions">Настройки отправителя.</param>
-        /// <param name="receiverOptions">Настройки получателя (для ответных сообщений).</param>
+        /// <param name="label">
+        /// Метка отправляемых сообщений.
+        /// </param>
+        /// <param name="parentOptions">
+        /// Настройки отправителя.
+        /// </param>
+        /// <param name="receiverOptions">
+        /// Настройки получателя (для ответных сообщений).
+        /// </param>
         public SenderConfiguration(MessageLabel label, SenderOptions parentOptions, ReceiverOptions receiverOptions)
         {
             this.receiverOptions = receiverOptions;
@@ -92,7 +100,10 @@ namespace Contour.Sending
         /// </summary>
         public void Validate()
         {
-            // TODO: this
+            if (this.Label.IsEmpty)
+            {
+                throw new BusConfigurationException("Can't send using Empty label.");
+            }
         }
 
         /// <summary>

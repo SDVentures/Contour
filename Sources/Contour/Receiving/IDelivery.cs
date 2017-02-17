@@ -12,7 +12,7 @@ namespace Contour.Receiving
         /// Канал доставки сообщения.
         /// </summary>
         IChannel Channel { get; }
-
+        
         /// <summary>
         /// Метка доставленных сообщений.
         /// </summary>

@@ -5,7 +5,7 @@ using Contour.Transport.RabbitMQ;
 namespace Contour
 {
     /// <summary>
-    /// Построитель конфигурации шины с настройками по умолчанию.
+    /// Строитель конфигурации шины с настройками по умолчанию.
     /// </summary>
     internal static class DefaultBusConfigurationBuilder
     {
@@ -13,7 +13,7 @@ namespace Contour
         /// Строит конфигурацию шины.
         /// </summary>
         /// <returns>
-        /// Конфигурация шины с настройкми по умолчнаию.
+        /// Конфигурация шины с настройки по умолчанию.
         /// </returns>
         public static BusConfiguration Build()
         {
@@ -21,8 +21,6 @@ namespace Contour
 
             c.UseRabbitMq();
             c.UsePayloadConverter(new JsonNetPayloadConverter());
-
-            // c.EnableCaching();
             return c;
         }
     }

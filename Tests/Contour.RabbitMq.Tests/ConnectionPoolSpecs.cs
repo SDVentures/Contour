@@ -28,13 +28,15 @@ namespace Contour.RabbitMq.Tests
                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))));
                    });
 
-            var pool = new RabbitConnectionPool((RabbitBus)bus, 1);
+            var pool = new RabbitConnectionPool(bus);
             var source = new CancellationTokenSource();
-            pool.Get(source.Token);
+            var conString = string.Empty;
+
+            pool.Get(conString, false, source.Token);
             pool.Drop();
             Assert.IsTrue(pool.Count == 0);
 
-            pool.Get(source.Token);
+            pool.Get(conString, false, source.Token);
             Assert.IsTrue(pool.Count == 1);
         }
 
@@ -52,15 +54,16 @@ namespace Contour.RabbitMq.Tests
                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))));
                    });
 
-            var pool = new RabbitConnectionPool((RabbitBus)bus, Count);
+            var pool = new RabbitConnectionPool(bus);
 
             var i = 0;
+            var conString = bus.Configuration.ConnectionString;
             var source = new CancellationTokenSource();
             var connections = new List<IConnection>();
 
             while (i++ < Count)
             {
-                var con = pool.Get(source.Token);
+                var con = pool.Get(conString, false, source.Token);
                 connections.Add(con);
             }
 
@@ -78,25 +81,26 @@ namespace Contour.RabbitMq.Tests
         [Test]
         public void should_cancel_running_get_operation()
         {
+            const string ConString = "amqp://10.10.10.10/integration";
+
             var bus = this.ConfigureBus(
                    "Test",
                    cfg =>
                    {
-                       cfg.SetConnectionString("amqp://10.10.10.10/integration");
+                       cfg.SetConnectionString(ConString);
                        cfg.Route("some.label");
                     });
 
-            const int Count = 5;
-            var pool = new RabbitConnectionPool((RabbitBus)bus, Count);
+            var pool = new RabbitConnectionPool(bus);
             var source = new CancellationTokenSource();
             
             // ReSharper disable once MethodSupportsCancellation
             var task = Task.Factory.StartNew(
                 () =>
-                    {
-                        var con = pool.Get(source.Token);
-                        return con;
-                    });
+                {
+                    var con = pool.Get(ConString, false, source.Token);
+                    return con;
+                });
             
             task.Wait(TimeSpan.FromSeconds(10));
             source.Cancel();

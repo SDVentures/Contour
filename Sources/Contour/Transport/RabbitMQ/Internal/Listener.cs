@@ -9,16 +9,13 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-
     using Common.Logging;
-
     using Helpers;
     using Helpers.Scheduler;
     using Helpers.Timing;
     using Receiving;
     using Receiving.Consumers;
     using Validation;
-
     using global::RabbitMQ.Client.Events;
 
     /// <summary>
@@ -72,6 +69,8 @@
         /// </summary>
         private CancellationTokenSource cancellationTokenSource;
 
+        private IBusContext busContext;
+
         /// <summary>
         /// Признак: слушатель потребляет сообщения.
         /// </summary>
@@ -89,9 +88,14 @@
         private IList<IWorker> workers;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Listener"/>.
+        /// Initializes a new instance of the <see cref="Listener"/> class. 
         /// </summary>
-        /// <param name="connection">Соединение с шиной сообщений</param>
+        /// <param name="busContext">
+        /// The bus Context.
+        /// </param>
+        /// <param name="connection">
+        /// Соединение с шиной сообщений
+        /// </param>
         /// <param name="endpoint">
         /// Прослушиваемый порт.
         /// </param>
@@ -101,8 +105,9 @@
         /// <param name="validatorRegistry">
         /// Реестр механизмов проверки сообщений.
         /// </param>
-        public Listener(IRabbitConnection connection, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
+        public Listener(IBusContext busContext, IRabbitConnection connection, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
         {
+            this.busContext = busContext;
             this.channel = connection.OpenChannel();
             this.endpoint = endpoint;
             this.validatorRegistry = validatorRegistry;
@@ -119,9 +124,9 @@
                     }
 
                     this.HasFailed = true;
-                }; 
-            
-            channel.Failed += (ch, args) => this.Failed(this);
+                };
+
+            this.channel.Failed += (ch, args) => this.Failed(this);
         }
 
         /// <summary>
@@ -151,13 +156,7 @@
         /// <summary>
         /// Порт канала, который прослушивается на входящие сообщения.
         /// </summary>
-        public ISubscriptionEndpoint Endpoint
-        {
-            get
-            {
-                return this.endpoint;
-            }
-        }
+        public ISubscriptionEndpoint Endpoint => this.endpoint;
 
         /// <summary>
         /// Настройки получателя.
@@ -169,8 +168,8 @@
         /// <summary>
         /// Создает входящее сообщение.
         /// </summary>
-        /// <param name="channel">
-        /// Канал, по которому получено сообщение.
+        /// <param name="deliveryChannel">
+        /// The delivery Channel.
         /// </param>
         /// <param name="args">
         /// Аргументы, с которыми получено сообщение.
@@ -178,9 +177,9 @@
         /// <returns>
         /// Входящее сообщение.
         /// </returns>
-        public RabbitDelivery BuildDeliveryFrom(RabbitChannel channel, BasicDeliverEventArgs args)
+        public RabbitDelivery BuildDeliveryFrom(RabbitChannel deliveryChannel, BasicDeliverEventArgs args)
         {
-            return new RabbitDelivery(channel, args, this.ReceiverOptions.IsAcceptRequired());
+            return new RabbitDelivery(this.busContext, deliveryChannel, args, this.ReceiverOptions.IsAcceptRequired());
         }
 
         /// <summary>

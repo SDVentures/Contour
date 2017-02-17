@@ -7,7 +7,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-
+    using System.Linq;
     using Helpers;
     using Helpers.CodeContracts;
 
@@ -33,9 +33,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         private readonly IDictionary<MessageLabel, Producer> producers = new ConcurrentDictionary<MessageLabel, Producer>();
 
-        /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ProducerRegistry"/>.
-        /// </summary>
         public ProducerRegistry(RabbitBus bus, IConnectionPool<IRabbitConnection> pool)
         {
             this.bus = bus;
@@ -75,42 +72,52 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Producer ResolveFor(ISenderConfiguration configuration)
         {
+            var options = (RabbitSenderOptions)configuration.Options;
+
+            var connectionString = options.GetConnectionString().Value;
+            var reuseConnectionProperty = options.GetReuseConnection();
+            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
+
             var source = new CancellationTokenSource();
-            var connection = this.pool.Get(source.Token);
+            var connection = this.pool.Get(connectionString, reuseConnection, source.Token);
             this.logger.Trace($"Using connection [{connection.Id}] to resolve a producer");
 
             var producer = this.TryResolverFor(configuration.Label);
             if (producer == null)
             {
-                using (var channel = connection.OpenChannel())
+                var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
+                var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, configuration);
+                var routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
+
+                Assumes.True(
+                    routeResolverBuilder.HasValue,
+                    "RouteResolverBuilder must be set for [{0}]",
+                    configuration.Label);
+
+                var routeResolver = routeResolverBuilder.Value(builder);
+
+                producer = new Producer(
+                    this.bus.Endpoint,
+                    connection,
+                    configuration.Label,
+                    routeResolver,
+                    configuration.Options.IsConfirmationRequired());
+
+                producer.Failed += p =>
                 {
-                    var topologyBuilder = new TopologyBuilder(channel);
-                    var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, configuration);
-                    var routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
-
-                    Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]", 
-                        configuration.Label);
-
-                    var routeResolver = routeResolverBuilder.Value(builder);
-                    
-                    producer = new Producer(connection, configuration.Label, routeResolver, 
-                        configuration.Options.IsConfirmationRequired());
-                    producer.Failed += p =>
                     {
-                        {
-                            p.Dispose();
-                            this.producers.Remove(p.Label);
-                        }
-                    };
+                        p.Dispose();
+                        this.producers.Remove(p.Label);
+                    }
+                };
 
-                    this.producers.Add(configuration.Label, producer);
-                }
+                this.producers.Add(configuration.Label, producer);
+            }
 
-                if (configuration.RequiresCallback)
-                {
-                    producer.UseCallbackListener(
-                        this.bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
-                }
+            if (configuration.RequiresCallback)
+            {
+                producer.UseCallbackListener(
+                    this.bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
             }
 
             return producer;

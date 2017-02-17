@@ -25,11 +25,17 @@
         /// Отслеживает подтверждение ответов.
         /// </summary>
         private readonly IPublishConfirmationTracker confirmationTracker = new NullPublishConfirmationTracker();
+        private readonly IEndpoint endpoint;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Producer"/>.
+        /// Initializes a new instance of the <see cref="Producer"/> class. 
         /// </summary>
-        /// <param name="connection">Соединение с шиной сообщений</param>
+        /// <param name="endpoint">
+        /// The endpoint.
+        /// </param>
+        /// <param name="connection">
+        /// Соединение с шиной сообщений
+        /// </param>
         /// <param name="label">
         /// Метка сообщения, которая будет использоваться при отправлении сообщений.
         /// </param>
@@ -39,8 +45,10 @@
         /// <param name="confirmationIsRequired">
         /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
         /// </param>
-        public Producer(IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
         {
+            this.endpoint = endpoint;
+
             this.Channel = connection.OpenChannel();
             this.Label = label;
             this.RouteResolver = routeResolver;
@@ -52,8 +60,6 @@
                 this.Channel.EnablePublishConfirmation();
                 this.Channel.OnConfirmation(this.confirmationTracker.HandleConfirmation);
             }
-
-            this.Failed += _ => ((IBusAdvanced)connection.Bus).Panic();
         }
 
         /// <summary>
@@ -126,7 +132,7 @@
         /// </returns>
         public Task Publish(IMessage message)
         {
-            var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.Channel.Bus.Endpoint, message.Label);
+            var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
 
             Logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
 
@@ -288,15 +294,16 @@
         {
             if (this.CallbackListener == null)
             {
-                throw new BusConfigurationException(string.Format("No reply endpoint is defined for publisher of [{0}].", this.Label));
+                throw new BusConfigurationException($"No reply endpoint is defined for publisher of [{this.Label}].");
             }
 
             if (this.CallbackListener.Endpoint.CallbackRouteResolver == null)
             {
-                throw new BusConfigurationException(string.Format("No callback route resolver is defined for listener on [{0}].", this.CallbackListener.Endpoint.ListeningSource));
+                throw new BusConfigurationException(
+                    $"No callback route resolver is defined for listener on [{this.CallbackListener.Endpoint.ListeningSource}].");
             }
 
-            return this.CallbackListener.Endpoint.CallbackRouteResolver.Resolve(this.Channel.Bus.Endpoint, MessageLabel.Any);
+            return this.CallbackListener.Endpoint.CallbackRouteResolver.Resolve(this.endpoint, MessageLabel.Any);
         }
     }
 }

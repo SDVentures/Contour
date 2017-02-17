@@ -10,7 +10,12 @@ namespace Contour
         /// <summary>
         /// Creates a new connection
         /// </summary>
-        /// <returns>A new connection</returns>
-        TConnection Create();
+        /// <param name="connectionString">
+        /// A connection string containing the destination address
+        /// </param>
+        /// <returns>
+        /// A new connection
+        /// </returns>
+        TConnection Create(string connectionString);
     }
 }

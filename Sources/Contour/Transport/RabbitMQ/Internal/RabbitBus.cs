@@ -35,8 +35,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             completion.SetResult(new object());
             this.restartTask = completion.Task;
             
-            var poolSize = this.Configuration.SenderConfigurations.Count() + this.Configuration.ReceiverConfigurations.Count();
-            this.connectionPool = new RabbitConnectionPool(this, poolSize);
+            this.connectionPool = new RabbitConnectionPool(this);
             this.connectionPool.ConnectionClosed += this.ConnectionClosed;
             this.connectionPool.ConnectionOpened += (sender, args) => this.OnConnected();
         }

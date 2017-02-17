@@ -82,42 +82,48 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Listener ResolveFor(IReceiverConfiguration configuration)
         {
+            var options = (RabbitReceiverOptions)configuration.Options;
+
+            var connectionString = options.GetConnectionString().Value;
+            var reuseConnectionProperty = options.GetReuseConnection();
+            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
+
             var source = new CancellationTokenSource();
-            var connection = this.pool.Get(source.Token);
+            var connection = this.pool.Get(connectionString, reuseConnection, source.Token);
             this.logger.Trace($"Using connection [{connection.Id}] to resolve a listener");
 
-            using (var channel = connection.OpenChannel())
+            var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
+            var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, configuration);
+
+            var endpointBuilder = configuration.Options.GetEndpointBuilder();
+
+            Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", configuration.Label);
+
+            var endpoint = endpointBuilder.Value(builder);
+
+            lock (this.listeners)
             {
-                var topologyBuilder = new TopologyBuilder(channel);
-                var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, configuration);
-
-                var endpointBuilder = configuration.Options.GetEndpointBuilder();
-
-                Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", configuration.Label);
-
-                var endpoint = endpointBuilder.Value(builder);
-
-                lock (this.listeners)
+                var listener =
+                    this.listeners.FirstOrDefault(
+                        l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
+                if (listener == null)
                 {
-                    var listener =
-                        this.listeners.FirstOrDefault(
-                            l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
-                    if (listener == null)
-                    {
-                        listener = new Listener(connection, endpoint, 
-                            (RabbitReceiverOptions) configuration.Options, 
-                            this.bus.Configuration.ValidatorRegistry);
+                    listener = new Listener(
+                        this.bus,
+                        connection,
+                        endpoint,
+                        (RabbitReceiverOptions)configuration.Options,
+                        this.bus.Configuration.ValidatorRegistry);
 
-                        this.listeners.Add(listener);
-                    }
-                    else
-                    {
-                        EnsureConfigurationIsCompatible(listener, configuration);
-                    }
-
-                    return listener;
+                    this.listeners.Add(listener);
                 }
-            }
+                else
+                {
+                    EnsureConfigurationIsCompatible(listener, configuration);
+                }
+
+                return listener;
+}
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using Common.Logging;
@@ -10,17 +11,15 @@
     {
         private readonly object syncRoot = new object();
         private readonly ILog logger = LogManager.GetLogger<ConnectionPool<TConnection>>();
-        private readonly ConcurrentDictionary<int, TConnection> connections =
-            new ConcurrentDictionary<int, TConnection>();
+        private readonly ConcurrentDictionary<string, IList<Tuple<TConnection, bool>>> groups =
+            new ConcurrentDictionary<string, IList<Tuple<TConnection, bool>>>();
 
         private bool disposed;
-        private int lastKey;
         private CancellationTokenSource cancellation;
         
-        protected ConnectionPool(int maxSize)
+        protected ConnectionPool()
         {
             this.cancellation = new CancellationTokenSource();
-            this.MaxSize = maxSize <= 0 ? int.MaxValue : maxSize;
         }
 
         public event EventHandler ConnectionOpened;
@@ -28,19 +27,19 @@
         public event EventHandler ConnectionClosed;
 
         public event EventHandler ConnectionDisposed;
-
-        public int MaxSize { get; }
-
-        public int Count => this.connections.Count;
+        
+        public int Count => this.groups.SelectMany(pair => pair.Value).Count();
 
         protected IConnectionProvider<TConnection> Provider { get; set; }
 
         /// <summary>
-        /// Gets a new connection from the pool or uses an existing one if <see cref="MaxSize"/> has been reached
+        /// Gets a new connection from the pool or uses an existing one
         /// </summary>
+        /// <param name="connectionString">A connection string to create a new or get an existing connection</param>
+        /// <param name="reusable">Specifies if a connection can be reused</param>
         /// <param name="token">Operation cancellation token</param>
         /// <returns>A pooled connection</returns>
-        public TConnection Get(CancellationToken token)
+        public TConnection Get(string connectionString, bool reusable, CancellationToken token)
         {
             lock (this.syncRoot)
             {
@@ -49,28 +48,35 @@
                     throw new ObjectDisposedException(nameof(ConnectionPool<TConnection>));
                 }
                 
-                var random = new Random();
-                var key = this.Count < this.MaxSize ? this.lastKey++ : random.Next(this.MaxSize);
-
                 var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.cancellation.Token);
                 if (source.Token.IsCancellationRequested)
                 {
                     return null;
                 }
 
-                return this.connections.GetOrAdd(
-                    key,
-                    i =>
-                        {
-                            var con = this.Provider.Create();
-                            this.logger.Trace($"New connection [{con.Id}] created");
+                var group = this.groups.GetOrAdd(connectionString, s => new List<Tuple<TConnection, bool>>());
 
-                            con.Opened += this.OnConnectionOpened;
-                            con.Closed += this.OnConnectionClosed;
-                            con.Disposed += this.OnConnectionDisposed;
-                            con.Open(source.Token);
-                            return con;
-                        });
+                Tuple<TConnection, bool> pair;
+
+                if (reusable && group.Any(t => t.Item2))
+                {
+                    pair = group.First(t => t.Item2);
+                }
+                else
+                {
+                    var connection = this.Provider.Create(connectionString);
+                    this.logger.Trace($"A new connection [{connection.Id}] at [{connectionString}] created");
+
+                    pair = new Tuple<TConnection, bool>(connection, reusable);
+                    group.Add(pair);
+
+                    connection.Opened += this.OnConnectionOpened;
+                    connection.Closed += this.OnConnectionClosed;
+                    connection.Disposed += this.OnConnectionDisposed;
+                    connection.Open(source.Token);
+                }
+                
+                return pair.Item1;
             }
         }
 
@@ -84,17 +90,26 @@
 
             lock (this.syncRoot)
             {
-                TConnection con;
-                while (this.connections.Count > 0 && this.connections.TryRemove(this.connections.Keys.First(), out con))
+                IList<Tuple<TConnection, bool>> group;
+                while (this.groups.Count > 0 && this.groups.TryRemove(this.groups.Keys.First(), out group))
                 {
-                    try
+                    while (group.Any())
                     {
-                        con.Close();
-                        con.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        this.logger.Warn($"Failed to dispose a pooled connection due to: {ex.Message}", ex);
+                        var pair = group.First();
+                        try
+                        {
+                            var connection = pair.Item1;
+                            connection.Close();
+                            connection.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            this.logger.Warn($"Failed to dispose a pooled connection due to: {ex.Message}", ex);
+                        }
+                        finally
+                        {
+                            group.Remove(pair);
+                        }
                     }
                 }
 
@@ -147,12 +162,13 @@
                 var connection = sender as TConnection;
                 if (connection != null)
                 {
-                    var key = this.connections.FirstOrDefault(c => c.Value == connection).Key;
-
-                    TConnection removedConnection;
-                    if (this.connections.TryRemove(key, out removedConnection))
+                    IList<Tuple<TConnection, bool>> group;
+                    if (this.groups.TryGetValue(connection.ConnectionString, out group))
                     {
-                        this.logger.Trace($"Connection [{key},{removedConnection.Id}] removed from connection pool");
+                        var pair = group.First(p => p.Item1 == connection);
+                        group.Remove(pair);
+                        this.logger.Trace(
+                            $"Connection [{connection.ConnectionString},{connection.Id}] removed from connection pool");
                     }
                 }
             }

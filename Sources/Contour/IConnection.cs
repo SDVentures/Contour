@@ -24,14 +24,14 @@ namespace Contour
         event EventHandler Disposed;
 
         /// <summary>
-        /// Fired when a connection channel has failed
-        /// </summary>
-        event EventHandler<ChannelFailedEventArgs> ChannelFailed;
-
-        /// <summary>
         /// Connection identifier
         /// </summary>
         Guid Id { get; }
+
+        /// <summary>
+        /// Connection string
+        /// </summary>
+        string ConnectionString { get; }
 
         /// <summary>
         /// Opens the connection

@@ -130,13 +130,13 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <returns>Созданная конечная точка.</returns>
         protected IBus ConfigureBus(string name, Action<IBusConfigurator> configureAction, bool shouldStart = false)
         {
-            IBus bus = this.CreateBus(
-                () => new BusFactory().Create(
+            var bus = this.CreateBus(
+                () => new TestFactory().Create(
                 c =>
                     {
+                        c.SetConnectionString(this.amqpConnection + this.vhostName);
                         c.UseRabbitMq();
                         c.SetEndpoint(name);
-                        c.SetConnectionString(this.amqpConnection + this.vhostName);
 
                         configureAction(c);
                     },

@@ -2,16 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Threading;
-
     using Common.Logging;
-
     using Helpers;
     using Receiving;
     using Topology;
-
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Exceptions;
 
@@ -20,101 +16,52 @@
     /// </summary>
     internal class RabbitChannel : IChannel
     {
-        #region Static Fields
-
         /// <summary>
         /// The logger.
         /// </summary>
         private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
-
-        #endregion
-
-        #region Fields
-
-        /// <summary>
-        /// The _bus.
-        /// </summary>
-        private readonly RabbitBus bus;
-
+        
         /// <summary>
         /// The _sync.
         /// </summary>
         private readonly object sync = new object();
 
-        /// <summary>
-        /// Is closed?
-        /// </summary>
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
-        private bool isClosed;
-
-        #endregion
-
-        #region Constructors and Destructors
+        private readonly IBusContext busContext;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitChannel"/>.
+        /// Initializes a new instance of the <see cref="RabbitChannel"/> class. 
         /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="model"></param>
-        public RabbitChannel(IRabbitConnection connection, IModel model)
+        /// <param name="model">A native transport channel</param>
+        /// <param name="busContext">A bus context</param>
+        public RabbitChannel(IModel model, IBusContext busContext)
         {
-            this.bus = connection.Bus;
+            this.busContext = busContext;
             this.Model = model;
-
-            Logger.TraceFormat("Channel is opened.");
-
-            this.Model.ModelShutdown += (m, reason) =>
-                {
-                    this.isClosed = true;
-                    Logger.TraceFormat("Channel is closed due to \"{0}\".", reason.ToString());
-                };
+            Logger.Trace("Channel is opened.");
+            this.Model.ModelShutdown += this.OnModelShutdown;
         }
-
-        #endregion
-
-        #region Public Events
-
+        
         /// <summary>
         /// The failed.
         /// </summary>
         public event Action<IChannel, ErrorEventArgs> Failed = (channel, args) => { };
-
-        #endregion
-
-        #region Public Properties
-
-        /// <summary>
-        /// Gets the bus.
-        /// </summary>
-        public IBusContext Bus
-        {
-            get
-            {
-                return this.bus;
-            }
-        }
-
-        public bool IsOpen
-        {
-            get
-            {
-                return (Model != null && Model.IsOpen);
-            }
-        }
-
-        #endregion
+        
+        public bool IsOpen => (this.Model != null && this.Model.IsOpen);
 
         // leave protected to have a full control over Channel ops
-        #region Properties
 
         /// <summary>
         /// Gets the native.
         /// </summary>
         protected IModel Model { get; private set; }
 
-        #endregion
-
-        #region Public Methods and Operators
+        /// <summary>
+        /// Aborts the channel
+        /// </summary>
+        public void Abort()
+        {
+            this.Model?.Abort();
+        }
 
         /// <summary>
         /// The accept.
@@ -161,7 +108,7 @@
         }
 
         /// <summary>
-        /// The build queueing consumer.
+        /// The build queuing consumer.
         /// </summary>
         /// <returns>
         /// The <see cref="QueueingBasicConsumer"/>.
@@ -232,7 +179,7 @@
         {
             if (this.Model != null)
             {
-                if (this.Model.IsOpen && !this.isClosed)
+                if (this.Model.IsOpen)
                 {
                     this.Model.Close();
                 }
@@ -296,15 +243,15 @@
 
             Logger.Trace(m => m("Emitting message [{0}] ({1}) through [{2}].", message.Label, message.Payload, nativeRoute));
 
-            IBasicProperties props = this.Model.CreateBasicProperties();
-            byte[] body = this.Bus.PayloadConverter.FromObject(message.Payload);
+            var props = this.Model.CreateBasicProperties();
+            var body = this.busContext.PayloadConverter.FromObject(message.Payload);
 
             if (props.Headers == null)
             {
                 props.Headers = new Dictionary<string, object>();
             }
 
-            props.ContentType = this.Bus.PayloadConverter.ContentType;
+            props.ContentType = this.busContext.PayloadConverter.ContentType;
             props.Timestamp = new AmqpTimestamp(DateTime.UtcNow.ToUnixTimestamp());
 
             if (propsVisitor != null)
@@ -314,7 +261,7 @@
 
             message.Headers.ForEach(i => props.Headers.Add(i));
 
-            this.Bus.MessageLabelHandler.Inject(props, message.Label);
+            this.busContext.MessageLabelHandler.Inject(props, message.Label);
 
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
         }
@@ -447,14 +394,14 @@
         /// </returns>
         public IMessage UnpackAs(Type type, RabbitDelivery delivery)
         {
-            object payload = this.Bus.PayloadConverter.ToObject(delivery.Args.Body, type);
-
+            var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 
-        #endregion
-
-        #region Methods
+        protected virtual void OnModelShutdown(IModel model, ShutdownEventArgs args)
+        {
+            Logger.Trace($"Channel is closed due to {args}");
+        }
 
         /// <summary>
         /// The safe native invoke.
@@ -466,26 +413,21 @@
         {
             try
             {
-                if (!this.isClosed)
+                lock (this.sync)
                 {
-                    lock (this.sync)
-                        invokeAction(this.Model);
+                    invokeAction(this.Model);
                 }
             }
             catch (AlreadyClosedException ex)
             {
-                Logger.Warn("Caught exception. Marking Channel as failed.", ex);
-
+                Logger.Error($"Native channel invocation failed due to {ex.Message}", ex);
                 this.Failed(this, new ErrorEventArgs(ex));
             }
             catch (OperationInterruptedException ex)
             {
-                Logger.Trace("Caught exception. Ignoring as part of shutdown process.", ex);
-
+                Logger.Error($"Native channel invocation failed due to {ex.Message}", ex);
                 this.Failed(this, new ErrorEventArgs(ex));
             }
         }
-
-        #endregion
     }
 }
