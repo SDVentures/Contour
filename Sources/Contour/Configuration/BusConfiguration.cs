@@ -18,7 +18,7 @@
     /// <summary>
     /// The bus configuration.
     /// </summary>
-    public class BusConfiguration : IBusConfigurator, IBusConfiguration
+    internal class BusConfiguration : IBusConfigurator, IBusConfiguration
     {
         /// <summary>
         /// The logger.
@@ -432,10 +432,16 @@
             Logger.Debug(m => m("Установлена строка подключения [{0}].", this.ConnectionString));
         }
 
-        public void ReuseConnection()
+        /// <summary>
+        /// Specifies if a connection can be reused.
+        /// </summary>
+        /// <param name="reuse">
+        /// The reuse.
+        /// </param>
+        public void ReuseConnection(bool reuse = true)
         {
             Logger.Trace("Setting connection reuse");
-            this.EndpointOptions.ReuseConnection = true;
+            this.EndpointOptions.ReuseConnection = reuse;
             Logger.Debug("Connection reuse is set");
         }
 

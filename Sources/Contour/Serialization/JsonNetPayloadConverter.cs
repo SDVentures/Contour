@@ -8,7 +8,7 @@
     /// <summary>
     /// The json net payload converter.
     /// </summary>
-    public class JsonNetPayloadConverter : IPayloadConverter
+    internal class JsonNetPayloadConverter : IPayloadConverter
     {
         #region Public Properties
 

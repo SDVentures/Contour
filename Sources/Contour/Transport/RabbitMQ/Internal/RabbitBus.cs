@@ -15,6 +15,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitBus : AbstractBus, IBusAdvanced
     {
+        private readonly object syncRoot = new object();
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
         private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
         private readonly ManualResetEvent ready = new ManualResetEvent(false);
@@ -131,7 +132,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         
         protected override void Restart(bool waitForReadiness = true)
         {
-            lock (this.logger)
+            lock (this.syncRoot)
             {
                 if (this.isRestarting.WaitOne(0) || this.IsShuttingDown)
                 {

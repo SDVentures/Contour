@@ -220,9 +220,12 @@
         void SetConnectionString(string connectionString);
 
         /// <summary>
-        /// Sets connection reuse
+        /// Sets connection reuse.
         /// </summary>
-        void ReuseConnection();
+        /// <param name="reuse">
+        /// Connection reuse flag.
+        /// </param>
+        void ReuseConnection(bool reuse = true);
 
         /// <summary>
         /// Устанавливает строку соединения по имени из конфигурационного файла.

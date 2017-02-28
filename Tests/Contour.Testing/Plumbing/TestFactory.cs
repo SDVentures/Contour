@@ -4,7 +4,7 @@ using Contour.Serialization;
 
 namespace Contour.Testing.Plumbing
 {
-    internal class TestFactory : IBusFactory
+    internal class TestFactory
     {
         public IBus Create(Action<IBusConfigurator> configure, bool autoStart = true)
         {

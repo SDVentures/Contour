@@ -1143,7 +1143,7 @@ namespace Contour.Configurator.Tests
             {
                 const string name = "name";
                 string Config = $@"<endpoints>
-                                       <endpoint name=""{name}"" connectionString=""amqp://localhost/integration""/>
+                                        <endpoint name=""{name}"" connectionString=""amqp://localhost/integration""/>
                                    </endpoints>";
 
                 var resoverMock = new Mock<IDependencyResolver>();
@@ -1154,7 +1154,7 @@ namespace Contour.Configurator.Tests
                 var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
 
                 var property = configuration.EndpointOptions.GetReuseConnection();
-                property.Should().BeFalse();
+                property.Should().BeTrue();
             }
         }
 
@@ -1604,9 +1604,7 @@ namespace Contour.Configurator.Tests
             {
                 const string endpointName = "ep";
                 const string onKeyName = "key";
-                var incomingString = "123";
                 var endpointString = "456";
-                var reuseConnection = true;
 
                 string config =
                     $@"<endpoints>
@@ -1629,7 +1627,7 @@ namespace Contour.Configurator.Tests
                 var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
 
                 var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
-                receiverOptions.GetReuseConnection().Value.Should().Be(false, "Connection reuse should be set to default");
+                receiverOptions.GetReuseConnection().Value.Should().Be(true, "Connection reuse should be set to default");
             }
         }
 
@@ -1784,9 +1782,7 @@ namespace Contour.Configurator.Tests
                 const string endpointName = "ep";
                 const string onKeyName = "key";
                 var endpointString = "amqp://localhost:666";
-                var outgoingString = "123";
                 var label = "label";
-                var reuseConnection = true;
 
                 string config =
                     $@"<endpoints>
@@ -1811,7 +1807,7 @@ namespace Contour.Configurator.Tests
                 var senderConfiguration = busConfigurationResult.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(label)));
 
                 var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
-                senderOptions.GetReuseConnection().Value.Should().Be(false, "Connection reuse should be set to default");
+                senderOptions.GetReuseConnection().Value.Should().Be(true, "Connection reuse should be set to default");
             }
         }
     }

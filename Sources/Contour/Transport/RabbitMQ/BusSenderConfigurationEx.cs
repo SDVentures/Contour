@@ -37,9 +37,9 @@
         /// <returns>
         /// The <see cref="ISenderConfigurator"/>.
         /// </returns>
-        public static ISenderConfigurator ReuseConnection(this ISenderConfigurator builder)
+        public static ISenderConfigurator ReuseConnection(this ISenderConfigurator builder, bool reuse = true)
         {
-            ((RabbitSenderOptions)((SenderConfiguration)builder).Options).ReuseConnection = true;
+            ((RabbitSenderOptions)((SenderConfiguration)builder).Options).ReuseConnection = reuse;
             return builder;
         }
     }

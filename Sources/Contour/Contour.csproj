@@ -60,7 +60,6 @@
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
     <Compile Include="Helpers\Hasher.cs" />
-    <Compile Include="IBusFactory.cs" />
     <Compile Include="IIncomingMessageHeaderStorage.cs" />
     <Compile Include="IKeyValueStorage.cs" />
     <Compile Include="MessageExchange.cs" />

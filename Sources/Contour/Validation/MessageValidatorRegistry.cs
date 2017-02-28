@@ -9,7 +9,7 @@
     /// <summary>
     /// The message validator registry.
     /// </summary>
-    public class MessageValidatorRegistry
+    internal class MessageValidatorRegistry
     {
         #region Fields
 

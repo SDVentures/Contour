@@ -134,9 +134,9 @@ namespace Contour.Configurator
 
             cfg.SetConnectionString(endpointConfig.ConnectionString);
 
-            if (endpointConfig.ReuseConnection.HasValue && endpointConfig.ReuseConnection.Value)
+            if (endpointConfig.ReuseConnection.HasValue)
             {
-                cfg.ReuseConnection();
+                cfg.ReuseConnection(endpointConfig.ReuseConnection.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
@@ -245,9 +245,9 @@ namespace Contour.Configurator
                 configurator.WithConnectionString(connectionString);
 
                 // Reuse connection
-                if (outgoingElement.ReuseConnection.HasValue && outgoingElement.ReuseConnection.Value)
+                if (outgoingElement.ReuseConnection.HasValue)
                 {
-                    configurator.ReuseConnection();
+                    configurator.ReuseConnection(outgoingElement.ReuseConnection.Value);
                 }
             }
 
@@ -317,9 +317,9 @@ namespace Contour.Configurator
                 configurator.WithConnectionString(connectionString);
 
                 // Reuse connection
-                if (incomingElement.ReuseConnection.HasValue && incomingElement.ReuseConnection.Value)
+                if (incomingElement.ReuseConnection.HasValue)
                 {
-                    configurator.ReuseConnection();
+                    configurator.ReuseConnection(incomingElement.ReuseConnection.Value);
                 }
 
                 Type messageType = typeof(ExpandoObject);

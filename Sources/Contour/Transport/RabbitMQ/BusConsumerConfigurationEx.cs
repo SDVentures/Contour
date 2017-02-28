@@ -148,13 +148,13 @@ namespace Contour.Transport.RabbitMQ
         /// <returns>
         /// The <see cref="IReceiverConfigurator"/>.
         /// </returns>
-        public static IReceiverConfigurator ReuseConnection(this IReceiverConfigurator builder)
+        public static IReceiverConfigurator ReuseConnection(this IReceiverConfigurator builder, bool reuse = true)
         {
             var configuration = builder as ReceiverConfiguration;
             var options = configuration?.Options as RabbitReceiverOptions;
             if (options != null)
             {
-                options.ReuseConnection = true;
+                options.ReuseConnection = reuse;
             }
 
             return builder;
@@ -167,17 +167,17 @@ namespace Contour.Transport.RabbitMQ
         /// The builder.
         /// </param>
         /// <param name="reuse">
-        /// The reuse.
+        /// Connection reuse flag.
         /// </param>
         /// <typeparam name="T">
         /// </typeparam>
         /// <returns>
         /// The <see cref="IReceiverConfigurator"/>.
         /// </returns>
-        public static IReceiverConfigurator<T> ReuseConnection<T>(this IReceiverConfigurator<T> builder) where T : class
+        public static IReceiverConfigurator<T> ReuseConnection<T>(this IReceiverConfigurator<T> builder, bool reuse = true) where T : class
         {
             var configuration = ((TypedReceiverConfigurationDecorator<T>)builder).Configuration;
-            ReuseConnection(configuration);
+            ReuseConnection(configuration, reuse);
 
             return builder;
         }

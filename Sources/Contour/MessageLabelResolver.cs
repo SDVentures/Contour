@@ -10,7 +10,7 @@
     /// <summary>
     /// The message label resolver.
     /// </summary>
-    public class MessageLabelResolver
+    internal class MessageLabelResolver
     {
         #region Fields
 

@@ -6,7 +6,7 @@
     /// <summary>
     ///   Фабрика для создания клиента шины сообщений на основе конфигурации.
     /// </summary>
-    public class BusFactory : IBusFactory
+    public class BusFactory
     {
         /// <summary>
         /// Создает экземпляр шины событий

@@ -62,7 +62,7 @@ namespace Contour.Configurator
             }
         }
 
-        [ConfigurationProperty("reuseConnection", IsRequired = false)]
+        [ConfigurationProperty("reuseConnection", DefaultValue = true, IsRequired = false)]
         public bool? ReuseConnection
         {
             get { return (bool?)this["reuseConnection"]; }

@@ -76,8 +76,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Start();
                 var cons = this.Broker.GetConnections();
 
-                // Two connections are used by default by fault message producers
-                Assert.IsTrue(cons.Count() == 1 + 2);
+                Assert.IsTrue(cons.Count() == 1);
             }
 
             [Test]
@@ -89,25 +88,25 @@ namespace Contour.RabbitMq.Tests
                     {
                         cfg.On<BooMessage>("one")
                             .ReactWith(m => { })
-                            .WithEndpoint(
-                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))));
+                            .WithEndpoint(builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))))
+                            .ReuseConnection(false);
 
                         cfg.On<FooMessage>("two")
                             .ReactWith(m => { })
-                            .WithEndpoint(
-                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("two.queue"))));
+                            .WithEndpoint(builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("two.queue"))))
+                            .ReuseConnection(false);
 
                         cfg.On<GooMessage>("three")
                             .ReactWith(m => { })
-                            .WithEndpoint(
-                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("three.queue"))));
+                            .WithEndpoint(builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("three.queue"))))
+                            .ReuseConnection(false);
                     });
 
                 bus.Start();
                 var cons = this.Broker.GetConnections();
                 
-                // Two connections are used by default by fault message producers
-                Assert.IsTrue(cons.Count() == 3 + 2);
+                // One connection is used by default by fault message producers
+                Assert.IsTrue(cons.Count() == 3 + 1);
             }
 
             [Test]
@@ -126,8 +125,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Start();
                 var cons = this.Broker.GetConnections();
 
-                // Two connections are used by default by fault message producers
-                Assert.IsTrue(cons.Count() == 3);
+                Assert.IsTrue(cons.Count() == 1);
             }
 
             [Test]
@@ -137,17 +135,24 @@ namespace Contour.RabbitMq.Tests
                     "Test",
                     cfg =>
                     {
-                        cfg.Route("one.label");
-                        cfg.Route("two.label");
-                        cfg.Route("three.label");
-                        cfg.Route("four.label");
+                        cfg.Route("one.label")
+                        .ReuseConnection(false);
+
+                        cfg.Route("two.label")
+                        .ReuseConnection(false);
+
+                        cfg.Route("three.label")
+                        .ReuseConnection(false);
+
+                        cfg.Route("four.label")
+                        .ReuseConnection(false);
                     });
 
                 bus.Start();
                 var cons = this.Broker.GetConnections();
 
-                // Two connections are used by default by fault message producers
-                Assert.IsTrue(cons.Count() == 4 + 2);
+                // One connection is used by default by fault message producers
+                Assert.IsTrue(cons.Count() == 4 + 1);
             }
         }
 

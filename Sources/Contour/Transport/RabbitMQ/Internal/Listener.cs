@@ -24,11 +24,6 @@
     internal class Listener : IDisposable
     {
         /// <summary>
-        /// Канал в контексте соединения
-        /// </summary>
-        private readonly RabbitChannel channel;
-
-        /// <summary>
         /// Обработчики сообщений.
         /// Каждому обработчику соответствует своя метка сообщения.
         /// </summary>
@@ -64,13 +59,14 @@
         /// </summary>
         private readonly MessageValidatorRegistry validatorRegistry;
 
+        private readonly IBusContext busContext;
+        private readonly IRabbitConnection connection;
+
         /// <summary>
         /// Источник квитков отмены задач.
         /// </summary>
         private CancellationTokenSource cancellationTokenSource;
-
-        private IBusContext busContext;
-
+        
         /// <summary>
         /// Признак: слушатель потребляет сообщения.
         /// </summary>
@@ -108,7 +104,7 @@
         public Listener(IBusContext busContext, IRabbitConnection connection, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
         {
             this.busContext = busContext;
-            this.channel = connection.OpenChannel();
+            this.connection = connection;
             this.endpoint = endpoint;
             this.validatorRegistry = validatorRegistry;
 
@@ -125,8 +121,6 @@
 
                     this.HasFailed = true;
                 };
-
-            this.channel.Failed += (ch, args) => this.Failed(this);
         }
 
         /// <summary>
@@ -445,13 +439,16 @@
 
         private void InternalConsume(CancellationToken cancellationToken)
         {
+            var channel = this.connection.OpenChannel();
+            channel.Failed += (ch, args) => this.Failed(this);
+
             if (this.ReceiverOptions.GetQoS().HasValue)
             {
                 channel.SetQos(
                     this.ReceiverOptions.GetQoS().Value);
             }
 
-            CancellableQueueingConsumer consumer = channel.BuildCancellableConsumer(cancellationToken);
+            var consumer = channel.BuildCancellableConsumer(cancellationToken);
             channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
 
             consumer.ConsumerCancelled += (sender, args) =>

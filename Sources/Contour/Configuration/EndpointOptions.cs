@@ -3,7 +3,7 @@ namespace Contour.Configuration
     using Helpers;
 
     /// <summary>
-    /// Endpoint options
+    /// Stores the configuration options related to bus endpoint
     /// </summary>
     public class EndpointOptions : BusOptions
     {
@@ -25,8 +25,14 @@ namespace Contour.Configuration
         {
         }
 
+        /// <summary>
+        /// Specifies if a connection should be reused.
+        /// </summary>
         public bool? ReuseConnection {protected get; set; }
 
+        /// <summary>
+        /// Gets or sets the connection string.
+        /// </summary>
         public Maybe<string> ConnectionString { protected get; set; }
 
         /// <summary>
@@ -37,9 +43,15 @@ namespace Contour.Configuration
         /// </returns>
         public Maybe<string> GetConnectionString()
         {
-            return this.Pick<EndpointOptions, string>((o) => o.ConnectionString);
+            return this.Pick<EndpointOptions, string>(o => o.ConnectionString);
         }
 
+        /// <summary>
+        /// Gets the value indicating if a connection can be reused.
+        /// </summary>
+        /// <returns>
+        /// Connection reuse flag
+        /// </returns>
         public bool? GetReuseConnection()
         {
             return this.Pick<EndpointOptions, bool>((o) => o.ReuseConnection);

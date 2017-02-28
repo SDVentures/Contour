@@ -69,7 +69,7 @@ namespace Contour.Transport.RabbitMQ
                 Ttl = default(TimeSpan?),
                 RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
                 IncomingMessageHeaderStorage = messageHeaderStorage,
-                ReuseConnection = false
+                ReuseConnection = true
             };
 
             c.ReceiverDefaults = new RabbitReceiverOptions(c.EndpointOptions)
@@ -79,7 +79,7 @@ namespace Contour.Transport.RabbitMQ
                 EndpointBuilder = RabbitBusDefaults.SubscriptionEndpointBuilder,
                 QoS = new QoSParams(50, 0),
                 IncomingMessageHeaderStorage = messageHeaderStorage,
-                ReuseConnection = false
+                ReuseConnection = true
             };
 
             c.UseMessageLabelHandler(new DefaultRabbitMessageLabelHandler());
@@ -104,8 +104,8 @@ namespace Contour.Transport.RabbitMQ
                     return e;
                 };
 
-            c.Route("document.Contour.unhandled").Persistently().ConfiguredWith(faultRouteResolverBuilder);
-            c.Route("document.Contour.failed").Persistently().ConfiguredWith(faultRouteResolverBuilder);
+            c.Route("document.Contour.unhandled").Persistently().ConfiguredWith(faultRouteResolverBuilder).ReuseConnection();
+            c.Route("document.Contour.failed").Persistently().ConfiguredWith(faultRouteResolverBuilder).ReuseConnection();
 
             c.OnUnhandled(
                 d =>

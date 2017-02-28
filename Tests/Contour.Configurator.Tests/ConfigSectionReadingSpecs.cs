@@ -537,7 +537,7 @@
                 var section = new XmlEndpointsSection(config);
                 var property = section.Endpoints[Name].ReuseConnection;
 
-                property.Should().NotHaveValue();
+                property.Should().BeTrue();
             }
         }
 
