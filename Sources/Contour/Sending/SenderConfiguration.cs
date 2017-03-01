@@ -121,6 +121,12 @@ namespace Contour.Sending
             return this;
         }
 
+        public ISenderConfigurator WithCallbackConnectionString(string connectionString)
+        {
+            this.receiverOptions.ConnectionString = connectionString;
+            return this;
+        }
+
         /// <summary>
         /// Устанавливает конечную точку обратного вызова для получения ответных сообщений.
         /// </summary>

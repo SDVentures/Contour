@@ -1,5 +1,6 @@
 ﻿namespace Contour.Transport.RabbitMQ
 {
+    using System.Runtime.CompilerServices;
     using Sending;
     
     /// <summary>
@@ -21,7 +22,13 @@
         /// </returns>
         public static ISenderConfigurator WithConnectionString(this ISenderConfigurator builder, string connectionString)
         {
-            ((RabbitSenderOptions)((SenderConfiguration)builder).Options).ConnectionString = connectionString;
+            var senderConfiguration = (SenderConfiguration)builder;
+            var rabbitSenderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+
+            // Need to set the callback sender's connection string to use the same connection string both in sender and receiver in request-response scenario
+            senderConfiguration.WithCallbackConnectionString(connectionString);
+            rabbitSenderOptions.ConnectionString = connectionString;
+
             return builder;
         }
 

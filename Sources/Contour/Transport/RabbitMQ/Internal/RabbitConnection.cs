@@ -182,7 +182,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public override string ToString()
         {
-            return $"[{this.Id} : {this.ConnectionString}]";
+            return $"{this.Id} : {this.ConnectionString}";
         }
 
         protected virtual void OnOpened()

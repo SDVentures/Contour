@@ -36,6 +36,13 @@ namespace Contour.Sending
         ISenderConfigurator WithAlias(string alias);
 
         /// <summary>
+        /// Specifies the connection string to be used in the callback configuration
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
+        ISenderConfigurator WithCallbackConnectionString(string connectionString);
+
+        /// <summary>
         /// Устанавливает построитель конечной точки получения ответа.
         /// </summary>
         /// <param name="callbackEndpointBuilder">Построитель конечной точки для получения ответных сообщений.</param>

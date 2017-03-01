@@ -23,10 +23,9 @@ namespace Contour.RabbitMq.Tests
         /// <summary>
         /// The given_consumer_and_producer_are_created.
         /// </summary>
+        [TestFixture]
         public class given_consumer_and_producer_are_created : RabbitMqFixture
         {
-            #region Fields
-
             /// <summary>
             /// The consumer.
             /// </summary>
@@ -37,38 +36,32 @@ namespace Contour.RabbitMq.Tests
             /// </summary>
             public IBus Producer;
 
-            #endregion
-
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="given_consumer_and_producer_are_created"/>.
-            /// </summary>
-            public given_consumer_and_producer_are_created()
+            [SetUp]
+            public override void SetUp()
             {
-                this.Producer = this.StartBus(
-                    "producer",
-                    cfg =>
-                        {
-                            cfg.UseParallelismLevel(4);
+                base.SetUp();
 
-                            cfg.Route("dummy.request").
-                                WithConfirmation();
-                        });
+                this.Producer = this.StartBus(
+                   "producer",
+                   cfg =>
+                   {
+                       cfg.UseParallelismLevel(4);
+
+                       cfg.Route("dummy.request").
+                            WithConfirmation();
+                   });
 
                 this.Consumer = this.StartBus(
                     "consumer",
                     cfg =>
-                        {
-                            cfg.UseParallelismLevel(4);
+                    {
+                        cfg.UseParallelismLevel(4);
 
-                            cfg.On<DummyRequest>("dummy.request").
-                                ReactWith((m, ctx) => ctx.Accept()).
-                                RequiresAccept();
-                        });
+                        cfg.On<DummyRequest>("dummy.request").
+                            ReactWith((m, ctx) => ctx.Accept()).
+                            RequiresAccept();
+                    });
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -78,8 +71,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_publishing_many_messages_reliable : given_consumer_and_producer_are_created
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_process_fast_enough.
             /// </summary>
@@ -112,8 +103,6 @@ namespace Contour.RabbitMq.Tests
                 opsPerSecond.Should().
                     BeGreaterThan(6000);
             }
-
-            #endregion
         }
     }
 

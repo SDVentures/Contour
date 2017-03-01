@@ -268,7 +268,7 @@ namespace Contour.Configurator.Tests
                             </outgoing>
                         </endpoint>
                     </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 var handler = new Mock<IBusLifecycleHandler>();
@@ -322,7 +322,7 @@ namespace Contour.Configurator.Tests
                             </outgoing>
                         </endpoint>
                     </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -334,7 +334,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 BusDependentHandler.Reset();
@@ -413,7 +413,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -425,7 +425,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 BusDependentHandler.Reset();
@@ -506,7 +506,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -517,7 +517,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
@@ -571,7 +571,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -582,7 +582,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteHandlerOf<ExpandoObject>();
@@ -641,7 +641,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -655,7 +655,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
@@ -725,7 +725,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -736,7 +736,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
@@ -798,7 +798,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -809,7 +809,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteTransformerOf<BooMessage>();
