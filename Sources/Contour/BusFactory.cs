@@ -1,8 +1,7 @@
 ﻿namespace Contour
 {
     using System;
-
-    using Contour.Configuration;
+    using Configuration;
 
     /// <summary>
     ///   Фабрика для создания клиента шины сообщений на основе конфигурации.
@@ -23,13 +22,13 @@
         /// </returns>
         public IBus Create(Action<IBusConfigurator> configure, bool autoStart = true)
         {
-            BusConfiguration config = DefaultBusConfigurationBuilder.Build();
+            var config = DefaultBusConfigurationBuilder.Build();
 
             configure(config);
 
             config.Validate();
 
-            IBus bus = config.BusFactoryFunc(config);
+            var bus = config.BusFactoryFunc(config);
 
             if (autoStart)
             {

@@ -26,68 +26,73 @@ namespace Contour.Testing.Transport.RabbitMq
     /// </remarks>
     public class RabbitMqFixture
     {
-        private Broker broker;
+        /// <summary>
+        /// Gets the endpoints.
+        /// </summary>
+        protected IList<IBus> Endpoints { get; set; } = new List<IBus>();
 
-        private string vhostName;
+        /// <summary>
+        /// Gets the management connection.
+        /// </summary>
+        protected string ManagementConnection { get; private set; } = "http://rabbitmq-test:15672/";
 
-        private IList<IBus> endpoints = new List<IBus>();
+        /// <summary>
+        /// Gets or sets the connection string.
+        /// </summary>
+        protected string ConnectionString { get; set; }
 
-        private string managementConnection = "http://rabbitmq-test:15672/";
+        /// <summary>
+        /// Gets the test user name.
+        /// </summary>
+        protected string TestUserName { get; private set; } = "guest";
 
-        private string amqpConnection = "amqp://rabbitmq-test:5672/";
+        /// <summary>
+        /// Gets the test password.
+        /// </summary>
+        protected string TestUserPassword { get; private set; } = "guest";
 
-        private string testUsername = "guest";
+        /// <summary>
+        /// Gets the admin username.
+        /// </summary>
+        protected string AdminUserName { get; private set; } = "guest";
 
-        private string testPassword = "guest";
-
-        private string adminUsername = "guest";
-
-        private string adminPassword = "guest";
+        /// <summary>
+        /// Gets the admin password.
+        /// </summary>
+        protected string AdminUserPassword { get; private set; } = "guest";
 
         /// <summary>
         /// <c>RabbitMQ</c> брокер, с которым выполняется тестирование.
         /// </summary>
-        protected Broker Broker
-        {
-            get
-            {
-                return this.broker;
-            }
-        }
+        protected Broker Broker { get; set; }
 
         /// <summary>
         /// <c>VHost</c> брокера, с которым выполняется тестирование.
         /// </summary>
-        protected string VhostName
-        {
-            get
-            {
-                return this.vhostName;
-            }
-        }
+        protected string VhostName { get; private set; }
 
-        protected string AmqpConnection 
-        {
-            get
-            {
-                return this.amqpConnection;
-            }
-        }
+        /// <summary>
+        /// Gets the broker URL.
+        /// </summary>
+        protected string Url { get; private set; } = "amqp://rabbitmq-test:5672/";
 
         /// <summary>
         /// Настраивает окружение перед работой теста.
         /// </summary>
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             this.PreSetUp();
 
-            this.endpoints = new List<IBus>();
-            this.broker = new Broker(this.managementConnection, this.adminUsername, this.adminPassword);
-            this.vhostName = "test" + Guid.NewGuid().ToString("n");
-            this.broker.CreateHost(this.vhostName);
-            this.broker.CreateUser(this.vhostName, this.testUsername, this.testPassword);
-            this.broker.SetPermissions(this.vhostName, this.testUsername);
+            this.Endpoints = new List<IBus>();
+            this.Broker = new Broker(this.ManagementConnection, this.AdminUserName, this.AdminUserPassword);
+            this.VhostName = "test" + Guid.NewGuid().ToString("n");
+
+            this.ConnectionString = this.Url + this.VhostName;
+
+            this.Broker.CreateHost(this.VhostName);
+            this.Broker.CreateUser(this.VhostName, this.TestUserName, this.TestUserPassword);
+            this.Broker.SetPermissions(this.VhostName, this.TestUserName);
         }
 
         /// <summary>
@@ -96,15 +101,15 @@ namespace Contour.Testing.Transport.RabbitMq
         [TearDown]
         public void TearDown()
         {
-            foreach (var bus in this.endpoints)
+            foreach (var bus in this.Endpoints)
             {
                 bus.Dispose();
             }
 
-            this.endpoints.Clear();
-            this.broker.DeleteHost(this.vhostName);
-            this.vhostName = null;
-            this.broker = null;
+            this.Endpoints.Clear();
+            this.Broker.DeleteHost(this.VhostName);
+            this.VhostName = null;
+            this.Broker = null;
         }
 
         /// <summary>
@@ -115,7 +120,7 @@ namespace Contour.Testing.Transport.RabbitMq
         protected IBus CreateBus(Func<IBus> createBus)
         {
             IBus bus = createBus();
-            this.endpoints.Add(bus);
+            this.Endpoints.Add(bus);
 
             return bus;
         }
@@ -130,13 +135,13 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <returns>Созданная конечная точка.</returns>
         protected IBus ConfigureBus(string name, Action<IBusConfigurator> configureAction, bool shouldStart = false)
         {
-            IBus bus = this.CreateBus(
-                () => new BusFactory().Create(
+            var bus = this.CreateBus(
+                () => new TestFactory().Create(
                 c =>
                     {
+                        c.SetConnectionString(this.ConnectionString);
                         c.UseRabbitMq();
                         c.SetEndpoint(name);
-                        c.SetConnectionString(this.amqpConnection + this.vhostName);
 
                         configureAction(c);
                     },
@@ -161,12 +166,12 @@ namespace Contour.Testing.Transport.RabbitMq
         /// </summary>
         protected virtual void PreSetUp()
         {
-            this.managementConnection = ConfigurationManager.AppSettings["managementConnection"] ?? this.managementConnection;
-            this.amqpConnection = ConfigurationManager.AppSettings["amqpConnection"] ?? this.amqpConnection;
-            this.testUsername = ConfigurationManager.AppSettings["testUsername"] ?? this.testUsername;
-            this.testPassword = ConfigurationManager.AppSettings["testPassword"] ?? this.testPassword;
-            this.adminUsername = ConfigurationManager.AppSettings["adminUsername"] ?? this.adminUsername;
-            this.adminPassword = ConfigurationManager.AppSettings["adminPassword"] ?? this.adminPassword;
+            this.ManagementConnection = ConfigurationManager.AppSettings["managementConnection"] ?? this.ManagementConnection;
+            this.Url = ConfigurationManager.AppSettings["amqpConnection"] ?? this.Url;
+            this.TestUserName = ConfigurationManager.AppSettings["testUsername"] ?? this.TestUserName;
+            this.TestUserPassword = ConfigurationManager.AppSettings["testPassword"] ?? this.TestUserPassword;
+            this.AdminUserName = ConfigurationManager.AppSettings["adminUsername"] ?? this.AdminUserName;
+            this.AdminUserPassword = ConfigurationManager.AppSettings["adminPassword"] ?? this.AdminUserPassword;
         }
     }
 }

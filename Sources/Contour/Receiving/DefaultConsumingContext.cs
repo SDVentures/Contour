@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using Contour.Caching;
 
 namespace Contour.Receiving
@@ -12,15 +11,22 @@ namespace Contour.Receiving
         where T : class
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="DefaultConsumingContext{T}"/>.
+        /// Initializes a new instance of the <see cref="DefaultConsumingContext{T}"/> class. 
         /// </summary>
-        /// <param name="message">Входящее сообщение.</param>
-        /// <param name="delivery">Полученное сообщение.</param>
-        public DefaultConsumingContext(Message<T> message, IDelivery delivery)
+        /// <param name="busContext">
+        /// The bus Context.
+        /// </param>
+        /// <param name="message">
+        /// Входящее сообщение.
+        /// </param>
+        /// <param name="delivery">
+        /// Полученное сообщение.
+        /// </param>
+        public DefaultConsumingContext(IBusContext busContext, Message<T> message, IDelivery delivery)
         {
             this.Message = message;
             this.Delivery = delivery;
-            this.Bus = delivery.Channel.Bus;
+            this.Bus = busContext;
         }
 
         /// <summary>

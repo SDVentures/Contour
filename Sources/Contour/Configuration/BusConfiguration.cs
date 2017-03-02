@@ -51,14 +51,16 @@
         private readonly MessageValidatorRegistry validatorRegistry = new MessageValidatorRegistry();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusConfiguration"/>.
+        /// Initializes a new instance of the <see cref="BusConfiguration"/> class. 
         /// </summary>
         public BusConfiguration()
         {
             Logger.Trace(m => m("Вызван конструктор BusConfiguration"));
 
-            this.SenderDefaults = new SenderOptions();
-            this.ReceiverDefaults = new ReceiverOptions();
+            this.EndpointOptions = new EndpointOptions();
+
+            this.SenderDefaults = new SenderOptions(this.EndpointOptions);
+            this.ReceiverDefaults = new ReceiverOptions(this.EndpointOptions);
         }
 
         /// <summary>
@@ -69,6 +71,7 @@
         /// <summary>
         /// Gets the connection string.
         /// </summary>
+        [Obsolete("Use EndpointOptions instead")]
         public string ConnectionString { get; private set; }
 
         /// <summary>
@@ -112,6 +115,11 @@
                 return this.messageLabelResolver;
             }
         }
+
+        /// <summary>
+        /// Gets the endpoint options.
+        /// </summary>
+        public EndpointOptions EndpointOptions { get; internal set; }
 
         /// <summary>
         /// Gets the receiver configurations.
@@ -367,7 +375,7 @@
         /// </returns>
         public ISenderConfigurator Route(string label)
         {
-            return Route(label.ToMessageLabel());
+            return this.Route(label.ToMessageLabel());
         }
 
         /// <summary>
@@ -419,8 +427,22 @@
             Logger.Trace(m => m("Установка строки подключения к брокеру RabbitMQ [{0}].", connectionString));
 
             this.ConnectionString = connectionString;
+            this.EndpointOptions.ConnectionString = connectionString;
 
             Logger.Debug(m => m("Установлена строка подключения [{0}].", this.ConnectionString));
+        }
+
+        /// <summary>
+        /// Specifies if a connection can be reused.
+        /// </summary>
+        /// <param name="reuse">
+        /// The reuse.
+        /// </param>
+        public void ReuseConnection(bool reuse = true)
+        {
+            Logger.Trace("Setting connection reuse");
+            this.EndpointOptions.ReuseConnection = reuse;
+            Logger.Debug("Connection reuse is set");
         }
 
         /// <summary>
@@ -567,7 +589,7 @@
 
             if (!this.ReceiverConfigurations.Any() && !this.SenderConfigurations.Any())
             {
-                throw new BusConfigurationException("No senders or receivers are registered.");
+                throw new BusConfigurationException("No senders and receivers are registered.");
             }
 
             foreach (ISenderConfiguration producer in this.SenderConfigurations)

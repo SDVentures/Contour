@@ -51,5 +51,10 @@
         /// <returns>Результат проверки.
         /// </returns>
         bool CheckHealth();
+
+        /// <summary>
+        /// Unregisters all components
+        /// </summary>
+        void UnregisterAll();
     }
 }

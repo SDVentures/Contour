@@ -75,6 +75,12 @@
             return this.components.All(c => c.IsHealthy);
         }
 
+        public void UnregisterAll()
+        {
+            this.components.ForEach(c=> c.Dispose());
+            this.components.Clear();
+        }
+
         #endregion
     }
 }

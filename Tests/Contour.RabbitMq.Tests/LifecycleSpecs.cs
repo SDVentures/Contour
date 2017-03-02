@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 using Contour.Testing.Transport.RabbitMq;
 
@@ -204,7 +205,7 @@ namespace Contour.RabbitMq.Tests
 
                 bus.Start();
                 bus.Shutdown();
-
+                
                 bus.Invoking(b => b.Start()).
                     ShouldNotThrow();
                 bus.WhenReady.WaitOne(0).

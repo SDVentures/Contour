@@ -32,7 +32,7 @@ namespace Contour.RabbitMq.Tests
                     @"<endpoints>
                             <endpoint name=""producer"" connectionString=""{0}"" faultQueueTtl=""{1}"">
                             </endpoint>
-                        </endpoints>", this.AmqpConnection + this.VhostName, TimeSpan.FromDays(ttlInDays));
+                        </endpoints>", this.Url + this.VhostName, TimeSpan.FromDays(ttlInDays));
 
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
@@ -57,7 +57,7 @@ namespace Contour.RabbitMq.Tests
                     @"<endpoints>
                             <endpoint name=""producer"" connectionString=""{0}"">
                             </endpoint>
-                        </endpoints>", this.AmqpConnection + this.VhostName);
+                        </endpoints>", this.Url + this.VhostName);
 
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
@@ -83,7 +83,7 @@ namespace Contour.RabbitMq.Tests
                     @"<endpoints>
                             <endpoint name=""producer"" connectionString=""{0}"" faultQueueLimit=""{1}"">
                             </endpoint>
-                        </endpoints>", this.AmqpConnection + this.VhostName, limit);
+                        </endpoints>", this.Url + this.VhostName, limit);
 
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
@@ -108,7 +108,7 @@ namespace Contour.RabbitMq.Tests
                     @"<endpoints>
                             <endpoint name=""producer"" connectionString=""{0}"">
                             </endpoint>
-                        </endpoints>", this.AmqpConnection + this.VhostName);
+                        </endpoints>", this.Url + this.VhostName);
 
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);

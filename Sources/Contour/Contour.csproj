@@ -55,6 +55,7 @@
     <Compile Include="Caching\CacheMessageExchangeFilter.cs" />
     <Compile Include="Configurator\DynamicElement.cs" />
     <Compile Include="Configurator\QosElement.cs" />
+    <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\SendingExchangeFilter.cs" />
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
@@ -84,6 +85,10 @@
     <Compile Include="Operators\Reply.cs" />
     <Compile Include="Operators\TransparentReply.cs" />
     <Compile Include="Operators\WireTap.cs" />
+    <Compile Include="Configuration\EndpointOptions.cs" />
+    <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
+    <Compile Include="Transport\RabbitMQ\RabbitSenderOptions.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionPool.cs" />
     <Compile Include="Receiving\Sagas\CorrelationIdSeparator.cs" />
     <Compile Include="Receiving\Sagas\DefaultSagaFactory.cs" />
     <Compile Include="Receiving\Sagas\DefaultSagaLifecycle.cs" />
@@ -192,11 +197,18 @@
     <Compile Include="Configuration\IBusComponent.cs" />
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\CancellableQueueingConsumer.cs" />
+    <Compile Include="IConnection.cs" />
+    <Compile Include="ConnectionPool.cs" />
+    <Compile Include="IConnectionPool.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionProvider.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\IRabbitConnection.cs" />
+    <Compile Include="IConnectionProvider.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerConfiguration.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\NullPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\DefaultPublishConfirmationTracker.cs" />
     <Compile Include="Sending\PublishingOptions.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitConnection.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFaultMessage.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitUnhandledConsumingContext.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFailedConsumingContext.cs" />
@@ -278,7 +290,7 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
         <Reference Include="Common.Logging">
           <HintPath>..\..\packages\Common.Logging\lib\net40\Common.Logging.dll</HintPath>
@@ -289,7 +301,7 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
         <Reference Include="FluentValidation">
           <HintPath>..\..\packages\FluentValidation\lib\Net40\FluentValidation.dll</HintPath>
@@ -300,7 +312,7 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
       <ItemGroup>
         <Reference Include="Newtonsoft.Json">
           <HintPath>..\..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -309,7 +321,7 @@
         </Reference>
       </ItemGroup>
     </When>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
         <Reference Include="Newtonsoft.Json">
           <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -320,10 +332,10 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
         <Reference Include="RabbitMQ.Client">
-          <HintPath>..\..\packages\RabbitMQ.Client\lib\net20\RabbitMQ.Client.dll</HintPath>
+          <HintPath>..\..\packages\RabbitMQ.Client\lib\net30\RabbitMQ.Client.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

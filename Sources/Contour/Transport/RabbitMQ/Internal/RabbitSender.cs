@@ -29,12 +29,20 @@ namespace Contour.Transport.RabbitMQ.Internal
         private Producer producer;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitSender"/>.
+        /// Initializes a new instance of the <see cref="RabbitSender"/> class. 
         /// </summary>
-        /// <param name="endpoint">Конечная точка, для которой создается отправитель.</param>
-        /// <param name="configuration">Конфигурация отправителя сообщений.</param>
-        /// <param name="producerRegistry">Реестр поставщиков сообщений.</param>
-        /// <param name="filters">Фильтры сообщений.</param>
+        /// <param name="endpoint">
+        /// Конечная точка, для которой создается отправитель.
+        /// </param>
+        /// <param name="configuration">
+        /// Конфигурация отправителя сообщений.
+        /// </param>
+        /// <param name="producerRegistry">
+        /// Реестр поставщиков сообщений.
+        /// </param>
+        /// <param name="filters">
+        /// Фильтры сообщений.
+        /// </param>
         public RabbitSender(IEndpoint endpoint, ISenderConfiguration configuration, ProducerRegistry producerRegistry, IEnumerable<IMessageExchangeFilter> filters)
             : base(endpoint, configuration, filters)
         {

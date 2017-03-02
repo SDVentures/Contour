@@ -18,8 +18,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public static class BusConsumerConfigurationEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The with qo s.
         /// </summary>
@@ -96,6 +94,92 @@ namespace Contour.Transport.RabbitMQ
             return builder.WithQoS(new QoSParams(prefetchCount, prefetchSize));
         }
 
-        #endregion
+        /// <summary>
+        /// Configure receiver to use a connection string.
+        /// </summary>
+        /// <param name="builder">
+        /// The builder.
+        /// </param>
+        /// <param name="connectionString">
+        /// The connection string.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IReceiverConfigurator"/>.
+        /// </returns>
+        public static IReceiverConfigurator WithConnectionString(this IReceiverConfigurator builder,
+            string connectionString)
+        {
+            ((RabbitReceiverOptions)((ReceiverConfiguration)builder).Options).ConnectionString = connectionString;
+            return builder;
+        }
+
+        /// <summary>
+        /// Configure receiver to use a connection string.
+        /// </summary>
+        /// <param name="builder">
+        /// The builder.
+        /// </param>
+        /// <param name="connectionString">
+        /// The connection string.
+        /// </param>
+        /// <typeparam name="T">
+        /// </typeparam>
+        /// <returns>
+        /// The <see cref="IReceiverConfigurator"/>.
+        /// </returns>
+        public static IReceiverConfigurator<T> WithConnectionString<T>(this IReceiverConfigurator<T> builder,
+            string connectionString) where T : class
+        {
+            var configuration = ((TypedReceiverConfigurationDecorator<T>) builder).Configuration;
+            WithConnectionString(configuration, connectionString);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Configures receiver to reuse a connection if possible
+        /// </summary>
+        /// <param name="builder">
+        /// The builder.
+        /// </param>
+        /// <param name="reuse">
+        /// The reuse.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IReceiverConfigurator"/>.
+        /// </returns>
+        public static IReceiverConfigurator ReuseConnection(this IReceiverConfigurator builder, bool reuse = true)
+        {
+            var configuration = builder as ReceiverConfiguration;
+            var options = configuration?.Options as RabbitReceiverOptions;
+            if (options != null)
+            {
+                options.ReuseConnection = reuse;
+            }
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Configures receiver to reuse a connection if possible.
+        /// </summary>
+        /// <param name="builder">
+        /// The builder.
+        /// </param>
+        /// <param name="reuse">
+        /// Connection reuse flag.
+        /// </param>
+        /// <typeparam name="T">
+        /// </typeparam>
+        /// <returns>
+        /// The <see cref="IReceiverConfigurator"/>.
+        /// </returns>
+        public static IReceiverConfigurator<T> ReuseConnection<T>(this IReceiverConfigurator<T> builder, bool reuse = true) where T : class
+        {
+            var configuration = ((TypedReceiverConfigurationDecorator<T>)builder).Configuration;
+            ReuseConnection(configuration, reuse);
+
+            return builder;
+        }
     }
 }

@@ -33,8 +33,21 @@ namespace Contour.Configurator.Tests
     /// </summary>
     // ReSharper disable InconsistentNaming
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here.")]
+
     public class BusConfigurationSpecs
     {
+        public class BooMessage
+        {
+            public int Num { get; set; }
+        }
+
+        public class FooMessage
+        {
+            public int Num { get; set; }
+        }
+
         /// <summary>
         /// The boo payload validator.
         /// </summary>
@@ -255,7 +268,7 @@ namespace Contour.Configurator.Tests
                             </outgoing>
                         </endpoint>
                     </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 var handler = new Mock<IBusLifecycleHandler>();
@@ -309,7 +322,7 @@ namespace Contour.Configurator.Tests
                             </outgoing>
                         </endpoint>
                     </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -321,7 +334,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 BusDependentHandler.Reset();
@@ -400,7 +413,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -412,7 +425,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 BusDependentHandler.Reset();
@@ -493,7 +506,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -504,7 +517,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                    this.AmqpConnection,
+                    this.Url,
                     this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
@@ -533,10 +546,7 @@ namespace Contour.Configurator.Tests
                         });
 
                 producer.Emit("msg.a", new { Num = 13 });
-
-                handler.Received.WaitOne(5.Seconds()).
-                    Should().
-                    BeTrue();
+                handler.Received.WaitOne(5.Seconds()).Should().BeTrue();
             }
         }
 
@@ -561,7 +571,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -572,7 +582,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteHandlerOf<ExpandoObject>();
@@ -631,7 +641,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -645,7 +655,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
@@ -715,7 +725,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -726,7 +736,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
@@ -788,7 +798,7 @@ namespace Contour.Configurator.Tests
                                 </outgoing>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 string consumerConfig = string.Format(
@@ -799,7 +809,7 @@ namespace Contour.Configurator.Tests
                                 </incoming>
                             </endpoint>
                         </endpoints>",
-                        this.AmqpConnection,
+                        this.Url,
                         this.VhostName);
 
                 var handler = new ConcreteTransformerOf<BooMessage>();
@@ -1077,6 +1087,74 @@ namespace Contour.Configurator.Tests
                 {
                     Assert.IsTrue(bus.CanRoute(MessageLabel.Any), "Должна быть включена динамическая маршрутизация.");
                 }
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_connection_string
+        {
+            [Test]
+            public void should_set_connection_string_if_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" connectionString=""amqp://localhost/integration"" />
+                                   </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                configuration.ConnectionString.Should().NotBeNullOrEmpty();
+                configuration.EndpointOptions.GetConnectionString().Should().NotBeNull();
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_connection_reuse
+        {
+            [Test]
+            public void should_set_connection_reuse_if_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" connectionString=""amqp://localhost/integration"" reuseConnection=""true""/>
+                                   </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                var property = configuration.EndpointOptions.GetReuseConnection();
+                property.HasValue.Should().BeTrue();
+                property.Value.Should().BeTrue();
+            }
+
+            [Test]
+            public void should_use_default_if_not_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                        <endpoint name=""{name}"" connectionString=""amqp://localhost/integration""/>
+                                   </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                var property = configuration.EndpointOptions.GetReuseConnection();
+                property.Should().BeTrue();
             }
         }
 
@@ -1391,17 +1469,347 @@ namespace Contour.Configurator.Tests
 
                 receiverOptions.GetParallelismLevel().Value.Should().Be(receiverDefaults.GetParallelismLevel().Value, "Default parallelism level should be used");
             }
+
+            [Test]
+            public void should_set_connection_string_if_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var conString = "123";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"" >
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" connectionString=""{conString}""/>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(conString, "Connection string should be set");
+            }
+
+            [Test]
+            public void should_use_endpoint_connection_string_if_not_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var incomingString = "123";
+                var endpointString = "456";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" >
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true""/>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(endpointString, "Connection string should be set");
+            }
+
+            [Test]
+            public void should_set_connection_reuse_if_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var incomingString = "123";
+                var endpointString = "456";
+                var reuseConnection = true;
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" >
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" reuseConnection=""{reuseConnection}""/>
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetReuseConnection().Value.Should().Be(reuseConnection, "Connection reuse should be set");
+            }
+
+            [Test]
+            public void should_use_endpoint_connection_reuse_if_not_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var incomingString = "123";
+                var endpointString = "456";
+                var reuseConnection = true;
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" reuseConnection=""{reuseConnection}"">
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetReuseConnection().Value.Should().Be(reuseConnection, "Connection reuse should be set");
+            }
+
+            [Test]
+            public void should_use_default_connection_reuse_if_no_incoming_and_endpoint_settings_are_set()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var endpointString = "456";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" >
+                                <incoming>
+                                    <on key=""{onKeyName}"" label=""msg.a"" react=""DynamicHandler"" requiresAccept=""true"" />
+                                </incoming>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                var receiverConfiguration = busConfigurationResult.ReceiverConfigurations.First();
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetReuseConnection().Value.Should().Be(true, "Connection reuse should be set to default");
+            }
         }
-    }
 
-    public class BooMessage
-    {
-        public int Num { get; set; }
-    }
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_outgoing
+        {
+            [Test]
+            public void should_set_connection_string_if_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var outgoingString = "123";
+                var label = "label";
 
-    public class FooMessage
-    {
-        public int Num { get; set; }
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""amqp://localhost:666"" >
+                                <outgoing>
+                                    <route key=""{onKeyName}"" label=""{label}"" connectionString=""{outgoingString}""/>
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+                
+                // Need to find sender by label because two more senders are registered by default
+                var senderConfiguration = busConfigurationResult.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(outgoingString, "Connection string should be set");
+            }
+
+            [Test]
+            public void should_use_endpoint_connection_string_if_not_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var endpointString = "amqp://localhost:666";
+                var outgoingString = "123";
+                var label = "label";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" >
+                                <outgoing>
+                                    <route key=""{onKeyName}"" label=""{label}"" />
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+
+                // Need to find sender by label because two more senders are registered by default
+                var senderConfiguration = busConfigurationResult.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(endpointString, "Connection string should be set");
+            }
+            
+            [Test]
+            public void should_set_connection_reuse_if_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var endpointString = "amqp://localhost:666";
+                var outgoingString = "123";
+                var label = "label";
+                var reuseConnection = true;
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" >
+                                <outgoing>
+                                    <route key=""{onKeyName}"" label=""{label}"" reuseConnection=""{reuseConnection}""/>
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+
+                // Need to find sender by label because two more senders are registered by default
+                var senderConfiguration = busConfigurationResult.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetReuseConnection().Value.Should().Be(reuseConnection, "Connection reuse should be set");
+            }
+
+            [Test]
+            public void should_use_endpoint_connection_reuse_if_not_present()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var endpointString = "amqp://localhost:666";
+                var outgoingString = "123";
+                var label = "label";
+                var reuseConnection = true;
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" reuseConnection=""{reuseConnection}"">
+                                <outgoing>
+                                    <route key=""{onKeyName}"" label=""{label}"" />
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+
+                // Need to find sender by label because two more senders are registered by default
+                var senderConfiguration = busConfigurationResult.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetReuseConnection().Value.Should().Be(reuseConnection, "Connection reuse should be set");
+            }
+
+            [Test]
+            public void should_use_default_connection_reuse_if_no_outgoing_and_endpoint_settings_are_set()
+            {
+                const string endpointName = "ep";
+                const string onKeyName = "key";
+                var endpointString = "amqp://localhost:666";
+                var label = "label";
+
+                string config =
+                    $@"<endpoints>
+                        <endpoint name=""{endpointName}"" connectionString=""{endpointString}"" >
+                                <outgoing>
+                                    <route key=""{onKeyName}"" label=""{label}"" />
+                                </outgoing>
+                        </endpoint>
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var section = new XmlEndpointsSection(config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var result = configurator.Configure(endpointName, busConfiguration);
+                var busConfigurationResult = (BusConfiguration)result;
+
+                // Need to find sender by label because two more senders are registered by default
+                var senderConfiguration = busConfigurationResult.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetReuseConnection().Value.Should().Be(true, "Connection reuse should be set to default");
+            }
+        }
     }
 
     // ReSharper restore InconsistentNaming

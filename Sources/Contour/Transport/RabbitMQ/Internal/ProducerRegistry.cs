@@ -1,57 +1,52 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System.Threading;
+
+using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
+    using Helpers;
+    using Helpers.CodeContracts;
 
-    using Contour.Helpers;
-    using Contour.Helpers.CodeContracts;
-    using Contour.Sending;
-    using Contour.Transport.RabbitMQ.Topology;
+    using Sending;
+
+    using Topology;
 
     /// <summary>
     /// The producer registry.
     /// </summary>
     internal class ProducerRegistry : IDisposable
     {
-        #region Fields
+        private readonly ILog logger = LogManager.GetLogger<ProducerRegistry>();
 
         /// <summary>
         /// The _bus.
         /// </summary>
-        private readonly RabbitBus _bus;
+        private readonly RabbitBus bus;
+        private readonly IConnectionPool<IRabbitConnection> pool; 
 
         /// <summary>
         /// The _producers.
         /// </summary>
-        private readonly IDictionary<MessageLabel, Producer> _producers = new ConcurrentDictionary<MessageLabel, Producer>();
+        private readonly IDictionary<MessageLabel, Producer> producers = new ConcurrentDictionary<MessageLabel, Producer>();
 
-        #endregion
-
-        #region Constructors and Destructors
-
-        /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ProducerRegistry"/>.
-        /// </summary>
-        /// <param name="bus">
-        /// The bus.
-        /// </param>
-        public ProducerRegistry(RabbitBus bus)
+        public ProducerRegistry(RabbitBus bus, IConnectionPool<IRabbitConnection> pool)
         {
-            this._bus = bus;
+            this.bus = bus;
+            this.pool = pool;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
+        
 
         /// <summary>
         /// The dispose.
         /// </summary>
         public void Dispose()
         {
-            this._producers.Values.ForEach(l => l.Dispose());
-            this._producers.Clear();
+            this.producers.Values.ForEach(l => l.Dispose());
+            this.producers.Clear();
         }
 
         /// <summary>
@@ -61,8 +56,8 @@
         {
             {
                 // lock (_producers)
-                this._producers.Values.ForEach(l => l.Dispose());
-                this._producers.Clear();
+                this.producers.Values.ForEach(l => l.Dispose());
+                this.producers.Clear();
             }
         }
 
@@ -77,45 +72,56 @@
         /// </returns>
         public Producer ResolveFor(ISenderConfiguration configuration)
         {
-            Producer producer = this.TryResolverFor(configuration.Label);
+            var options = (RabbitSenderOptions)configuration.Options;
+
+            var connectionString = options.GetConnectionString().Value;
+            var reuseConnectionProperty = options.GetReuseConnection();
+            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
+
+            var source = new CancellationTokenSource();
+            var connection = this.pool.Get(connectionString, reuseConnection, source.Token);
+            this.logger.Trace($"Using connection [{connection.Id}] to resolve a producer");
+
+            var producer = this.TryResolverFor(configuration.Label);
             if (producer == null)
             {
-                using (RabbitChannel channel = this._bus.OpenChannel())
+                var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
+                var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, configuration);
+                var routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
+
+                Assumes.True(
+                    routeResolverBuilder.HasValue,
+                    "RouteResolverBuilder must be set for [{0}]",
+                    configuration.Label);
+
+                var routeResolver = routeResolverBuilder.Value(builder);
+
+                producer = new Producer(
+                    this.bus.Endpoint,
+                    connection,
+                    configuration.Label,
+                    routeResolver,
+                    configuration.Options.IsConfirmationRequired());
+
+                producer.Failed += p =>
                 {
-                    var topologyBuilder = new TopologyBuilder(channel);
-                    var builder = new RouteResolverBuilder(this._bus.Endpoint, topologyBuilder, configuration);
-                    Maybe<Func<IRouteResolverBuilder, IRouteResolver>> routeResolverBuilder = configuration.Options.GetRouteResolverBuilder();
+                    {
+                        p.Dispose();
+                        this.producers.Remove(p.Label);
+                    }
+                };
 
-                    Assumes.True(routeResolverBuilder.HasValue, "RouteResolverBuilder must be set for [{0}]", configuration.Label);
+                this.producers.Add(configuration.Label, producer);
+            }
 
-                    IRouteResolver routeResolver = routeResolverBuilder.Value(builder);
-
-                    producer = new Producer(this._bus, configuration.Label, routeResolver, configuration.Options.IsConfirmationRequired());
-                    producer.Failed += p =>
-                        {
-                            {
-                                // lock (_producers)
-                                p.Dispose();
-                                this._producers.Remove(p.Label);
-                            }
-                        };
-
-                    // lock (_producers)
-                    this._producers.Add(configuration.Label, producer);
-                }
-
-                if (configuration.RequiresCallback)
-                {
-                    producer.UseCallbackListener(this._bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
-                }
+            if (configuration.RequiresCallback)
+            {
+                producer.UseCallbackListener(
+                    this.bus.ListenerRegistry.ResolveFor(configuration.CallbackConfiguration));
             }
 
             return producer;
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// The try resolver for.
@@ -129,10 +135,8 @@
         private Producer TryResolverFor(MessageLabel label)
         {
             Producer producer;
-            this._producers.TryGetValue(label, out producer);
+            this.producers.TryGetValue(label, out producer);
             return producer;
         }
-
-        #endregion
     }
 }

@@ -8,7 +8,7 @@ namespace Contour.Sending
     /// <summary>
     /// Настройки отправителя.
     /// </summary>
-    public class SenderOptions : BusOptions
+    public class SenderOptions : EndpointOptions
     {
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="SenderOptions"/>.
@@ -73,7 +73,7 @@ namespace Contour.Sending
         /// </returns>
         public Maybe<TimeSpan?> GetRequestTimeout()
         {
-            return this.Pick(o => ((SenderOptions)o).RequestTimeout);
+            return this.Pick<SenderOptions, TimeSpan?>((o) => o.RequestTimeout);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Contour.Sending
         /// <returns>Построитель вычислителя маршрута.</returns>
         public Maybe<Func<IRouteResolverBuilder, IRouteResolver>> GetRouteResolverBuilder()
         {
-            return this.Pick(o => ((SenderOptions)o).RouteResolverBuilder);
+            return this.Pick<SenderOptions, Func<IRouteResolverBuilder, IRouteResolver>>((o) => o.RouteResolverBuilder);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Contour.Sending
         /// <returns>Время жизни сообщения.</returns>
         public Maybe<TimeSpan?> GetTtl()
         {
-            return this.Pick(o => ((SenderOptions)o).Ttl);
+            return this.Pick<SenderOptions, TimeSpan?>((o) => o.Ttl);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Contour.Sending
         /// <returns>Подтверждение отправки сообщения.</returns>
         public Maybe<bool> IsConfirmationRequired()
         {
-            return this.Pick(o => ((SenderOptions)o).ConfirmationIsRequired);
+            return this.Pick<SenderOptions, bool>((o) => o.ConfirmationIsRequired);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Contour.Sending
         /// <returns>Если <c>true</c>, тогда нужно сохранять сообщение, иначе - <c>false</c>.</returns>
         public Maybe<bool> IsPersistently()
         {
-            return this.Pick(o => ((SenderOptions)o).Persistently);
+            return this.Pick<SenderOptions, bool>((o) => o.Persistently);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Contour.Sending
         /// <returns>Хранилище заголовка входящего сообщения.</returns>
         public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
         {
-            return this.Pick(o => ((SenderOptions)o).IncomingMessageHeaderStorage);
+            return this.Pick<SenderOptions, IIncomingMessageHeaderStorage>((o) => o.IncomingMessageHeaderStorage);
         }
     }
 }

@@ -17,6 +17,7 @@ namespace Contour.Helpers
     /// <typeparam name="T">
     /// </typeparam>
     [Serializable]
+    [Obsolete]
     public sealed class Maybe<T>
     {
         #region Static Fields

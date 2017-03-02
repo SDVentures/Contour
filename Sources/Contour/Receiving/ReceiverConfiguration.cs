@@ -140,7 +140,10 @@ namespace Contour.Receiving
         /// </summary>
         public virtual void Validate()
         {
-            // TODO: this
+            if (this.Label.IsEmpty)
+            {
+                throw new InvalidOperationException("Can't receive using Empty label.");
+            }
         }
 
         /// <summary>

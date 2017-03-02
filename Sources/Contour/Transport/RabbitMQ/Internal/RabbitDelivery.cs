@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using Contour.Configuration;
 using Contour.Receiving;
 
-using global::RabbitMQ.Client;
-
-using global::RabbitMQ.Client.Events;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -26,6 +25,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Верно, если сообщение требует подтверждения обработки.
         /// </summary>
         private readonly bool requiresAccept;
+        private readonly IBusContext busContext;
 
         /// <summary>
         /// Верно, если обработка сообщения подтверждена.
@@ -34,15 +34,26 @@ namespace Contour.Transport.RabbitMQ.Internal
         private volatile bool isAccepted;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="RabbitDelivery"/>.
+        /// Initializes a new instance of the <see cref="RabbitDelivery"/> class. 
         /// </summary>
-        /// <param name="channel">Канал поставки сообщения.</param>
-        /// <param name="args">Параметры поставки сообщения.</param>
-        /// <param name="requiresAccept">Верно, если требуется подтверждение доставки.</param>
-        public RabbitDelivery(RabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept)
+        /// <param name="busContext">
+        /// The bus Context.
+        /// </param>
+        /// <param name="channel">
+        /// Канал поставки сообщения.
+        /// </param>
+        /// <param name="args">
+        /// Параметры поставки сообщения.
+        /// </param>
+        /// <param name="requiresAccept">
+        /// Верно, если требуется подтверждение доставки.
+        /// </param>
+        public RabbitDelivery(IBusContext busContext, RabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept)
         {
+            this.busContext = busContext;
+
             this.Channel = channel;
-            this.Label = channel.Bus.MessageLabelHandler.Resolve(args);
+            this.Label = this.busContext.MessageLabelHandler.Resolve(args);
             this.Args = args;
             this.requiresAccept = requiresAccept;
 
@@ -59,7 +70,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Канал доставки сообщения.
         /// </summary>
         public RabbitChannel Channel { get; private set; }
-
+        
         /// <summary>
         /// Формат содержимого сообщения.
         /// </summary>
@@ -210,7 +221,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 message = (Message<T>)message.WithLabel(label);
             }
 
-            return new DefaultConsumingContext<T>(message, this);
+            return new DefaultConsumingContext<T>(this.busContext, message, this);
         }
 
         /// <summary>
@@ -224,10 +235,10 @@ namespace Contour.Transport.RabbitMQ.Internal
             var headers = new Dictionary<string, object>(this.Headers);
             headers[Contour.Headers.CorrelationId] = this.CorrelationId;
             headers[Contour.Headers.ReplyRoute] = this.ReplyRoute;
-            Contour.Headers.ApplyBreadcrumbs(headers, this.Channel.Bus.Endpoint.Address);
+            Contour.Headers.ApplyBreadcrumbs(headers, this.busContext.Endpoint.Address);
             Contour.Headers.ApplyOriginalMessageId(headers);
 
-            return this.Channel.Bus.Emit(label, payload, headers);
+            return this.busContext.Emit(label, payload, headers);
         }
 
         /// <summary>

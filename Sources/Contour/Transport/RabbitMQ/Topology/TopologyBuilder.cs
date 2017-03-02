@@ -12,10 +12,10 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// <summary>
         /// Соединение с шиной сообщений, через которое настраивается топология.
         /// </summary>
-        private readonly RabbitChannel rabbitChannel;
+        private readonly RabbitChannel channel;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="TopologyBuilder"/>.
+        /// Initializes a new instance of the <see cref="TopologyBuilder"/> class. 
         /// </summary>
         /// <param name="channel">
         /// Соединение с шиной сообщений, через которое настраивается топология.
@@ -23,7 +23,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         public TopologyBuilder(IChannel channel)
         {
             // TODO: нужно работать с более общим типом IChannel.
-            this.rabbitChannel = (RabbitChannel)channel;
+            this.channel = (RabbitChannel)channel;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </param>
         public void Bind(Exchange exchange, Queue queue, string routingKey = "")
         {
-            this.rabbitChannel.Bind(queue, exchange, routingKey);
+            this.channel.Bind(queue, exchange, routingKey);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </returns>
         public ISubscriptionEndpoint BuildTempReplyEndpoint()
         {
-            var queue = new Queue(this.rabbitChannel.DeclareDefaultQueue());
+            var queue = new Queue(this.channel.DeclareDefaultQueue());
 
             return new SubscriptionEndpoint(queue, new StaticRouteResolver(string.Empty, queue.Name));
         }
@@ -70,7 +70,7 @@ namespace Contour.Transport.RabbitMQ.Topology
             var queue = Queue.Named(string.Format("{0}.replies-{1}-{2}", endpoint.Address, label.IsAny ? "any" : label.Name, NameGenerator.GetRandomName(8)))
                 .AutoDelete.Exclusive.Instance;
 
-            this.rabbitChannel.Declare(queue);
+            this.channel.Declare(queue);
 
             return new SubscriptionEndpoint(queue, new StaticRouteResolver(string.Empty, queue.Name));
         }
@@ -88,7 +88,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         {
             Exchange exchange = builder.Instance;
 
-            this.rabbitChannel.Declare(exchange);
+            this.channel.Declare(exchange);
 
             return exchange;
         }
@@ -106,9 +106,17 @@ namespace Contour.Transport.RabbitMQ.Topology
         {
             Queue queue = builder.Instance;
 
-            this.rabbitChannel.Declare(queue);
+            this.channel.Declare(queue);
 
             return queue;
+        }
+
+        /// <summary>
+        /// Disposes of the topology builder
+        /// </summary>
+        public void Dispose()
+        {
+            this.channel?.Dispose();
         }
     }
 }

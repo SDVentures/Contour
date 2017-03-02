@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
 using RestSharp;
 using RestSharp.Authenticators;
+using RestSharp.Deserializers;
 
 namespace Contour.Testing.Plumbing
 {
@@ -209,6 +211,39 @@ namespace Contour.Testing.Plumbing
                              };
             client.AddDefaultHeader("Content-Type", "application/json; charset=utf-8");
             return client;
+        }
+
+        public IEnumerable<Connection> GetConnections()
+        {
+            var client = this.CreateClient();
+            var connectionsRequest = CreateRequest("/api/connections", Method.GET);
+
+            var response = client.Execute<List<Connection>>(connectionsRequest);
+
+            if (response.ErrorException != null)
+            {
+                throw new Exception("Failed to get connections", response.ErrorException);
+            }
+
+            var connections = response.Data;
+            return connections;
+        }
+
+        public void DropConnections()
+        {
+            var connections = GetConnections();
+
+            var client = this.CreateClient();
+            foreach (var con in connections)
+            {
+                var dropRequest = CreateRequest($"/api/connections/{con.name}", Method.DELETE);
+                var response = client.Execute(dropRequest);
+
+                if (response.ErrorException != null)
+                {
+                    throw new Exception("Failed to drop a connection", response.ErrorException);
+                }
+            }
         }
     }
 }

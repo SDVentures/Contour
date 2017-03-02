@@ -1,25 +1,161 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-using FluentAssertions;
-
 using Contour.Configuration;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ.Internal;
-
+using Contour.Transport.RabbitMQ.Topology;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
-    // ReSharper disable InconsistentNaming
+    using Moq;
+    using Transport.RabbitMQ;
 
-    /// <summary>
-    /// The connection specs.
-    /// </summary>
+    // ReSharper disable InconsistentNaming
+    
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."), SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."),]
     public class ConnectionSpecs
     {
+        [TestFixture]
+        [Category("Unit")]
+        public class when_declaring_connection : RabbitMqFixture
+        {
+            [Test]
+            public void should_close_connection_on_channel_failure()
+            {
+                var bus = this.ConfigureBus("Test", cfg => { });
+                var tcs = new TaskCompletionSource<bool>();
+
+                var connection = new RabbitConnection(new Endpoint("test"), bus.Configuration.ConnectionString, bus);
+                connection.Closed += (sender, args) => tcs.SetResult(true);
+
+                connection.Open(CancellationToken.None);
+                var channel = connection.OpenChannel();
+
+                channel.Abort();
+                channel.Bind(Queue.Named("q").Instance, Exchange.Named("e").Instance, "key");
+
+                Assert.IsTrue(tcs.Task.Result);
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_declaring_consumers_and_producers : RabbitMqFixture
+        {
+            [Test]
+            public void should_reuse_connection_in_each_consumer_if_reusable()
+            {
+                var bus = this.ConfigureBus(
+                    "Test",
+                    cfg =>
+                    {
+                        cfg.On<BooMessage>("one")
+                            .ReactWith(m => { })
+                            .WithEndpoint(
+                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))))
+                            .ReuseConnection();
+
+                        cfg.On<FooMessage>("two")
+                            .ReactWith(m => { })
+                            .WithEndpoint(
+                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("two.queue"))))
+                            .ReuseConnection();
+
+                        cfg.On<GooMessage>("three")
+                            .ReactWith(m => { })
+                            .WithEndpoint(
+                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("three.queue"))))
+                            .ReuseConnection();
+                    });
+
+                bus.Start();
+                var cons = this.Broker.GetConnections();
+
+                Assert.IsTrue(cons.Count() == 1);
+            }
+
+            [Test]
+            public void should_create_separate_connection_for_each_consumer_if_not_reusable()
+            {
+                var bus = this.ConfigureBus(
+                    "Test",
+                    cfg =>
+                    {
+                        cfg.On<BooMessage>("one")
+                            .ReactWith(m => { })
+                            .WithEndpoint(builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))))
+                            .ReuseConnection(false);
+
+                        cfg.On<FooMessage>("two")
+                            .ReactWith(m => { })
+                            .WithEndpoint(builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("two.queue"))))
+                            .ReuseConnection(false);
+
+                        cfg.On<GooMessage>("three")
+                            .ReactWith(m => { })
+                            .WithEndpoint(builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("three.queue"))))
+                            .ReuseConnection(false);
+                    });
+
+                bus.Start();
+                var cons = this.Broker.GetConnections();
+                
+                // One connection is used by default by fault message producers
+                Assert.IsTrue(cons.Count() == 3 + 1);
+            }
+
+            [Test]
+            public void should_reuse_connection_in_each_producer_if_reusable()
+            {
+                var bus = this.ConfigureBus(
+                   "Test",
+                   cfg =>
+                   {
+                       cfg.Route("one.label").ReuseConnection();
+                       cfg.Route("two.label").ReuseConnection();
+                       cfg.Route("three.label").ReuseConnection();
+                       cfg.Route("four.label").ReuseConnection();
+                   });
+
+                bus.Start();
+                var cons = this.Broker.GetConnections();
+
+                Assert.IsTrue(cons.Count() == 1);
+            }
+
+            [Test]
+            public void should_create_separate_connection_for_each_producer_if_not_reusable()
+            {
+                var bus = this.ConfigureBus(
+                    "Test",
+                    cfg =>
+                    {
+                        cfg.Route("one.label")
+                        .ReuseConnection(false);
+
+                        cfg.Route("two.label")
+                        .ReuseConnection(false);
+
+                        cfg.Route("three.label")
+                        .ReuseConnection(false);
+
+                        cfg.Route("four.label")
+                        .ReuseConnection(false);
+                    });
+
+                bus.Start();
+                var cons = this.Broker.GetConnections();
+
+                // One connection is used by default by fault message producers
+                Assert.IsTrue(cons.Count() == 4 + 1);
+            }
+        }
+
         /// <summary>
         /// The when_connecting_to_invalid_broker_endpoint.
         /// </summary>
@@ -102,8 +238,7 @@ namespace Contour.RabbitMq.Tests
                     () =>
                         {
                             Thread.Sleep(2.Seconds());
-
-                            ((RabbitBus)bus).Connection.Abort();
+                            Broker.DropConnections();
                         });
 
                 int counter = 10;

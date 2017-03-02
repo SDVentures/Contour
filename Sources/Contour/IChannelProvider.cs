@@ -1,20 +1,16 @@
 ﻿namespace Contour
 {
     /// <summary>
-    /// The ChannelProvider interface.
+    /// Creates channels of <typeparamref name="TChannel"/> type using the underlying connection.
     /// </summary>
-    public interface IChannelProvider
+    /// <typeparam name="TChannel">The type of channel to be created</typeparam>
+    public interface IChannelProvider<out TChannel>
+        where TChannel : IChannel
     {
-        #region Public Methods and Operators
-
         /// <summary>
-        /// The open channel.
+        /// Opens a new channel in the underlying connection
         /// </summary>
-        /// <returns>
-        /// The <see cref="IChannel"/>.
-        /// </returns>
-        IChannel OpenChannel();
-
-        #endregion
+        /// <returns>An open channel</returns>
+        TChannel OpenChannel();
     }
 }

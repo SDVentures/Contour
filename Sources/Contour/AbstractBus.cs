@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Common.Logging;
-
-using Contour.Configuration;
-using Contour.Receiving;
-using Contour.Sending;
-using Contour.Serialization;
-
-namespace Contour
+﻿namespace Contour
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common.Logging;
+    using Configuration;
+    using Receiving;
+    using Sending;
+    using Serialization;
+
     /// <summary>
     /// Шина сообщений, которая не знает о транспортном уровне.
     /// </summary>
@@ -34,7 +32,7 @@ namespace Contour
         private readonly ILog logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AbstractBus"/>.
+        /// Initializes a new instance of the <see cref="AbstractBus"/> class.
         /// </summary>
         /// <param name="configuration">Конфигурация шины сообщений.</param>
         protected AbstractBus(BusConfiguration configuration)
@@ -53,11 +51,13 @@ namespace Contour
         /// <summary>
         /// Событие установки соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         public event Action<IBus, EventArgs> Connected = (bus, args) => { };
 
         /// <summary>
         /// Событие разрыва соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         public event Action<IBus, EventArgs> Disconnected = (bus, args) => { };
 
         /// <summary>
@@ -597,6 +597,7 @@ namespace Contour
         /// <summary>
         /// Генерирует событие об установке соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         protected virtual void OnConnected()
         {
             this.Connected(this, null);
@@ -605,6 +606,7 @@ namespace Contour
         /// <summary>
         /// Генерирует событие о разрыве соединения.
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         protected virtual void OnDisconnected()
         {
             this.Disconnected(this, null);

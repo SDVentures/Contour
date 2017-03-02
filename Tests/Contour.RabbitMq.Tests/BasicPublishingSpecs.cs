@@ -16,6 +16,8 @@ using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
+    using Configuration;
+
     /// <summary>
     /// The basic publishing specs.
     /// </summary>
@@ -192,26 +194,6 @@ namespace Contour.RabbitMq.Tests
         }
 
         /// <summary>
-        /// The when_publishing_using_empty_label.
-        /// </summary>
-        [TestFixture]
-        [Category("Integration")]
-        public class when_publishing_using_empty_label : RabbitMqFixture
-        {
-            /// <summary>
-            /// The should_throw.
-            /// </summary>
-            [Test]
-            public void should_throw()
-            {
-                IBus producer = this.StartBus("producer", cfg => cfg.Route(MessageLabel.Empty));
-
-                producer.Invoking(p => p.Emit(MessageLabel.Empty, new BooMessage(13)))
-                    .ShouldThrow<InvalidOperationException>();
-            }
-        }
-
-        /// <summary>
         /// При регистрации отправителя с возможностью послать сообщение с любой меткой.
         /// </summary>
         [TestFixture]
@@ -361,7 +343,7 @@ namespace Contour.RabbitMq.Tests
                 var rand1 = new Random(Environment.TickCount);
                 var rand2 = new Random(Environment.TickCount / 2);
 
-                int iterations = 1000;
+                int iterations = 100;
                 var countdown = new CountdownEvent(iterations * 2);
 
                 this.StartBus(

@@ -9,17 +9,15 @@
     /// </summary>
     public abstract class BusOptions
     {
-        #region Constructors and Destructors
-
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusOptions"/>.
+        /// Initializes a new instance of the <see cref="BusOptions"/> class. 
         /// </summary>
         protected BusOptions()
         {
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="BusOptions"/>.
+        /// Initializes a new instance of the <see cref="BusOptions"/> class. 
         /// </summary>
         /// <param name="parent">
         /// The parent.
@@ -29,18 +27,10 @@
             this.Parent = parent;
         }
 
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the parent.
         /// </summary>
         public BusOptions Parent { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The pick.
@@ -56,9 +46,34 @@
         /// <returns>
         /// The <see cref="Maybe{T}"/>.
         /// </returns>
+        [Obsolete("Use nullable-typed version instead")]
         public static Maybe<T> Pick<T>(Maybe<T> first, Maybe<T> second)
         {
             if (first != null && first.HasValue)
+            {
+                return first;
+            }
+
+            return second;
+        }
+
+        /// <summary>
+        /// Picks the first value if it is not null and the second otherwise
+        /// </summary>
+        /// <param name="first">
+        /// The first.
+        /// </param>
+        /// <param name="second">
+        /// The second.
+        /// </param>
+        /// <typeparam name="T">The type of the option
+        /// </typeparam>
+        /// <returns>
+        /// The value of the option
+        /// </returns>
+        public static T? Pick<T>(T? first, T? second) where T : struct
+        {
+            if (first != null)
             {
                 return first;
             }
@@ -74,14 +89,10 @@
         /// </returns>
         public abstract BusOptions Derive();
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The pick.
         /// </summary>
-        /// <param name="getValueFunc">
+        /// <param name="getValue">
         /// The get value func.
         /// </param>
         /// <typeparam name="T">
@@ -89,22 +100,85 @@
         /// <returns>
         /// The <see cref="Maybe{T}"/>.
         /// </returns>
-        protected Maybe<T> Pick<T>(Func<BusOptions, Maybe<T>> getValueFunc)
+        [Obsolete("Use nullable-typed version instead")]
+        protected Maybe<T> Pick<P,T>(Func<P, Maybe<T>> getValue) where P: BusOptions
         {
-            Maybe<T> value = getValueFunc(this);
-            if (value != null && value.HasValue)
+            if (this is P)
             {
-                return value;
-            }
+                var value = getValue(this as P);
+                if (value != null && value.HasValue)
+                {
+                    return value;
+                }
 
-            if (this.Parent != null)
-            {
-                return getValueFunc(this.Parent);
+                if (this.Parent != null)
+                {
+                    return this.Parent.Pick(getValue);
+                }
             }
 
             return Maybe<T>.Empty;
         }
 
-        #endregion
+        /// <summary>
+        /// Picks the value of an option. If no value is provided uses the parent object to extract the value.
+        /// </summary>
+        /// <param name="getValue">
+        /// The get value.
+        /// </param>
+        /// <typeparam name="TP">The type of the object used to extract the value
+        /// </typeparam>
+        /// <typeparam name="TV">The type of the option which should be a not-nullable type
+        /// </typeparam>
+        /// <returns>
+        /// The value of the option
+        /// </returns>
+        protected TV? Pick<TP, TV>(Func<TP, TV?> getValue) where TP : BusOptions where TV : struct
+        {
+            if (this is TP)
+            {
+                var value = getValue(this as TP);
+                if (value != null)
+                {
+                    return value;
+                }
+
+                return this.Parent?.Pick(getValue);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Picks the value of an option. If no value is provided uses the parent object to extract the value.
+        /// </summary>
+        /// <param name="getValue">
+        /// The get value.
+        /// </param>
+        /// <typeparam name="TP">The type of the object used to extract the value
+        /// </typeparam>
+        /// <typeparam name="TV">The type of the option
+        /// </typeparam>
+        /// <returns>
+        /// The value of the option
+        /// </returns>
+        protected TV Pick<TP, TV>(Func<TP, TV> getValue) where TP : BusOptions
+        {
+            if (this is TP)
+            {
+                var value = getValue(this as TP);
+                if (value != null)
+                {
+                    return value;
+                }
+
+                if (this.Parent != null)
+                {
+                    return this.Parent.Pick(getValue);
+                }
+            }
+
+            return default(TV);
+        }
     }
 }

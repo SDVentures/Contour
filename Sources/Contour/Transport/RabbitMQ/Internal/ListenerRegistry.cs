@@ -1,51 +1,41 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System.Threading;
+
+using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Linq;
 
-    using Contour.Configuration;
-    using Contour.Helpers;
-    using Contour.Helpers.CodeContracts;
-    using Contour.Receiving;
-    using Contour.Transport.RabbitMQ.Topology;
+    using Configuration;
+
+    using Helpers;
+    using Helpers.CodeContracts;
+
+    using Receiving;
+
+    using Topology;
 
     /// <summary>
     /// The listener registry.
     /// </summary>
     internal class ListenerRegistry : IDisposable
     {
-        #region Fields
-
-        /// <summary>
-        /// The _bus.
-        /// </summary>
+        private readonly ILog logger = LogManager.GetLogger<ListenerRegistry>();
         private readonly RabbitBus bus;
-
-        /// <summary>
-        /// The _listeners.
-        /// </summary>
         private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
-
-        #endregion
-
-        #region Constructors and Destructors
+        private readonly IConnectionPool<IRabbitConnection> pool;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ListenerRegistry"/>.
         /// </summary>
-        /// <param name="bus">
-        /// The bus.
-        /// </param>
-        public ListenerRegistry(RabbitBus bus)
+        public ListenerRegistry(RabbitBus bus, IConnectionPool<IRabbitConnection> pool)
         {
             this.bus = bus;
+            this.pool = pool;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
+        
 
         /// <summary>
         /// The can consume.
@@ -92,33 +82,48 @@
         /// </returns>
         public Listener ResolveFor(IReceiverConfiguration configuration)
         {
-            using (RabbitChannel channel = this.bus.OpenChannel())
+            var options = (RabbitReceiverOptions)configuration.Options;
+
+            var connectionString = options.GetConnectionString().Value;
+            var reuseConnectionProperty = options.GetReuseConnection();
+            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
+
+            var source = new CancellationTokenSource();
+            var connection = this.pool.Get(connectionString, reuseConnection, source.Token);
+            this.logger.Trace($"Using connection [{connection.Id}] to resolve a listener");
+
+            var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
+            var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, configuration);
+
+            var endpointBuilder = configuration.Options.GetEndpointBuilder();
+
+            Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", configuration.Label);
+
+            var endpoint = endpointBuilder.Value(builder);
+
+            lock (this.listeners)
             {
-                var topologyBuilder = new TopologyBuilder(channel);
-                var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, configuration);
-
-                Maybe<Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint>> endpointBuilder = configuration.Options.GetEndpointBuilder();
-
-                Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", configuration.Label);
-
-                ISubscriptionEndpoint endpoint = endpointBuilder.Value(builder);
-
-                lock (this.listeners)
+                var listener =
+                    this.listeners.FirstOrDefault(
+                        l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
+                if (listener == null)
                 {
-                    Listener listener = this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
-                    if (listener == null)
-                    {
-                        listener = new Listener(this.bus, endpoint, (RabbitReceiverOptions)configuration.Options, this.bus.Configuration.ValidatorRegistry);
-                        this.listeners.Add(listener);
-                    }
-                    else
-                    {
-                        EnsureConfigurationIsCompatible(listener, configuration);
-                    }
+                    listener = new Listener(
+                        this.bus,
+                        connection,
+                        endpoint,
+                        (RabbitReceiverOptions)configuration.Options,
+                        this.bus.Configuration.ValidatorRegistry);
 
-                    return listener;
+                    this.listeners.Add(listener);
                 }
-            }
+                else
+                {
+                    EnsureConfigurationIsCompatible(listener, configuration);
+                }
+
+                return listener;
+}
         }
 
         /// <summary>
@@ -150,10 +155,7 @@
         {
                 this.listeners.ForEach(l => l.StopConsuming());
         }
-
-        #endregion
-
-        #region Methods
+        
 
         /// <summary>
         /// The ensure configuration is compatible.
@@ -184,7 +186,5 @@
             compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
             compareAndThrow(o => o.GetQoS(), "QoS");
         }
-
-        #endregion
     }
 }

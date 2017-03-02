@@ -16,11 +16,13 @@ namespace Contour
         /// <summary>
         ///   Событие подключения к брокеру
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         event Action<IBus, EventArgs> Connected;
 
         /// <summary>
         ///   Событие разрыва соединения с брокером
         /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
         event Action<IBus, EventArgs> Disconnected;
 
         /// <summary>

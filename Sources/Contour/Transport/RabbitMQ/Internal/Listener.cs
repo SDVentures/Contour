@@ -9,16 +9,13 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-
     using Common.Logging;
-
-    using Contour.Helpers;
-    using Contour.Helpers.Scheduler;
-    using Contour.Helpers.Timing;
-    using Contour.Receiving;
-    using Contour.Receiving.Consumers;
-    using Contour.Validation;
-
+    using Helpers;
+    using Helpers.Scheduler;
+    using Helpers.Timing;
+    using Receiving;
+    using Receiving.Consumers;
+    using Validation;
     using global::RabbitMQ.Client.Events;
 
     /// <summary>
@@ -26,11 +23,6 @@
     /// </summary>
     internal class Listener : IDisposable
     {
-        /// <summary>
-        /// Поставщик каналов.
-        /// </summary>
-        private readonly IChannelProvider channelProvider;
-
         /// <summary>
         /// Обработчики сообщений.
         /// Каждому обработчику соответствует своя метка сообщения.
@@ -67,11 +59,14 @@
         /// </summary>
         private readonly MessageValidatorRegistry validatorRegistry;
 
+        private readonly IBusContext busContext;
+        private readonly IRabbitConnection connection;
+
         /// <summary>
         /// Источник квитков отмены задач.
         /// </summary>
         private CancellationTokenSource cancellationTokenSource;
-
+        
         /// <summary>
         /// Признак: слушатель потребляет сообщения.
         /// </summary>
@@ -89,10 +84,13 @@
         private IList<IWorker> workers;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Listener"/>.
+        /// Initializes a new instance of the <see cref="Listener"/> class. 
         /// </summary>
-        /// <param name="channelProvider">
-        /// Поставщик каналов.
+        /// <param name="busContext">
+        /// The bus Context.
+        /// </param>
+        /// <param name="connection">
+        /// Соединение с шиной сообщений
         /// </param>
         /// <param name="endpoint">
         /// Прослушиваемый порт.
@@ -103,17 +101,17 @@
         /// <param name="validatorRegistry">
         /// Реестр механизмов проверки сообщений.
         /// </param>
-        public Listener(IChannelProvider channelProvider, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
+        public Listener(IBusContext busContext, IRabbitConnection connection, ISubscriptionEndpoint endpoint, RabbitReceiverOptions receiverOptions, MessageValidatorRegistry validatorRegistry)
         {
+            this.busContext = busContext;
+            this.connection = connection;
             this.endpoint = endpoint;
-            this.channelProvider = channelProvider;
             this.validatorRegistry = validatorRegistry;
 
             this.ReceiverOptions = receiverOptions;
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
-
-            // TODO: refactor
+            
             this.Failed += _ =>
                 {
                     if (this.HasFailed)
@@ -122,8 +120,7 @@
                     }
 
                     this.HasFailed = true;
-                    ((IBusAdvanced)channelProvider).Panic();
-                }; // restarting the whole bus
+                };
         }
 
         /// <summary>
@@ -153,13 +150,7 @@
         /// <summary>
         /// Порт канала, который прослушивается на входящие сообщения.
         /// </summary>
-        public ISubscriptionEndpoint Endpoint
-        {
-            get
-            {
-                return this.endpoint;
-            }
-        }
+        public ISubscriptionEndpoint Endpoint => this.endpoint;
 
         /// <summary>
         /// Настройки получателя.
@@ -171,8 +162,8 @@
         /// <summary>
         /// Создает входящее сообщение.
         /// </summary>
-        /// <param name="channel">
-        /// Канал, по которому получено сообщение.
+        /// <param name="deliveryChannel">
+        /// The delivery Channel.
         /// </param>
         /// <param name="args">
         /// Аргументы, с которыми получено сообщение.
@@ -180,9 +171,9 @@
         /// <returns>
         /// Входящее сообщение.
         /// </returns>
-        public RabbitDelivery BuildDeliveryFrom(RabbitChannel channel, BasicDeliverEventArgs args)
+        public RabbitDelivery BuildDeliveryFrom(RabbitChannel deliveryChannel, BasicDeliverEventArgs args)
         {
-            return new RabbitDelivery(channel, args, this.ReceiverOptions.IsAcceptRequired());
+            return new RabbitDelivery(this.busContext, deliveryChannel, args, this.ReceiverOptions.IsAcceptRequired());
         }
 
         /// <summary>
@@ -448,7 +439,7 @@
 
         private void InternalConsume(CancellationToken cancellationToken)
         {
-            var channel = (RabbitChannel)this.channelProvider.OpenChannel();
+            var channel = this.connection.OpenChannel();
             channel.Failed += (ch, args) => this.Failed(this);
 
             if (this.ReceiverOptions.GetQoS().HasValue)
@@ -457,7 +448,7 @@
                     this.ReceiverOptions.GetQoS().Value);
             }
 
-            CancellableQueueingConsumer consumer = channel.BuildCancellableConsumer(cancellationToken);
+            var consumer = channel.BuildCancellableConsumer(cancellationToken);
             channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
 
             consumer.ConsumerCancelled += (sender, args) =>

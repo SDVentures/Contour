@@ -134,6 +134,11 @@ namespace Contour.Configurator
 
             cfg.SetConnectionString(endpointConfig.ConnectionString);
 
+            if (endpointConfig.ReuseConnection.HasValue)
+            {
+                cfg.ReuseConnection(endpointConfig.ReuseConnection.Value);
+            }
+
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
             {
                 cfg.HandleLifecycleWith(this.ResolveLifecycleHandler(endpointConfig.LifecycleHandler));
@@ -186,8 +191,6 @@ namespace Contour.Configurator
                 }
             }
 
-            #region Validation
-
             foreach (ValidatorElement validator in endpointConfig.Validators)
             {
                 if (validator.Group)
@@ -201,53 +204,61 @@ namespace Contour.Configurator
                     cfg.RegisterValidator(v);
                 }
             }
-            #endregion
 
-            #region Outgoing
-
-            foreach (OutgoingElement message in endpointConfig.Outgoing)
+            foreach (OutgoingElement outgoingElement in endpointConfig.Outgoing)
             {
-                ISenderConfigurator senderCfg = cfg.Route(message.Label).
-                    WithAlias(message.Key);
+                ISenderConfigurator configurator = cfg.Route(outgoingElement.Label).
+                    WithAlias(outgoingElement.Key);
 
-                if (message.Confirm)
+                if (outgoingElement.Confirm)
                 {
-                    senderCfg.WithConfirmation();
+                    configurator.WithConfirmation();
                 }
 
-                if (message.Persist)
+                if (outgoingElement.Persist)
                 {
-                    senderCfg.Persistently();
+                    configurator.Persistently();
                 }
 
-                if (message.Ttl.HasValue)
+                if (outgoingElement.Ttl.HasValue)
                 {
-                    senderCfg.WithTtl(message.Ttl.Value);
+                    configurator.WithTtl(outgoingElement.Ttl.Value);
                 }
 
-                if (message.CallbackEndpoint.Default)
+                if (outgoingElement.CallbackEndpoint.Default)
                 {
-                    senderCfg.WithDefaultCallbackEndpoint();
+                    configurator.WithDefaultCallbackEndpoint();
                 }
 
-                if (message.Timeout.HasValue)
+                if (outgoingElement.Timeout.HasValue)
                 {
-                    senderCfg.WithRequestTimeout(message.Timeout);
+                    configurator.WithRequestTimeout(outgoingElement.Timeout);
+                }
+
+                // Connection string
+                var connectionString = endpointConfig.ConnectionString;
+                if (!string.IsNullOrEmpty(outgoingElement.ConnectionString))
+                {
+                    connectionString = outgoingElement.ConnectionString;
+                }
+
+                configurator.WithConnectionString(connectionString);
+
+                // Reuse connection
+                if (outgoingElement.ReuseConnection.HasValue)
+                {
+                    configurator.ReuseConnection(outgoingElement.ReuseConnection.Value);
                 }
             }
-            #endregion
-
-            #region Incoming
 
             foreach (IncomingElement incomingElement in endpointConfig.Incoming)
             {
-                var configurator = cfg.On(incomingElement.Label).
-                    WithAlias(incomingElement.Key);
+                var configurator = cfg.On(incomingElement.Label).WithAlias(incomingElement.Key);
 
                 uint size = 0;
                 ushort count = 50;
 
-                //this should be the default values provided by RabbitMQ configurator (BusConsumerConfigurationEx);
+                // This should be the default values provided by RabbitMQ configurator (BusConsumerConfigurationEx);
                 var qos = configurator.GetQoS();
                 if (qos.HasValue)
                 {
@@ -255,6 +266,7 @@ namespace Contour.Configurator
                     count = qos.Value.PrefetchCount;
                 }
 
+                // Prefetch size
                 if (endpointConfig.Qos.PrefetchSize.HasValue)
                 {
                     size = endpointConfig.Qos.PrefetchSize.Value;
@@ -265,6 +277,7 @@ namespace Contour.Configurator
                     size = incomingElement.Qos.PrefetchSize.Value;
                 }
 
+                // Prefetch count
                 if (endpointConfig.Qos.PrefetchCount.HasValue)
                 {
                     count = endpointConfig.Qos.PrefetchCount.Value;
@@ -277,6 +290,7 @@ namespace Contour.Configurator
 
                 configurator.WithQoS(new QoSParams(count, size));
 
+                // Parallelism level
                 if (endpointConfig.ParallelismLevel.HasValue)
                 {
                     configurator.WithParallelismLevel(endpointConfig.ParallelismLevel.Value);
@@ -287,9 +301,25 @@ namespace Contour.Configurator
                     configurator.WithParallelismLevel(incomingElement.ParallelismLevel.Value);
                 }
                 
+                // Accept
                 if (incomingElement.RequiresAccept)
                 {
                     configurator.RequiresAccept();
+                }
+
+                // Connection string
+                var connectionString = endpointConfig.ConnectionString;
+                if (!string.IsNullOrEmpty(incomingElement.ConnectionString))
+                {
+                    connectionString = incomingElement.ConnectionString;
+                }
+
+                configurator.WithConnectionString(connectionString);
+
+                // Reuse connection
+                if (incomingElement.ReuseConnection.HasValue)
+                {
+                    configurator.ReuseConnection(incomingElement.ReuseConnection.Value);
                 }
 
                 Type messageType = typeof(ExpandoObject);
@@ -311,7 +341,6 @@ namespace Contour.Configurator
                     configurator.WhenVerifiedBy(validator);
                 }
             }
-            #endregion
 
             return cfg;
         }

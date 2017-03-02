@@ -8,8 +8,6 @@
     /// </summary>
     internal class OutgoingElement : MessageElement
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the callback endpoint.
         /// </summary>
@@ -70,6 +68,16 @@
             }
         }
 
-        #endregion
+        [ConfigurationProperty("connectionString", IsRequired = false)]
+        public string ConnectionString
+        {
+            get { return (string)base["connectionString"]; }
+        }
+
+        [ConfigurationProperty("reuseConnection", IsRequired = false)]
+        public bool? ReuseConnection
+        {
+            get { return (bool?)base["reuseConnection"]; }
+        }
     }
 }
