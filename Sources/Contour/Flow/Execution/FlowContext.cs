@@ -37,8 +37,8 @@ namespace Contour.Flow.Execution
             var @in = ctx.GetIn();
             if (@in is FlowContext)
             {
-                var inCtx = @in as FlowContext;
-                Unwind(ref inCtx);
+                ctx = @in as FlowContext;
+                Unwind(ref ctx);
             }
         }
     }

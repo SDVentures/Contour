@@ -2,10 +2,10 @@
 
 namespace Contour.Flow.Configuration
 {
-    public interface IBroadcastFlow
+    public interface IBroadcastFlow<TSource>
     {
         IFlowRegistry Registry { set; }
 
-        IActingFlowConcatenation<FlowContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1);
+        IActingFlowConcatenation<TSource, FlowContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1);
     }
 }

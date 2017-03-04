@@ -51,6 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MessageFlowConfiguration.cs" />
     <Compile Include="RabbitmqClientSpec.cs" />
+    <Compile Include="RequestResponseSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

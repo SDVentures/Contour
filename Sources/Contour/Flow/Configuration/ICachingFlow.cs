@@ -3,7 +3,7 @@ using Contour.Caching;
 
 namespace Contour.Flow.Configuration
 {
-    public interface ICachingFlow
+    public interface ICachingFlow<TSource>
     {
         /// <summary>
         /// Cache the flow using the specified <paramref name="policy"/>
@@ -12,6 +12,6 @@ namespace Contour.Flow.Configuration
         /// <typeparam name="TOut"></typeparam>
         /// <param name="policy"></param>
         /// <returns></returns>
-        IOutgoingFlow<TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
+        IOutgoingFlow<TSource, TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class;
     }
 }

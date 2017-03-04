@@ -1,20 +1,33 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Contour.Flow.Configuration
 {
     /// <summary>
     /// Provides a flow entry point
     /// </summary>
-    public interface IFlowEntry<TInput>
+    public interface IFlowEntry<in TInput>
     {
+        /// <summary>
+        /// Entry point unique identifier
+        /// </summary>
+        Guid Id { get; }
+
+        /// <summary>
+        /// Provides an entry point as a flow block
+        /// </summary>
+        /// <returns></returns>
+        ITargetBlock<TInput> AsBlock();
+
         /// <summary>
         /// Synchronously posts a message of <typeparamref name="TInput"/> type to the flow
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
         bool Post(TInput message);
-
+        
         /// <summary>
         /// Asynchronously posts a message of <typeparamref name="TInput"/> type to the flow
         /// </summary>

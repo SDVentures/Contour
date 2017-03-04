@@ -21,7 +21,7 @@ namespace Contour.Tests
                 var flow = factory.Create<Payload>("fake");
                     flow.On("incoming_label");
                     
-                flow.Entry.Post(new Payload());
+                flow.Entry().Post(new Payload());
             };
 
             it["should perform single action on incoming message"] = () =>
@@ -35,7 +35,7 @@ namespace Contour.Tests
 
                 var tcs = new TaskCompletionSource<bool>();
                 A.CallTo(action).Invokes(() => tcs.SetResult(true));
-                flow.Entry.Post(new Payload());
+                flow.Entry().Post(new Payload());
 
                 tcs.Task.Wait(AMinute());
                 A.CallTo(action).MustHaveHappened();
@@ -52,7 +52,7 @@ namespace Contour.Tests
 
                 var tcs = new TaskCompletionSource<bool>();
                 A.CallTo(action).Invokes(() => tcs.SetResult(true));
-                flow.Entry.Post(new Payload());
+                flow.Entry().Post(new Payload());
 
                 tcs.Task.Wait(AMinute());
                 A.CallTo(action).MustHaveHappened();
@@ -119,7 +119,7 @@ namespace Contour.Tests
                     .Act(payload => @out)
                     .Cache<Payload, NewPayload>(policy);
 
-                flow.Entry.Post(@in);
+                flow.Entry().Post(@in);
                 putTcs.Task.Wait(AMinute());
                 cached.should_be(@out);
 
@@ -133,7 +133,7 @@ namespace Contour.Tests
                     })
                     .Returns(@out);
 
-                flow.Entry.Post(@in);
+                flow.Entry().Post(@in);
                 getTcs.Task.Wait(AMinute());
                 fetched.should_be(@out);
             };
@@ -154,7 +154,7 @@ namespace Contour.Tests
                     .ReturnsLazily(
                         () => new LocalMessageFlow<NewPayload>(new LocalFlowTransport()) {Registry = registry});
 
-                var action = A.Fake<Func<Payload, NewPayload>>();
+                var action = A.Fake<Func<NewPayload, NewPayload>>();
                 A.CallTo(action)
                     .WithReturnType<NewPayload>()
                     .Invokes(() => tcs.SetResult(true))
@@ -171,28 +171,10 @@ namespace Contour.Tests
                     .Act(p => new NewPayload())
                     .Broadcast<Payload, NewPayload>();
 
-                senderFlow.Entry.Post(new Payload());
+                senderFlow.Entry().Post(new Payload());
                 tcs.Task.Wait(AMinute());
 
                 A.CallTo(action).MustHaveHappened();
-            };
-
-            it[""] = () =>
-            {
-                //var transport = new LocalFlowTransport();
-                //var broker = new FlowBroker();
-                //broker.Register("local", transport);
-
-                //var flow = broker.Create<int>("local")
-                //.On("label")
-                //    .Act(p => new NewPayload() { Value = 3 })
-                //    .Act(p => "abc")
-                //    .Respond();
-
-                //var entry = flow.Entry<int>(ctx => { });
-                //entry.Post(1);
-
-                //Thread.Sleep(TimeSpan.FromMinutes(10));
             };
         }
 

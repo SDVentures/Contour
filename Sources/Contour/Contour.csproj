@@ -71,13 +71,12 @@
     <Compile Include="Caching\HashKeyProvider.cs" />
     <Compile Include="Caching\IKeyProvider.cs" />
     <Compile Include="Flow\Blocks\ConditionalTransformBlock.cs" />
-    <Compile Include="Flow\Configuration\IIncomingFlow.cs" />
-    <Compile Include="Flow\Configuration\LocalIncomingFlow.cs" />
-    <Compile Include="Flow\Configuration\IRequestFlow.cs" />
-    <Compile Include="Flow\Configuration\IResponseFlow.cs" />
+    <Compile Include="Flow\Configuration\FlowEntry.cs" />
+    <Compile Include="Flow\Configuration\IFlowAccessor.cs" />
+    <Compile Include="Flow\Configuration\IFlowItem.cs" />
+    <Compile Include="Flow\Configuration\IRequestResponseFlow.cs" />
     <Compile Include="Flow\Configuration\ITerminatingFlow.cs" />
-    <Compile Include="Flow\Configuration\RequestFlow.cs" />
-    <Compile Include="Flow\Configuration\ResponseFlow.cs" />
+    <Compile Include="Flow\Configuration\RequestResponseFlow.cs" />
     <Compile Include="Flow\Configuration\TerminatingFlow.cs" />
     <Compile Include="Flow\Execution\FlowContext.cs" />
     <Compile Include="Flow\Configuration\FlowBroker.cs" />
@@ -87,7 +86,6 @@
     <Compile Include="Flow\Configuration\IActingFlowConcatenation.cs" />
     <Compile Include="Flow\Configuration\ICachingFlow.cs" />
     <Compile Include="Flow\Configuration\IFlowRegistry.cs" />
-    <Compile Include="Flow\Configuration\IFlowTarget.cs" />
     <Compile Include="Flow\Configuration\IFlowFactory.cs" />
     <Compile Include="Flow\Configuration\IFlowEntry.cs" />
     <Compile Include="Flow\Configuration\IFlowTransportRegistry.cs" />

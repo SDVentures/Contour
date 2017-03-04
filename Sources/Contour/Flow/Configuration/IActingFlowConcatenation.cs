@@ -7,9 +7,10 @@ namespace Contour.Flow.Configuration
     /// A message flow which enables user actions
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public interface IActingFlowConcatenation<TInput>: IOutgoingFlow<TInput>
+    /// <typeparam name="TSource">The source flow message type</typeparam>
+    public interface IActingFlowConcatenation<TSource, TInput>: IOutgoingFlow<TSource, TInput>
     {
-        IActingFlow<FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
+        IActingFlow<TSource, FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1);
 
         ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1);
     }
