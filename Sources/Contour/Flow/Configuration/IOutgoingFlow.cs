@@ -3,7 +3,7 @@
     /// <summary>
     /// Describes an outgoing message flow
     /// </summary>
-    public interface IOutgoingFlow<in TSource, out TOutput>
+    public interface IOutgoingFlow<TSource, TOutput>
     {
         IFlowRegistry Registry { set; }
         string Label { set; }

@@ -28,7 +28,7 @@ namespace Contour.Tests
             {
                 var factory = GetMessageFlowFactory();
                 var flow = factory.Create<Payload>("fake");
-                var action = A.Fake<Func<Payload, Payload>>();
+                var action = A.Fake<Func<FlowContext<Payload>, Payload>>();
 
                 flow.On("incoming_label")
                     .Act(action);
@@ -45,7 +45,7 @@ namespace Contour.Tests
             {
                 var factory = GetMessageFlowFactory();
                 var flow = factory.Create<Payload>("fake");
-                var action = A.Fake<Action<Payload>>();
+                var action = A.Fake<Action<FlowContext<Payload>>>();
 
                 flow.On("incoming_label")
                     .Act(action);
@@ -154,7 +154,7 @@ namespace Contour.Tests
                     .ReturnsLazily(
                         () => new LocalMessageFlow<NewPayload>(new LocalFlowTransport()) {Registry = registry});
 
-                var action = A.Fake<Func<NewPayload, NewPayload>>();
+                var action = A.Fake<Func<FlowContext<NewPayload>, NewPayload>>();
                 A.CallTo(action)
                     .WithReturnType<NewPayload>()
                     .Invokes(() => tcs.SetResult(true))

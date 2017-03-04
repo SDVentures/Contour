@@ -2,16 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Contour.Flow.Execution;
 
 namespace Contour.Flow.Configuration
 {
     /// <summary>
     /// Represents an entry point for a flow
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    public class FlowEntry<TInput> : IFlowEntry<TInput>
+    public class FlowEntry<TSource> : IFlowEntry<TSource>
     {
-        private readonly ITargetBlock<TInput> target;
+        private readonly ITargetBlock<FlowContext<TSource>> target;
 
         /// <inheritdoc />
         public Guid Id { get; }
@@ -19,34 +19,37 @@ namespace Contour.Flow.Configuration
         /// <summary>
         /// Creates a new instance of <see cref="FlowEntry{TInput}"/>
         /// </summary>
-        public FlowEntry(ITargetBlock<TInput> target)
+        public FlowEntry(ITargetBlock<FlowContext<TSource>> target)
         {
             this.Id = Guid.NewGuid();
             this.target = target;
         }
+        
+        /// <inheritdoc />
+        public bool Post(TSource message)
+        {
+            var context = new FlowContext<TSource>() {Id = this.Id, In = message};
+            return target.Post(context);
+        }
 
         /// <inheritdoc />
-        public ITargetBlock<TInput> AsBlock()
+        public Task<bool> PostAsync(TSource message)
+        {
+            var context = new FlowContext<TSource>() { Id = this.Id, In = message };
+            return target.SendAsync(context);
+        }
+
+        /// <inheritdoc />
+        public Task<bool> PostAsync(TSource message, CancellationToken token)
+        {
+            var context = new FlowContext<TSource>() { Id = this.Id, In = message };
+            return target.SendAsync(context, token);
+        }
+
+        /// <inheritdoc />
+        public ITargetBlock<FlowContext<TSource>> AsBlock()
         {
             return target;
-        }
-
-        /// <inheritdoc />
-        public bool Post(TInput message)
-        {
-            return target.Post(message);
-        }
-
-        /// <inheritdoc />
-        public Task<bool> PostAsync(TInput message)
-        {
-            return target.SendAsync(message);
-        }
-
-        /// <inheritdoc />
-        public Task<bool> PostAsync(TInput message, CancellationToken token)
-        {
-            return target.SendAsync(message, token);
         }
     }
 }

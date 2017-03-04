@@ -5,9 +5,9 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides a set of flow entry points
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public interface IFlowAccessor<in TInput, out TOutput>
+    /// <typeparam name="TInput"></typeparam>
+    public interface IFlowAccessor<TInput, out TOutput>
     {
         /// <summary>
         /// Returns a new message flow entry point
@@ -25,8 +25,7 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides a set of entry points
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    public interface IFlowAccessor<in TInput>
+    public interface IFlowAccessor<TInput>
     {
         /// <summary>
         /// Returns a new message flow entry point

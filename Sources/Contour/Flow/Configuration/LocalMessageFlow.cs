@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks.Dataflow;
 using Common.Logging;
+using Contour.Flow.Execution;
 using Contour.Flow.Transport;
 
 namespace Contour.Flow.Configuration
@@ -8,10 +9,10 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides an in-memory flow implementation
     /// </summary>
-    public class LocalMessageFlow<TInput> : IMessageFlow<TInput>
+    public class LocalMessageFlow<TSource> : IMessageFlow<TSource, FlowContext<TSource>>
     {
-        private readonly ILog log = LogManager.GetLogger<LocalMessageFlow<TInput>>();
-        private BufferBlock<TInput> buffer;
+        private readonly ILog log = LogManager.GetLogger<LocalMessageFlow<TSource>>();
+        private BufferBlock<FlowContext<TSource>> buffer;
 
         /// <summary>
         /// Flow label
@@ -21,7 +22,7 @@ namespace Contour.Flow.Configuration
         /// <summary>
         /// Flow items type
         /// </summary>
-        public Type Type => typeof(TInput);
+        public Type Type => typeof(TSource);
 
         /// <summary>
         /// A flow registry which provides flow coordination in request-response and broadcasting scenarios.
@@ -43,12 +44,12 @@ namespace Contour.Flow.Configuration
         }
 
         /// <summary>
-        /// Registers a new flow of <typeparamref name="TInput"/> typed items.
+        /// Registers a new flow of <typeparamref name="TSource"/> typed items.
         /// </summary>
         /// <param name="label">Flow label</param>
         /// <param name="capacity">Specifies the maximum capacity of the flow pipeline</param>
         /// <returns></returns>
-        public IActingFlow<TInput, TInput> On(string label, int capacity = 1)
+        IActingFlow<TSource, FlowContext<TSource>> IMessageFlow<TSource, FlowContext<TSource>>.On(string label, int capacity)
         {
             if (buffer != null)
                 throw new FlowConfigurationException($"Flow [{Label}] has already been configured");
@@ -56,9 +57,9 @@ namespace Contour.Flow.Configuration
             this.Label = label;
 
             buffer =
-                new BufferBlock<TInput>(new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity});
+                new BufferBlock<FlowContext<TSource>>(new ExecutionDataflowBlockOptions() { BoundedCapacity = capacity });
 
-            var flow = new ActingFlow<TInput, TInput>(buffer)
+            var flow = new ActingFlow<TSource, FlowContext<TSource>>(buffer)
             {
                 Registry = this.Registry,
                 Label = this.Label
@@ -66,10 +67,10 @@ namespace Contour.Flow.Configuration
 
             return flow;
         }
-
-        public IFlowEntry<TInput> Entry()
+        
+        public IFlowEntry<TSource> Entry()
         {
-            var entry = new FlowEntry<TInput>(buffer);
+            var entry = new FlowEntry<TSource>(buffer);
             return entry;
         }
     }

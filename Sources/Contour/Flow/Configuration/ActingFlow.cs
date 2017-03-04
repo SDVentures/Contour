@@ -140,9 +140,12 @@ namespace Contour.Flow.Configuration
             // The action block is expected to return a flow context to support results caching, so the source items need to be converted to the action return type
 
             //todo: provide a deep copying cloning function for broadcast
-            var broadcast = new BroadcastBlock<TOut>(p => p, new DataflowBlockOptions() { BoundedCapacity = capacity });
-            var outTransform = new TransformBlock<FlowContext<TIn, TOut>, TOut>(t => t.Out,
-                new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
+            var broadcast = new BroadcastBlock<FlowContext<TOut>>(p => p,
+                new DataflowBlockOptions() {BoundedCapacity = capacity});
+
+            var outTransform =
+                new TransformBlock<FlowContext<TIn, TOut>, FlowContext<TOut>>(t => new FlowContext<TOut>() {In = t.Out},
+                    new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
 
             //todo: check the source type before the cast
             ((ISourceBlock<FlowContext<TIn, TOut>>)source).LinkTo(outTransform);
@@ -152,9 +155,9 @@ namespace Contour.Flow.Configuration
             var flows = Registry.GetAll<TOut>();
             foreach (var flow in flows)
             {
-                if (flow is IMessageFlow<TOut>)
+                if (flow is IMessageFlow<TOut, FlowContext<TOut>>)
                 {
-                    var messageFlow = flow as IMessageFlow<TOut>;
+                    var messageFlow = flow as IMessageFlow<TOut, FlowContext<TOut>>;
                     broadcast.LinkTo(messageFlow.Entry().AsBlock());
                 }
             }

@@ -22,7 +22,7 @@ namespace Contour.Flow.Configuration
         {
             this.tailBlock = tailBlock;
         }
-
+        
         public IFlowEntry<TInput> Entry()
         {
             throw new NotImplementedException();
@@ -30,9 +30,9 @@ namespace Contour.Flow.Configuration
 
         public IFlowEntry<TInput> Entry(Action<TOutput> callback)
         {
-            var head = (IMessageFlow<TInput>)this.Registry.Get(this.Label);
+            var head = (IMessageFlow<TInput, FlowContext<TInput>>)this.Registry.Get(this.Label);
             var entry = head.Entry();
-            
+
             var correlationQuery = new Predicate<TOutput>(p =>
             {
                 var ctx = p as FlowContext;
