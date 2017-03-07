@@ -6,7 +6,7 @@
     /// The validator collection.
     /// </summary>
     [ConfigurationCollection(typeof(ValidatorElement), AddItemName = "add")]
-    internal class ValidatorCollection : ConfigurationElementCollection
+    public class ValidatorCollection : ConfigurationElementCollection
     {
         #region Methods
 

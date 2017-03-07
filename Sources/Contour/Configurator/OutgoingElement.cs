@@ -6,7 +6,7 @@
     /// <summary>
     /// The outgoing element.
     /// </summary>
-    internal class OutgoingElement : MessageElement
+    public class OutgoingElement : MessageElement
     {
         /// <summary>
         /// Gets the callback endpoint.

@@ -6,7 +6,7 @@
     /// <summary>
     /// Элемент конфигурации задающий политику кеширования.
     /// </summary>
-    internal class CachingElement : ConfigurationElement
+    public class CachingElement : ConfigurationElement
     {
         /// <summary>
         /// Признак включения или отключения кеширования.

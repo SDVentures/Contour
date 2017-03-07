@@ -9,7 +9,7 @@
     /// <summary>
     /// The message element.
     /// </summary>
-    internal class MessageElement : ConfigurationElement
+    public class MessageElement : ConfigurationElement
     {
         /// <summary>
         /// Gets the key.
