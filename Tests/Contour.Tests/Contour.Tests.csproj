@@ -42,16 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheKeyGeneration.cs" />
-    <Compile Include="DebuggerShim.cs">
-      <Paket>True</Paket>
-    </Compile>
     <Compile Include="MessageFlowHandling.cs" />
     <Compile Include="NewPayload.cs" />
     <Compile Include="Payload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MessageFlowConfiguration.cs" />
     <Compile Include="RabbitmqClientSpec.cs" />
-    <Compile Include="RequestResponseSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -246,17 +242,6 @@
       <ItemGroup>
         <Reference Include="NLog">
           <HintPath>..\..\packages\NLog\lib\sl5\NLog.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
-      <ItemGroup>
-        <Reference Include="NSpec">
-          <HintPath>..\..\packages\nspec\lib\NSpec.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

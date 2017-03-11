@@ -9,7 +9,7 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides a flow entry point
     /// </summary>
-    public interface IFlowEntry<TSource>
+    public interface IFlowEntry<TInput>
     {
         /// <summary>
         /// Entry point unique identifier
@@ -20,21 +20,21 @@ namespace Contour.Flow.Configuration
         /// Provides an entry point as a flow block
         /// </summary>
         /// <returns></returns>
-        ITargetBlock<FlowContext<TSource>> AsBlock();
+        ITargetBlock<FlowContext<TInput>> AsBlock();
 
         /// <summary>
         /// Synchronously posts a message of <typeparamref name="TInput"/> type to the flow
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        bool Post(TSource message);
+        bool Post(TInput message);
         
         /// <summary>
         /// Asynchronously posts a message of <typeparamref name="TInput"/> type to the flow
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<bool> PostAsync(TSource message);
+        Task<bool> PostAsync(TInput message);
 
         /// <summary>
         /// Asynchronously sends a message of <typeparamref name="TInput"/> type to the flow and provides a <paramref name="token"/> cancellation token to terminate the operation
@@ -42,6 +42,6 @@ namespace Contour.Flow.Configuration
         /// <param name="message"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        Task<bool> PostAsync(TSource message, CancellationToken token);
+        Task<bool> PostAsync(TInput message, CancellationToken token);
     }
 }

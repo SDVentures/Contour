@@ -15,7 +15,6 @@ NUGET
     Newtonsoft.Json (6.0.2) - framework: >= net40
     Ninject (3.0.1.10) - framework: >= net40
     NLog (3.2)
-    nspec (1.0.13) - framework: net45
     NuGet.CommandLine (2.8.6) - framework: net40
     NUnit (2.6.4) - framework: net45
     NUnit.Runners (2.6.4) - framework: net40

@@ -15,55 +15,34 @@ namespace Contour.Flow.Configuration
         private readonly ILog log = LogManager.GetLogger<ActingFlow<TSource, TInput>>();
 
         private readonly ISourceBlock<TInput> source;
-        private readonly IDataflowBlock tail;
-        private readonly IDisposable tailLink;
 
         public IFlowRegistry Registry { private get; set; }
         public string Label { private get; set; }
 
-        public ActingFlow(ISourceBlock<TInput> source, IDataflowBlock tail = null, IDisposable tailLink = null)
+        public ActingFlow(ISourceBlock<TInput> source)
         {
             this.source = source;
-            this.tail = tail;
-            this.tailLink = tailLink;
         }
 
-        public IActingFlow<TSource, FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1)
+        public IActingFlow<TSource, FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1, ICachePolicy policy = null) where TOutput: class
         {
-            Func<TInput, FlowContext<TInput, TOutput>> func = input =>
-            {
-                var output = default(TOutput);
-                Exception exception = null;
-                
-                try
-                {
-                    log.Debug(new { name = nameof(Act), act, input, capacity, scale });
-                    output = act(input);
-                }
-                catch (Exception ex)
-                {
-                    log.Error(new {name = nameof(Act), error = ex, input, capacity, scale});
-                    exception = ex;
-                }
-
-                return new FlowContext<TInput, TOutput> {In = input, Out = output, Error = exception};
-            };
+            var actionWrapper = GetCachingActionWrapper(act, capacity, scale, policy);
 
             //Need to stop the flow in case of any errors in the action
-            Predicate<FlowContext<TInput, TOutput>> onSuccess = context => context.Error == null;
-            
-            var action = new ConditionalTransformBlock<TInput, FlowContext<TInput, TOutput>>(func, onSuccess,
-                new ExecutionDataflowBlockOptions {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
-            var link = source.LinkTo(action);
+            Predicate<FlowContext<TInput, TOutput>> successPredicate = context => context.Error == null;
 
-            var flow = new ActingFlow<TSource, FlowContext<TInput, TOutput>>(action, source, link)
+            var action = new ConditionalTransformBlock<TInput, FlowContext<TInput, TOutput>>(actionWrapper, successPredicate,
+                new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = scale });
+            source.LinkTo(action);
+
+            var flow = new ActingFlow<TSource, FlowContext<TInput, TOutput>>(action)
             {
                 Registry = this.Registry,
                 Label = this.Label
             };
             return flow;
         }
-
+        
         public ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1)
         {
             Func<TInput, Task<FlowContext<TInput>>> func = input =>
@@ -91,78 +70,46 @@ namespace Contour.Flow.Configuration
             var flow = new TerminatingFlow();
             return flow;
         }
-
-        public IOutgoingFlow<TSource, TOut> Cache<TIn, TOut>(ICachePolicy policy) where TOut : class
+        
+        public IActingFlowConcatenation<TSource, TInput> Broadcast<TOutput>(Func<TInput, TOutput> act, string label = null, int capacity = 1, int scale = 1, ICachePolicy policy = null) where TOutput : class
         {
-            //The pipe tail should be a source for the outgoing flow
-            var tailAsSource = (ISourceBlock<TIn>)tail;
+
+            var actionWrapper = GetCachingActionWrapper(act, capacity, scale, policy);
+
+            //Need to stop the flow in case of any errors in the action
+            Predicate<FlowContext<TInput, TOutput>> successPredicate = context => context.Error == null;
+
+            var action = new ConditionalTransformBlock<TInput, FlowContext<TInput, TOutput>>(actionWrapper,
+                successPredicate,
+                new ExecutionDataflowBlockOptions {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
+
+            var transform =
+                new TransformBlock<FlowContext<TInput, TOutput>, FlowContext<TOutput>>(
+                    context => new FlowContext<TOutput>() {Error = context.Error, In = context.Out, Id = context.Id});
             
-            //Detach from original source
-            tailLink.Dispose();
+            source.LinkTo(action);
+            action.LinkTo(transform);
 
-            //Attach tail to cache; to do that the source items need to be converted to tuples with empty results
-            var cacheInFunc =
-                new Func<TIn, FlowContext<TIn, TOut>>(
-                    @in => new FlowContext<TIn, TOut> {In = @in, Out = default(TOut)});
+            // todo: provide a deep copying cloning function for broadcast
+            var broadcast = new BroadcastBlock<FlowContext<TOutput>>(p => p,
+                new DataflowBlockOptions() { BoundedCapacity = capacity });
 
-            var cacheInTransform = new TransformBlock<TIn, FlowContext<TIn, TOut>>(cacheInFunc);
-
-            tailAsSource.LinkTo(cacheInTransform);
-
-            //WARN: do not limit the caching block capacity to 1 as it can block the flow indefinitely
-            var cache = new CachingBlock<TIn, TOut>(policy);
-
-            var cacheAsTarget = (ITargetBlock<FlowContext<TIn, TOut>>)cache;
-            cacheInTransform.LinkTo(cacheAsTarget);
-            
-            //Attach cache to the source to adapt cache output to the source input
-            var cacheOutFunc = new Func<FlowContext<TIn, TOut>, TIn>(ctx => ctx.In);
-            var cacheOutTransform = new TransformBlock<FlowContext<TIn, TOut>, TIn>(cacheOutFunc);
-            cache.MissLinkTo(cacheOutTransform, new DataflowLinkOptions());
-
-            //Attach cache as source via cache out transform
-            //The source should be convertible to a target to accept flow items not found in cache
-            var sourceAsTarget = (ITargetBlock<TIn>)source;
-            cacheOutTransform.LinkTo(sourceAsTarget);
-
-            //Direct source block execution results to the cache
-            ((ISourceBlock<FlowContext<TIn,TOut>>)source).LinkTo(cacheAsTarget);
-
-            //Pass cache block as source for outgoing flow
-            var outgoingFlow = new OutgoingFlow<TSource, TOut>(cache);
-            return outgoingFlow;
-        }
-
-        public IActingFlowConcatenation<TSource, FlowContext<TIn, TOut>> Broadcast<TIn, TOut>(string label = null, int capacity = 1, int scale = 1)
-        {
-            // Broadcasting of action results: this flow's source block (it is transform block in fact) needs to be attached to the broadcast block, which in turn will be attached to all the flows found in the registry
-
-            // The action block is expected to return a flow context to support results caching, so the source items need to be converted to the action return type
-
-            //todo: provide a deep copying cloning function for broadcast
-            var broadcast = new BroadcastBlock<FlowContext<TOut>>(p => p,
-                new DataflowBlockOptions() {BoundedCapacity = capacity});
-
-            var outTransform =
-                new TransformBlock<FlowContext<TIn, TOut>, FlowContext<TOut>>(t => new FlowContext<TOut>() {In = t.Out},
-                    new ExecutionDataflowBlockOptions() {BoundedCapacity = capacity, MaxDegreeOfParallelism = scale});
-
-            //todo: check the source type before the cast
-            ((ISourceBlock<FlowContext<TIn, TOut>>)source).LinkTo(outTransform);
-            outTransform.LinkTo(broadcast);
+            // Broadcast the action results
+            transform.LinkTo(broadcast);
 
             // Get all flows by specific type from the registry (flow label is irrelevant here due to possible flow items type casting errors)
-            var flows = Registry.GetAll<TOut>();
+            //todo: get flows by label if provided
+            var flows = Registry.GetAll();
             foreach (var flow in flows)
             {
-                if (flow is IMessageFlow<TOut, FlowContext<TOut>>)
+                var head = flow as IMessageFlow<TOutput, FlowContext<TOutput>>;
+                if (head != null)
                 {
-                    var messageFlow = flow as IMessageFlow<TOut, FlowContext<TOut>>;
-                    broadcast.LinkTo(messageFlow.Entry().AsBlock());
+                    broadcast.LinkTo(head.Entry().AsBlock());
                 }
             }
 
-            return (IActingFlowConcatenation<TSource, FlowContext<TIn, TOut>>) this;
+            return this;
         }
 
         public IRequestResponseFlow<TSource, TInput> Respond()
@@ -184,6 +131,64 @@ namespace Contour.Flow.Configuration
         public IRequestResponseFlow<TSource, TInput> Forward(string label)
         {
             throw new NotImplementedException();
+        }
+
+
+        private Func<TInput, FlowContext<TInput, TOutput>> GetCachingActionWrapper<TOutput>(Func<TInput, TOutput> act, int capacity, int scale, ICachePolicy policy) where TOutput : class
+        {
+            return input =>
+            {
+                var output = default(TOutput);
+                Exception exception = null;
+
+                try
+                {
+                    log.Debug($"Executing [{act}] on [{input}] at scale={scale}, capacity={capacity}");
+
+                    if (policy != null)
+                    {
+                        log.Debug($"Using [{policy}] as cache policy");
+
+                        var key = policy.KeyProvider.Get(input);
+                        log.Debug($"A key [{key}] for [{input}] argument acquired");
+
+                        try
+                        {
+                            output = policy.CacheProvider.Get<TOutput>(key);
+                            log.Debug(output != null ? $"Cache hit: key=[{key}]" : $"Cache miss: key=[{key}]");
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error($"Failed to get a cached output for action [{act}] due to {ex.Message}");
+                            exception = ex;
+                        }
+
+                        if (output == null)
+                        {
+                            log.Trace($"Executing the action [{act}]");
+                            output = act(input);
+                            log.Trace($"Action [{act}] executed successfully, caching the result");
+
+                            policy.CacheProvider.Put(key, output, policy.Period);
+                            log.Trace(
+                                $"Action [{act}] execution result [{output}] has been cached with [{policy}] for [{policy.Period}]");
+                        }
+                    }
+                    else
+                    {
+                        log.Trace($"No caching policy is provided, executing the action [{act}]");
+                        output = act(input);
+                        log.Trace($"Action [{act}] executed successfully");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Action [{act}({input}, capacity:{capacity}, scale:{scale})] execution failed due to {ex.Message}");
+                    exception = ex;
+                }
+
+                return new FlowContext<TInput, TOutput> { In = input, Out = output, Error = exception };
+            };
         }
     }
 }

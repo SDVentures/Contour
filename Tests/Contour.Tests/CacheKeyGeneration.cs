@@ -1,20 +1,24 @@
 using Contour.Caching;
-using NSpec;
+using FluentAssertions;
+using NUnit.Framework;
+// ReSharper disable InconsistentNaming
 
 namespace Contour.Tests
 {
-    public class CacheKeyGeneration : NSpec
+    public class CacheKeyGeneration
     {
-        public void describe_cache_key_provider()
+        [TestFixture]
+        public class describe_cache_key_provider
         {
-            it["should provide a key for a given json-serializable object"] = () =>
-            {
+            [Test]
+            public void should_provide_key_for_given_serializable_object()
+            { 
                 var obj = new { Name = "abc", Value = "123"};
                 var provider = new HashKeyProvider();
                 var hash = provider.Get(obj);
 
-                hash.should_not_be_default();
-            };
+                hash.Should().NotBeNullOrEmpty();
+            }
         }
     }
 }

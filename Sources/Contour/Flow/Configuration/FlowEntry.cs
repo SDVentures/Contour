@@ -9,9 +9,9 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Represents an entry point for a flow
     /// </summary>
-    public class FlowEntry<TSource> : IFlowEntry<TSource>
+    public class FlowEntry<TInput> : IFlowEntry<TInput>
     {
-        private readonly ITargetBlock<FlowContext<TSource>> target;
+        private readonly ITargetBlock<FlowContext<TInput>> target;
 
         /// <inheritdoc />
         public Guid Id { get; }
@@ -19,35 +19,35 @@ namespace Contour.Flow.Configuration
         /// <summary>
         /// Creates a new instance of <see cref="FlowEntry{TInput}"/>
         /// </summary>
-        public FlowEntry(ITargetBlock<FlowContext<TSource>> target)
+        public FlowEntry(ITargetBlock<FlowContext<TInput>> target)
         {
             this.Id = Guid.NewGuid();
             this.target = target;
         }
         
         /// <inheritdoc />
-        public bool Post(TSource message)
+        public bool Post(TInput message)
         {
-            var context = new FlowContext<TSource>() {Id = this.Id, In = message};
+            var context = new FlowContext<TInput>() {Id = this.Id, In = message};
             return target.Post(context);
         }
 
         /// <inheritdoc />
-        public Task<bool> PostAsync(TSource message)
+        public Task<bool> PostAsync(TInput message)
         {
-            var context = new FlowContext<TSource>() { Id = this.Id, In = message };
+            var context = new FlowContext<TInput>() { Id = this.Id, In = message };
             return target.SendAsync(context);
         }
 
         /// <inheritdoc />
-        public Task<bool> PostAsync(TSource message, CancellationToken token)
+        public Task<bool> PostAsync(TInput message, CancellationToken token)
         {
-            var context = new FlowContext<TSource>() { Id = this.Id, In = message };
+            var context = new FlowContext<TInput>() { Id = this.Id, In = message };
             return target.SendAsync(context, token);
         }
 
         /// <inheritdoc />
-        public ITargetBlock<FlowContext<TSource>> AsBlock()
+        public ITargetBlock<FlowContext<TInput>> AsBlock()
         {
             return target;
         }

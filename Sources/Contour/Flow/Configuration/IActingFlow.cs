@@ -1,4 +1,5 @@
 ﻿using System;
+using Contour.Caching;
 using Contour.Flow.Execution;
 
 namespace Contour.Flow.Configuration
@@ -8,12 +9,40 @@ namespace Contour.Flow.Configuration
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TSource">The source flow message type</typeparam>
-    public interface IActingFlow<TSource, TInput> : IOutgoingFlow<TSource, TInput>, ICachingFlow<TSource>,
-        IBroadcastFlow<TSource>
+    public interface IActingFlow<TSource, TInput> : IOutgoingFlow<TSource, TInput>
     {
+        /// <summary>
+        /// Performs an action defined by <paramref name="act"/>
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="capacity"></param>
+        /// <param name="scale"></param>
+        /// <param name="policy"></param>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <returns></returns>
         IActingFlow<TSource, FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1,
-            int scale = 1);
+            int scale = 1, ICachePolicy policy = null) where  TOutput: class;
 
+        /// <summary>
+        /// Performs an action defined by <paramref name="act"/> and passes the result down the flow
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="capacity"></param>
+        /// <param name="scale"></param>
+        /// <returns></returns>
         ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1);
+
+        /// <summary>
+        /// Performs an action defined by <paramref name="act"/> and broadcasts the results
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="label"></param>
+        /// <param name="capacity"></param>
+        /// <param name="scale"></param>
+        /// <param name="policy"></param>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <returns></returns>
+        IActingFlowConcatenation<TSource, TInput> Broadcast<TOutput>(Func<TInput, TOutput> act,  string label = null, int capacity = 1,
+            int scale = 1, ICachePolicy policy = null) where TOutput: class;
     }
 }

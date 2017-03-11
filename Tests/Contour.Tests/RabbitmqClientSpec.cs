@@ -1,8 +1,12 @@
+using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+
 namespace Contour.Tests
 {
-    public class RabbitmqClientSpec : NSpec
+    public class RabbitmqClientSpec
     {
-        public void describe_basic_operations()
+        [TestFixture]
+        public class describe_basic_operations
         {
         }
     }

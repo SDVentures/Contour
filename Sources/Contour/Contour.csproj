@@ -64,7 +64,6 @@
     <Compile Include="Filters\SendingExchangeFilter.cs" />
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
-    <Compile Include="Flow\Blocks\CachingBlock.cs" />
     <Compile Include="Flow\Blocks\ICachingBlock.cs" />
     <Compile Include="Flow\Configuration\ActingFlow.cs" />
     <Compile Include="Caching\DefaultCachePolicy.cs" />
@@ -92,7 +91,6 @@
     <Compile Include="Flow\Transport\IFlowTransport.cs" />
     <Compile Include="Flow\Transport\IFlowTransportConfiguration.cs" />
     <Compile Include="Flow\Configuration\IMessageFlow.cs" />
-    <Compile Include="Flow\Configuration\IBroadcastFlow.cs" />
     <Compile Include="Flow\Configuration\IOutgoingFlow.cs" />
     <Compile Include="Flow\Blocks\LocalDestinationBlock.cs" />
     <Compile Include="Flow\Configuration\IFlowRegistryItem.cs" />

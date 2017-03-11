@@ -5,6 +5,11 @@ namespace Contour.Flow.Execution
     public class FlowContext<TInput, TOutput>: FlowContext<TInput>
     {
         public TOutput Out { get; set; }
+
+        public override object GetOut()
+        {
+            return Out;
+        }
     }
 
     public class FlowContext<TInput>: FlowContext
@@ -16,6 +21,11 @@ namespace Contour.Flow.Execution
         public override object GetIn()
         {
             return In;
+        }
+
+        public override object GetOut()
+        {
+            throw new NotSupportedException();
         }
     }
 
@@ -31,6 +41,8 @@ namespace Contour.Flow.Execution
         }
 
         public abstract object GetIn();
+
+        public abstract object GetOut();
         
         private static void Unwind(ref FlowContext ctx)
         {

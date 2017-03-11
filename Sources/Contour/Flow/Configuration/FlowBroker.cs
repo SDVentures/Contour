@@ -43,9 +43,14 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        public IEnumerable<IFlowRegistryItem> GetAll<TOutput>()
+        public IEnumerable<IFlowRegistryItem> GetAll<TInput>()
         {
-            return flows.Where(f => f.Type == typeof (TOutput));
+            return flows.Where(f => f.Type == typeof (TInput));
+        }
+
+        public IEnumerable<IFlowRegistryItem> GetAll()
+        {
+            return flows;
         }
 
         public IFlowRegistryItem Get(string label)
@@ -57,5 +62,6 @@ namespace Contour.Flow.Configuration
         {
             flows.Add(flow);
         }
+
     }
 }
