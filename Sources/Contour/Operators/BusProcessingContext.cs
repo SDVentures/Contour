@@ -24,10 +24,20 @@ namespace Contour.Operators
         /// <summary>
         /// Initializes a new instance of the <see cref="BusProcessingContext"/> class. 
         /// </summary>
-        /// <param name="delivery">Current delivery</param>
-        /// <param name="busContext">Bus context</param>
+        /// <param name="delivery">Current delivery. Must not be null</param>
+        /// <param name="busContext">Bus context. Must not be null</param>
         public BusProcessingContext(IDelivery delivery, IBusContext busContext)
         {
+            if (delivery == null)
+            {
+                throw new ArgumentNullException(nameof(delivery));
+            }
+
+            if (busContext == null)
+            {
+                throw new ArgumentNullException(nameof(busContext));
+            }
+
             this.Delivery = delivery;
             this.BusContext = busContext;
         }

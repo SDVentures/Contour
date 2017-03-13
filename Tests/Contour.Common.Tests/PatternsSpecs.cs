@@ -287,7 +287,7 @@ namespace Contour.Common.Tests
                     "Body");
 
                 Mock<IDelivery> deliveryMock = new Mock<IDelivery>();
-                BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object, null);
+                BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object, new Mock<IBusContext>().Object);
                 var result = processor.Apply(message).ToList();
 
                 result.Should().HaveCount(1, "Сообщение должно быть передано дальше.");
@@ -316,7 +316,7 @@ namespace Contour.Common.Tests
                     "Body");
 
                 Mock<IDelivery> deliveryMock = new Mock<IDelivery>();
-                BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object, null);
+                BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object, new Mock<IBusContext>().Object);
                 var result = processor.Apply(message).ToList();
 
                 result.Should().HaveCount(1, "Сообщение должно быть передано дальше.");
@@ -336,7 +336,7 @@ namespace Contour.Common.Tests
                     "Body");
 
                 Mock<IDelivery> deliveryMock = new Mock<IDelivery>();
-                BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object, null);
+                BusProcessingContext.Current = new BusProcessingContext(deliveryMock.Object, new Mock<IBusContext>().Object);
                 processor.Apply(message).ToList();
 
                 deliveryMock.Verify(d => d.ReplyWith(It.IsAny<IMessage>()), "Должна быть вызвана отправка ответного сообщения.");
