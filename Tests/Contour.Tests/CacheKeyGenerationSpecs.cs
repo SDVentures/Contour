@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Contour.Tests
 {
-    public class CacheKeyGeneration
+    public class CacheKeyGenerationSpecs
     {
         [TestFixture]
         public class describe_cache_key_provider

@@ -9,9 +9,18 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides an in-memory flow implementation
     /// </summary>
+    /// <typeparam name="TSource">
+    /// </typeparam>
     public class LocalMessageFlow<TSource> : IMessageFlow<TSource, TSource>
     {
+        /// <summary>
+        /// The log.
+        /// </summary>
         private readonly ILog log = LogManager.GetLogger<LocalMessageFlow<TSource>>();
+
+        /// <summary>
+        /// The buffer.
+        /// </summary>
         private BufferBlock<FlowContext<TSource>> buffer;
 
         /// <summary>
@@ -35,9 +44,11 @@ namespace Contour.Flow.Configuration
         public IFlowTransport Transport { get; }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="LocalMessageFlow{TSource}"/> class. 
         /// Creates a new local message flow
         /// </summary>
-        /// <param name="transport"></param>
+        /// <param name="transport">
+        /// </param>
         public LocalMessageFlow(IFlowTransport transport)
         {
             this.Transport = transport;
@@ -46,20 +57,28 @@ namespace Contour.Flow.Configuration
         /// <summary>
         /// Registers a new flow of <typeparamref name="TSource"/> typed items.
         /// </summary>
-        /// <param name="label">Flow label</param>
-        /// <param name="capacity">Specifies the maximum capacity of the flow pipeline</param>
-        /// <returns></returns>
+        /// <param name="label">
+        /// Flow label
+        /// </param>
+        /// <param name="capacity">
+        /// Specifies the maximum capacity of the flow pipeline
+        /// </param>
+        /// <returns>
+        /// The <see cref="IActingFlow"/>.
+        /// </returns>
         public IActingFlow<TSource, TSource> On(string label, int capacity)
         {
-            if (buffer != null)
-                throw new FlowConfigurationException($"Flow [{Label}] has already been configured");
+            if (this.buffer != null)
+            {
+                throw new FlowConfigurationException($"Flow [{this.Label}] has already been configured");
+            }
 
             this.Label = label;
 
-            buffer =
+            this.buffer =
                 new BufferBlock<FlowContext<TSource>>(new ExecutionDataflowBlockOptions() { BoundedCapacity = capacity });
 
-            var flow = new ActingFlow<TSource, TSource>(buffer)
+            var flow = new ActingFlow<TSource, TSource>(this.buffer)
             {
                 Registry = this.Registry,
                 Label = this.Label
@@ -67,10 +86,16 @@ namespace Contour.Flow.Configuration
 
             return flow;
         }
-        
+
+        /// <summary>
+        /// The entry.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="IFlowEntry{TSource}"/>.
+        /// </returns>
         public IFlowEntry<TSource> Entry()
         {
-            var entry = new FlowEntry<TSource>(buffer);
+            var entry = new FlowEntry<TSource>(this.buffer);
             return entry;
         }
     }

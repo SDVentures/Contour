@@ -71,6 +71,7 @@
     <Compile Include="Flow\Blocks\ConditionalTransformBlock.cs" />
     <Compile Include="Flow\Configuration\FlowEntry.cs" />
     <Compile Include="Flow\Configuration\IFlowAccessor.cs" />
+    <Compile Include="Flow\Configuration\IFlowBroker.cs" />
     <Compile Include="Flow\Configuration\IFlowItem.cs" />
     <Compile Include="Flow\Configuration\IRequestResponseFlow.cs" />
     <Compile Include="Flow\Configuration\ITerminatingFlow.cs" />

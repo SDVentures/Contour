@@ -41,12 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CacheKeyGeneration.cs" />
-    <Compile Include="MessageFlowHandling.cs" />
+    <Compile Include="CacheKeyGenerationSpecs.cs" />
+    <Compile Include="MessageFlowHandlingSpecs.cs" />
     <Compile Include="NewPayload.cs" />
     <Compile Include="Payload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MessageFlowConfiguration.cs" />
+    <Compile Include="MessageFlowConfigurationSpecs.cs" />
     <Compile Include="RabbitmqClientSpec.cs" />
   </ItemGroup>
   <ItemGroup>
