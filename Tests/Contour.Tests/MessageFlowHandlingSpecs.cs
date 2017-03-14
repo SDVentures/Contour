@@ -199,6 +199,10 @@ namespace Contour.Tests
         [Test]
         public void should_correlate_client_callbacks()
         {
+            const int Multiplier = 2;
+            const int Value1 = 5;
+            const int Value2 = 6;
+
             var tcsOne = new TaskCompletionSource<bool>();
             var tcsTwo = new TaskCompletionSource<bool>();
 
@@ -208,27 +212,41 @@ namespace Contour.Tests
 
             var flow = broker.Create<Payload>("local")
                 .On("label")
-                .Act(p => new Payload() { Value = p.Value.Value * 2 })
+                .Act(p => new Payload() {Value = p.Value.Value * Multiplier})
                 .Respond();
 
             var callbackOne = A.Fake<Action<FlowContext<Payload>>>();
+            Payload resultOne = null;
             var callbackOneFake = A.CallTo(callbackOne)
-                .Invokes(() => tcsOne.SetResult(true));
+                .Invokes(call =>
+                {
+                    resultOne = ((FlowContext<Payload>)call.Arguments[0]).Value;
+                    tcsOne.SetResult(true);
+                });
 
             var callbackTwo = A.Fake<Action<FlowContext<Payload>>>();
+            Payload resultTwo = null;
             var callbackTwoFake = A.CallTo(callbackTwo)
-                .Invokes(() => tcsTwo.SetResult(true));
+                .Invokes(call =>
+                {
+                    resultTwo = ((FlowContext<Payload>)call.Arguments[0]).Value;
+                    tcsTwo.SetResult(true);
+                });
 
             var firstEntry = flow.Entry(callbackOne);
             var secondEntry = flow.Entry(callbackTwo);
 
-            firstEntry.Post(new Payload() { Value = 1 });
+            firstEntry.Post(new Payload() {Value = Value1});
             tcsOne.Task.Wait(1.Minutes());
 
-            secondEntry.Post(new Payload() { Value = 2 });
+            resultOne.Value.Should().Be(Multiplier * Value1);
+            callbackOneFake.MustHaveHappened(Repeated.Exactly.Once);
+            callbackTwoFake.MustNotHaveHappened();
+
+            secondEntry.Post(new Payload() {Value = Value2});
             tcsTwo.Task.Wait(1.Minutes());
 
-            callbackOneFake.MustHaveHappened(Repeated.Exactly.Once);
+            resultTwo.Value.Should().Be(Multiplier * Value2);
             callbackTwoFake.MustHaveHappened(Repeated.Exactly.Once);
         }
 
