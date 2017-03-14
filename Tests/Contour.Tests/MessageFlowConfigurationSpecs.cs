@@ -98,7 +98,6 @@ namespace Contour.Tests
         [TestFixture]
         public class describe_message_flow_propagation_configuration
         {
-            [Ignore]
             [Test]
             public void should_configure_echo_response_on_incoming_flow()
             {
@@ -119,7 +118,6 @@ namespace Contour.Tests
                     .Forward("outgoing_label");
             }
 
-            [Ignore]
             [Test]
             public void should_configure_action_response()
             {
