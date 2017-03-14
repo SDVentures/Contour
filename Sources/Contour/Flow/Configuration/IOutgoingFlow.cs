@@ -1,4 +1,6 @@
-﻿namespace Contour.Flow.Configuration
+﻿using Contour.Flow.Execution;
+
+namespace Contour.Flow.Configuration
 {
     /// <summary>
     /// Describes an outgoing message flow

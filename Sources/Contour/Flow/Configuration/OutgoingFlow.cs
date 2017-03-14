@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks.Dataflow;
+using Contour.Flow.Execution;
 
 namespace Contour.Flow.Configuration
 {
@@ -14,13 +15,13 @@ namespace Contour.Flow.Configuration
         {
             this.source = source;
         }
-
-        public IRequestResponseFlow<TSource, TOutput> Respond()
+        
+        public IRequestResponseFlow<TSource, TOutput> Forward(string label)
         {
             throw new NotImplementedException();
         }
 
-        public IRequestResponseFlow<TSource, TOutput> Forward(string label)
+        public IRequestResponseFlow<TSource, TOutput> Respond()
         {
             throw new NotImplementedException();
         }

@@ -4,6 +4,6 @@ namespace Contour.Flow.Configuration
 {
     public interface IFlowFactory
     {
-        IMessageFlow<TInput, FlowContext<TInput>> Create<TInput>(string transportName);
+        IMessageFlow<TInput, TInput> Create<TInput>(string transportName);
     }
 }

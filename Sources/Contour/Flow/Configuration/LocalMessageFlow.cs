@@ -9,7 +9,7 @@ namespace Contour.Flow.Configuration
     /// <summary>
     /// Provides an in-memory flow implementation
     /// </summary>
-    public class LocalMessageFlow<TSource> : IMessageFlow<TSource, FlowContext<TSource>>
+    public class LocalMessageFlow<TSource> : IMessageFlow<TSource, TSource>
     {
         private readonly ILog log = LogManager.GetLogger<LocalMessageFlow<TSource>>();
         private BufferBlock<FlowContext<TSource>> buffer;
@@ -49,7 +49,7 @@ namespace Contour.Flow.Configuration
         /// <param name="label">Flow label</param>
         /// <param name="capacity">Specifies the maximum capacity of the flow pipeline</param>
         /// <returns></returns>
-        IActingFlow<TSource, FlowContext<TSource>> IMessageFlow<TSource, FlowContext<TSource>>.On(string label, int capacity)
+        public IActingFlow<TSource, TSource> On(string label, int capacity)
         {
             if (buffer != null)
                 throw new FlowConfigurationException($"Flow [{Label}] has already been configured");
@@ -59,7 +59,7 @@ namespace Contour.Flow.Configuration
             buffer =
                 new BufferBlock<FlowContext<TSource>>(new ExecutionDataflowBlockOptions() { BoundedCapacity = capacity });
 
-            var flow = new ActingFlow<TSource, FlowContext<TSource>>(buffer)
+            var flow = new ActingFlow<TSource, TSource>(buffer)
             {
                 Registry = this.Registry,
                 Label = this.Label

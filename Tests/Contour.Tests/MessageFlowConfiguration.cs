@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Contour.Caching;
 using Contour.Flow.Configuration;
@@ -215,15 +216,15 @@ namespace Contour.Tests
 
                 var flow = broker.Create<Payload>("local")
                     .On("label")
-                    .Act(p => new Payload() { Value = p.In.Value * 2 })
+                    .Act(p => new Payload() { Value = p.Value.Value * 2 })
                     .Respond();
 
-                var callbackOne = A.Fake<Action<FlowContext<FlowContext<Payload>, Payload>>>();
+                var callbackOne = A.Fake<Action<FlowContext<Payload>>>();
                 var callbackOneFake = A.CallTo(callbackOne)
                     .WithNonVoidReturnType()
                     .Invokes(() => tcsOne.SetResult(true));
 
-                var callbackTwo = A.Fake<Action<FlowContext<FlowContext<Payload>, Payload>>>();
+                var callbackTwo = A.Fake<Action<FlowContext<Payload>>>();
                 var callbackTwoFake = A.CallTo(callbackTwo)
                     .WithNonVoidReturnType()
                     .Invokes(() => tcsTwo.SetResult(true));
@@ -253,13 +254,13 @@ namespace Contour.Tests
 
                 var flow = broker.Create<Payload>("local")
                     .On("label")
-                    .Act(p => new Payload() { Value = p.In.Value * 2 })
+                    .Act(p => new Payload() { Value = p.Value.Value * 2 })
                     .Respond();
 
                 var result = 0.0;
                 var entry = flow.Entry(ctx =>
                 {
-                    result = ctx.Out.Value;
+                    result = ctx.Value.Value;
                     tcs.SetResult(true);
                 });
                 entry.Post(new Payload() { Value = 1 });

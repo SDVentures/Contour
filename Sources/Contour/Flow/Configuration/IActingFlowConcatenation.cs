@@ -11,8 +11,24 @@ namespace Contour.Flow.Configuration
     /// <typeparam name="TSource">The source flow message type</typeparam>
     public interface IActingFlowConcatenation<TSource, TInput>: IOutgoingFlow<TSource, TInput>
     {
-        IActingFlow<TSource, FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1, int scale = 1, ICachePolicy policy = null) where TOutput: class;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="capacity"></param>
+        /// <param name="scale"></param>
+        /// <param name="policy"></param>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <returns></returns>
+        IActingFlow<TSource, TOutput> Act<TOutput>(Func<FlowContext<TInput>, TOutput> act, int capacity = 1, int scale = 1, ICachePolicy policy = null) where TOutput: class;
 
-        ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="capacity"></param>
+        /// <param name="scale"></param>
+        /// <returns></returns>
+        ITerminatingFlow Act(Action<FlowContext<TInput>> act, int capacity = 1, int scale = 1);
     }
 }

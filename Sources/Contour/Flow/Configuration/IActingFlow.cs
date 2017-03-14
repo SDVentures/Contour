@@ -20,7 +20,7 @@ namespace Contour.Flow.Configuration
         /// <param name="policy"></param>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
-        IActingFlow<TSource, FlowContext<TInput, TOutput>> Act<TOutput>(Func<TInput, TOutput> act, int capacity = 1,
+        IActingFlow<TSource, TOutput> Act<TOutput>(Func<FlowContext<TInput>, TOutput> act, int capacity = 1,
             int scale = 1, ICachePolicy policy = null) where  TOutput: class;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Contour.Flow.Configuration
         /// <param name="capacity"></param>
         /// <param name="scale"></param>
         /// <returns></returns>
-        ITerminatingFlow Act(Action<TInput> act, int capacity = 1, int scale = 1);
+        ITerminatingFlow Act(Action<FlowContext<TInput>> act, int capacity = 1, int scale = 1);
 
         /// <summary>
         /// Performs an action defined by <paramref name="act"/> and broadcasts the results
@@ -42,7 +42,7 @@ namespace Contour.Flow.Configuration
         /// <param name="policy"></param>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
-        IActingFlowConcatenation<TSource, TInput> Broadcast<TOutput>(Func<TInput, TOutput> act,  string label = null, int capacity = 1,
+        IActingFlowConcatenation<TSource, TOutput> Broadcast<TOutput>(Func<FlowContext<TInput>, TOutput> act,  string label = null, int capacity = 1,
             int scale = 1, ICachePolicy policy = null) where TOutput: class;
     }
 }

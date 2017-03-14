@@ -1,4 +1,5 @@
 using System;
+using Contour.Flow.Execution;
 
 namespace Contour.Flow.Configuration
 {
@@ -7,7 +8,7 @@ namespace Contour.Flow.Configuration
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
-    public interface IFlowAccessor<TInput, out TOutput>
+    public interface IFlowAccessor<TInput, TOutput>
     {
         /// <summary>
         /// Returns a new message flow entry point
@@ -19,7 +20,7 @@ namespace Contour.Flow.Configuration
         /// </summary>
         /// <param name="callback"></param>
         /// <returns></returns>
-        IFlowEntry<TInput> Entry(Action<TOutput> callback);
+        IFlowEntry<TInput> Entry(Action<FlowContext<TOutput>> callback);
     }
 
     /// <summary>

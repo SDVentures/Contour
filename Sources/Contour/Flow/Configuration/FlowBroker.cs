@@ -24,7 +24,7 @@ namespace Contour.Flow.Configuration
             }
         }
 
-        public IMessageFlow<TInput, FlowContext<TInput>> Create<TInput>(string transportName)
+        public IMessageFlow<TInput, TInput> Create<TInput>(string transportName)
         {
             try
             {

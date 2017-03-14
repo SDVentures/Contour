@@ -28,21 +28,21 @@ namespace Contour.Flow.Configuration
         /// <inheritdoc />
         public bool Post(TInput message)
         {
-            var context = new FlowContext<TInput>() {Id = this.Id, In = message};
+            var context = new FlowContext<TInput>() {Id = this.Id, Value = message};
             return target.Post(context);
         }
 
         /// <inheritdoc />
         public Task<bool> PostAsync(TInput message)
         {
-            var context = new FlowContext<TInput>() { Id = this.Id, In = message };
+            var context = new FlowContext<TInput>() { Id = this.Id, Value = message };
             return target.SendAsync(context);
         }
 
         /// <inheritdoc />
         public Task<bool> PostAsync(TInput message, CancellationToken token)
         {
-            var context = new FlowContext<TInput>() { Id = this.Id, In = message };
+            var context = new FlowContext<TInput>() { Id = this.Id, Value = message };
             return target.SendAsync(context, token);
         }
 

@@ -64,7 +64,6 @@
     <Compile Include="Filters\SendingExchangeFilter.cs" />
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
-    <Compile Include="Flow\Blocks\ICachingBlock.cs" />
     <Compile Include="Flow\Configuration\ActingFlow.cs" />
     <Compile Include="Caching\DefaultCachePolicy.cs" />
     <Compile Include="Caching\HashKeyProvider.cs" />

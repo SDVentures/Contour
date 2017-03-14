@@ -13,12 +13,12 @@ namespace Contour.Flow.Configuration
     /// <typeparam name="TOutput"></typeparam>
     public class RequestResponseFlow<TInput, TOutput> : IRequestResponseFlow<TInput, TOutput>
     {
-        private readonly ISourceBlock<TOutput> tailBlock;
+        private readonly ISourceBlock<FlowContext<TOutput>> tailBlock;
 
         public IFlowRegistry Registry { private get; set; }
         public string Label { private get; set; }
 
-        public RequestResponseFlow(ISourceBlock<TOutput> tailBlock)
+        public RequestResponseFlow(ISourceBlock<FlowContext<TOutput>> tailBlock)
         {
             this.tailBlock = tailBlock;
         }
@@ -28,19 +28,14 @@ namespace Contour.Flow.Configuration
             throw new NotImplementedException();
         }
 
-        public IFlowEntry<TInput> Entry(Action<TOutput> callback)
+        public IFlowEntry<TInput> Entry(Action<FlowContext<TOutput>> callback)
         {
             var head = (IMessageFlow<TInput, FlowContext<TInput>>)this.Registry.Get(this.Label);
             var entry = head.Entry();
 
-            var correlationQuery = new Predicate<TOutput>(p =>
-            {
-                var ctx = p as FlowContext;
-                var sourceCtx = ctx?.Unwind();
-                return sourceCtx?.Id == entry.Id;
-            });
+            var correlationQuery = new Predicate<FlowContext<TOutput>>(p => p.Head() == entry.Id);
 
-            var action = new ActionBlock<TOutput>(callback);
+            var action = new ActionBlock<FlowContext<TOutput>>(callback);
             tailBlock.LinkTo(action, correlationQuery);
 
             return entry;
