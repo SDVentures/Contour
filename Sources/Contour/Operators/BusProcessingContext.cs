@@ -1,11 +1,10 @@
-﻿namespace Contour.Operators
+﻿using System;
+using Contour.Receiving;
+
+namespace Contour.Operators
 {
-    using System;
-
-    using Contour.Receiving;
-
     /// <summary>
-    /// Контекст обработки сообщения.
+    /// Bus processing context used by Operators
     /// </summary>
     public class BusProcessingContext
     {
@@ -13,7 +12,38 @@
         private static BusProcessingContext current;
 
         /// <summary>
-        /// Текущий контекст.
+        /// Initializes a new instance of the <see cref="BusProcessingContext"/> class. 
+        /// </summary>
+        /// <param name="delivery">Current delivery</param>
+        [Obsolete("Must use constructor with IBusContext")]
+        public BusProcessingContext(IDelivery delivery)
+        {
+            this.Delivery = delivery;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BusProcessingContext"/> class. 
+        /// </summary>
+        /// <param name="delivery">Current delivery. Must not be null</param>
+        /// <param name="busContext">Bus context. Must not be null</param>
+        public BusProcessingContext(IDelivery delivery, IBusContext busContext)
+        {
+            if (delivery == null)
+            {
+                throw new ArgumentNullException(nameof(delivery));
+            }
+
+            if (busContext == null)
+            {
+                throw new ArgumentNullException(nameof(busContext));
+            }
+
+            this.Delivery = delivery;
+            this.BusContext = busContext;
+        }
+
+        /// <summary>
+        /// Current context
         /// </summary>
         public static BusProcessingContext Current
         {
@@ -29,17 +59,13 @@
         }
 
         /// <summary>
-        /// Входящая доставка.
+        /// Incoming delivery
         /// </summary>
-        public IDelivery Delivery { get; private set; }
+        public IDelivery Delivery { get; }
 
         /// <summary>
-        /// Создает объект контекста.
+        /// Bus context
         /// </summary>
-        /// <param name="delivery">Доставка.</param>
-        public BusProcessingContext(IDelivery delivery)
-        {
-            this.Delivery = delivery;
-        }
+        public IBusContext BusContext { get; }
     }
 }
