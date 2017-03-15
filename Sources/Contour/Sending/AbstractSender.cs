@@ -112,10 +112,7 @@ namespace Contour.Sending
         public Task<T> Request<T>(object payload, RequestOptions options) where T : class
         {
             var headers = this.ApplyOptions(options);
-            if (!headers.ContainsKey(Headers.CorrelationId))
-            {
-                headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
-            }
+            headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
 
             return this.Request<T>(payload, headers);
         }
@@ -157,6 +154,7 @@ namespace Contour.Sending
         public Task<T> Request<T>(MessageLabel label, object payload, RequestOptions options) where T : class
         {
             var headers = this.ApplyOptions(options);
+            headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
 
             return this.Request<T>(label, payload, headers);
         }
@@ -176,6 +174,7 @@ namespace Contour.Sending
                 headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
             }
 
+            Logger.Trace(m => m("Invoking request to label [{0}] with payload [{1}] and corellationId = [{2}]", label, payload, headers[Headers.CorrelationId]));
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
