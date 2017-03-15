@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace Contour.RabbitMq.Tests
 {
     /// <summary>
-    /// Набор тестов для проверки обработки заголовков сообщения.
+    /// Set of test on processing headers
     /// </summary>
     public class MessageHeaderSpecs
     {
@@ -27,7 +27,7 @@ namespace Contour.RabbitMq.Tests
             /// Должны копироваться заголовки инициирующего сообщения.
             /// </summary>
             [Test]
-            public void ShouldCopiesHeadersOfInitialMessage()
+            public void ShouldCopyHeadersOfInitialMessage()
             {
                 IMessage message = null;
                 var waitHandle = new AutoResetEvent(false);
@@ -74,7 +74,7 @@ namespace Contour.RabbitMq.Tests
             /// Должны копироваться заголовки при отправке сообщений в новом потоке.
             /// </summary>
             [Test]
-            public void ShouldCopiesHeadersForNewTask()
+            public void ShouldCopyHeadersForNewTask()
             {
                 IMessage message = null;
                 var waitHandle = new AutoResetEvent(false);
@@ -127,7 +127,7 @@ namespace Contour.RabbitMq.Tests
             /// Должны копироваться заголовке при использовании задачи из пула потоков.
             /// </summary>
             [Test]
-            public void ShouldCopiesHeadersForQueueUserItem()
+            public void ShouldCopyHeadersForQueueUserItem()
             {
                 IMessage message = null;
                 var waitHandle = new AutoResetEvent(false);
@@ -179,7 +179,7 @@ namespace Contour.RabbitMq.Tests
             /// Должны копироваться заголовки запроса.
             /// </summary>
             [Test]
-            public void ShouldCopiesHeadersOfInitialRequestMessage()
+            public void ShouldCopyHeadersOfInitialRequestMessage()
             {
                 IMessage message = null;
                 var waitHandle = new AutoResetEvent(false);
@@ -229,7 +229,7 @@ namespace Contour.RabbitMq.Tests
             /// Должны копироваться заголовки асинхронного запроса.
             /// </summary>
             [Test]
-            public void ShouldCopiesHeadersOfInitialAsyncRequestMessage()
+            public void ShouldCopyHeadersOfInitialAsyncRequestMessage()
             {
                 IMessage message = null;
                 var waitHandle = new AutoResetEvent(false);
@@ -441,6 +441,59 @@ namespace Contour.RabbitMq.Tests
 
                 Assert.IsTrue(waitHandle.WaitOne(), "Тест должен завершиться за указанное время.");
                 Assert.IsTrue(message.Headers.ContainsKey(Headers.OriginalMessageId), "Должен быть установлен заголовок с индентификатором первого сообщения.");
+            }
+
+            [Test]
+            public void ShouldPassCorellationIdOnEmit()
+            {
+                IMessage message = null;
+                var waitHandle = new ManualResetEventSlim(false);
+
+                const string ProducerName = "producer";
+                IBus producer = this.StartBus(
+                    ProducerName,
+                    cfg => cfg.Route("command.handle.this").WithDefaultCallbackEndpoint());
+
+                const string ConsumerName = "consumer";
+                string corellationId = null;
+                var consumer = this.StartBus(
+                    ConsumerName,
+                    cfg =>
+                    {
+                        cfg.Route("event.this.handled");
+                        cfg.On("command.handle.this")
+                            .ReactWith<ExpandoObject>(
+                                (m, ctx) =>
+                                    {
+                                        corellationId = ctx.Message.Headers[Headers.CorrelationId].ToString();
+                                        ctx.Bus.Emit("event.this.handled", new { });
+                                        ctx.Reply(new { });
+                                    });
+                    });
+
+                const string TrapName = "trap";
+                var trap = this.StartBus(
+                    TrapName,
+                    cfg => cfg.On("event.this.handled").ReactWith<ExpandoObject>(
+                        (m, ctx) =>
+                        {
+                            message = ctx.Message;
+                            waitHandle.Set();
+                        }));
+
+                WaitHandle.WaitAll(new[] { producer.WhenReady, consumer.WhenReady, trap.WhenReady });
+                var maxWaitTime = TimeSpan.FromSeconds(5);
+                Assert.IsTrue(
+                    producer
+                        .RequestAsync<object, object>(
+                            "command.handle.this".ToMessageLabel(),
+                            new { })
+                        .ContinueWith(t => { })
+                        .Wait(maxWaitTime),
+                    "Response should be received.");
+
+                Assert.IsTrue(waitHandle.Wait(maxWaitTime), "Тест должен завершиться за указанное время.");
+                Assert.AreEqual(corellationId, message.Headers[Headers.CorrelationId], "Should emit with same correlation id");
             }
 
             /// <summary>

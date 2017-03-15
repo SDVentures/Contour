@@ -13,3 +13,4 @@ TestResults.xml
 *.bak
 .paket/paket.exe
 StyleCop.Cache
+*.csproj.user
