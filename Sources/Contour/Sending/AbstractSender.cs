@@ -80,12 +80,14 @@ namespace Contour.Sending
         public abstract void Dispose();
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// Sends message using request-reply pattern. 
+        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply, 
+        /// new one is generated if none is supplied.
         /// </summary>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="payload">Message payload.</param>
+        /// <param name="headers">Message headers.</param>
+        /// <typeparam name="T">Type of response.</typeparam>
+        /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(object payload, IDictionary<string, object> headers) where T : class
         {
             var message = new Message(this.Configuration.Label, headers, payload);
@@ -103,12 +105,14 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// Sends message using request-reply pattern.
+        /// Copies all allowed message headers and generates new <see cref="Headers.CorrelationId"/> header. 
+        /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
         /// </summary>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="options">Параметры запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="payload">Message payload.</param>
+        /// <param name="options">Request options.</param>
+        /// <typeparam name="T">Type of response.</typeparam>
+        /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(object payload, RequestOptions options) where T : class
         {
             var headers = this.ApplyOptions(options);
@@ -117,7 +121,7 @@ namespace Contour.Sending
             return this.Request<T>(payload, headers);
         }
 
-            /// <summary>
+        /// <summary>
         /// Отправляет одностороннее сообщение.
         /// </summary>
         /// <param name="payload">Тело сообщения.</param>
@@ -144,13 +148,15 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// Sends message using request-reply pattern.
+        /// Copies all allowed message headers. And generates new <see cref="Headers.CorrelationId"/> header. 
+        /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
         /// </summary>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="options">Параметры запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="label">Message label.</param>
+        /// <param name="payload">Message payload.</param>
+        /// <param name="options">Request options.</param>
+        /// <typeparam name="T">Type of response.</typeparam>
+        /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(MessageLabel label, object payload, RequestOptions options) where T : class
         {
             var headers = this.ApplyOptions(options);
@@ -160,13 +166,15 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет сообщение в формате запрос-ответ.
+        /// Sends message using request-reply pattern. 
+        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply, 
+        /// new one is generated if none is supplied.
         /// </summary>
-        /// <param name="label">Метка отправляемого запроса.</param>
-        /// <param name="payload">Сообщение запроса.</param>
-        /// <param name="headers">Заголовки запроса.</param>
-        /// <typeparam name="T">Тип сообщения ответа.</typeparam>
-        /// <returns>Задача выполнения запроса.</returns>
+        /// <param name="label">Message label.</param>
+        /// <param name="payload">Message payload.</param>
+        /// <param name="headers">Message headers.</param>
+        /// <typeparam name="T">Type of response.</typeparam>
+        /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(MessageLabel label, object payload, IDictionary<string, object> headers) where T : class
         {
             if (!headers.ContainsKey(Headers.CorrelationId))
@@ -174,7 +182,7 @@ namespace Contour.Sending
                 headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
             }
 
-            Logger.Trace(m => m("Invoking request to label [{0}] with payload [{1}] and corellationId = [{2}]", label, payload, headers[Headers.CorrelationId]));
+            Logger.Trace(m => m("Invoking request to label [{0}] with payload [{1}] and correlationId = [{2}]", label, payload, headers[Headers.CorrelationId]));
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));

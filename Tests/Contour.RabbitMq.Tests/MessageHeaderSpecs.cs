@@ -444,7 +444,7 @@ namespace Contour.RabbitMq.Tests
             }
 
             [Test]
-            public void ShouldPassCorellationIdOnEmit()
+            public void ShouldPreserveCorrelationIdOfIncomingMessageOnEmit()
             {
                 IMessage message = null;
                 var waitHandle = new ManualResetEventSlim(false);
@@ -492,7 +492,7 @@ namespace Contour.RabbitMq.Tests
                         .Wait(maxWaitTime),
                     "Response should be received.");
 
-                Assert.IsTrue(waitHandle.Wait(maxWaitTime), "Тест должен завершиться за указанное время.");
+                Assert.IsTrue(waitHandle.Wait(maxWaitTime), "Test should complete in given time.");
                 Assert.AreEqual(corellationId, message.Headers[Headers.CorrelationId], "Should emit with same correlation id");
             }
 
