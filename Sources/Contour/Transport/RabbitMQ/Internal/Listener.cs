@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using Newtonsoft.Json;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -244,6 +246,10 @@
                     {
                         this.validatorRegistry.Validate(context.Message);
                     }
+
+                    this.logger.Trace(
+                        m => m($"{typeof(T)}: получил сообщение " +
+                               $"[{JsonConvert.SerializeObject(context.Message.Payload)}] на обработку"));
 
                     consumer.Handle(context);
                 };
