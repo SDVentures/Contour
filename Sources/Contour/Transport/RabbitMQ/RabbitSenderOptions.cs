@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ
+﻿using Contour.Transport.RabbitMQ.Internal;
+
+namespace Contour.Transport.RabbitMQ
 {
     using Configuration;
     using Sending;
@@ -24,7 +26,26 @@
         public RabbitSenderOptions(BusOptions parent) : base(parent)
         {
         }
-        
+
+        /// <summary>
+        /// Treats and returns a connection string as a sequence of RabbitMQ broker URLs
+        /// </summary>
+        public RabbitConnectionString RabbitConnectionString => new RabbitConnectionString(this.GetConnectionString().Value);
+
+        /// <summary>
+        /// Defines an algorithm which specifies the way in which producers will be taken from the list by the sender.
+        /// </summary>
+        public IProducerSelector ProducerSelector { protected get; set; }
+
+        /// <summary>
+        /// Defines an algorithm which specifies the way in which producers will be taken from the list by the sender.
+        /// </summary>
+        /// <returns><see cref="IProducerSelector"/></returns>
+        public IProducerSelector GetProducerSelector()
+        {
+            return this.Pick<RabbitSenderOptions, IProducerSelector>((o) => o.ProducerSelector);
+        }
+
         /// <summary>
         /// Creates a copy of <see cref="RabbitSenderOptions"/>
         /// </summary>

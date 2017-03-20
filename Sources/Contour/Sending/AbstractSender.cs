@@ -36,11 +36,17 @@ namespace Contour.Sending
         // TODO: refactor, don't copy filters
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="AbstractSender"/>.
+        /// Initializes a new instance of the <see cref="AbstractSender"/> class. 
         /// </summary>
-        /// <param name="endpoint">Конечная точка, от имени которой работает отправитель.</param>
-        /// <param name="configuration">Конфигурация отправителя.</param>
-        /// <param name="filters">Список фильтров обработки сообщения.</param>
+        /// <param name="endpoint">
+        /// Sender's endpoint
+        /// </param>
+        /// <param name="configuration">
+        /// Sender's configuration
+        /// </param>
+        /// <param name="filters">
+        /// A list of message handling filters
+        /// </param>
         protected AbstractSender(IEndpoint endpoint, ISenderConfiguration configuration, IEnumerable<IMessageExchangeFilter> filters)
         {
             this.endpoint = endpoint;

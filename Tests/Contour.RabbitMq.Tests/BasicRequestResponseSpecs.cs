@@ -33,7 +33,7 @@
         /// </summary>
         [TestFixture]
         [Category("Integration")]
-        public class when_global_timeout_is_overrided : RabbitMqFixture
+        public class when_global_timeout_is_overridden : RabbitMqFixture
         {
             /// <summary>
             /// The should_use_overrided_timeout_value.

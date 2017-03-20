@@ -68,16 +68,31 @@
             }
         }
 
+        /// <summary>
+        /// Gets the connection string
+        /// </summary>
         [ConfigurationProperty("connectionString", IsRequired = false)]
         public string ConnectionString
         {
             get { return (string)base["connectionString"]; }
         }
 
+        /// <summary>
+        /// Gets a flag which specifies if an existing connection should be reused
+        /// </summary>
         [ConfigurationProperty("reuseConnection", IsRequired = false)]
         public bool? ReuseConnection
         {
             get { return (bool?)base["reuseConnection"]; }
+        }
+
+        /// <summary>
+        /// Defines an algorithm to choose a producer
+        /// </summary>
+        [ConfigurationProperty("producerSelector", IsRequired = false)]
+        public string ProducerSelector
+        {
+            get { return (string)base["producerSelector"]; }
         }
     }
 }

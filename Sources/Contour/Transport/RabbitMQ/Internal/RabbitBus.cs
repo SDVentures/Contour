@@ -2,14 +2,16 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Common.Logging;
-
 using Contour.Configuration;
 using Contour.Helpers;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
+    using System.Collections.Generic;
+    using Receiving;
+    using Sending;
+
     /// <summary>
     /// The rabbit bus.
     /// </summary>
@@ -40,17 +42,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.connectionPool.ConnectionClosed += this.ConnectionClosed;
             this.connectionPool.ConnectionOpened += (sender, args) => this.OnConnected();
         }
-
-        /// <summary>
-        /// Gets the listener registry.
-        /// </summary>
-        public ListenerRegistry ListenerRegistry { get; private set; }
-
-        /// <summary>
-        /// Gets the producer registry.
-        /// </summary>
-        public ProducerRegistry ProducerRegistry { get; private set; }
-
+        
         /// <summary>
         /// Gets the when ready.
         /// </summary>
@@ -104,21 +96,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.Stop();
 
-            if (this.ListenerRegistry != null)
-            {
-                this.logger.Trace(m => m("{0}: disposing listener registry.", this.Endpoint));
-                this.ListenerRegistry.Dispose();
-                this.ListenerRegistry = null;
-            }
-
-            if (this.ProducerRegistry != null)
-            {
-                this.logger.Trace(m => m("{0}: disposing producer registry.", this.Endpoint));
-                this.ProducerRegistry.Dispose();
-                this.ProducerRegistry = null;
-            }
-
-            this.logger.Trace(m => m("{0}: resetting state.", this.Endpoint));
+            this.logger.Trace(m => m("{0}: resetting bus configuration", this.Endpoint));
             this.IsConfigured = false;
 
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
@@ -129,7 +107,39 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.ComponentTracker.UnregisterAll();
             this.IsShuttingDown = false;
         }
-        
+
+        /// <summary>
+        /// Registers a receiver using the <paramref name="configuration"/>
+        /// </summary>
+        /// <param name="configuration">
+        /// Receiver configuration
+        /// </param>
+        /// <returns>
+        /// The <see cref="RabbitReceiver"/>.
+        /// </returns>
+        public RabbitReceiver RegisterReceiver(IReceiverConfiguration configuration)
+        {
+            var receiver = new RabbitReceiver(this, configuration, this.connectionPool);
+            this.ComponentTracker.Register(receiver);
+            return receiver;
+        }
+
+        /// <summary>
+        /// Registers a sender using <paramref name="configuration"/>
+        /// </summary>
+        /// <param name="configuration">
+        /// Sender configuration
+        /// </param>
+        /// <returns>
+        /// The <see cref="RabbitSender"/>.
+        /// </returns>
+        public RabbitSender RegisterSender(ISenderConfiguration configuration)
+        {
+            var sender = new RabbitSender(this, configuration, this.connectionPool, this.Configuration.Filters.ToList());
+            this.ComponentTracker.Register(sender);
+            return sender;
+        }
+
         protected override void Restart(bool waitForReadiness = true)
         {
             lock (this.syncRoot)
@@ -202,19 +212,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(m => m("{0}: stopping bus components.", this.Endpoint));
             this.ComponentTracker.StopAll();
-
-            if (this.ListenerRegistry != null)
-            {
-                this.logger.Trace(m => m("{0}: resetting listener registry.", this.Endpoint));
-                this.ListenerRegistry.Reset();
-            }
-
-            if (this.ProducerRegistry != null)
-            {
-                this.logger.Trace(m => m("{0}: resetting producer registry.", this.Endpoint));
-                this.ProducerRegistry.Reset();
-            }
-
+            
             this.OnStopped();
         }
 
@@ -260,34 +258,17 @@ namespace Contour.Transport.RabbitMQ.Internal
                         .Name, 
                     this.Endpoint));
 
-            this.BuildSenders();
-            this.BuildReceivers();
+            foreach (var configuration in this.Configuration.SenderConfigurations)
+            {
+                this.RegisterSender(configuration);
+            }
 
+            foreach (var configuration in this.Configuration.ReceiverConfigurations)
+            {
+                this.RegisterReceiver(configuration);
+            }
+            
             this.IsConfigured = true;
-        }
-
-        private void BuildReceivers()
-        {
-            this.ListenerRegistry = new ListenerRegistry(this, this.connectionPool);
-
-            this.Configuration.ReceiverConfigurations.ForEach(
-                c =>
-                {
-                    var receiver = new RabbitReceiver(c, this.ListenerRegistry);
-                    this.ComponentTracker.Register(receiver);
-                });
-        }
-
-        private void BuildSenders()
-        {
-            this.ProducerRegistry = new ProducerRegistry(this, this.connectionPool);
-
-            this.Configuration.SenderConfigurations.ForEach(
-                c =>
-                {
-                    var sender = new RabbitSender(this.Configuration.Endpoint, c, this.ProducerRegistry, this.Configuration.Filters.ToList());
-                    this.ComponentTracker.Register(sender);
-                });
         }
 
         private void ConnectionClosed(object sender, EventArgs e)

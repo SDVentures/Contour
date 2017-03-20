@@ -1,18 +1,15 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Transport.RabbitMQ.Topology;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
-    using System;
-
-    using Contour.Receiving;
-    using Contour.Sending;
-    using Contour.Transport.RabbitMQ.Topology;
-
     /// <summary>
     /// The rabbit bus defaults.
     /// </summary>
     internal static class RabbitBusDefaults
     {
-        #region Static Fields
-
         /// <summary>
         /// The route resolver builder.
         /// </summary>
@@ -23,9 +20,10 @@
         /// </summary>
         public static Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> SubscriptionEndpointBuilder = SubscriptionEndpointBuilderImpl;
 
-        #endregion
-
-        #region Methods
+        /// <summary>
+        /// Defines a default producer selector as Round Robin selector
+        /// </summary>
+        public static IProducerSelector ProducerSelector = new RoundRobinSelector();
 
         /// <summary>
         /// The route resolver builder impl.
@@ -73,7 +71,5 @@
 
             return builder.ListenTo(queue, exchange);
         }
-
-        #endregion
     }
 }

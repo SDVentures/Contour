@@ -1,8 +1,9 @@
-﻿namespace Contour.Transport.RabbitMQ
+﻿using Contour.Sending;
+
+namespace Contour.Transport.RabbitMQ
 {
-    using System.Runtime.CompilerServices;
-    using Sending;
-    
+    using Internal;
+
     /// <summary>
     /// Extension methods for sender configurator
     /// </summary>
@@ -47,6 +48,23 @@
         public static ISenderConfigurator ReuseConnection(this ISenderConfigurator builder, bool reuse = true)
         {
             ((RabbitSenderOptions)((SenderConfiguration)builder).Options).ReuseConnection = reuse;
+            return builder;
+        }
+
+        /// <summary>
+        /// Configures sender to use <paramref name="policy"/> to select publisher each time a message is sent
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        public static ISenderConfigurator WithProducerSelector(this ISenderConfigurator builder,
+            IProducerSelector selector)
+        {
+            var senderConfiguration = (SenderConfiguration)builder;
+            var rabbitSenderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+
+            rabbitSenderOptions.ProducerSelector = selector;
+
             return builder;
         }
     }

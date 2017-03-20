@@ -20,4 +20,12 @@
         /// </summary>
         Delegated
     }
+
+    public enum SelectionAlgorithm
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        RoundRobin,
+    }
 }
