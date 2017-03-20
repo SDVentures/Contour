@@ -135,6 +135,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             lock (this.syncRoot)
             {
+                this.Configure();
                 return this.listeners.FirstOrDefault(predicate);
             }
         }
@@ -146,16 +147,29 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.logger.Trace(m => m("Starting listeners in receiver of [{0}]", this.Configuration.Label));
 
-            this.BuildListeners();
-            this.Configuration.ReceiverRegistration(this);
-
             lock (this.syncRoot)
             {
+                this.Configure();
+
                 foreach (var listener in this.listeners)
                 {
                     listener.StartConsuming();
                     this.logger.Trace($"Listener [{listener}] started successfully");
                 }
+            }
+        }
+
+        private void Configure()
+        {
+            lock (this.syncRoot)
+            {
+                if (!this.listeners.IsEmpty)
+                {
+                    return;
+                }
+
+                this.BuildListeners();
+                this.Configuration.ReceiverRegistration(this);
             }
         }
 
@@ -197,11 +211,14 @@ namespace Contour.Transport.RabbitMQ.Internal
             var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
 
             var rabbitConnectionString = new RabbitConnectionString(options.GetConnectionString().Value);
+            this.logger.Trace(
+                $"Building listeners of [{this.Configuration.Label}]:\r\n{string.Join("\r\n", rabbitConnectionString.Select(url => $"URL\t=>\t{url}"))}");
+
             foreach (var url in rabbitConnectionString)
             {
                 var source = new CancellationTokenSource();
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
-                this.logger.Trace($"Using connection [{connection.Id}] to resolve a listener");
+                this.logger.Trace($"Using connection [{connection.Id}] at URL='{url}' to resolve a listener");
 
                 var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
                 var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
@@ -212,26 +229,22 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 var endpoint = endpointBuilder.Value(builder);
 
-                lock (this.syncRoot)
+                var listener =
+                    this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
+                if (listener == null)
                 {
-                    var listener =
-                        this.listeners.FirstOrDefault(
-                            l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
-                    if (listener == null)
-                    {
-                        listener = new Listener(
-                            this.bus,
-                            connection,
-                            endpoint,
-                            options,
-                            this.bus.Configuration.ValidatorRegistry);
+                    listener = new Listener(
+                        this.bus,
+                        connection,
+                        endpoint,
+                        options,
+                        this.bus.Configuration.ValidatorRegistry);
 
-                        this.listeners.Add(listener);
-                    }
-                    else
-                    {
-                        this.EnsureConfigurationIsCompatible(listener);
-                    }
+                    this.listeners.Add(listener);
+                }
+                else
+                {
+                    this.EnsureConfigurationIsCompatible(listener);
                 }
             }
         }

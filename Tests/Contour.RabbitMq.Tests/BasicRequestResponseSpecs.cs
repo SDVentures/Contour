@@ -1,25 +1,27 @@
-﻿namespace Contour.RabbitMq.Tests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Configuration;
-    using Helpers;
-    using Receiving;
-    using Sending;
-    using Testing.Plumbing;
-    using Testing.Transport.RabbitMq;
-    using Transport.RabbitMQ;
-    using Transport.RabbitMQ.Topology;
-    using FluentAssertions;
-    using NUnit.Framework;
-    using Exchange = Transport.RabbitMQ.Topology.Exchange;
-    using Queue = Transport.RabbitMQ.Topology.Queue;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
+using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Testing.Plumbing;
+using Contour.Testing.Transport.RabbitMq;
+using Contour.Transport.RabbitMQ;
+using Contour.Transport.RabbitMQ.Topology;
+
+using FluentAssertions;
+using NUnit.Framework;
+
+using Exchange = Contour.Transport.RabbitMQ.Topology.Exchange;
+using Queue = Contour.Transport.RabbitMQ.Topology.Queue;
+
+namespace Contour.RabbitMq.Tests
+{
     // ReSharper disable InconsistentNaming
 
     /// <summary>

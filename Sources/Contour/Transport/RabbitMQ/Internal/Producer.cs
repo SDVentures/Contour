@@ -50,6 +50,7 @@
             this.endpoint = endpoint;
 
             this.Channel = connection.OpenChannel();
+            this.BrokerUrl = connection.ConnectionString;
             this.Label = label;
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
@@ -82,6 +83,11 @@
                 return !this.Channel.IsOpen;
             }
         }
+
+        /// <summary>
+        /// A URL assigned to the producer to access the RabbitMQ broker
+        /// </summary>
+        public string BrokerUrl { get; private set; }
 
         /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.

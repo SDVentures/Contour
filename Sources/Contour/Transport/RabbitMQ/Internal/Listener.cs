@@ -109,6 +109,8 @@
             this.validatorRegistry = validatorRegistry;
 
             this.ReceiverOptions = receiverOptions;
+            this.BrokerUrl = connection.ConnectionString;
+
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
             
@@ -156,6 +158,11 @@
         /// Настройки получателя.
         /// </summary>
         public RabbitReceiverOptions ReceiverOptions { get; private set; }
+
+        /// <summary>
+        /// A URL assigned to the listener to access the RabbitMQ broker
+        /// </summary>
+        public string BrokerUrl { get; private set; }
 
         public bool HasFailed { get; private set; }
 

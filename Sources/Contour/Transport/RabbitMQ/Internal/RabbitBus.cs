@@ -100,7 +100,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.IsConfigured = false;
 
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
-            // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоятии закрытия)
+            // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоянии закрытия)
             // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
             this.restartTask.Wait();
 
@@ -119,8 +119,14 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public RabbitReceiver RegisterReceiver(IReceiverConfiguration configuration)
         {
+            this.logger.Trace(
+                $"Registering a new receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
+
             var receiver = new RabbitReceiver(this, configuration, this.connectionPool);
             this.ComponentTracker.Register(receiver);
+
+            this.logger.Trace(
+                $"A receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}] registered successfully");
             return receiver;
         }
 
@@ -135,8 +141,15 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public RabbitSender RegisterSender(ISenderConfiguration configuration)
         {
+            this.logger.Trace(
+                $"Registering a new sender of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
+
             var sender = new RabbitSender(this, configuration, this.connectionPool, this.Configuration.Filters.ToList());
             this.ComponentTracker.Register(sender);
+
+            this.logger.Trace(
+                $"A sender of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}] registered successfully");
+
             return sender;
         }
 
@@ -252,23 +265,25 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return;
             }
 
-            this.logger.InfoFormat(
-                "Configuring [{0}] with endpoint [{1}].".FormatEx(
-                    this.GetType()
-                        .Name, 
-                    this.Endpoint));
+            var name = this.GetType().Name;
+            var senderConfigurations = this.Configuration.SenderConfigurations.ToList();
+            var receiverConfigurations = this.Configuration.ReceiverConfigurations.ToList();
+            
+            this.logger.Trace(
+                $"Configuring [{name}] with endpoint [{this.Endpoint}]:\r\nSenders:\r\n{string.Join("\r\n", senderConfigurations.Select(s => $"[{s.Label}]\t=>\t{s.Options.GetConnectionString()}"))},\r\nReceivers:{string.Join("\r\n", receiverConfigurations.Select(r => $"[{r.Label}]\t=>\t{r.Options.GetConnectionString()}"))}");
 
-            foreach (var configuration in this.Configuration.SenderConfigurations)
+            foreach (var sender in senderConfigurations)
             {
-                this.RegisterSender(configuration);
+                this.RegisterSender(sender);
             }
 
-            foreach (var configuration in this.Configuration.ReceiverConfigurations)
+            foreach (var receiver in receiverConfigurations)
             {
-                this.RegisterReceiver(configuration);
+                this.RegisterReceiver(receiver);
             }
             
             this.IsConfigured = true;
+            this.logger.Info($"Configuration of [{name}] completed successfully");
         }
 
         private void ConnectionClosed(object sender, EventArgs e)
