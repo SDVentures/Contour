@@ -87,8 +87,10 @@
     <Compile Include="Operators\WireTap.cs" />
     <Compile Include="Configuration\EndpointOptions.cs" />
     <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\DefaultProducerSelectorBuilder.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RoundRobinSelector.cs" />
     <Compile Include="Transport\RabbitMQ\IProducerSelector.cs" />
+    <Compile Include="Transport\RabbitMQ\IProducerSelectorBuilder.cs" />
     <Compile Include="Transport\RabbitMQ\RabbitConnectionString.cs" />
     <Compile Include="Transport\RabbitMQ\RabbitSenderOptions.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionPool.cs" />

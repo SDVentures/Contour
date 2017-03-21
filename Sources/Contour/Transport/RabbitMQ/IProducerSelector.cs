@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Contour.Transport.RabbitMQ
 {
     /// <summary>
@@ -8,19 +6,14 @@ namespace Contour.Transport.RabbitMQ
     public interface IProducerSelector
     {
         /// <summary>
-        /// Initializes the selector
-        /// </summary>
-        /// <param name="list">
-        /// The list of producers
-        /// </param>
-        void Initialize(IList list);
-        
-        /// <summary>
         /// Gets the next producer in the list
         /// </summary>
+        /// <typeparam name="TProducer">
+        /// The type of the producer
+        /// </typeparam>
         /// <returns>
         /// The selected producer
         /// </returns>
-        int Next();
+        TProducer Next<TProducer>();
     }
 }

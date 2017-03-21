@@ -251,7 +251,9 @@ namespace Contour.Configurator
                 if (!string.IsNullOrEmpty(outgoingElement.ProducerSelector))
                 {
                     var selector = this.ResolveProducerSelector(outgoingElement.ProducerSelector);
-                    configurator.WithProducerSelector(selector);
+
+                    throw new NotImplementedException();
+                    //configurator.WithProducerSelectorBuilder(selector);
                 }
             }
 

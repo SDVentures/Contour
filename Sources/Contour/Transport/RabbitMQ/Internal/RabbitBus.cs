@@ -4,14 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using Contour.Configuration;
-using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Sending;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
-    using System.Collections.Generic;
-    using Receiving;
-    using Sending;
-
     /// <summary>
     /// The rabbit bus.
     /// </summary>
@@ -270,7 +267,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             var receiverConfigurations = this.Configuration.ReceiverConfigurations.ToList();
             
             this.logger.Trace(
-                $"Configuring [{name}] with endpoint [{this.Endpoint}]:\r\nSenders:\r\n{string.Join("\r\n", senderConfigurations.Select(s => $"[{s.Label}]\t=>\t{s.Options.GetConnectionString()}"))},\r\nReceivers:{string.Join("\r\n", receiverConfigurations.Select(r => $"[{r.Label}]\t=>\t{r.Options.GetConnectionString()}"))}");
+                $"Configuring [{name}] with endpoint [{this.Endpoint}]:\r\nSenders:\r\n\t{string.Join("\r\n\t", senderConfigurations.Select(s => $"[{s.Label}]\t=>\t{s.Options.GetConnectionString()}"))}\r\nReceivers:\r\n\t{string.Join("\r\n\t", receiverConfigurations.Select(r => $"[{r.Label}]\t=>\t{r.Options.GetConnectionString()}"))}");
 
             foreach (var sender in senderConfigurations)
             {

@@ -1,6 +1,4 @@
-﻿using Contour.Transport.RabbitMQ.Internal;
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     using Configuration;
     using Sending;
@@ -35,15 +33,15 @@ namespace Contour.Transport.RabbitMQ
         /// <summary>
         /// Defines an algorithm which specifies the way in which producers will be taken from the list by the sender.
         /// </summary>
-        public IProducerSelector ProducerSelector { protected get; set; }
+        public IProducerSelectorBuilder ProducerSelectorBuilder { protected get; set; }
 
         /// <summary>
         /// Defines an algorithm which specifies the way in which producers will be taken from the list by the sender.
         /// </summary>
         /// <returns><see cref="IProducerSelector"/></returns>
-        public IProducerSelector GetProducerSelector()
+        public IProducerSelectorBuilder GetProducerSelectorBuilder()
         {
-            return this.Pick<RabbitSenderOptions, IProducerSelector>((o) => o.ProducerSelector);
+            return this.Pick<RabbitSenderOptions, IProducerSelectorBuilder>((o) => o.ProducerSelectorBuilder);
         }
 
         /// <summary>

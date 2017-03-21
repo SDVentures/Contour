@@ -16,12 +16,9 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitReceiver : AbstractReceiver
     {
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
-
+        private readonly ILog logger;
         private readonly RabbitBus bus;
-
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
-        private readonly object syncRoot = new object();
         private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
 
         /// <summary>
@@ -39,6 +36,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.bus = bus;
             this.connectionPool = connectionPool;
+            this.logger = LogManager.GetLogger($"{this.GetType().Name}(Endpoint=\"{this.bus.Endpoint}\")");
         }
 
         /// <summary>
@@ -50,10 +48,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             get
             {
-                lock (this.syncRoot)
-                {
-                    return this.listeners.Any(l => !l.HasFailed);
-                }
+                return this.listeners.Any(l => !l.HasFailed);
             }
         }
 
@@ -68,10 +63,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public bool CanReceive(MessageLabel label)
         {
-            lock (this.syncRoot)
-            {
-                return this.listeners.Any(l => l.Supports(label));
-            }
+            return this.listeners.Any(l => l.Supports(label));
         }
 
         /// <summary>
@@ -88,14 +80,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </typeparam>
         public override void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer)
         {
-            this.logger.Trace(m => m("Registering consumer of [{0}] for receiver of [{1}].", typeof (T).Name, label));
+            this.logger.Trace(m => m("Registering consumer of [{0}] in receiver of [{1}].", typeof (T).Name, label));
 
-            lock (this.syncRoot)
+            foreach (var listener in this.listeners)
             {
-                foreach (var listener in this.listeners)
-                {
-                    listener.RegisterConsumer(label, consumer, this.Configuration.Validator);
-                }
+                listener.RegisterConsumer(label, consumer, this.Configuration.Validator);
             }
         }
 
@@ -133,11 +122,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public Listener GetListener(Func<Listener, bool> predicate)
         {
-            lock (this.syncRoot)
-            {
-                this.Configure();
-                return this.listeners.FirstOrDefault(predicate);
-            }
+            this.Configure();
+            return this.listeners.FirstOrDefault(predicate);
         }
 
         /// <summary>
@@ -146,31 +132,24 @@ namespace Contour.Transport.RabbitMQ.Internal
         private void StartListeners()
         {
             this.logger.Trace(m => m("Starting listeners in receiver of [{0}]", this.Configuration.Label));
+            this.Configure();
 
-            lock (this.syncRoot)
+            foreach (var listener in this.listeners)
             {
-                this.Configure();
-
-                foreach (var listener in this.listeners)
-                {
-                    listener.StartConsuming();
-                    this.logger.Trace($"Listener [{listener}] started successfully");
-                }
+                listener.StartConsuming();
+                this.logger.Trace($"Listener [{listener}] started successfully");
             }
         }
 
         private void Configure()
         {
-            lock (this.syncRoot)
+            if (!this.listeners.IsEmpty)
             {
-                if (!this.listeners.IsEmpty)
-                {
-                    return;
-                }
-
-                this.BuildListeners();
-                this.Configuration.ReceiverRegistration(this);
+                return;
             }
+
+            this.BuildListeners();
+            this.Configuration.ReceiverRegistration?.Invoke(this);
         }
 
         /// <summary>
@@ -180,22 +159,19 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.logger.Trace(m => m("Stopping listeners in receiver of [{0}]", this.Configuration.Label));
 
-            lock (this.syncRoot)
+            Listener listener;
+            while (this.listeners.Any() && this.listeners.TryTake(out listener))
             {
-                Listener listener;
-                while (this.listeners.Any() && this.listeners.TryTake(out listener))
+                try
                 {
-                    try
-                    {
-                        listener.StopConsuming();
-                        listener.Dispose();
-                        this.logger.Trace($"Listener [{listener}] stopped successfully");
-                    }
-                    catch (Exception ex)
-                    {
-                        this.logger.Error(
-                            $"Failed to stop a listener [{listener}] in receiver of [{this.Configuration.Label}] due to {ex.Message}");
-                    }
+                    listener.StopConsuming();
+                    listener.Dispose();
+                    this.logger.Trace("Listener stopped successfully");
+                }
+                catch (Exception ex)
+                {
+                    this.logger.Error(
+                        $"Failed to stop a listener [{listener}] in receiver of [{this.Configuration.Label}] due to {ex.Message}");
                 }
             }
         }
@@ -212,13 +188,13 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             var rabbitConnectionString = new RabbitConnectionString(options.GetConnectionString().Value);
             this.logger.Trace(
-                $"Building listeners of [{this.Configuration.Label}]:\r\n{string.Join("\r\n", rabbitConnectionString.Select(url => $"URL\t=>\t{url}"))}");
+                $"Building listeners of [{this.Configuration.Label}]:\r\n{string.Join("\r\n", rabbitConnectionString.Select(url => $"Listener: URL\t=>\t{url}"))}");
 
             foreach (var url in rabbitConnectionString)
             {
                 var source = new CancellationTokenSource();
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
-                this.logger.Trace($"Using connection [{connection.Id}] at URL='{url}' to resolve a listener");
+                this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a listener");
 
                 var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
                 var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);

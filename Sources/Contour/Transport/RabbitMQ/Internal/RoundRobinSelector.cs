@@ -4,22 +4,20 @@ namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class RoundRobinSelector : IProducerSelector
     {
-        private IList items;
-        private IEnumerator enumerator;
-        
-        public void Initialize(IList list)
+        private readonly IEnumerator enumerator;
+
+        public RoundRobinSelector(IEnumerable items)
         {
-            this.items = list;
-            this.enumerator = this.items.GetEnumerator();
+            this.enumerator = items.GetEnumerator();
         }
 
-        public int Next()
+        public TProducer Next<TProducer>()
         {
             while (true)
             {
                 if (this.enumerator.MoveNext())
                 {
-                    return this.items.IndexOf(this.enumerator.Current);
+                    return (TProducer)this.enumerator.Current;
                 }
 
                 this.enumerator.Reset();

@@ -315,7 +315,7 @@ namespace Contour.RabbitMq.Tests
                     .RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(13))
                     .ContinueWith(t => result = t.Result.Num);
 
-                response.Wait(3.Seconds()).Should().BeTrue();
+                response.Wait(1.Minutes()).Should().BeTrue();
                 result.Should().Be(26);
             }
         }

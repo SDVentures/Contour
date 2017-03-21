@@ -237,6 +237,12 @@ namespace Contour.RabbitMq.Tests
                     BeTrue();
             }
         }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_consuming_from_multiple_brokers
+        {
+        }
     }
 
     // ReSharper restore InconsistentNaming

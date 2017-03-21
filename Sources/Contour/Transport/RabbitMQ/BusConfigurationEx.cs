@@ -70,7 +70,7 @@ namespace Contour.Transport.RabbitMQ
                 RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
                 IncomingMessageHeaderStorage = messageHeaderStorage,
                 ReuseConnection = true,
-                ProducerSelector = RabbitBusDefaults.ProducerSelector
+                ProducerSelectorBuilder = RabbitBusDefaults.ProducerSelectorBuilder
             };
 
             c.ReceiverDefaults = new RabbitReceiverOptions(c.EndpointOptions)

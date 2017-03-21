@@ -20,10 +20,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public static Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> SubscriptionEndpointBuilder = SubscriptionEndpointBuilderImpl;
 
-        /// <summary>
-        /// Defines a default producer selector as Round Robin selector
-        /// </summary>
-        public static IProducerSelector ProducerSelector = new RoundRobinSelector();
+        public static IProducerSelectorBuilder ProducerSelectorBuilder = new DefaultProducerSelectorBuilder();
 
         /// <summary>
         /// The route resolver builder impl.

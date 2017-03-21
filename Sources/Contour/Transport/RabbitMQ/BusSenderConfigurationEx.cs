@@ -1,4 +1,5 @@
-﻿using Contour.Sending;
+﻿using System;
+using Contour.Sending;
 
 namespace Contour.Transport.RabbitMQ
 {
@@ -55,15 +56,15 @@ namespace Contour.Transport.RabbitMQ
         /// Configures sender to use <paramref name="policy"/> to select publisher each time a message is sent
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="selector"></param>
+        /// <param name="selectorBuilder"></param>
         /// <returns></returns>
-        public static ISenderConfigurator WithProducerSelector(this ISenderConfigurator builder,
-            IProducerSelector selector)
+        public static ISenderConfigurator WithProducerSelectorBuilder(this ISenderConfigurator builder,
+            IProducerSelectorBuilder selectorBuilder)
         {
             var senderConfiguration = (SenderConfiguration)builder;
             var rabbitSenderOptions = (RabbitSenderOptions)senderConfiguration.Options;
 
-            rabbitSenderOptions.ProducerSelector = selector;
+            rabbitSenderOptions.ProducerSelectorBuilder = selectorBuilder;
 
             return builder;
         }
