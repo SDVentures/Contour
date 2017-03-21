@@ -39,11 +39,13 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger = LogManager.GetLogger($"{this.GetType().Name}(Endpoint=\"{this.bus.Endpoint}\")");
         }
 
+        public event EventHandler<ListenerRegisteredEventArgs> ListenerRegistered = (sender, args) => { };
+
         /// <summary>
         /// Gets a value indicating whether is started.
         /// </summary>
         public bool IsStarted { get; private set; }
-
+        
         public override bool IsHealthy
         {
             get
@@ -63,7 +65,43 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public bool CanReceive(MessageLabel label)
         {
+            this.Configure();
             return this.listeners.Any(l => l.Supports(label));
+        }
+
+        /// <summary>
+        /// Checks if a <paramref name="listener"/> is compatible with this receiver
+        /// </summary>
+        /// <param name="listener">A listener to check</param>
+        /// <exception cref="BusConfigurationException">Raises a <see cref="BusConfigurationException"/> error if <paramref name="listener"/> is not compatible</exception>
+        public void IsCompatible(Listener listener)
+        {
+            var listenerOptions = listener.ReceiverOptions;
+
+            //// Check only listeners attached to the same listening source (queue)
+            var checkList =
+                this.listeners.Where(
+                    l => l != listener && l.Endpoint.ListeningSource.Equals(listener.Endpoint.ListeningSource));
+            
+            foreach (var existingListener in checkList)
+            {
+                var existingOptions = existingListener.ReceiverOptions;
+
+                Action<Func<RabbitReceiverOptions, object>, string> compareAndThrow = (getOption, optionName) =>
+                {
+                    if (getOption(existingOptions) != getOption(listenerOptions))
+                    {
+                        throw
+                            new BusConfigurationException(
+                                $"Listener on [{listener.Endpoint.ListeningSource}] is not compatible with subscription of [{this.Configuration.Label}] due to option mismatch [{optionName}]");
+                    }
+                };
+
+                compareAndThrow(o => o.IsAcceptRequired(), "AcceptIsRequired");
+                compareAndThrow(o => o.GetParallelismLevel(), "ParallelismLevel");
+                compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
+                compareAndThrow(o => o.GetQoS(), "QoS");
+            }
         }
 
         /// <summary>
@@ -80,7 +118,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </typeparam>
         public override void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer)
         {
-            this.logger.Trace(m => m("Registering consumer of [{0}] in receiver of [{1}].", typeof (T).Name, label));
+            this.logger.Trace($"Registering consumer of [{typeof(T).Name}] in receiver of label [{label}]");
 
             foreach (var listener in this.listeners)
             {
@@ -137,7 +175,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var listener in this.listeners)
             {
                 listener.StartConsuming();
-                this.logger.Trace($"Listener [{listener}] started successfully");
+                this.logger.Trace($"Listener of [{this.Configuration.Label}] started successfully");
             }
         }
 
@@ -188,7 +226,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             var rabbitConnectionString = new RabbitConnectionString(options.GetConnectionString().Value);
             this.logger.Trace(
-                $"Building listeners of [{this.Configuration.Label}]:\r\n{string.Join("\r\n", rabbitConnectionString.Select(url => $"Listener: URL\t=>\t{url}"))}");
+                $"Building listeners of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", rabbitConnectionString.Select(url => $"Listener({this.Configuration.Label}): URL\t=>\t{url}"))}");
 
             foreach (var url in rabbitConnectionString)
             {
@@ -200,50 +238,20 @@ namespace Contour.Transport.RabbitMQ.Internal
                 var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
 
                 var endpointBuilder = this.Configuration.Options.GetEndpointBuilder();
-
                 Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", this.Configuration.Label);
 
                 var endpoint = endpointBuilder.Value(builder);
 
-                var listener =
-                    this.listeners.FirstOrDefault(l => l.Endpoint.ListeningSource.Equals(endpoint.ListeningSource));
-                if (listener == null)
-                {
-                    listener = new Listener(
-                        this.bus,
-                        connection,
-                        endpoint,
-                        options,
-                        this.bus.Configuration.ValidatorRegistry);
+                var listener = new Listener(
+                    this.bus,
+                    connection,
+                    endpoint,
+                    options,
+                    this.bus.Configuration.ValidatorRegistry);
 
-                    this.listeners.Add(listener);
-                }
-                else
-                {
-                    this.EnsureConfigurationIsCompatible(listener);
-                }
+                this.listeners.Add(listener);
+                this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
             }
-        }
-
-        private void EnsureConfigurationIsCompatible(Listener listener)
-        {
-            var existing = listener.ReceiverOptions;
-            var other = (RabbitReceiverOptions)this.Configuration.Options;
-
-            Action<Func<RabbitReceiverOptions, object>, string> compareAndThrow = (getOption, optionName) =>
-            {
-                if (getOption(existing) != getOption(other))
-                {
-                    throw new BusConfigurationException(
-                        "Listener on [{0}] is not compatible with subscription of [{1}] due to option mismatch [{2}]."
-                            .FormatEx(listener.Endpoint.ListeningSource, this.Configuration.Label, optionName));
-                }
-            };
-
-            compareAndThrow(o => o.IsAcceptRequired(), "AcceptIsRequired");
-            compareAndThrow(o => o.GetParallelismLevel(), "ParallelismLevel");
-            compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
-            compareAndThrow(o => o.GetQoS(), "QoS");
         }
     }
 }

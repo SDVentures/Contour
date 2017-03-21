@@ -1,11 +1,10 @@
-namespace Contour.Common.Tests
-{
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using NUnit.Framework;
-    using Transport.RabbitMQ;
-    using Transport.RabbitMQ.Internal;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using Contour.Transport.RabbitMQ;
+using NUnit.Framework;
 
+namespace Contour.RabbitMq.Tests
+{
     /// <summary>
     /// The rabbit connection string specs.
     /// </summary>

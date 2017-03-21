@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ
+﻿using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ
 {
     using System;
     using System.Collections;
@@ -12,6 +14,7 @@
     {
         private const string Separator = ",";
         private readonly IList<string> urls;
+        private readonly ILog logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitConnectionString"/> class.
@@ -35,6 +38,9 @@
             {
                 throw new ArgumentException($"The provided connection string does not contain any URLs");
             }
+
+            this.logger.Trace(
+                $"The connection string [{connectionString}] has been split into the following URLs: {string.Join("; ", this.urls)}");
         }
 
         /// <summary>

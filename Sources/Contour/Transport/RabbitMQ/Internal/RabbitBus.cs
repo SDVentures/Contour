@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using Contour.Configuration;
+using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
 
@@ -120,11 +121,22 @@ namespace Contour.Transport.RabbitMQ.Internal
                 $"Registering a new receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
 
             var receiver = new RabbitReceiver(this, configuration, this.connectionPool);
+            receiver.ListenerRegistered += this.OnListenerRegistered;
             this.ComponentTracker.Register(receiver);
 
             this.logger.Trace(
                 $"A receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}] registered successfully");
             return receiver;
+        }
+
+        private void OnListenerRegistered(object sender, ListenerRegisteredEventArgs e)
+        {
+            //// Since some of the configuration options are evaluated on receiver start the bus needs to check if a newly registered listener of each receiver is compatible with the rest of the receivers. Compatibility check list is defined by the receiver itself.
+
+            this.Receivers
+                .Where(r => r is RabbitReceiver)
+                .Cast<RabbitReceiver>()
+                .ForEach(r => r.IsCompatible(e.Listener));
         }
 
         /// <summary>
@@ -265,7 +277,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             var name = this.GetType().Name;
             var senderConfigurations = this.Configuration.SenderConfigurations.ToList();
             var receiverConfigurations = this.Configuration.ReceiverConfigurations.ToList();
-            
+
             this.logger.Trace(
                 $"Configuring [{name}] with endpoint [{this.Endpoint}]:\r\nSenders:\r\n\t{string.Join("\r\n\t", senderConfigurations.Select(s => $"[{s.Label}]\t=>\t{s.Options.GetConnectionString()}"))}\r\nReceivers:\r\n\t{string.Join("\r\n\t", receiverConfigurations.Select(r => $"[{r.Label}]\t=>\t{r.Options.GetConnectionString()}"))}");
 
@@ -278,7 +290,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             {
                 this.RegisterReceiver(receiver);
             }
-            
+
             this.IsConfigured = true;
             this.logger.Info($"Configuration of [{name}] completed successfully");
         }

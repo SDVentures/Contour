@@ -159,7 +159,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var producer in this.producers)
             {
                 producer.Start();
-                this.logger.Trace($"Producer [{producer}] started successfully");
+                this.logger.Trace($"Producer of [{this.Configuration.Label}] started successfully");
             }
         }
 
@@ -205,7 +205,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             var rabbitConnectionString = new RabbitConnectionString(this.senderOptions.GetConnectionString().Value);
 
             this.logger.Trace(
-                $"Building producers of [{this.Configuration.Label}]:\r\n{string.Join("\r\n", rabbitConnectionString.Select(url => $"Producer: URL\t=>\t{url}"))}");
+                $"Building producers of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", rabbitConnectionString.Select(url => $"Producer({this.Configuration.Label}): URL\t=>\t{url}"))}");
 
             foreach (var url in rabbitConnectionString)
             {
