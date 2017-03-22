@@ -273,7 +273,7 @@ For message tracking in chain of  application components interaction through ser
 
 Header field name | Description | Copying
 ----------------- | ----------- |--------
-x-correlation-id | The correlation identifier is used to track a set of messages as a single group. For example, it allows you to match reply message with the request or track messages triggered by another incoming messages. | Yes
+x-correlation-id | The correlation identifier is used to track a set of messages as a single group. It is used to match reply message with the request. New value for header is generated for every request (if not supplied in headers parameter).| Only for one-way messages.
 x-expires | Header, which contains the rules of data deterioration. For example: x-expires: at 2016-04-01T22:00:33Z or x-expires: in 100 | No
 x-message-type | Message label with which it was sent. Using this header is not recommended | No
 x-persist | Marks message persistance (saved on disk) or not | No

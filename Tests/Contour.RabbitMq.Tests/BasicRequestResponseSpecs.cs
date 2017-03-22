@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -556,6 +557,69 @@ namespace Contour.RabbitMq.Tests
                     });
 
                 countdown.Wait(30.Seconds()).Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class WhileProcessingIncomingRequest : RabbitMqFixture
+        {
+            /// <summary>
+            /// Ответы должны приходить.
+            /// </summary>
+            [Test]
+            public void ShouldSuccessfullyMakeConcurrentRequestsToSingleRemoteConsumer()
+            {
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        cfg.Route("originalRequest")
+                            .WithDefaultCallbackEndpoint();
+                    });
+
+                var requestingConsumer = this.StartBus(
+                    "requestingConsumer",
+                    cfg =>
+                        {
+                            cfg.On<DummyRequest>("originalRequest")
+                                .ReactWith(
+                                    (m, ctx) =>
+                                        {
+                                            var req1 = ctx.Bus.RequestAsync<DummyRequest, DummyResponse>("subRequest", new DummyRequest(1));
+                                            var req2 = ctx.Bus.RequestAsync<DummyRequest, DummyResponse>("subRequest", new DummyRequest(2));
+                                            var req3 = ctx.Bus.RequestAsync<DummyRequest, DummyResponse>("subRequest", new DummyRequest(3));
+                                            Task.WaitAll(req1, req2, req3);
+
+                                            ctx.Reply(
+                                                new
+                                                    {
+                                                        Num1 = req1.Result.Num,
+                                                        Num2 = req2.Result.Num,
+                                                        Num3 = req3.Result.Num
+                                                    });
+                                        });
+
+                            cfg.Route("subRequest")
+                                .WithDefaultCallbackEndpoint();
+                        });
+
+                var remoteConsumer = this.StartBus(
+                    "remoteConsumer",
+                    cfg => cfg.On<DummyRequest>("subRequest")
+                               .ReactWith(
+                                   (r, ctx) =>
+                                       {
+                                           ctx.Reply(new DummyResponse(r.Num));
+                                       }));
+
+                WaitHandle.WaitAll(new[] { producer.WhenReady, requestingConsumer.WhenReady, remoteConsumer.WhenReady });
+
+                dynamic result = producer.RequestAsync<DummyRequest, ExpandoObject>("originalRequest", new DummyRequest(0)).Result;
+
+                Assert.AreEqual(1, result.Num1);
+                Assert.AreEqual(2, result.Num2);
+                Assert.AreEqual(3, result.Num3);
             }
         }
 

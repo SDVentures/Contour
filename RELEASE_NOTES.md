@@ -1,4 +1,7 @@
-﻿## 1.4.1
+﻿## 1.5.0
+ - An issue https://github.com/SDVentures/Contour/issues/25 has been fixed. A new correlation id will always be used for outgoing requests.
+
+## 1.4.1
  - NuGet package image added.
 
 ## 1.4.0
