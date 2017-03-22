@@ -1,10 +1,9 @@
-﻿namespace Contour.Transport.RabbitMQ
-{
-    using Configuration;
-    using Helpers;
-    using Internal;
-    using Receiving;
+﻿using Contour.Configuration;
+using Contour.Helpers;
+using Contour.Receiving;
 
+namespace Contour.Transport.RabbitMQ
+{
     /// <summary>
     /// The rabbit receiver options.
     /// </summary>

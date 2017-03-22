@@ -7,15 +7,13 @@ using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
-    /// <summary>
-    /// The rabbit connection string specs.
-    /// </summary>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented",
+        Justification = "Reviewed. Suppression is OK here."),
+     SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter",
+         Justification = "Reviewed. Suppression is OK here.")]
     public class RabbitConnectionStringSpecs
     {
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented",
-            Justification = "Reviewed. Suppression is OK here."),
-         SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter",
-             Justification = "Reviewed. Suppression is OK here."), TestFixture]
+        [TestFixture]
         [Category("Unit")]
         public class when_declaring_rabbit_connection_string
         {
@@ -41,7 +39,7 @@ namespace Contour.RabbitMq.Tests
             [Test]
             public void should_enumerate_connection_string_urls()
             {
-                var strings = new[] {"a", "b", "c"};
+                var strings = new[] { "a", "b", "c" };
                 var connectionString = string.Join(",", strings);
 
                 var result = new RabbitConnectionString(connectionString);

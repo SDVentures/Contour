@@ -85,14 +85,5 @@
         {
             get { return (bool?)base["reuseConnection"]; }
         }
-
-        /// <summary>
-        /// Defines an algorithm to choose a producer
-        /// </summary>
-        [ConfigurationProperty("producerSelector", IsRequired = false)]
-        public string ProducerSelector
-        {
-            get { return (string)base["producerSelector"]; }
-        }
     }
 }
