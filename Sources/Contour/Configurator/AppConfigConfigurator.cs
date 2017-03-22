@@ -246,15 +246,6 @@ namespace Contour.Configurator
                 {
                     configurator.ReuseConnection(outgoingElement.ReuseConnection.Value);
                 }
-
-                // Producer selector
-                if (!string.IsNullOrEmpty(outgoingElement.ProducerSelector))
-                {
-                    var selector = this.ResolveProducerSelector(outgoingElement.ProducerSelector);
-
-                    throw new NotImplementedException();
-                    //configurator.WithProducerSelectorBuilder(selector);
-                }
             }
 
             foreach (IncomingElement incomingElement in endpointConfig.Incoming)
@@ -615,9 +606,9 @@ namespace Contour.Configurator
         /// </summary>
         /// <param name="name">The name identifying the producer selector</param>
         /// <returns><see cref="IProducerSelector"/></returns>
-        private IProducerSelector ResolveProducerSelector(string name)
+        private IProducerSelectorBuilder ResolveProducerSelectorBuilder(string name)
         {
-            return (IProducerSelector)this.dependencyResolver.Resolve(name, typeof(IProducerSelector));
+            return (IProducerSelectorBuilder)this.dependencyResolver.Resolve(name, typeof(IProducerSelectorBuilder));
         }
     }
 }

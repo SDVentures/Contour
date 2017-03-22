@@ -137,7 +137,7 @@ namespace Contour.Testing.Transport.RabbitMq
         {
             var bus = this.CreateBus(
                 () => new TestFactory().Create(
-                c =>
+                    c =>
                     {
                         c.SetConnectionString(this.ConnectionString);
                         c.UseRabbitMq();
@@ -166,12 +166,37 @@ namespace Contour.Testing.Transport.RabbitMq
         /// </summary>
         protected virtual void PreSetUp()
         {
-            this.ManagementConnection = ConfigurationManager.AppSettings["managementConnection"] ?? this.ManagementConnection;
+            this.ManagementConnection = ConfigurationManager.AppSettings["managementConnection"] ??
+                                        this.ManagementConnection;
             this.Url = ConfigurationManager.AppSettings["amqpConnection"] ?? this.Url;
             this.TestUserName = ConfigurationManager.AppSettings["testUsername"] ?? this.TestUserName;
             this.TestUserPassword = ConfigurationManager.AppSettings["testPassword"] ?? this.TestUserPassword;
             this.AdminUserName = ConfigurationManager.AppSettings["adminUsername"] ?? this.AdminUserName;
             this.AdminUserPassword = ConfigurationManager.AppSettings["adminPassword"] ?? this.AdminUserPassword;
+        }
+
+        /// <summary>
+        /// Initializes a list of virtual hosts
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        protected IEnumerable<string> InitializeHosts(int count)
+        {
+            var list = new List<string>();
+
+            for (var i = 0; i < count; i++)
+            {
+                var vhost = "test" + Guid.NewGuid().ToString("n") + $"_{i}";
+
+                this.Broker.CreateHost(vhost);
+                this.Broker.CreateUser(vhost, this.TestUserName, this.TestUserPassword);
+                this.Broker.SetPermissions(vhost, this.TestUserName);
+
+                var url = $"{this.Url}{vhost}";
+                list.Add(url);
+            }
+
+            return list;
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Contour.Testing.Plumbing;
 using Contour.Testing.Transport.RabbitMq;
@@ -33,46 +32,34 @@ namespace Contour.RabbitMq.Tests
             public void bus_receiver_should_consume_at_each_url_of_connection_string()
             {
                 var result = 0;
+                const int Count = 4;
+                const int Multiplier = 3;
 
-                var vhost1 = "test" + Guid.NewGuid().ToString("n") + "_1";
-                var vhost2 = "test" + Guid.NewGuid().ToString("n") + "_2";
+                var urls = this.InitializeHosts(Count).ToArray();
+                var producers = new List<IBus>();
 
-                this.Broker.CreateHost(vhost1);
-                this.Broker.CreateUser(vhost1, this.TestUserName, this.TestUserPassword);
-                this.Broker.SetPermissions(vhost1, this.TestUserName);
+                for (var i = 0; i < Count; i++)
+                {
+                    this.ConnectionString = urls[i];
+                    var index = i;
+                    var producer = this.StartBus(
+                        $"producer-{i}",
+                        cfg =>
+                        {
+                            cfg
+                                .Route("dummy.request")
+                                .WithConnectionString(urls[index])
+                                .WithDefaultCallbackEndpoint();
+                        });
 
-                this.Broker.CreateHost(vhost2);
-                this.Broker.CreateUser(vhost2, this.TestUserName, this.TestUserPassword);
-                this.Broker.SetPermissions(vhost2, this.TestUserName);
+                    producers.Add(producer);
+                }
 
-                var url1 = $"{this.Url}{vhost1}";
-                this.ConnectionString = url1;
-                var producer1 = this.StartBus(
-                    "producer-1",
-                    cfg =>
-                    {
-                        cfg
-                            .Route("dummy.request")
-                            .WithConnectionString(url1)
-                            .WithDefaultCallbackEndpoint();
-                    });
+                TaskCompletionSource<bool> tcs = null;
 
-                var url2 = $"{this.Url}{vhost2}";
-                this.ConnectionString = url2;
-                var producer2 = this.StartBus(
-                    "producer-2",
-                    cfg =>
-                    {
-                        cfg
-                            .Route("dummy.request")
-                            .WithConnectionString(url2)
-                            .WithDefaultCallbackEndpoint();
-                    });
-
-                var tcs = new TaskCompletionSource<bool>();
-                var consumerConnectionString = $"{url1},{url2}";
+                var consumerConnectionString = string.Join(",", urls);
                 this.ConnectionString = consumerConnectionString;
-
+                
                 this.StartBus(
                     "consumer",
                     cfg => cfg
@@ -80,84 +67,65 @@ namespace Contour.RabbitMq.Tests
                         .WithConnectionString(consumerConnectionString)
                         .ReactWith((m, ctx) =>
                         {
-                            result = m.Num * 3;
+                            result = m.Num * Multiplier;
                             tcs.SetResult(true);
                         }));
 
-                producer1.Emit("dummy.request", new DummyRequest(10));
-                
-                tcs.Task.Wait(10.Seconds());
-                result.Should().Be(30);
+                for (var i = 0; i < Count; i++)
+                {
+                    tcs = new TaskCompletionSource<bool>();
+                    producers[i].Emit("dummy.request", new DummyRequest(i));
+                    tcs.Task.Wait(1.Minutes());
 
-                tcs = new TaskCompletionSource<bool>();
-                producer2.Emit("dummy.request", new DummyRequest(20));
-
-                tcs.Task.Wait(10.Seconds());
-                result.Should().Be(60);
+                    result.Should().Be(i * Multiplier);
+                }
             }
 
             [Test]
             public void bus_receiver_should_respond_at_each_url_of_connection_string()
             {
                 var result = 0;
+                const int Count = 4;
+                const int Multiplier = 3;
 
-                var vhost1 = "test" + Guid.NewGuid().ToString("n") + "_1";
-                var vhost2 = "test" + Guid.NewGuid().ToString("n") + "_2";
+                var urls = this.InitializeHosts(Count).ToArray();
+                var producers = new List<IBus>();
 
-                this.Broker.CreateHost(vhost1);
-                this.Broker.CreateUser(vhost1, this.TestUserName, this.TestUserPassword);
-                this.Broker.SetPermissions(vhost1, this.TestUserName);
+                for (var i = 0; i < Count; i++)
+                {
+                    this.ConnectionString = urls[i];
+                    var index = i;
+                    var producer = this.StartBus(
+                        $"producer-{i}",
+                        cfg =>
+                        {
+                            cfg
+                                .Route("dummy.request")
+                                .WithConnectionString(urls[index])
+                                .WithDefaultCallbackEndpoint();
+                        });
 
-                this.Broker.CreateHost(vhost2);
-                this.Broker.CreateUser(vhost2, this.TestUserName, this.TestUserPassword);
-                this.Broker.SetPermissions(vhost2, this.TestUserName);
-
-                var url1 = $"{this.Url}{vhost1}";
-                this.ConnectionString = url1;
-                var producer1 = this.StartBus(
-                    "producer-1",
-                    cfg =>
-                    {
-                        cfg
-                            .Route("dummy.request")
-                            .WithConnectionString(url1)
-                            .WithDefaultCallbackEndpoint();
-                    });
-
-                var url2 = $"{this.Url}{vhost2}";
-                this.ConnectionString = url2;
-                var producer2 = this.StartBus(
-                    "producer-2",
-                    cfg =>
-                    {
-                        cfg
-                            .Route("dummy.request")
-                            .WithConnectionString(url2)
-                            .WithDefaultCallbackEndpoint();
-                    });
-
-                var consumerConnectionString = $"{url1},{url2}";
+                    producers.Add(producer);
+                }
+                
+                var consumerConnectionString = string.Join(",", urls);
                 this.ConnectionString = consumerConnectionString;
+                
                 this.StartBus(
                     "consumer",
                     cfg => cfg
                         .On<DummyRequest>("dummy.request")
                         .WithConnectionString(consumerConnectionString)
-                        .ReactWith((m, ctx) => ctx.Reply(new DummyResponse(m.Num * 3))));
+                        .ReactWith((m, ctx) => ctx.Reply(new DummyResponse(m.Num * Multiplier))));
 
-                var response1 = producer1
-                    .RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(10))
+                for (var i = 0; i < Count; i++)
+                {
+                    var response = producers[i].RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(i))
                     .ContinueWith(m => result = m.Result.Num);
 
-                response1.Wait(10.Seconds());
-                result.Should().Be(30);
-
-                var response2 = producer2
-                    .RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(20))
-                    .ContinueWith(m => result = m.Result.Num);
-
-                response2.Wait(10.Seconds());
-                result.Should().Be(60);
+                    response.Wait(1.Minutes());
+                    result.Should().Be(i * Multiplier);
+                }
             }
         }
 
@@ -177,24 +145,10 @@ namespace Contour.RabbitMq.Tests
             [Test]
             public void bus_sender_should_use_next_producer_chosen_by_default_producer_selector_on_each_message()
             {
-                var result = 0;
-                var count = 4;
-                var urls = new List<string>();
-                var tcsList = new Task<bool>[count];
-
-                for (var i = 0; i < count; i++)
-                {
-                    var vhost = "test" + Guid.NewGuid().ToString("n") + $"_{i}";
-
-                    this.Broker.CreateHost(vhost);
-                    this.Broker.CreateUser(vhost, this.TestUserName, this.TestUserPassword);
-                    this.Broker.SetPermissions(vhost, this.TestUserName);
-
-                    var url = $"{this.Url}{vhost}";
-                    urls.Add(url);
-                    tcsList[i] = new Task<bool>(() => true);
-                }
-
+                const int Count = 4;
+                var tasks = Enumerable.Range(0, Count).Select(i => new Task<bool>(() => true)).ToArray();
+                var urls = this.InitializeHosts(Count).ToArray();
+                
                 var producerConnectionString = string.Join(",", urls);
                 
                 this.ConnectionString = producerConnectionString;
@@ -207,7 +161,7 @@ namespace Contour.RabbitMq.Tests
                             .WithConnectionString(producerConnectionString);
                     });
 
-                for (var i = 0; i < urls.Count; i++)
+                for (var i = 0; i < urls.Length; i++)
                 {
                     var conString = urls[i];
                     this.ConnectionString = conString;
@@ -220,16 +174,16 @@ namespace Contour.RabbitMq.Tests
                         cfg
                             .On<DummyRequest>("dummy.request")
                             .WithConnectionString(conString)
-                            .ReactWith((m, ctx) => tcsList[index].Start());
+                            .ReactWith((m, ctx) => tasks[index].Start());
                     });
                 }
 
-                for (var i = 0; i < urls.Count; i++)
+                for (var i = 0; i < urls.Length; i++)
                 {
                     producer.Emit("dummy.request", new DummyRequest(i));
                 }
                 
-                Task.WaitAll(tcsList, 1.Minutes()).Should().BeTrue();
+                Task.WaitAll(tasks, 1.Minutes()).Should().BeTrue();
             }
         }
 
@@ -249,23 +203,9 @@ namespace Contour.RabbitMq.Tests
             [Test]
             public void bus_sender_should_use_next_producer_chosen_by_default_producer_selector_on_each_message()
             {
-                var result = 0;
-                var count = 4;
-                var urls = new List<string>();
-                var tcsList = new Task<bool>[count];
-
-                for (var i = 0; i < count; i++)
-                {
-                    var vhost = "test" + Guid.NewGuid().ToString("n") + $"_{i}";
-
-                    this.Broker.CreateHost(vhost);
-                    this.Broker.CreateUser(vhost, this.TestUserName, this.TestUserPassword);
-                    this.Broker.SetPermissions(vhost, this.TestUserName);
-
-                    var url = $"{this.Url}{vhost}";
-                    urls.Add(url);
-                    tcsList[i] = new Task<bool>(() => true);
-                }
+                const int Count = 4;
+                var tasks = Enumerable.Range(0, Count).Select(i => new Task<bool>(() => true)).ToArray();
+                var urls = this.InitializeHosts(Count).ToArray();
 
                 var producerConnectionString = string.Join(",", urls);
 
@@ -280,7 +220,7 @@ namespace Contour.RabbitMq.Tests
                             .WithDefaultCallbackEndpoint();
                     });
 
-                for (var i = 0; i < urls.Count; i++)
+                for (var i = 0; i < urls.Length; i++)
                 {
                     var conString = urls[i];
                     this.ConnectionString = conString;
@@ -296,19 +236,19 @@ namespace Contour.RabbitMq.Tests
                             .ReactWith((m, ctx) =>
                             {
                                 ctx.Reply(new DummyResponse(m.Num));
-                                tcsList[index].Start();
+                                tasks[index].Start();
                             });
                     });
                 }
 
-                for (var i = 0; i < urls.Count; i++)
+                for (var i = 0; i < urls.Length; i++)
                 {
                     var task = producer.RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(i));
                     task.Wait(1.Minutes()).Should().BeTrue();
                     task.Result.Num.Should().Be(i);
                 }
 
-                Task.WaitAll(tcsList, 1.Minutes()).Should().BeTrue();
+                Task.WaitAll(tasks, 1.Minutes()).Should().BeTrue();
             }
         }
     }

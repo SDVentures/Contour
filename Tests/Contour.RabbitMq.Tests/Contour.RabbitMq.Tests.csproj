@@ -60,6 +60,7 @@
     <Compile Include="MessageHandlingSpecs.cs" />
     <Compile Include="MessageAttributeSpecs.cs" />
     <Compile Include="RabbitConnectionStringSpecs.cs" />
+    <Compile Include="RoundRobinSelectorSpecs.cs" />
     <Compile Include="SagaHandlingSpecs.cs" />
     <Compile Include="ValidationSpecs.cs" />
     <Compile Include="LifecycleSpecs.cs" />

@@ -20,6 +20,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly RabbitBus bus;
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
         private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
+        private readonly RabbitReceiverOptions receiverOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitReceiver"/> class. 
@@ -36,6 +37,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.bus = bus;
             this.connectionPool = connectionPool;
+            this.receiverOptions = (RabbitReceiverOptions)configuration.Options;
             this.logger = LogManager.GetLogger($"{this.GetType().Name}(Endpoint=\"{this.bus.Endpoint}\")");
         }
 
@@ -70,41 +72,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Checks if a <paramref name="listener"/> is compatible with this receiver
-        /// </summary>
-        /// <param name="listener">A listener to check</param>
-        /// <exception cref="BusConfigurationException">Raises a <see cref="BusConfigurationException"/> error if <paramref name="listener"/> is not compatible</exception>
-        public void IsCompatible(Listener listener)
-        {
-            var listenerOptions = listener.ReceiverOptions;
-
-            //// Check only listeners attached to the same listening source (queue)
-            var checkList =
-                this.listeners.Where(
-                    l => l != listener && l.Endpoint.ListeningSource.Equals(listener.Endpoint.ListeningSource));
-            
-            foreach (var existingListener in checkList)
-            {
-                var existingOptions = existingListener.ReceiverOptions;
-
-                Action<Func<RabbitReceiverOptions, object>, string> compareAndThrow = (getOption, optionName) =>
-                {
-                    if (getOption(existingOptions) != getOption(listenerOptions))
-                    {
-                        throw
-                            new BusConfigurationException(
-                                $"Listener on [{listener.Endpoint.ListeningSource}] is not compatible with subscription of [{this.Configuration.Label}] due to option mismatch [{optionName}]");
-                    }
-                };
-
-                compareAndThrow(o => o.IsAcceptRequired(), "AcceptIsRequired");
-                compareAndThrow(o => o.GetParallelismLevel(), "ParallelismLevel");
-                compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
-                compareAndThrow(o => o.GetQoS(), "QoS");
-            }
-        }
-
-        /// <summary>
         /// Registers a new consumer of messages with label <paramref name="label"/>
         /// </summary>
         /// <param name="label">
@@ -123,6 +90,9 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var listener in this.listeners)
             {
                 listener.RegisterConsumer(label, consumer, this.Configuration.Validator);
+
+                var listenerLabels = string.Join(",", listener.AcceptedLabels);
+                this.logger.Trace($"Listener of labels ({listenerLabels}) has registered a consumer of label [{label}]");
             }
         }
 
@@ -158,10 +128,72 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.IsStarted = false;
         }
 
+        /// <summary>
+        /// Registers a specified <paramref name="listener"/> in this <see cref="RabbitReceiver"/>
+        /// </summary>
+        /// <param name="listener">A listener to be registered</param>
+        public void RegisterListener(Listener listener)
+        {
+            var listenerLabels = string.Join(",", listener.AcceptedLabels);
+            var listenerAddress = listener.Endpoint.ListeningSource.Address;
+
+            this.logger.Trace(
+                $"Registering an external listener of labels ({listenerLabels}) at address [{listenerAddress}] in receiver of [{this.Configuration.Label}]");
+            this.CheckIfCompatible(listener);
+
+            if (!this.listeners.Contains(listener))
+            {
+                this.listeners.Add(listener);
+                this.logger.Trace(
+                    $"External listener of labels ({listenerLabels}) at address [{listenerAddress}] has been registered in receiver of [{this.Configuration.Label}]");
+            }
+
+            // Update consumer registrations in all listeners; this may possibly register more then one label-consumer pairs for each listener
+            this.Configuration.ReceiverRegistration?.Invoke(this);
+        }
+
         public Listener GetListener(Func<Listener, bool> predicate)
         {
             this.Configure();
             return this.listeners.FirstOrDefault(predicate);
+        }
+
+        /// <summary>
+        /// Checks if a <paramref name="listener"/> created by some other receiver is compatible with this one
+        /// </summary>
+        /// <param name="listener">A listener to check</param>
+        /// <exception cref="BusConfigurationException">Raises a <see cref="BusConfigurationException"/> error if <paramref name="listener"/> is not compatible</exception>
+        public void CheckIfCompatible(Listener listener)
+        {
+            var listenerOptions = listener.ReceiverOptions;
+
+            //// Check only listeners at the same URL and attached to the same listening source (queue); ensure the listener is not one of this receiver's listeners
+            var checkList =
+                this.listeners.Where(
+                    l =>
+                        l != listener
+                        && l.BrokerUrl == listener.BrokerUrl
+                        && l.Endpoint.ListeningSource.Equals(listener.Endpoint.ListeningSource));
+
+            foreach (var existingListener in checkList)
+            {
+                var existingOptions = existingListener.ReceiverOptions;
+
+                Action<Func<RabbitReceiverOptions, object>, string> compareAndThrow = (getOption, optionName) =>
+                {
+                    if (getOption(existingOptions) != getOption(listenerOptions))
+                    {
+                        throw
+                            new BusConfigurationException(
+                                $"Listener on [{listener.Endpoint.ListeningSource}] is not compatible with subscription of [{this.Configuration.Label}] due to option mismatch [{optionName}]");
+                    }
+                };
+
+                compareAndThrow(o => o.IsAcceptRequired(), "AcceptIsRequired");
+                compareAndThrow(o => o.GetParallelismLevel(), "ParallelismLevel");
+                compareAndThrow(o => o.GetFailedDeliveryStrategy(), "FailedDeliveryStrategy");
+                compareAndThrow(o => o.GetQoS(), "QoS");
+            }
         }
 
         /// <summary>
@@ -181,12 +213,9 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void Configure()
         {
-            if (!this.listeners.IsEmpty)
-            {
-                return;
-            }
-
             this.BuildListeners();
+
+            // Update consumer registrations in all listeners
             this.Configuration.ReceiverRegistration?.Invoke(this);
         }
 
@@ -219,16 +248,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         private void BuildListeners()
         {
-            var options = (RabbitReceiverOptions)this.Configuration.Options;
-
-            var reuseConnectionProperty = options.GetReuseConnection();
+            var reuseConnectionProperty = this.receiverOptions.GetReuseConnection();
             var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
-
-            var rabbitConnectionString = new RabbitConnectionString(options.GetConnectionString().Value);
+            
             this.logger.Trace(
-                $"Building listeners of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", rabbitConnectionString.Select(url => $"Listener({this.Configuration.Label}): URL\t=>\t{url}"))}");
+                $"Building listeners of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", this.receiverOptions.RabbitConnectionString.Select(url => $"Listener({this.Configuration.Label}): URL\t=>\t{url}"))}");
 
-            foreach (var url in rabbitConnectionString)
+            foreach (var url in this.receiverOptions.RabbitConnectionString)
             {
                 var source = new CancellationTokenSource();
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
@@ -242,14 +268,33 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 var endpoint = endpointBuilder.Value(builder);
 
-                var listener = new Listener(
+                var newListener = new Listener(
                     this.bus,
                     connection,
                     endpoint,
-                    options,
+                    this.receiverOptions,
                     this.bus.Configuration.ValidatorRegistry);
 
-                this.listeners.Add(listener);
+                // There is no need to register another listener at the same URL and for the same source; consuming actions can be registered for a single listener
+                var listener =
+                    this.listeners.FirstOrDefault(
+                        l =>
+                            l.BrokerUrl == newListener.BrokerUrl &&
+                            newListener.Endpoint.ListeningSource.Equals(l.Endpoint.ListeningSource));
+
+                if (listener == null)
+                {
+                    listener = newListener;
+                    this.listeners.Add(listener);
+                }
+                else
+                {
+                    // Check if an existing listener can be a substitute for a new one and if so just skip the new listeners
+                    this.CheckIfCompatible(newListener);
+                    listener = newListener;
+                }
+
+                // This event should be fired always, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
                 this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
             }
         }

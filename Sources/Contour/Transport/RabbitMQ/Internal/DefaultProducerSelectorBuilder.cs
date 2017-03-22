@@ -4,7 +4,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class DefaultProducerSelectorBuilder : IProducerSelectorBuilder
     {
-        public IProducerSelector Build(IEnumerable items)
+        public IProducerSelector Build(IList items)
         {
             return new RoundRobinSelector(items);
         }

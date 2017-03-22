@@ -39,6 +39,11 @@ namespace Contour.Transport.RabbitMQ
                 throw new ArgumentException($"The provided connection string does not contain any URLs");
             }
 
+            if (this.urls.Any(url => url.Trim() == string.Empty))
+            {
+                throw new ArgumentException("The provided connection string contains empty URLs");
+            }
+
             this.logger.Trace(
                 $"The connection string [{connectionString}] has been split into the following URLs: {string.Join("; ", this.urls)}");
         }

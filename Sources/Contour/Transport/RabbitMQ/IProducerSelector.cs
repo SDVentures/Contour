@@ -15,5 +15,13 @@ namespace Contour.Transport.RabbitMQ
         /// The selected producer
         /// </returns>
         TProducer Next<TProducer>();
+
+        /// <summary>
+        /// Gets the next producer in the list using <paramref name="message"/> in the selection algorithm
+        /// </summary>
+        /// <param name="message">A message to be sent by the producer</param>
+        /// <typeparam name="TProducer">The type of the producer</typeparam>
+        /// <returns>The selected producer</returns>
+        TProducer Next<TProducer>(IMessage message);
     }
 }

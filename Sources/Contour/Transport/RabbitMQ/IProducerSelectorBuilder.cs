@@ -16,6 +16,6 @@ namespace Contour.Transport.RabbitMQ
         /// <returns>
         /// The <see cref="IProducerSelector"/>.
         /// </returns>
-        IProducerSelector Build(IEnumerable items = null);
+        IProducerSelector Build(IList items = null);
     }
 }

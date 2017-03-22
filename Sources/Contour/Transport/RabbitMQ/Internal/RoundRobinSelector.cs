@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -6,8 +7,18 @@ namespace Contour.Transport.RabbitMQ.Internal
     {
         private readonly IEnumerator enumerator;
 
-        public RoundRobinSelector(IEnumerable items)
+        public RoundRobinSelector(IList items)
         {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            if (items.Count == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(items));
+            }
+
             this.enumerator = items.GetEnumerator();
         }
 
@@ -22,6 +33,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 this.enumerator.Reset();
             }
+        }
+
+        public TProducer Next<TProducer>(IMessage message)
+        {
+            return this.Next<TProducer>();
         }
     }
 }

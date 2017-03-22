@@ -22,8 +22,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly RabbitBus bus;
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
         private readonly ConcurrentBag<Producer> producers = new ConcurrentBag<Producer>();
+        private readonly RabbitSenderOptions senderOptions;
         private IProducerSelector producerSelector;
-        private RabbitSenderOptions senderOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitSender"/> class. 
@@ -167,7 +167,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.BuildProducers();
             var builder = this.senderOptions.GetProducerSelectorBuilder();
-            this.producerSelector = builder.Build(this.producers);
+            this.producerSelector = builder.Build(this.producers.ToList());
         }
 
         /// <summary>
@@ -202,12 +202,10 @@ namespace Contour.Transport.RabbitMQ.Internal
             var reuseConnectionProperty = this.senderOptions.GetReuseConnection();
             var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
 
-            var rabbitConnectionString = new RabbitConnectionString(this.senderOptions.GetConnectionString().Value);
-
             this.logger.Trace(
-                $"Building producers of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", rabbitConnectionString.Select(url => $"Producer({this.Configuration.Label}): URL\t=>\t{url}"))}");
+                $"Building producers of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", this.senderOptions.RabbitConnectionString.Select(url => $"Producer({this.Configuration.Label}): URL\t=>\t{url}"))}");
 
-            foreach (var url in rabbitConnectionString)
+            foreach (var url in this.senderOptions.RabbitConnectionString)
             {
                 var source = new CancellationTokenSource();
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
