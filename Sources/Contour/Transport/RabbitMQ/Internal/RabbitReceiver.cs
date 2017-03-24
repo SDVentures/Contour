@@ -38,7 +38,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.bus = bus;
             this.connectionPool = connectionPool;
             this.receiverOptions = (RabbitReceiverOptions)configuration.Options;
-            this.logger = LogManager.GetLogger($"{this.GetType().Name}(Endpoint=\"{this.bus.Endpoint}\")");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(Endpoint=\"{this.bus.Endpoint}\")");
         }
 
         public event EventHandler<ListenerRegisteredEventArgs> ListenerRegistered = (sender, args) => { };

@@ -110,7 +110,7 @@
 
             this.ReceiverOptions = receiverOptions;
             this.BrokerUrl = connection.ConnectionString;
-            this.logger = LogManager.GetLogger($"Listener(URL={this.BrokerUrl})");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(URL={this.BrokerUrl})");
 
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;

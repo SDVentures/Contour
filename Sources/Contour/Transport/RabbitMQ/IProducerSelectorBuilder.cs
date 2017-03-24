@@ -5,7 +5,7 @@ namespace Contour.Transport.RabbitMQ
     /// <summary>
     /// Defines a builder for a producer selector
     /// </summary>
-    public interface IProducerSelectorBuilder
+    internal interface IProducerSelectorBuilder
     {
         /// <summary>
         /// Builds a new <see cref="IProducerSelector"/>

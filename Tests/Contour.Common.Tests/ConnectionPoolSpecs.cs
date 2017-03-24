@@ -29,7 +29,7 @@ namespace Contour.Common.Tests
                 var provider = new Mock<IConnectionProvider<IConnection>>();
                 provider.Setup(cp => cp.Create(conString)).Returns(() => connection.Object);
                 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 pool.Get(conString, false, CancellationToken.None);
                 pool.Dispose();
 
@@ -45,7 +45,7 @@ namespace Contour.Common.Tests
                 var provider = new Mock<IConnectionProvider<IConnection>>();
                 provider.Setup(cp => cp.Create(conString)).Returns(() => connection.Object);
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 pool.Dispose();
                 try
                 {
@@ -71,7 +71,7 @@ namespace Contour.Common.Tests
                 });
 
                 const int Count = 5;
-                var pool = new FakeConnectionPool(provider.Object, Count);
+                var pool = new FakeConnectionPool(provider.Object);
 
                 var i = 0;
                 while (i++ < Count)
@@ -102,7 +102,7 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
 
                 var source = new CancellationTokenSource();
                 source.Cancel();
@@ -122,7 +122,7 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 var connection = pool.Get(conString, true, CancellationToken.None);
 
                 Assert.IsNotNull(connection);
@@ -139,7 +139,7 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 var c1 = pool.Get(conString, true, CancellationToken.None);
                 var c2 = pool.Get(conString, true, CancellationToken.None);
 
@@ -157,7 +157,7 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 var c1 = pool.Get(conString, false, CancellationToken.None);
                 var c2 = pool.Get(conString, false, CancellationToken.None);
 
@@ -175,7 +175,7 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 var c1 = pool.Get(conString, false, CancellationToken.None);
                 var c2 = pool.Get(conString, true, CancellationToken.None);
 
@@ -199,7 +199,7 @@ namespace Contour.Common.Tests
                     return con.Object;
                 });
 
-                var pool = new FakeConnectionPool(provider.Object, 1);
+                var pool = new FakeConnectionPool(provider.Object);
                 var c1 = pool.Get(ConnectionString1, true, CancellationToken.None);
                 var c2 = pool.Get(ConnectionString2, true, CancellationToken.None);
 
