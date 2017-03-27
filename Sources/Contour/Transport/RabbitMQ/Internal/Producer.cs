@@ -15,7 +15,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// Отправитель создается для конкретной метки сообщения и конкретной конечной точки.
     /// В случае отправки запроса с ожиданием ответа, отправитель создает получателя ответного сообщения.
     /// </summary>
-    internal class Producer : IDisposable
+    internal class Producer : IProducer
     {
         private readonly ILog logger;
         private readonly IEndpoint endpoint;
@@ -63,7 +63,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// A URL assigned to the producer to access the RabbitMQ broker
         /// </summary>
-        public string BrokerUrl { get; private set; }
+        public string BrokerUrl { get; }
 
         /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.

@@ -133,7 +133,11 @@ namespace Contour.Testing.Plumbing
             var client = this.CreateClient();
             var request = CreateRequest("/api/vhosts/{name}", Method.PUT);
             request.AddUrlSegment("name", vhostName);
-            client.Execute(request);
+            var response = client.Execute(request);
+            if (response.StatusCode != HttpStatusCode.Created)
+            {
+                throw new Exception($"Failed to create a host {vhostName}");
+            }
         }
 
         /// <summary>
@@ -259,7 +263,7 @@ namespace Contour.Testing.Plumbing
                 throw new Exception("Failed to get connections", response.ErrorException);
             }
 
-            var connections = response.Data;
+            var connections = response.Data ?? new List<Connection>();
             return connections;
         }
 

@@ -53,6 +53,7 @@
     <Compile Include="DummyRequest.cs" />
     <Compile Include="DummyResponse.cs" />
     <Compile Include="FaultStrategySpecs.cs" />
+    <Compile Include="FaultTolerantProducerSpecs.cs" />
     <Compile Include="FooMessage.cs" />
     <Compile Include="GooMessage.cs" />
     <Compile Include="MessageFlowShardingSpecs.cs" />

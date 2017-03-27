@@ -6,10 +6,9 @@ namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class FaultTolerantProducer
     {
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog logger = LogManager.GetLogger<FaultTolerantProducer>();
         private readonly IProducerSelector selector;
         private readonly int attempts;
-        private int count;
 
         public FaultTolerantProducer(IProducerSelector selector, int attempts)
         {
@@ -24,28 +23,25 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public Task<MessageExchange> Try(MessageExchange exchange)
         {
-            this.logger.Trace($"Attempt to send #{this.count}");
-            var producer = this.selector.Next<Producer>();
+            for (var count = 0; count < this.attempts; count++)
+            {
+                this.logger.Trace($"Attempt to send #{count}");
+                var producer = this.selector.Next();
 
-            return this.CreateSendTask(exchange, producer)
-                .ContinueWith(t =>
+                try
                 {
-                    if (t.IsCompleted && !t.IsFaulted)
-                    {
-                        return t.Result;
-                    }
+                    return this.TrySend(exchange, producer);
+                }
+                catch (Exception)
+                {
+                    this.logger.Warn($"Attempt #{count} to send a message on producer at [{producer.BrokerUrl}] has failed, will try the next producer");
+                }
+            }
 
-                    if (t.IsFaulted && this.count < this.attempts)
-                    {
-                        this.count++;
-                        return this.Try(exchange).Result;
-                    }
-
-                    throw new InvalidOperationException("Send operation failed", t.Exception);
-                });
+            throw new Exception($"Failed to send a message after {this.attempts} attempts");
         }
 
-        private Task<MessageExchange> CreateSendTask(MessageExchange exchange, Producer producer)
+        private Task<MessageExchange> TrySend(MessageExchange exchange, IProducer producer)
         {
             if (exchange.IsRequest)
             {

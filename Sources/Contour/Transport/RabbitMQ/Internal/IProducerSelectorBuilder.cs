@@ -1,11 +1,11 @@
-using System.Collections;
+using System.Collections.Generic;
 
-namespace Contour.Transport.RabbitMQ
+namespace Contour.Transport.RabbitMQ.Internal
 {
     /// <summary>
     /// Defines a builder for a producer selector
     /// </summary>
-    public interface IProducerSelectorBuilder
+    internal interface IProducerSelectorBuilder
     {
         /// <summary>
         /// Builds a new <see cref="IProducerSelector"/>
@@ -16,6 +16,6 @@ namespace Contour.Transport.RabbitMQ
         /// <returns>
         /// The <see cref="IProducerSelector"/>.
         /// </returns>
-        IProducerSelector Build(IList items = null);
+        IProducerSelector Build(IEnumerable<IProducer> items = null);
     }
 }

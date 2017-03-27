@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Contour.Configuration;
 using Contour.Testing.Plumbing;
 using Contour.Transport.RabbitMQ;

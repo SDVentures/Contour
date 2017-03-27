@@ -82,12 +82,6 @@ namespace Contour.RabbitMq.Tests
         }
 
         [Test]
-        public void should_recover_producer_on_message_publish_failure()
-        {
-            Assert.Ignore("Not implemented");
-        }
-
-        [Test]
         public void should_not_recover_producer_on_message_publish_confirmation_failure()
         {
             const int Count = 500;

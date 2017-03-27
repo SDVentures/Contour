@@ -161,7 +161,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             var listenerOptions = listener.ReceiverOptions;
 
-            //// Check only listeners at the same URL and attached to the same listening source (queue); ensure the listener is not one of this receiver's listeners
+            // Check only listeners at the same URL and attached to the same listening source (queue); ensure the listener is not one of this receiver's listeners
             var checkList =
                 this.listeners.Where(
                     l =>

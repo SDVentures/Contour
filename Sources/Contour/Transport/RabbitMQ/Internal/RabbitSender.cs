@@ -132,7 +132,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.BuildProducers();
             var builder = this.senderOptions.GetProducerSelectorBuilder();
-            this.producerSelector = builder.Build(this.producers.ToList());
+            this.producerSelector = builder.Build(this.producers);
         }
 
         /// <summary>
