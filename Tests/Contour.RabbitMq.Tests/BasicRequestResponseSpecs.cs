@@ -6,6 +6,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
@@ -13,8 +14,10 @@ using Contour.Testing.Plumbing;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Topology;
+
 using FluentAssertions;
 using NUnit.Framework;
+
 using Exchange = Contour.Transport.RabbitMQ.Topology.Exchange;
 using Queue = Contour.Transport.RabbitMQ.Topology.Queue;
 
@@ -33,7 +36,7 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         [TestFixture]
         [Category("Integration")]
-        public class when_global_timeout_is_overrided : RabbitMqFixture
+        public class when_global_timeout_is_overridden : RabbitMqFixture
         {
             /// <summary>
             /// The should_use_overrided_timeout_value.
@@ -313,7 +316,7 @@ namespace Contour.RabbitMq.Tests
                     .RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(13))
                     .ContinueWith(t => result = t.Result.Num);
 
-                response.Wait(3.Seconds()).Should().BeTrue();
+                response.Wait(1.Minutes()).Should().BeTrue();
                 result.Should().Be(26);
             }
         }

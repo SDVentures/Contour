@@ -273,12 +273,13 @@
         /// The <see cref="IReceiverConfigurator"/>.
         /// </returns>
         /// <exception cref="ArgumentException">
+        /// Raises an error if a receiver for <paramref name="label"/> has already been registered
         /// </exception>
         public IReceiverConfigurator On(MessageLabel label)
         {
             if (this.HasRegisteredConsumerFor(label))
             {
-                throw new ArgumentException(string.Format("Receiver for label [{0}] already registered.", label), "label");
+                throw new ArgumentException($"Receiver for label [{label}] is already registered", nameof(label));
             }
 
             var configuration = new ReceiverConfiguration(label, this.ReceiverDefaults);
@@ -388,18 +389,17 @@
         /// The <see cref="ISenderConfigurator"/>.
         /// </returns>
         /// <exception cref="ArgumentException">
+        /// Raises an error if a sender for <paramref name="label"/> has already been registered
         /// </exception>
         public ISenderConfigurator Route(MessageLabel label)
         {
             if (this.HasRegisteredProducerFor(label))
             {
-                throw new ArgumentException(string.Format("Sender for label [{0}] already registered.", label), "label");
+                throw new ArgumentException($"Sender for label [{label}] already registered.", nameof(label));
             }
 
             var configuration = new SenderConfiguration(label, this.SenderDefaults, this.ReceiverDefaults);
-
             this.senderConfigurations.Add(configuration);
-
             return configuration;
         }
 

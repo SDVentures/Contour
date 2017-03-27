@@ -1,4 +1,6 @@
-﻿namespace Contour.Configuration
+﻿using System.Collections.Concurrent;
+
+namespace Contour.Configuration
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -10,21 +12,16 @@
     /// </summary>
     internal class BusComponentTracker : IBusComponentTracker
     {
-        #region Fields
-
         /// <summary>
         /// The components.
         /// </summary>
-        private readonly IList<IBusComponent> components = new List<IBusComponent>();
-
-        #endregion
-
-        #region Public Methods and Operators
+        private readonly ConcurrentBag<IBusComponent> components = new ConcurrentBag<IBusComponent>();
 
         /// <summary>
         /// The all of.
         /// </summary>
         /// <typeparam name="T">
+        /// The type of component to search for
         /// </typeparam>
         /// <returns>
         /// The <see cref="IEnumerable{T}"/>.
@@ -77,10 +74,13 @@
 
         public void UnregisterAll()
         {
-            this.components.ForEach(c=> c.Dispose());
-            this.components.Clear();
-        }
+            this.components.ForEach(c => c.Dispose());
 
-        #endregion
+            IBusComponent item;
+            while (!this.components.IsEmpty)
+            {
+                this.components.TryTake(out item);
+            }
+        }
     }
 }

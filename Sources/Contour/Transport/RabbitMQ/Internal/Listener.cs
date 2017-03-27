@@ -52,7 +52,7 @@
         /// <summary>
         /// Журнал работы.
         /// </summary>
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog logger;
 
         /// <summary>
         /// Реестр механизмов проверки сообщений.
@@ -109,6 +109,9 @@
             this.validatorRegistry = validatorRegistry;
 
             this.ReceiverOptions = receiverOptions;
+            this.BrokerUrl = connection.ConnectionString;
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(URL={this.BrokerUrl})");
+
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
             
@@ -156,6 +159,11 @@
         /// Настройки получателя.
         /// </summary>
         public RabbitReceiverOptions ReceiverOptions { get; private set; }
+
+        /// <summary>
+        /// A URL assigned to the listener to access the RabbitMQ broker
+        /// </summary>
+        public string BrokerUrl { get; private set; }
 
         public bool HasFailed { get; private set; }
 
@@ -325,7 +333,7 @@
         /// </param>
         protected void Deliver(RabbitDelivery delivery)
         {
-            this.logger.Trace(m => m("Received delivery labeled [{0}] from [{1}] with consumer [{2}].", delivery.Label, delivery.Args.Exchange, delivery.Args.ConsumerTag));
+            this.logger.Trace(m => m("Received delivery labeled [{0}] from exchange [{1}] with consumer [{2}].", delivery.Label, delivery.Args.Exchange, delivery.Args.ConsumerTag));
 
             if (delivery.Headers.ContainsKey(Headers.OriginalMessageId))
             {
@@ -449,11 +457,12 @@
             }
 
             var consumer = channel.BuildCancellableConsumer(cancellationToken);
-            channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
+            var tag = channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
+            this.logger.Trace($"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
 
             consumer.ConsumerCancelled += (sender, args) =>
             {
-                this.logger.InfoFormat("Consumer [{0}] was cancelled.", args.ConsumerTag);
+                this.logger.InfoFormat("Consumer [{0}] was canceled.", args.ConsumerTag);
                 this.Failed(this);
             };
 

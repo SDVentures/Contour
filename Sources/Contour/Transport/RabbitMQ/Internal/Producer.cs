@@ -19,7 +19,7 @@
     /// </summary>
     internal class Producer : IDisposable
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog logger;
 
         /// <summary>
         /// Отслеживает подтверждение ответов.
@@ -50,6 +50,9 @@
             this.endpoint = endpoint;
 
             this.Channel = connection.OpenChannel();
+            this.BrokerUrl = connection.ConnectionString;
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(URL={this.BrokerUrl})");
+
             this.Label = label;
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
@@ -84,6 +87,11 @@
         }
 
         /// <summary>
+        /// A URL assigned to the producer to access the RabbitMQ broker
+        /// </summary>
+        public string BrokerUrl { get; private set; }
+
+        /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.
         /// </summary>
         protected Listener CallbackListener { get; private set; }
@@ -108,7 +116,7 @@
         /// </summary>
         public void Dispose()
         {
-            Logger.Trace(m => m("Disposing producer of [{0}].", this.Label));
+            this.logger.Trace(m => m("Disposing producer of [{0}].", this.Label));
 
             if (this.confirmationTracker != null)
             {
@@ -134,7 +142,7 @@
         {
             var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
 
-            Logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
+            this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
 
             Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
 
@@ -200,7 +208,7 @@
         /// </summary>
         public void Start()
         {
-            Logger.Trace(m => m("Starting producer of [{0}].", this.Label));
+            this.logger.Trace(m => m("Starting producer of [{0}].", this.Label));
             if (this.CallbackListener != null)
             {
                 this.CallbackListener.StartConsuming();
@@ -212,7 +220,7 @@
         /// </summary>
         public void Stop()
         {
-            Logger.Trace(m => m("Stopping producer of [{0}].", this.Label));
+            this.logger.Trace(m => m("Stopping producer of [{0}].", this.Label));
             if (this.CallbackListener != null)
             {
                 this.CallbackListener.StopConsuming();

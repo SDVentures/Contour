@@ -1,8 +1,7 @@
-﻿namespace Contour.Transport.RabbitMQ
+﻿using Contour.Sending;
+
+namespace Contour.Transport.RabbitMQ
 {
-    using System.Runtime.CompilerServices;
-    using Sending;
-    
     /// <summary>
     /// Extension methods for sender configurator
     /// </summary>

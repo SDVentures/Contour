@@ -69,7 +69,8 @@ namespace Contour.Transport.RabbitMQ
                 Ttl = default(TimeSpan?),
                 RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
                 IncomingMessageHeaderStorage = messageHeaderStorage,
-                ReuseConnection = true
+                ReuseConnection = true,
+                ProducerSelectorBuilder = RabbitBusDefaults.ProducerSelectorBuilder
             };
 
             c.ReceiverDefaults = new RabbitReceiverOptions(c.EndpointOptions)

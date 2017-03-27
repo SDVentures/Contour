@@ -117,7 +117,7 @@ namespace Contour.RabbitMq.Tests
                                 .ReactWith(m => { })
                                 .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))));
                         });
-
+                
                 bus.Invoking(b => b.Start()).ShouldThrow<BusConfigurationException>();
             }
         }

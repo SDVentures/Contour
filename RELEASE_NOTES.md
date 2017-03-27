@@ -1,4 +1,12 @@
-﻿## 1.5.0
+﻿## 1.6.0
+ - Enables label sharding support (according to feature definition in https://github.com/SDVentures/Contour/issues/27):
+   - an endpoint should be able to connect to several broker nodes (with different connection strings) simultaneously;
+   - an endpoint should receive messages from all broker nodes (connection strings) specified in the configuration element;
+   - an endpoint should send messages to only one broker node (connection string) which should be selected based on a list of supported algorithms (Round Robin);
+   - the connection string property specified on the endpoint or incoming/outgoing configuration element should be able to define a list of broker URLs;
+
+
+## 1.5.0
  - An issue https://github.com/SDVentures/Contour/issues/25 has been fixed. A new correlation id will always be used for outgoing requests.
 
 ## 1.4.1

@@ -3,7 +3,6 @@
 
 ![Contour status](https://ci.appveyor.com/api/projects/status/github/sdventures/contour?branch=master&svg=true)
 [![NuGet Status](http://img.shields.io/nuget/v/Contour.svg?style=flat)](https://www.nuget.org/packages/Contour/)
-[![Nuget](https://img.shields.io/nuget/dt/Contour.svg)](https://nuget.org/packages/Contour)
 
 ## About
 
@@ -57,7 +56,7 @@ Additionally, we can pass component name of [IBusLifecycleHandler](https://githu
 It may be helpful, if your component needs to know when service bus was started or stopped.
 
 Every message, that failed to be processed, is added to the fault queue. Fault queue has the same name as the endpoint with additional '.Fault' postfix.
-**faultQueueTtl** attribute controls TTL of fault messages in such queues. 
+**faultQueueTtl** attribute controls TTL of fault messages in such queues.
 **faultQueueLimit** attribute limits maximum number of messages. If number of fault messages reaches this limit, old messages will be substituted.
 
 ```xml
@@ -76,7 +75,7 @@ Default value for TTL - 21 days, for maximum size of the fault queue - no limits
 All incoming messages are declared in the 'incoming' collection section. Each message label declares with an individual element 'on'. 'key' and 'label' attributes are mandatory.
 For each incoming message topology elements are created if they don't exist:
  - exchange with name equal to label attribute value;
- - queue with name "*&lt;endpoint name>.&lt;label>*" 
+ - queue with name "*&lt;endpoint name>.&lt;label>*"
  - binding from exchange to queue.
 
 Additionally, you can set the parameters (as attributes of the element 'on'):
@@ -85,7 +84,7 @@ Additionally, you can set the parameters (as attributes of the element 'on'):
  - __type__ – CLR-type of the event body. Can be represented by fully qualified name. In this case, default mechanism of type searching is used. Or you can use a short name type. In this case, it will search for all loaded assemblies in the application domain.If type is not specified, ExpandoObject will be used by default.
  - __validate__ – message validator name (class that implements [IMessageValidator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Validation/IMessageValidator.cs)), which operates only within a declared subscription;
  - __lifestyle__ – allows you to specify a handler lifestyle.
- 
+
 Lifestyle possible values:
  - __Normal__ – handler is requested, when you create a bus client (default value);
  - __Lazy__ – handler is requested once, when you get the first message;
@@ -115,7 +114,7 @@ Also you can set a value of 'group' parameter to 'true'. This would mean that yo
 
 ### Caching
 
-Tag 'caching' controls the caching of incoming Request/Reply messages 
+Tag 'caching' controls the caching of incoming Request/Reply messages
 
 You can enable caching by setting attribute to ‘enabled’. At the requested side response is cached by the key, which is generated on the basis of the request body. Caching time is defined by the responder when calling 'Reply' method.
 
@@ -156,9 +155,9 @@ By default, uses the value of 50 messages, which will be read by one access. We 
 
 All outgoing messages are declared in the 'outgoing' collection section. Each message label is declared with an individual tag 'route'. 'key' and 'label' attributes are mandatory.
 
-Key is a label alias, which can be used from the code, and allows you to separate concrete label (exchange in RabbitMQ) of the message from its representation in code. 
-Outgoing route may be referenced from the application 
--	by key, adding a colon (:) as a prefix. 
+Key is a label alias, which can be used from the code, and allows you to separate concrete label (exchange in RabbitMQ) of the message from its representation in code.
+Outgoing route may be referenced from the application
+-	by key, adding a colon (:) as a prefix.
 -	directly by label.
 
 Additionally, you can set the parameters (as attributes of the 'route' element):
@@ -197,7 +196,7 @@ Dynamic routing can be useful in cases, when you don’t have enough information
 
 Class constructor can take an object, implementing [IDependencyResolver](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/IDependencyResolver.cs) interface, which is used for getting bus client dependencies. It is used for searching message handlers, validators or specifying life cycle handler. If concrete client configuration doesn’t require external dependencies, this parameter can be omitted. For simplicity, instead of implementing a particular class, you can pass to the constructor  delegate of [DependencyResolverFunc](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/LambdaDependencyResolver.cs) type.
 
-For example, typical creation of [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) object using Ninject container: 
+For example, typical creation of [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) object using Ninject container:
 ```csharp
 var configurator = new AppConfigConfigurator((name, type) => kernel.Get(type, name));
 ```
@@ -316,7 +315,7 @@ Contour comprises the following set of the universal message filters:
  - Translator,
  - TransparentReply,
  - WireTap.
- 
+
 ### Acceptor
 
 Confirms the message processing and forwards it to the next filter.

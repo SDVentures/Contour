@@ -16,8 +16,6 @@ using Contour.Transport.RabbitMQ.Topology;
 
 namespace Contour.Configurator
 {
-
-
     /// <summary>
     ///   Конфигуратор клиента шины сообщений, использующий настройки объявленные в стандартном .config-файле.
     /// </summary>
@@ -207,8 +205,7 @@ namespace Contour.Configurator
 
             foreach (OutgoingElement outgoingElement in endpointConfig.Outgoing)
             {
-                ISenderConfigurator configurator = cfg.Route(outgoingElement.Label).
-                    WithAlias(outgoingElement.Key);
+                var configurator = cfg.Route(outgoingElement.Label).WithAlias(outgoingElement.Key);
 
                 if (outgoingElement.Confirm)
                 {
@@ -602,6 +599,16 @@ namespace Contour.Configurator
         private MessageValidatorGroup ResolveValidatorGroup(string name)
         {
             return (MessageValidatorGroup)this.dependencyResolver.Resolve(name, typeof(MessageValidatorGroup));
+        }
+
+        /// <summary>
+        /// Resolves a producer selector by the provided selector name
+        /// </summary>
+        /// <param name="name">The name identifying the producer selector</param>
+        /// <returns><see cref="IProducerSelector"/></returns>
+        private IProducerSelectorBuilder ResolveProducerSelectorBuilder(string name)
+        {
+            return (IProducerSelectorBuilder)this.dependencyResolver.Resolve(name, typeof(IProducerSelectorBuilder));
         }
     }
 }

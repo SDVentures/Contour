@@ -16,8 +16,6 @@ namespace Contour.Receiving
     /// </summary>
     internal abstract class AbstractReceiver : IReceiver
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="AbstractReceiver"/>.
         /// </summary>
@@ -29,20 +27,12 @@ namespace Contour.Receiving
             this.Configuration = configuration;
         }
 
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the configuration.
         /// </summary>
         public IReceiverConfiguration Configuration { get; private set; }
 
         public abstract bool IsHealthy { get; }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The dispose.
@@ -74,7 +64,5 @@ namespace Contour.Receiving
         /// The stop.
         /// </summary>
         public abstract void Stop();
-
-        #endregion
     }
 }
