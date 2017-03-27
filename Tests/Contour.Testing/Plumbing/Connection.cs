@@ -8,11 +8,11 @@ namespace Contour.Testing.Plumbing
 
         public bool exchange_exchange_bindings { get; set; }
 
-        //// Unsupported basic.nack
+        // Unsupported basic.nack
 
         public bool consumer_cancel_notify { get; set; }
 
-        //// Unsupported connection.blocked
+        // Unsupported connection.blocked
 
         public bool authentication_failure_close { get; set; }
     }
