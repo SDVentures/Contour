@@ -134,10 +134,6 @@ namespace Contour.Testing.Plumbing
             var request = CreateRequest("/api/vhosts/{name}", Method.PUT);
             request.AddUrlSegment("name", vhostName);
             var response = client.Execute(request);
-            if (response.StatusCode != HttpStatusCode.Created)
-            {
-                throw new Exception($"Failed to create a host {vhostName}");
-            }
         }
 
         /// <summary>

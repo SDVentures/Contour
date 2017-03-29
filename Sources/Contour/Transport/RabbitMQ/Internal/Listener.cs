@@ -282,8 +282,14 @@
                 Task worker;
                 while (this.workers.TryTake(out worker))
                 {
-                    worker.Wait();
-                    worker.Dispose();
+                    try
+                    {
+                        worker.Wait();
+                        worker.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
                 
                 this.ticketTimer.Dispose();

@@ -18,21 +18,6 @@ namespace Contour.RabbitMq.Tests
         Category("Integration")]
     public class ConnectionFailoverSpecs : RabbitMqFixture
     {
-        [SetUp]
-        public override void SetUp()
-        {
-            this.PreSetUp();
-
-            this.Endpoints = new List<IBus>();
-            this.Broker = new Broker(this.ManagementConnection, this.AdminUserName, this.AdminUserPassword);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            this.DeleteHosts();
-        }
-
         [Test]
         public void should_recover_listener_after_failure_on_connection_restore()
         {
@@ -40,8 +25,6 @@ namespace Contour.RabbitMq.Tests
             var label = "recover.request";
             var tcsList = new List<TaskCompletionSource<bool>>(Count);
             
-            this.ConnectionString = this.InitializeHosts(1).First();
-
             var producer = this.StartBus("producer", cfg => cfg.Route(label));
 
             for (int i = 0; i < Count; i++)
@@ -88,8 +71,6 @@ namespace Contour.RabbitMq.Tests
             const string Label = "dummy.request";
             int published = 0, unconfirmed = 0, failed = 0;
             
-            this.ConnectionString = this.InitializeHosts(1).First();
-
             var producer = this.StartBus(
                 "producer",
                 cfg =>
@@ -114,7 +95,7 @@ namespace Contour.RabbitMq.Tests
             {
                 try
                 {
-                    producer.Emit(Label, new DummyRequest(i)).Wait();
+                    producer.Emit(Label, new DummyRequest(i));
                     Trace.WriteLine($"Message {i} published");
                     published++;
                 }
