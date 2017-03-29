@@ -158,6 +158,8 @@
         /// </param>
         void RegisterFilter(IMessageExchangeFilter filter);
 
+        void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator);
+
         /// <summary>
         /// Регистрирует конкретный валидатор тела сообщения.
         /// </summary>

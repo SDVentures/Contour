@@ -33,6 +33,8 @@ namespace Contour.Sending
         /// </summary>
         private readonly string breadCrumbsTail;
 
+        private IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
+
         // TODO: refactor, don't copy filters
 
         /// <summary>
@@ -52,6 +54,12 @@ namespace Contour.Sending
                 .ToList();
 
             this.Configuration = configuration;
+        }
+
+        protected AbstractSender(IEndpoint endpoint, ISenderConfiguration configuration, IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
+            : this(endpoint, configuration, filters)
+        {
+            this.filterDecorators = filterDecorators;
         }
 
         /// <summary>

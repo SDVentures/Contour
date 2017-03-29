@@ -8,6 +8,8 @@ using Contour.Sending;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
+    using System;
+
     /// <summary>
     /// Отправитель сообщений с помощью брокера <c>RabbitMQ</c>.
     /// </summary>
@@ -45,6 +47,12 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </param>
         public RabbitSender(IEndpoint endpoint, ISenderConfiguration configuration, ProducerRegistry producerRegistry, IEnumerable<IMessageExchangeFilter> filters)
             : base(endpoint, configuration, filters)
+        {
+            this.producerRegistry = producerRegistry;
+        }
+
+        public RabbitSender(IEndpoint endpoint, ISenderConfiguration configuration, ProducerRegistry producerRegistry, IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
+            : base(endpoint, configuration, filters, filterDecorators)
         {
             this.producerRegistry = producerRegistry;
         }

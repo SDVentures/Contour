@@ -285,7 +285,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.Configuration.SenderConfigurations.ForEach(
                 c =>
                 {
-                    var sender = new RabbitSender(this.Configuration.Endpoint, c, this.ProducerRegistry, this.Configuration.Filters.ToList());
+                    var sender = new RabbitSender(this.Configuration.Endpoint, c, this.ProducerRegistry, this.Configuration.Filters.ToList(), this.Configuration.FilterDecorators);
                     this.ComponentTracker.Register(sender);
                 });
         }

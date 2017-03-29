@@ -95,6 +95,8 @@
             }
         }
 
+        public IDictionary<Type, IMessageExchangeFilterDecorator> FilterDecorators { get; } = new Dictionary<Type, IMessageExchangeFilterDecorator>();
+
         /// <summary>
         /// Gets the lifecycle handler.
         /// </summary>
@@ -340,6 +342,11 @@
         public void RegisterFilter(IMessageExchangeFilter filter)
         {
             this.filters.Add(filter);
+        }
+
+        public void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator)
+        {
+            this.FilterDecorators[typeof(T)] = decorator;
         }
 
         /// <summary>

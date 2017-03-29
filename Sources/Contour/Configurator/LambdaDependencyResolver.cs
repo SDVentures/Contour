@@ -16,7 +16,7 @@
     /// <summary>
     /// The lambda dependency resolver.
     /// </summary>
-    internal class LambdaDependencyResolver : IDependencyResolver
+    public class LambdaDependencyResolver : IDependencyResolver
     {
         #region Fields
 

@@ -55,6 +55,7 @@
     <Compile Include="Caching\CacheMessageExchangeFilter.cs" />
     <Compile Include="Configurator\DynamicElement.cs" />
     <Compile Include="Configurator\QosElement.cs" />
+    <Compile Include="Filters\IMessageExchangeFilterDecorator.cs" />
     <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\SendingExchangeFilter.cs" />

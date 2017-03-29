@@ -9,6 +9,7 @@
 
 namespace Contour.Filters
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -25,6 +26,8 @@ namespace Contour.Filters
         /// </summary>
         private readonly IEnumerator<IMessageExchangeFilter> filterEnumerator;
 
+        private readonly IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
+
         #endregion
 
         #region Constructors and Destructors
@@ -39,6 +42,12 @@ namespace Contour.Filters
         {
             this.filterEnumerator = filters.Reverse().
                 GetEnumerator();
+        }
+
+        public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
+            : this(filters)
+        {
+            this.filterDecorators = filterDecorators;
         }
 
         #endregion
@@ -70,7 +79,15 @@ namespace Contour.Filters
                 return Filter.Result(exchange);
             }
 
-            return this.filterEnumerator.Current.Process(exchange, this);
+            var currentFilter = this.filterEnumerator.Current;
+            var currentFilterType = currentFilter.GetType();
+
+            if (this.filterDecorators.ContainsKey(currentFilterType))
+            {
+                return this.filterDecorators[currentFilterType].Process(currentFilter, exchange, this);
+            }
+
+            return currentFilter.Process(exchange, this);
         }
 
         /// <summary>
