@@ -85,15 +85,13 @@ namespace Contour.RabbitMq.Tests
                         });
 
                 producer.Emit("boo.request", new BooMessage(13));
-
-                waitHandle.WaitOne(5.Seconds()).Should().BeTrue();
-
+                
+                waitHandle.WaitOne(1.Minutes()).Should().BeTrue();
                 result.Should().Be(13);
 
                 producer.Emit("foo.request", new FooMessage(13));
 
-                waitHandle.WaitOne(5.Seconds()).Should().BeTrue();
-
+                waitHandle.WaitOne(1.Minutes()).Should().BeTrue();
                 result.Should().Be(26);
             }
         }

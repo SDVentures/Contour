@@ -1,9 +1,9 @@
-﻿namespace Contour.Transport.RabbitMQ
-{
-    using Configuration;
-    using Helpers;
-    using Receiving;
+﻿using Contour.Configuration;
+using Contour.Helpers;
+using Contour.Receiving;
 
+namespace Contour.Transport.RabbitMQ
+{
     /// <summary>
     /// The rabbit receiver options.
     /// </summary>
@@ -31,7 +31,13 @@
         /// Gets or sets the QoS.
         /// </summary>
         public Maybe<QoSParams> QoS { protected get; set; }
-        
+
+        /// <summary>
+        /// Treats and returns a connection string as a sequence of RabbitMQ broker URLs
+        /// </summary>
+        public RabbitConnectionString RabbitConnectionString => new RabbitConnectionString(this.GetConnectionString().Value);
+
+
         /// <summary>
         /// Get the QoS settings.
         /// </summary>
@@ -53,6 +59,5 @@
         {
             return new RabbitReceiverOptions(this);
         }
-
     }
 }

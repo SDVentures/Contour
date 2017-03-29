@@ -68,12 +68,18 @@
             }
         }
 
+        /// <summary>
+        /// Gets the connection string
+        /// </summary>
         [ConfigurationProperty("connectionString", IsRequired = false)]
         public string ConnectionString
         {
             get { return (string)base["connectionString"]; }
         }
 
+        /// <summary>
+        /// Gets a flag which specifies if an existing connection should be reused
+        /// </summary>
         [ConfigurationProperty("reuseConnection", IsRequired = false)]
         public bool? ReuseConnection
         {

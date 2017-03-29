@@ -10,7 +10,7 @@
     internal abstract class ConnectionPool<TConnection> : IConnectionPool<TConnection> where TConnection : class, IConnection
     {
         private readonly object syncRoot = new object();
-        private readonly ILog logger = LogManager.GetLogger<ConnectionPool<TConnection>>();
+        private readonly ILog logger;
         private readonly ConcurrentDictionary<string, IList<Tuple<TConnection, bool>>> groups =
             new ConcurrentDictionary<string, IList<Tuple<TConnection, bool>>>();
 
@@ -19,6 +19,7 @@
         
         protected ConnectionPool()
         {
+            this.logger = LogManager.GetLogger(this.GetType().FullName);
             this.cancellation = new CancellationTokenSource();
         }
 

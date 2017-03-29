@@ -30,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Contour.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -88,6 +89,12 @@
     <Compile Include="Operators\WireTap.cs" />
     <Compile Include="Configuration\EndpointOptions.cs" />
     <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\DefaultProducerSelectorBuilder.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ListenerRegisteredEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RoundRobinSelector.cs" />
+    <Compile Include="Transport\RabbitMQ\IProducerSelector.cs" />
+    <Compile Include="Transport\RabbitMQ\IProducerSelectorBuilder.cs" />
+    <Compile Include="Transport\RabbitMQ\RabbitConnectionString.cs" />
     <Compile Include="Transport\RabbitMQ\RabbitSenderOptions.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitConnectionPool.cs" />
     <Compile Include="Receiving\Sagas\CorrelationIdSeparator.cs" />
@@ -215,8 +222,6 @@
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFailedConsumingContext.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitReceiver.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitSender.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ProducerRegistry.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ListenerRegistry.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitBusDefaults.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitChannel.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitDelivery.cs" />

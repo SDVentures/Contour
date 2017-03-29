@@ -18,16 +18,10 @@
     /// </summary>
     public class LambdaDependencyResolver : IDependencyResolver
     {
-        #region Fields
-
         /// <summary>
         /// The _resolver.
         /// </summary>
         private readonly DependencyResolverFunc _resolver;
-
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LambdaDependencyResolver"/>.
@@ -39,10 +33,6 @@
         {
             this._resolver = resolver;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The resolve.
@@ -60,7 +50,5 @@
         {
             return this._resolver(name, type);
         }
-
-        #endregion
     }
 }

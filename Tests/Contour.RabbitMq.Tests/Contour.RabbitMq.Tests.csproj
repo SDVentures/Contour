@@ -54,10 +54,13 @@
     <Compile Include="FaultStrategySpecs.cs" />
     <Compile Include="FooMessage.cs" />
     <Compile Include="GooMessage.cs" />
+    <Compile Include="MessageFlowShardingSpecs.cs" />
     <Compile Include="MessageHeaderSpecs.cs" />
     <Compile Include="OperatorsSpecs.cs" />
     <Compile Include="MessageHandlingSpecs.cs" />
     <Compile Include="MessageAttributeSpecs.cs" />
+    <Compile Include="RabbitConnectionStringSpecs.cs" />
+    <Compile Include="RoundRobinSelectorSpecs.cs" />
     <Compile Include="SagaHandlingSpecs.cs" />
     <Compile Include="ValidationSpecs.cs" />
     <Compile Include="LifecycleSpecs.cs" />
@@ -177,6 +180,9 @@
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
