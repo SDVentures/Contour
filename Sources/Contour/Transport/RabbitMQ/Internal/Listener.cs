@@ -5,13 +5,11 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
-    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Common.Logging;
     using Helpers;
-    using Helpers.Scheduler;
     using Helpers.Timing;
     using Receiving;
     using Receiving.Consumers;
@@ -47,7 +45,7 @@
         /// <summary>
         /// Объект синхронизации.
         /// </summary>
-        private readonly object locker = new object();
+        private readonly object syncRoot = new object();
 
         /// <summary>
         /// Журнал работы.
@@ -58,15 +56,11 @@
         /// Реестр механизмов проверки сообщений.
         /// </summary>
         private readonly MessageValidatorRegistry validatorRegistry;
-
         private readonly IBusContext busContext;
         private readonly IRabbitConnection connection;
-
-        /// <summary>
-        /// Источник квитков отмены задач.
-        /// </summary>
-        private CancellationTokenSource cancellationTokenSource;
         
+        private CancellationTokenSource cancellationTokenSource;
+
         /// <summary>
         /// Признак: слушатель потребляет сообщения.
         /// </summary>
@@ -77,11 +71,7 @@
         /// Таймер, который отслеживает, что время ожидания ответа на запрос вышло.
         /// </summary>
         private ITicketTimer ticketTimer;
-
-        /// <summary>
-        /// Рабочие потоки выполняющее обработку сообщений.
-        /// </summary>
-        private IList<IWorker> workers;
+        private ConcurrentBag<Task> workers;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Listener"/> class. 
@@ -105,25 +95,17 @@
         {
             this.busContext = busContext;
             this.connection = connection;
+            
             this.endpoint = endpoint;
             this.validatorRegistry = validatorRegistry;
 
             this.ReceiverOptions = receiverOptions;
             this.BrokerUrl = connection.ConnectionString;
-            this.logger = LogManager.GetLogger($"Listener(URL={this.BrokerUrl})");
 
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
-            
-            this.Failed += _ =>
-                {
-                    if (this.HasFailed)
-                    {
-                        return;
-                    }
 
-                    this.HasFailed = true;
-                };
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})");
         }
 
         /// <summary>
@@ -133,22 +115,11 @@
         /// Входящее сообщение.
         /// </param>
         internal delegate void ConsumingAction(RabbitDelivery delivery);
-
-        /// <summary>
-        /// Событие о сбое во время прослушивания порта.
-        /// </summary>
-        public event Action<Listener> Failed = l => { };
-
+        
         /// <summary>
         /// Метки сообщений, которые может обработать слушатель.
         /// </summary>
-        public IEnumerable<MessageLabel> AcceptedLabels
-        {
-            get
-            {
-                return this.consumers.Keys;
-            }
-        }
+        public IEnumerable<MessageLabel> AcceptedLabels => this.consumers.Keys;
 
         /// <summary>
         /// Порт канала, который прослушивается на входящие сообщения.
@@ -163,9 +134,7 @@
         /// <summary>
         /// A URL assigned to the listener to access the RabbitMQ broker
         /// </summary>
-        public string BrokerUrl { get; private set; }
-
-        public bool HasFailed { get; private set; }
+        public string BrokerUrl { get; }
 
         /// <summary>
         /// Создает входящее сообщение.
@@ -216,7 +185,7 @@
             }
 
             // Используется блокировка, чтобы гарантировать что метод CreateExpectation будет вызван один раз, т.к. это не гарантируется реализацией метода GetOrAdd.
-            lock (this.locker)
+            lock (this.syncRoot)
             {
                 expectation = this.expectations.GetOrAdd(correlationId, c => this.CreateExpectation(c, expectedResponseType, timeout));
                 return expectation.Task;
@@ -264,23 +233,32 @@
         /// </summary>
         public void StartConsuming()
         {
-            if (this.isConsuming)
+            lock (this.syncRoot)
             {
-                return;
+                if (this.isConsuming)
+                {
+                    return;
+                }
+
+                this.logger.InfoFormat("Starting consuming on [{0}].", this.endpoint.ListeningSource);
+
+                this.connection.Closed += this.OnConnectionClosed;
+                this.cancellationTokenSource = new CancellationTokenSource();
+
+                this.ticketTimer = new RoughTicketTimer(TimeSpan.FromSeconds(1));
+
+                var count = (int)this.ReceiverOptions.GetParallelismLevel().Value;
+                var token = this.cancellationTokenSource.Token;
+
+                this.workers = new ConcurrentBag<Task>(Enumerable
+                    .Range(0, count)
+                    .Select(
+                        _ =>
+                            Task.Factory.StartNew(
+                                () => this.ConsumerTaskMethod(token), token)));
+
+                this.isConsuming = true;
             }
-
-            this.logger.InfoFormat("Starting consuming on [{0}].", this.endpoint.ListeningSource);
-
-            this.cancellationTokenSource = new CancellationTokenSource();
-            this.ticketTimer = new RoughTicketTimer(TimeSpan.FromSeconds(1));
-
-            this.workers = Enumerable.Range(
-                0, 
-                (int)this.ReceiverOptions.GetParallelismLevel().Value)
-                .Select(_ => ThreadWorker.StartNew(this.Consume, this.cancellationTokenSource.Token))
-                .ToList();
-
-            this.isConsuming = true;
         }
 
         /// <summary>
@@ -288,8 +266,7 @@
         /// </summary>
         public void StopConsuming()
         {
-            // TODO: make more reliable
-            lock (this.locker)
+            lock (this.syncRoot)
             {
                 if (!this.isConsuming)
                 {
@@ -297,15 +274,18 @@
                 }
 
                 this.isConsuming = false;
-
                 this.logger.InfoFormat("Stopping consuming on [{0}].", this.endpoint.ListeningSource);
 
-                this.cancellationTokenSource.Cancel();
+                this.connection.Closed -= this.OnConnectionClosed;
+                this.cancellationTokenSource.Cancel(true);
 
-                WaitHandle.WaitAll(this.workers.Select(w => w.CompletionHandle).ToArray());
-                this.workers.ForEach(w => w.Dispose());
-                this.workers.Clear();
-
+                Task worker;
+                while (this.workers.TryTake(out worker))
+                {
+                    worker.Wait();
+                    worker.Dispose();
+                }
+                
                 this.ticketTimer.Dispose();
                 this.expectations.Values.ForEach(e => e.Cancel());
             }
@@ -349,7 +329,6 @@
 
             try
             {
-                // TODO: refactor
                 bool processed = this.TryHandleAsResponse(delivery);
 
                 if (!processed)
@@ -395,30 +374,30 @@
         /// <summary>
         /// Обрабатывает сообщение.
         /// </summary>
-        /// <param name="cancellationToken">
+        /// <param name="token">
         /// Сигнальный объект аварийного досрочного завершения обработки.
         /// </param>
-        private void Consume(CancellationToken cancellationToken)
+        private void ConsumerTaskMethod(CancellationToken token)
         {
             try
             {
-                this.InternalConsume(cancellationToken);
-            }
-            catch (EndOfStreamException ex)
-            {
-                // The consumer was cancelled, the model closed, or the
-                // connection went away.
-                this.logger.DebugFormat("Reached EOS while listening on [{0}]. Stopping consuming.", ex, this.endpoint.ListeningSource);
-                this.Failed(this);
+                RabbitChannel channel;
+                var consumer = this.InitializeConsumer(token, out channel);
+
+                while (!token.IsCancellationRequested)
+                {
+                    var message = consumer.Dequeue();
+                    this.Deliver(this.BuildDeliveryFrom(channel, message));
+                }
             }
             catch (OperationCanceledException)
             {
-                // do nothing, everything is fine
+                this.logger.Info($"Listener has been canceled");
             }
             catch (Exception ex)
             {
-                this.logger.ErrorFormat("Unexpected exception while listening on [{0}]. Stopping consuming.", ex, this.endpoint.ListeningSource);
-                this.Failed(this);
+                this.logger.Error(
+                    $"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has failed due to [{ex.Message}]");
             }
         }
 
@@ -444,11 +423,12 @@
 
             return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
         }
-
-        private void InternalConsume(CancellationToken cancellationToken)
+        
+        private CancellableQueueingConsumer InitializeConsumer(CancellationToken token, out RabbitChannel channel)
         {
-            var channel = this.connection.OpenChannel();
-            channel.Failed += (ch, args) => this.Failed(this);
+            // Opening a new channel may lead to a new connection creation
+            channel = this.connection.OpenChannel(token);
+            this.logger.Trace($"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has recovered");
 
             if (this.ReceiverOptions.GetQoS().HasValue)
             {
@@ -456,24 +436,16 @@
                     this.ReceiverOptions.GetQoS().Value);
             }
 
-            var consumer = channel.BuildCancellableConsumer(cancellationToken);
-            var tag = channel.StartConsuming(this.endpoint.ListeningSource, this.ReceiverOptions.IsAcceptRequired(), consumer);
-            this.logger.Trace($"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
+            var consumer = channel.BuildCancellableConsumer(token);
+            var tag = channel.StartConsuming(
+                this.endpoint.ListeningSource,
+                this.ReceiverOptions.IsAcceptRequired(),
+                consumer);
 
-            consumer.ConsumerCancelled += (sender, args) =>
-            {
-                this.logger.InfoFormat("Consumer [{0}] was canceled.", args.ConsumerTag);
-                this.Failed(this);
-            };
+            this.logger.Trace(
+                $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
 
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                BasicDeliverEventArgs message = consumer.Dequeue();
-                this.Deliver(this.BuildDeliveryFrom(channel, message));
-            }
-
-            // TODO: resolve deadlock
-            // channel.TryStopConsuming(consumerTag);
+            return consumer;
         }
 
         /// <summary>
@@ -518,6 +490,14 @@
 
             this.ReceiverOptions.GetUnhandledDeliveryStrategy()
                 .Value.Handle(new RabbitUnhandledConsumingContext(delivery));
+        }
+
+        private void OnConnectionClosed(object sender, EventArgs e)
+        {
+            this.logger.Warn("The underlying connection has been closed, recovering the listener...");
+
+            this.StopConsuming();
+            this.StartConsuming();
         }
 
         /// <summary>

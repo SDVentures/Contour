@@ -9,51 +9,49 @@
     using Receiving;
     using Topology;
     using global::RabbitMQ.Client;
-    using global::RabbitMQ.Client.Exceptions;
 
     /// <summary>
     /// The rabbit channel.
     /// </summary>
-    internal class RabbitChannel : IChannel
+    internal sealed class RabbitChannel : IChannel
     {
-        /// <summary>
-        /// The logger.
-        /// </summary>
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
-        
-        /// <summary>
-        /// The _sync.
-        /// </summary>
         private readonly object sync = new object();
-
         private readonly IBusContext busContext;
+        private readonly ILog logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitChannel"/> class. 
         /// </summary>
+        /// <param name="connectionId">A connection identifier to which this channel belongs</param>
         /// <param name="model">A native transport channel</param>
         /// <param name="busContext">A bus context</param>
-        public RabbitChannel(IModel model, IBusContext busContext)
+        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext)
         {
-            this.busContext = busContext;
+            this.ConnectionId = connectionId;
             this.Model = model;
-            Logger.Trace("Channel is opened.");
+            this.busContext = busContext;
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.ConnectionId}, {this.GetHashCode()})");
+
             this.Model.ModelShutdown += this.OnModelShutdown;
         }
-        
+
+        public Guid ConnectionId { get; }
+
         /// <summary>
         /// The failed.
         /// </summary>
+        [Obsolete("Channel failures are no longer propagated outside via events, instead an exception is thrown")]
         public event Action<IChannel, ErrorEventArgs> Failed = (channel, args) => { };
+
+        /// <summary>
+        /// Is fired on channel shutdown.
+        /// </summary>
+        public event Action<IChannel, EventArgs> Shutdown = (channel, args) => { };
         
-        public bool IsOpen => (this.Model != null && this.Model.IsOpen);
-
-        // leave protected to have a full control over Channel ops
-
         /// <summary>
         /// Gets the native.
         /// </summary>
-        protected IModel Model { get; private set; }
+        protected IModel Model { get; }
 
         /// <summary>
         /// Aborts the channel
@@ -71,7 +69,7 @@
         /// </param>
         public void Accept(RabbitDelivery delivery)
         {
-            Logger.Trace(m => m("Accepting message [{0}] ({1}).", delivery.Label, delivery.Args.DeliveryTag));
+            this.logger.Trace(m => m("Accepting message [{0}] ({1}).", delivery.Label, delivery.Args.DeliveryTag));
 
             this.SafeNativeInvoke(n => n.BasicAck(delivery.Args.DeliveryTag, false));
         }
@@ -116,11 +114,6 @@
         public QueueingBasicConsumer BuildQueueingConsumer()
         {
             var consumer = new QueueingBasicConsumer(this.Model);
-
-            /* if total reconnection is more desirable
-                consumer.ConsumerCancelled += (sender, args) =>
-                Failed(this, new ErrorEventArgs(new RabbitException("Consumer [{0}] was cancelled.".FormatEx(args.ConsumerTag))));
-            */
             return consumer;
         }
 
@@ -179,6 +172,8 @@
         {
             if (this.Model != null)
             {
+                this.Model.ModelShutdown -= this.OnModelShutdown;
+
                 if (this.Model.IsOpen)
                 {
                     this.Model.Close();
@@ -241,7 +236,7 @@
         {
             var nativeRoute = (RabbitRoute)route;
 
-            Logger.Trace(m => m("Emitting message [{0}] ({1}) through [{2}].", message.Label, message.Payload, nativeRoute));
+            this.logger.Trace(m => m("Emitting message [{0}] ({1}) through [{2}].", message.Label, message.Payload, nativeRoute));
 
             var props = this.Model.CreateBasicProperties();
             var body = this.busContext.PayloadConverter.FromObject(message.Payload);
@@ -254,13 +249,9 @@
             props.ContentType = this.busContext.PayloadConverter.ContentType;
             props.Timestamp = new AmqpTimestamp(DateTime.UtcNow.ToUnixTimestamp());
 
-            if (propsVisitor != null)
-            {
-                propsVisitor(props);
-            }
+            propsVisitor?.Invoke(props);
 
             message.Headers.ForEach(i => props.Headers.Add(i));
-
             this.busContext.MessageLabelHandler.Inject(props, message.Label);
 
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
@@ -277,7 +268,7 @@
         /// </param>
         public void Reject(RabbitDelivery delivery, bool requeue)
         {
-            Logger.Trace(m => m("Rejecting message [{0}] ({1}).", delivery.Label, delivery.Args.DeliveryTag));
+            this.logger.Trace(m => m("Rejecting message [{0}] ({1}).", delivery.Label, delivery.Args.DeliveryTag));
 
             this.SafeNativeInvoke(n => n.BasicNack(delivery.Args.DeliveryTag, false, requeue));
         }
@@ -398,9 +389,10 @@
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 
-        protected virtual void OnModelShutdown(IModel model, ShutdownEventArgs args)
+        private void OnModelShutdown(IModel model, ShutdownEventArgs args)
         {
-            Logger.Trace($"Channel is closed due to {args}");
+            this.logger.Trace($"Channel is closed due to '{args.ReplyText}'");
+            this.Shutdown(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -415,18 +407,14 @@
             {
                 lock (this.sync)
                 {
+                    this.logger.Trace($"Performing channel action [{invokeAction.Method.Name}]");
                     invokeAction(this.Model);
                 }
             }
-            catch (AlreadyClosedException ex)
+            catch (Exception ex)
             {
-                Logger.Error($"Native channel invocation failed due to {ex.Message}", ex);
-                this.Failed(this, new ErrorEventArgs(ex));
-            }
-            catch (OperationInterruptedException ex)
-            {
-                Logger.Error($"Native channel invocation failed due to {ex.Message}", ex);
-                this.Failed(this, new ErrorEventArgs(ex));
+                this.logger.Error($"Channel action failed due to {ex.Message}", ex);
+                throw;
             }
         }
     }

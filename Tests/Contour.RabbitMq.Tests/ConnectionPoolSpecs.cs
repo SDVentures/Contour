@@ -1,4 +1,7 @@
 // ReSharper disable InconsistentNaming
+
+using FluentAssertions;
+
 namespace Contour.RabbitMq.Tests
 {
     using System;
@@ -102,17 +105,10 @@ namespace Contour.RabbitMq.Tests
                     return con;
                 });
             
-            task.Wait(TimeSpan.FromSeconds(10));
+            task.Wait(5.Seconds());
             source.Cancel();
 
-            if (task.Wait(TimeSpan.FromSeconds(10)))
-            {
-                Assert.IsTrue(task.Result != null);
-            }
-            else
-            {
-                Assert.Fail("Operation has not been canceled");
-            }
+            Assert.Throws<AggregateException>(() => task.Wait(5.Seconds()));
         }
     }
 }

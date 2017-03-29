@@ -9,28 +9,15 @@
     using global::RabbitMQ.Client.Events;
 
     /// <summary>
-    /// The cancellable queueing consumer.
+    /// A cancellable queuing consumer
     /// </summary>
     internal class CancellableQueueingConsumer : DefaultBasicConsumer
     {
-        #region Fields
-
-        /// <summary>
-        /// The _cancellation token.
-        /// </summary>
         private readonly CancellationToken cancellationToken;
-
-        /// <summary>
-        /// The _queue.
-        /// </summary>
         private readonly BlockingCollection<BasicDeliverEventArgs> queue = new BlockingCollection<BasicDeliverEventArgs>();
 
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="CancellableQueueingConsumer"/>.
+        /// Initializes a new instance of the <see cref="CancellableQueueingConsumer"/> class. 
         /// </summary>
         /// <param name="model">
         /// The model.
@@ -43,10 +30,6 @@
         {
             this.cancellationToken = cancellationToken;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The dequeue.
@@ -96,7 +79,5 @@
             {
             }
         }
-
-        #endregion
     }
 }

@@ -9,6 +9,7 @@ using Contour.Transport.RabbitMQ.Internal;
 using Contour.Transport.RabbitMQ.Topology;
 using FluentAssertions;
 using NUnit.Framework;
+using RabbitMQ.Client.Exceptions;
 
 namespace Contour.RabbitMq.Tests
 {
@@ -25,21 +26,23 @@ namespace Contour.RabbitMq.Tests
         public class when_declaring_connection : RabbitMqFixture
         {
             [Test]
-            public void should_close_connection_on_channel_failure()
+            public void should_not_close_connection_on_channel_failure()
             {
                 var bus = this.ConfigureBus("Test", cfg => { });
-                var tcs = new TaskCompletionSource<bool>();
-
+                var tcs = new TaskCompletionSource<bool>(true);
+                
                 var connection = new RabbitConnection(new Endpoint("test"), bus.Configuration.ConnectionString, bus);
-                connection.Closed += (sender, args) => tcs.SetResult(true);
+                connection.Closed += (sender, args) => tcs.SetResult(false);
 
-                connection.Open(CancellationToken.None);
-                var channel = connection.OpenChannel();
+                var tokenSource = new CancellationTokenSource();
+                connection.Open(tokenSource.Token);
+                var channel = connection.OpenChannel(tokenSource.Token);
 
                 channel.Abort();
-                channel.Bind(Queue.Named("q").Instance, Exchange.Named("e").Instance, "key");
-
-                Assert.IsTrue(tcs.Task.Result);
+                Assert.Throws<AlreadyClosedException>(
+                    () => channel.Bind(Queue.Named("q").Instance, Exchange.Named("e").Instance, "key"));
+                
+                Assert.True(!tcs.Task.IsCompleted);
             }
         }
 

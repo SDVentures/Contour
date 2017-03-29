@@ -48,13 +48,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public bool IsStarted { get; private set; }
         
-        public override bool IsHealthy
-        {
-            get
-            {
-                return this.listeners.Any(l => !l.HasFailed);
-            }
-        }
+        public override bool IsHealthy => this.IsStarted;
 
         /// <summary>
         /// Checks if a receiver is able to process messages with <paramref name="label"/> label

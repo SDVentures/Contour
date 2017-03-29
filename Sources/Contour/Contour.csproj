@@ -90,7 +90,9 @@
     <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\DefaultProducerSelectorBuilder.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerRegisteredEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\UnconfirmedMessageException.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RoundRobinSelector.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\FaultTolerantProducer.cs" />
     <Compile Include="Transport\RabbitMQ\IProducerSelector.cs" />
     <Compile Include="Transport\RabbitMQ\IProducerSelectorBuilder.cs" />
     <Compile Include="Transport\RabbitMQ\RabbitConnectionString.cs" />
@@ -211,9 +213,9 @@
     <Compile Include="Transport\RabbitMQ\Internal\IRabbitConnection.cs" />
     <Compile Include="IConnectionProvider.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerConfiguration.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\NullPublishConfirmationTracker.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\DummyPublishConfirmationTracker.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IPublishConfirmationTracker.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\DefaultPublishConfirmationTracker.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\PublishConfirmationTracker.cs" />
     <Compile Include="Sending\PublishingOptions.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitConnection.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RabbitFaultMessage.cs" />

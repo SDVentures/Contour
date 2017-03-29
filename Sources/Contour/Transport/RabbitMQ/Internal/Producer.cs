@@ -1,17 +1,15 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Logging;
+using Contour.Configuration;
+using Contour.Sending;
+using RabbitMQ.Client;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Threading.Tasks;
-
-    using Common.Logging;
-
-    using Contour.Configuration;
-    using Contour.Sending;
-
-    using global::RabbitMQ.Client;
-
     /// <summary>
     /// Отправитель сообщений.
     /// Отправитель создается для конкретной метки сообщения и конкретной конечной точки.
@@ -19,13 +17,12 @@
     /// </summary>
     internal class Producer : IDisposable
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
-
-        /// <summary>
-        /// Отслеживает подтверждение ответов.
-        /// </summary>
-        private readonly IPublishConfirmationTracker confirmationTracker = new NullPublishConfirmationTracker();
+        private readonly ILog logger;
         private readonly IEndpoint endpoint;
+        private readonly IRabbitConnection connection;
+        private readonly object syncRoot = new object();
+        private CancellationTokenSource cancellationTokenSource;
+        private IPublishConfirmationTracker confirmationTracker = new DummyPublishConfirmationTracker();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Producer"/> class. 
@@ -49,41 +46,20 @@
         {
             this.endpoint = endpoint;
 
-            this.Channel = connection.OpenChannel();
+            this.connection = connection;
             this.BrokerUrl = connection.ConnectionString;
             this.Label = label;
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
 
-            if (this.ConfirmationIsRequired)
-            {
-                this.confirmationTracker = new DefaultPublishConfirmationTracker(this.Channel);
-                this.Channel.EnablePublishConfirmation();
-                this.Channel.OnConfirmation(this.confirmationTracker.HandleConfirmation);
-            }
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})[{this.Label}]");
         }
-
-        /// <summary>
-        /// Событие о провале выполнения операции.
-        /// </summary>
-        public event Action<Producer> Failed = p => { };
-
+        
         /// <summary>
         /// Метка сообщения, которая используется для отправки сообщения.
         /// </summary>
-        public MessageLabel Label { get; private set; }
-
-        /// <summary>
-        /// <c>true</c>, если в отправителе произошел отказ.
-        /// </summary>
-        public bool HasFailed
-        {
-            get
-            {
-                return !this.Channel.IsOpen;
-            }
-        }
-
+        public MessageLabel Label { get; }
+        
         /// <summary>
         /// A URL assigned to the producer to access the RabbitMQ broker
         /// </summary>
@@ -102,28 +78,25 @@
         /// <summary>
         /// <c>true</c> - если при отправке необходимо подтверждение о том, что брокер сохранил сообщение.
         /// </summary>
-        protected bool ConfirmationIsRequired { get; private set; }
+        protected bool ConfirmationIsRequired { get; }
 
         /// <summary>
         /// Определитель маршрутов отправки и получения.
         /// </summary>
-        protected IRouteResolver RouteResolver { get; private set; }
+        protected IRouteResolver RouteResolver { get; }
 
         /// <summary>
         /// Освобождает занятые ресурсы.
         /// </summary>
         public void Dispose()
         {
-            Logger.Trace(m => m("Disposing producer of [{0}].", this.Label));
-
-            if (this.confirmationTracker != null)
+            lock (this.syncRoot)
             {
-                this.confirmationTracker.Dispose();
-            }
+                this.logger.Trace($"Disposing producer of [{this.Label}]");
 
-            if (this.Channel != null)
-            {
-                this.Channel.Dispose();
+                this.Stop();
+                this.confirmationTracker?.Dispose();
+                this.Channel?.Dispose();
             }
         }
 
@@ -138,16 +111,13 @@
         /// </returns>
         public Task Publish(IMessage message)
         {
-            var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
-
-            Logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
-
-            Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
-
-            // getting next seqno and publishing should go together
-            lock (this.confirmationTracker)
+            lock (this.syncRoot)
             {
-                Task confirmation = this.confirmationTracker.Track();
+                var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
+                this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
+                Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
+
+                var confirmation = this.confirmationTracker.Track();
                 this.Channel.Publish(nativeRoute, message, propsVisitor);
                 return confirmation;
             }
@@ -178,9 +148,8 @@
             var timeout = Headers.Extract<TimeSpan?>(request.Headers, Headers.Timeout);
             var correlationId = (string)request.Headers[Headers.CorrelationId];
 
-            Task<IMessage> responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, timeout);
-
-            // TODO: join with responseTask (AttachToParent has proven to be too slow)
+            var responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, timeout);
+            
             this.Publish(request)
                 .ContinueWith(
                     t =>
@@ -206,10 +175,26 @@
         /// </summary>
         public void Start()
         {
-            Logger.Trace(m => m("Starting producer of [{0}].", this.Label));
-            if (this.CallbackListener != null)
+            lock (this.syncRoot)
             {
-                this.CallbackListener.StartConsuming();
+                this.logger.Trace($"Starting producer of [{this.Label}]");
+
+                this.cancellationTokenSource = new CancellationTokenSource();
+                var token = this.cancellationTokenSource.Token;
+
+                this.connection.Closed += this.OnConnectionClosed;
+                this.Channel = this.connection.OpenChannel(token);
+
+                if (this.ConfirmationIsRequired)
+                {
+                    this.confirmationTracker = new PublishConfirmationTracker(this.Channel);
+                    this.Channel.EnablePublishConfirmation();
+                    this.Channel.OnConfirmation(this.confirmationTracker.HandleConfirmation);
+                }
+
+                this.CallbackListener?.StartConsuming();
+
+                this.logger.Trace($"Producer of [{this.Label}] started successfully");
             }
         }
 
@@ -218,10 +203,15 @@
         /// </summary>
         public void Stop()
         {
-            Logger.Trace(m => m("Stopping producer of [{0}].", this.Label));
-            if (this.CallbackListener != null)
+            lock (this.syncRoot)
             {
-                this.CallbackListener.StopConsuming();
+                this.logger.Trace($"Stopping producer of [{this.Label}]");
+
+                this.connection.Closed -= this.OnConnectionClosed;
+                this.cancellationTokenSource.Cancel(true);
+                this.CallbackListener?.StopConsuming();
+
+                this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
             }
         }
 
@@ -242,11 +232,6 @@
             }
 
             this.CallbackListener = listener;
-            this.CallbackListener.Failed += l =>
-                {
-                    this.CallbackListener = null;
-                    this.Failed(this);
-                };
         }
 
         /// <summary>
@@ -310,6 +295,14 @@
             }
 
             return this.CallbackListener.Endpoint.CallbackRouteResolver.Resolve(this.endpoint, MessageLabel.Any);
+        }
+
+        private void OnConnectionClosed(object sender, EventArgs e)
+        {
+            this.logger.Warn("The underlying connection has been closed, recovering the producer...");
+
+            this.Stop();
+            this.Start();
         }
     }
 }

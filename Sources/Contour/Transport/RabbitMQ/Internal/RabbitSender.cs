@@ -58,13 +58,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Если <c>true</c> - отправитель работает без сбоев, иначе <c>false</c>.
         /// </summary>
-        public override bool IsHealthy
-        {
-            get
-            {
-                return this.producers.Any(p => !p.HasFailed);
-            }
-        }
+        public override bool IsHealthy => this.IsStarted;
 
         /// <summary>
         /// Освобождает занятые ресурсы. И останавливает отправителя.
@@ -114,38 +108,9 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>Задача ожидания отправки сообщения.</returns>
         protected override Task<MessageExchange> InternalSend(MessageExchange exchange)
         {
-            var producer = this.producerSelector.Next<Producer>();
-
-            if (exchange.IsRequest)
-            {
-                return producer.Request(exchange.Out, exchange.ExpectedResponseType)
-                    .ContinueWith(
-                        t =>
-                        {
-                            if (t.IsFaulted)
-                            {
-                                exchange.Exception = t.Exception;
-                            }
-                            else
-                            {
-                                exchange.In = t.Result;
-                            }
-
-                            return exchange;
-                        });
-            }
-
-            return producer.Publish(exchange.Out)
-                .ContinueWith(
-                    t =>
-                    {
-                        if (t.IsFaulted)
-                        {
-                            exchange.Exception = t.Exception;
-                        }
-
-                        return exchange;
-                    });
+            var attempts = this.senderOptions.GetFailoverAttempts() ?? 1;
+            var wrapper = new FaultTolerantProducer(this.producerSelector, attempts);
+            return wrapper.Try(exchange);
         }
 
         /// <summary>
@@ -228,12 +193,6 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.Configuration.Label,
                     routeResolver,
                     this.Configuration.Options.IsConfirmationRequired());
-
-                producer.Failed += p =>
-                {
-                    // A failed producer will not be removed from the collection cause this failure should be treated as transient
-                    this.logger.Error($"Producer [{producer}] has failed");
-                };
 
                 if (this.Configuration.RequiresCallback)
                 {
