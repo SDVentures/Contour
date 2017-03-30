@@ -1116,6 +1116,372 @@ namespace Contour.Configurator.Tests
 
         [TestFixture]
         [Category("Unit")]
+        public class when_configuring_endpoint_with_connection_string_provider
+        {
+            [Test]
+            public void should_load_connection_string_provider_if_present()
+            {
+                const string name = "name";
+                const string provider = "provider";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" connectionString="""" connectionStringProvider=""{provider}"" />
+                                   </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                resoverMock.Verify(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == provider),
+                        It.Is<Type>(type => type == typeof(IConnectionStringProvider))),
+                    Times.Once,
+                    "Should use a dependency resolver to load the connection string provider implementation.");
+            }
+
+            [Test]
+            public void should_not_load_connection_string_provider_if_not_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" connectionString="""" />
+                                   </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                resoverMock.Verify(
+                    rm => rm.Resolve(
+                        It.IsAny<string>(),
+                        It.Is<Type>(type => type == typeof(IConnectionStringProvider))),
+                    Times.Never,
+                    "Should not use a dependency resolver to load the connection string provider implementation.");
+            }
+
+            [Test]
+            public void should_set_connection_string_for_endpoint_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "someString";
+                string Config = 
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""provider"" />
+                    </endpoints>";
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfigurator);
+
+                Assert.AreEqual(SomeString, configuration.EndpointOptions.GetConnectionString().Value, "Should use a connection string from the endpoint connectionstring attribute.");
+            }
+
+            [Test]
+            public void should_set_connection_string_to_outgoing_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "someString";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <outgoing>
+                                <route key=""a"" label=""{Label}"" />
+                            </outgoing>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                resoverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for outgoing label.");
+            }
+
+            [Test]
+            public void should_override_connection_string_to_outgoing_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "some string";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <outgoing>
+                                <route key=""a"" label=""{Label}"" connectionString=""outgoing connection string"" />
+                            </outgoing>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                resoverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for outgoing label.");
+            }
+
+            [Test]
+            public void should_use_connection_string_from_outgoing_label_if_provider_returns_null()
+            {
+                const string Name = "name";
+                const string EndpointString = "endpoint string";
+                const string LabelString = "outgoing connection string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{EndpointString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <outgoing>
+                                <route key=""a"" label=""{Label}"" connectionString=""{LabelString}"" />
+                            </outgoing>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns((string)null);
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                resoverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(LabelString, "Should use a connection string from the outgoing label.");
+            }
+
+
+            [Test]
+            public void should_set_connection_string_to_incoming_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "someString";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <incoming>
+                                <on key=""a"" label=""{Label}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
+                            </incoming>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                resoverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for incoming label.");
+            }
+
+            [Test]
+            public void should_override_connection_string_to_incoming_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "some string";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <incoming>
+                                <on key=""a"" label=""{Label}"" connectionString=""incoming connection string"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
+                            </incoming>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                resoverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for incoming label.");
+            }
+
+            [Test]
+            public void should_use_connection_string_from_incoming_label_if_provider_returns_null()
+            {
+                const string Name = "name";
+                const string EndpointString = "endpoint string";
+                const string LabelString = "incoming connection string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{EndpointString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <incoming>
+                                <on key=""a"" label=""{Label}"" connectionString=""{LabelString}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
+                            </incoming>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns((string)null);
+
+                var resoverMock = new Mock<IDependencyResolver>();
+                resoverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(LabelString, "Should use a connection string from the outgoing label.");
+            }
+
+        }
+
+
+        [TestFixture]
+        [Category("Unit")]
         public class when_configuring_endpoint_with_connection_reuse
         {
             [Test]

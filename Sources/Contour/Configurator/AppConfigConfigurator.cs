@@ -128,6 +128,12 @@ namespace Contour.Configurator
 
             EndpointElement endpointConfig = this.GetEndPointByName(endpointName);
 
+            IConnectionStringProvider connectionStringProvider = null;
+            if (!string.IsNullOrEmpty(endpointConfig.ConnectionStringProvider))
+            {
+                connectionStringProvider = this.GetConnectionStringProvider(endpointConfig.ConnectionStringProvider);
+            }
+
             cfg.SetEndpoint(endpointConfig.Name);
 
             cfg.SetConnectionString(endpointConfig.ConnectionString);
@@ -238,6 +244,8 @@ namespace Contour.Configurator
                 {
                     connectionString = outgoingElement.ConnectionString;
                 }
+                connectionString = connectionStringProvider?.GetConnectionString(outgoingElement.Label.ToMessageLabel()) ?? connectionString;
+
 
                 configurator.WithConnectionString(connectionString);
 
@@ -310,6 +318,8 @@ namespace Contour.Configurator
                 {
                     connectionString = incomingElement.ConnectionString;
                 }
+                connectionString = connectionStringProvider?.GetConnectionString(incomingElement.Label.ToMessageLabel()) ?? connectionString;
+
 
                 configurator.WithConnectionString(connectionString);
 
@@ -539,6 +549,11 @@ namespace Contour.Configurator
         private object ResolveConsumer(string name, Type messageType)
         {
             return this.dependencyResolver.Resolve(name, typeof(IConsumerOf<>).MakeGenericType(messageType));
+        }
+
+        private IConnectionStringProvider GetConnectionStringProvider(string name)
+        {
+            return (IConnectionStringProvider)this.dependencyResolver.Resolve(name, typeof(IConnectionStringProvider));
         }
 
         /// <summary>
