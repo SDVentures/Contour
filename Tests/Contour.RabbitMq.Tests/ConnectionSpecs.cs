@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Contour.Configuration;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ.Internal;
 using Contour.Transport.RabbitMQ.Topology;
@@ -188,80 +186,7 @@ namespace Contour.RabbitMq.Tests
                     .BeFalse();
             }
         }
-
-        /// <summary>
-        /// The when_connecting_to_valid_broker_endpoint.
-        /// </summary>
-        [TestFixture]
-        [Category("Integration")]
-        public class when_connecting_to_valid_broker_endpoint : RabbitMqFixture
-        {
-            /// <summary>
-            /// The should_successfully_connect.
-            /// </summary>
-            [Test]
-            public void should_successfully_connect()
-            {
-                IBus bus = this.ConfigureBus("Test", cfg => cfg.Route("some.label"));
-
-                var waitHandler = new AutoResetEvent(false);
-
-                bus.Connected += (b, args) => waitHandler.Set();
-
-                bus.Invoking(b => b.Start())
-                    .ShouldNotThrow<BusConnectionException>();
-
-                waitHandler.WaitOne(2.Seconds())
-                    .Should()
-                    .BeTrue();
-            }
-        }
-
-        /// <summary>
-        /// The when_connection_is_failed.
-        /// </summary>
-        [TestFixture]
-        [Category("Integration")]
-        public class when_connection_is_failed : RabbitMqFixture
-        {
-            /// <summary>
-            /// The should_try_to_connect.
-            /// </summary>
-            [Test]
-            public void should_try_to_connect()
-            {
-                IBus bus = this.ConfigureBus("Test", cfg => cfg.Route("some.label"));
-
-                bool disconnectedIsRaised = false;
-                bus.Disconnected += (bus1, args) => { disconnectedIsRaised = true; };
-
-                bus.Start();
-
-                Task.Factory.StartNew(
-                    () =>
-                        {
-                            Thread.Sleep(2.Seconds());
-                            Broker.DropConnections();
-                        });
-
-                int counter = 10;
-                while (counter-- > 0)
-                {
-                    try
-                    {
-                        bus.Emit("some.label", new BooMessage(666));
-                        Thread.Sleep(1.Seconds());
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.Should().BeOfType<BusNotReadyException>();
-                    }
-                }
-
-                disconnectedIsRaised.Should().BeTrue();
-            }
-        }
-
+        
         /// <summary>
         /// The when_restarting_bus_instance.
         /// </summary>

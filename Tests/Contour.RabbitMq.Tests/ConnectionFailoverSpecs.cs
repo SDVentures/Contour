@@ -14,14 +14,22 @@ namespace Contour.RabbitMq.Tests
 {
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."),
      SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."),
-     Category("Integration")]
+     Category("Manual")]
+    [Ignore]
     public class ConnectionFailoverSpecs : RabbitMqFixture
     {
+        [TearDown]
+        public override void TearDown()
+        {
+            this.DeleteHosts();
+            base.TearDown();
+        }
+
         [Test]
         public void should_recover_listener_after_failure_on_connection_restore()
         {
             const int Count = 100;
-            var label = "recover.request";
+            var label = "listener.recover.request";
             var tcsList = new List<TaskCompletionSource<bool>>(Count);
 
             // Why RequiresAccept should be true: since the consumer may enqueue some messages before the connection is dropped these messages need to be rejected by the channel and re-queued by the broker; to make this happen the messages need to be acknowledged explicitly; otherwise these messages are going to be lost
@@ -66,17 +74,12 @@ namespace Contour.RabbitMq.Tests
 
             consumer.Start();
 
-            Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    this.Broker.DropConnections();
-                    Trace.WriteLine("Broker connections dropped");
-                    Thread.Sleep(1.Seconds());
-                }
-            });
+            var cts = new CancellationTokenSource();
+            var dropTask = this.CreateConnectionDropTask(cts.Token);
+            dropTask.Start();
 
             Assert.True(Task.WaitAll(tcsList.Select(tcs => tcs.Task).ToArray(), 5.Minutes()));
+            cts.Cancel();
         }
 
         [Test]
@@ -96,15 +99,9 @@ namespace Contour.RabbitMq.Tests
                 });
             producer.WhenReady.WaitOne();
 
-            Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    this.Broker.DropConnections();
-                    Trace.WriteLine("Broker connections dropped");
-                    Thread.Sleep(150.Milliseconds());
-                }
-            });
+            var cts = new CancellationTokenSource();
+            var dropTask = this.CreateConnectionDropTask(cts.Token);
+            dropTask.Start();
 
             for (int i = 0; i < Count; i++)
             {
@@ -128,6 +125,7 @@ namespace Contour.RabbitMq.Tests
 
             Trace.WriteLine($"Published={published}, unconfirmed={unconfirmed}, failed={failed}");
             Assert.True(published + unconfirmed + failed == Count);
+            cts.Cancel();
         }
 
         [Test]
@@ -145,18 +143,13 @@ namespace Contour.RabbitMq.Tests
                 });
             producer.WhenReady.WaitOne();
 
-            var dropTask = Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    this.Broker.DropConnections();
-                    Trace.WriteLine("Broker connections dropped");
-                    Thread.Sleep(100.Milliseconds());
-                }
-            });
-
+            var cts = new CancellationTokenSource();
+            var dropTask = this.CreateConnectionDropTask(cts.Token);
+            dropTask.Start();
             dropTask.Wait(5.Seconds());
+
             producer.Stop();
+            cts.Cancel();
         }
 
         [Test]
@@ -173,18 +166,29 @@ namespace Contour.RabbitMq.Tests
                         Trace.WriteLine($"Message received {m.Num}");
                     }));
 
-            var dropTask = Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    this.Broker.DropConnections();
-                    Trace.WriteLine("Broker connections dropped");
-                    Thread.Sleep(100.Milliseconds());
-                }
-            });
-
+            var cts = new CancellationTokenSource();
+            var dropTask = this.CreateConnectionDropTask(cts.Token);
+            dropTask.Start();
             dropTask.Wait(5.Seconds());
+
             consumer.Stop();
+            cts.Cancel();
+        }
+
+
+        private Task CreateConnectionDropTask(CancellationToken token)
+        {
+            return new Task(
+                () =>
+                {
+                    while (!token.IsCancellationRequested)
+                    {
+                        this.Broker.DropConnections();
+                        Trace.WriteLine("Broker connections dropped");
+                        Thread.Sleep(100.Milliseconds());
+                    }
+                },
+                token);
         }
     }
 }
