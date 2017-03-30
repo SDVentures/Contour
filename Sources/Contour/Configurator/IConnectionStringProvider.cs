@@ -2,7 +2,6 @@
 {
     /// <summary>
     /// Provides a connection string per label.
-    /// Overrides a connection string from a configuration section.
     /// </summary>
     public interface IConnectionStringProvider
     {
