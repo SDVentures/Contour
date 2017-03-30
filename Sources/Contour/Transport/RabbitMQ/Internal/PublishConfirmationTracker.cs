@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Contour.Helpers;
 using Contour.Sending;
+using RabbitMQ.Client;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -32,6 +33,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         
         public void Dispose()
         {
+            // Do not dispose the channel as its' lifetime is controlled by the producer owning this confirmation tracker
+
             if (this.channel != null)
             {
                 this.channel.Shutdown -= this.OnChannelShutdown;
@@ -125,7 +128,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
         }
 
-        private void OnChannelShutdown(IChannel sender, EventArgs args)
+        private void OnChannelShutdown(IChannel sender, ShutdownEventArgs args)
         {
             this.logger.Trace(m => m($"Message confirmation channel in connection [{this.channel.ConnectionId}] has been shut down, abandoning pending publish confirmations"));
 

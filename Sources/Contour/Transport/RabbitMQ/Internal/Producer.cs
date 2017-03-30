@@ -42,7 +42,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="confirmationIsRequired">
         /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
         /// </param>
-        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label,
+            IRouteResolver routeResolver, bool confirmationIsRequired)
         {
             this.endpoint = endpoint;
 
@@ -54,12 +55,12 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})[{this.Label}]");
         }
-        
+
         /// <summary>
         /// Метка сообщения, которая используется для отправки сообщения.
         /// </summary>
         public MessageLabel Label { get; }
-        
+
         /// <summary>
         /// A URL assigned to the producer to access the RabbitMQ broker
         /// </summary>
@@ -90,14 +91,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public void Dispose()
         {
-            lock (this.syncRoot)
-            {
-                this.logger.Trace($"Disposing producer of [{this.Label}]");
-
-                this.Stop();
-                this.confirmationTracker?.Dispose();
-                this.Channel?.Dispose();
-            }
+            this.Stop();
         }
 
         /// <summary>
@@ -149,21 +143,21 @@ namespace Contour.Transport.RabbitMQ.Internal
             var correlationId = (string)request.Headers[Headers.CorrelationId];
 
             var responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, timeout);
-            
+
             this.Publish(request)
                 .ContinueWith(
                     t =>
+                    {
+                        if (t.IsFaulted)
                         {
-                            if (t.IsFaulted)
+                            if (t.Exception != null)
                             {
-                                if (t.Exception != null)
-                                {
-                                    throw t.Exception.Flatten().InnerException;
-                                }
-
-                                throw new MessageRejectedException();
+                                throw t.Exception.Flatten().InnerException;
                             }
-                        }, 
+
+                            throw new MessageRejectedException();
+                        }
+                    },
                     TaskContinuationOptions.ExecuteSynchronously)
                 .Wait();
 
@@ -182,8 +176,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.cancellationTokenSource = new CancellationTokenSource();
                 var token = this.cancellationTokenSource.Token;
 
-                this.connection.Closed += this.OnConnectionClosed;
                 this.Channel = this.connection.OpenChannel(token);
+                this.Channel.Shutdown += this.OnChannelShutdown;
 
                 if (this.ConfirmationIsRequired)
                 {
@@ -207,8 +201,19 @@ namespace Contour.Transport.RabbitMQ.Internal
             {
                 this.logger.Trace($"Stopping producer of [{this.Label}]");
 
-                this.connection.Closed -= this.OnConnectionClosed;
                 this.cancellationTokenSource.Cancel(true);
+                this.confirmationTracker?.Dispose();
+
+                try
+                {
+                    this.Channel.Shutdown -= this.OnChannelShutdown;
+                    this.Channel?.Dispose();
+                }
+                catch (Exception)
+                {
+                    // Any channel/model disposal exceptions are suppressed
+                }
+
                 this.CallbackListener?.StopConsuming();
 
                 this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
@@ -228,7 +233,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             if (this.CallbackListener != null)
             {
-                throw new BusConfigurationException("Callback listener for producer [{0}] is already defined.".FormatEx(this.Label));
+                throw new BusConfigurationException(
+                    "Callback listener for producer [{0}] is already defined.".FormatEx(this.Label));
             }
 
             this.CallbackListener = listener;
@@ -297,12 +303,15 @@ namespace Contour.Transport.RabbitMQ.Internal
             return this.CallbackListener.Endpoint.CallbackRouteResolver.Resolve(this.endpoint, MessageLabel.Any);
         }
 
-        private void OnConnectionClosed(object sender, EventArgs e)
+        private void OnChannelShutdown(object sender, ShutdownEventArgs args)
         {
-            this.logger.Warn("The underlying connection has been closed, recovering the producer...");
+            if (args.Initiator != ShutdownInitiator.Application)
+            {
+                this.logger.Warn("The underlying channel has been closed, recovering the producer...");
 
-            this.Stop();
-            this.Start();
+                this.Stop();
+                this.Start();
+            }
         }
     }
 }

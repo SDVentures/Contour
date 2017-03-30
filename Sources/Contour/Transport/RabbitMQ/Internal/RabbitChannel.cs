@@ -46,7 +46,7 @@
         /// <summary>
         /// Is fired on channel shutdown.
         /// </summary>
-        public event Action<IChannel, EventArgs> Shutdown = (channel, args) => { };
+        public event Action<IChannel, ShutdownEventArgs> Shutdown = (channel, args) => { };
         
         /// <summary>
         /// Gets the native.
@@ -392,7 +392,7 @@
         private void OnModelShutdown(IModel model, ShutdownEventArgs args)
         {
             this.logger.Trace($"Channel is closed due to '{args.ReplyText}'");
-            this.Shutdown(this, EventArgs.Empty);
+            this.Shutdown(this, args);
         }
 
         /// <summary>

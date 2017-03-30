@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using RabbitMQ.Client;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -59,6 +61,7 @@
         private readonly IBusContext busContext;
         private readonly IRabbitConnection connection;
         
+        private readonly ConcurrentBag<RabbitChannel> channels = new ConcurrentBag<RabbitChannel>();
         private CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
@@ -242,9 +245,7 @@
 
                 this.logger.InfoFormat("Starting consuming on [{0}].", this.endpoint.ListeningSource);
 
-                this.connection.Closed += this.OnConnectionClosed;
                 this.cancellationTokenSource = new CancellationTokenSource();
-
                 this.ticketTimer = new RoughTicketTimer(TimeSpan.FromSeconds(1));
 
                 var count = (int)this.ReceiverOptions.GetParallelismLevel().Value;
@@ -276,7 +277,6 @@
                 this.isConsuming = false;
                 this.logger.InfoFormat("Stopping consuming on [{0}].", this.endpoint.ListeningSource);
 
-                this.connection.Closed -= this.OnConnectionClosed;
                 this.cancellationTokenSource.Cancel(true);
 
                 Task worker;
@@ -289,9 +289,24 @@
                     }
                     catch (Exception)
                     {
+                        // May catch OperationCanceledExceptions here on Task.Wait()
                     }
                 }
-                
+
+                RabbitChannel channel;
+                while (this.channels.TryTake(out channel))
+                {
+                    try
+                    {
+                        channel.Shutdown -= this.OnChannelShutdown;
+                        channel.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                        // Any channel/model disposal exceptions are suppressed
+                    }
+                }
+
                 this.ticketTimer.Dispose();
                 this.expectations.Values.ForEach(e => e.Cancel());
             }
@@ -434,6 +449,9 @@
         {
             // Opening a new channel may lead to a new connection creation
             channel = this.connection.OpenChannel(token);
+            channel.Shutdown += this.OnChannelShutdown;
+            this.channels.Add(channel);
+
             this.logger.Trace($"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has recovered");
 
             if (this.ReceiverOptions.GetQoS().HasValue)
@@ -452,6 +470,17 @@
                 $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
 
             return consumer;
+        }
+
+        private void OnChannelShutdown(IChannel arg1, ShutdownEventArgs args)
+        {
+            if (args.Initiator != ShutdownInitiator.Application)
+            {
+                this.logger.Warn("The underlying channel has been closed, recovering the listener...");
+
+                this.StopConsuming();
+                this.StartConsuming();
+            }
         }
 
         /// <summary>
@@ -496,14 +525,6 @@
 
             this.ReceiverOptions.GetUnhandledDeliveryStrategy()
                 .Value.Handle(new RabbitUnhandledConsumingContext(delivery));
-        }
-
-        private void OnConnectionClosed(object sender, EventArgs e)
-        {
-            this.logger.Warn("The underlying connection has been closed, recovering the listener...");
-
-            this.StopConsuming();
-            this.StartConsuming();
         }
 
         /// <summary>
