@@ -88,6 +88,7 @@
     <Compile Include="Operators\WireTap.cs" />
     <Compile Include="Configuration\EndpointOptions.cs" />
     <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
+    <Compile Include="Transport\RabbitMQ\FailoverException.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\DefaultProducerSelectorBuilder.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IProducer.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerRegisteredEventArgs.cs" />

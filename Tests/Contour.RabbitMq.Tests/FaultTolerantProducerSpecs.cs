@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Internal;
 using Moq;
 using NUnit.Framework;
@@ -34,8 +35,16 @@ namespace Contour.RabbitMq.Tests
 
             var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
             var exchange = new MessageExchange(message);
-            
-            Assert.Throws<Exception>(() => producer.Try(exchange));
+
+            try
+            {
+                producer.Try(exchange);
+                Assert.Fail();
+            }
+            catch (FailoverException fex)
+            {
+                Assert.IsTrue(fex.Attempts == Count);
+            }
         }
     }
 }

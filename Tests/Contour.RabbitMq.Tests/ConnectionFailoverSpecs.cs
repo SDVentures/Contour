@@ -15,7 +15,7 @@ namespace Contour.RabbitMq.Tests
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."),
      SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."),
      Category("Manual")]
-    [Ignore]
+    [Ignore("These tests can be run manually to check failover behavior but are not guaranteed to be successful while testing automatically")]
     public class ConnectionFailoverSpecs : RabbitMqFixture
     {
         [TearDown]

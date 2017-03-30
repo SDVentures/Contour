@@ -48,6 +48,13 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_declaring_consumers_and_producers : RabbitMqFixture
         {
+            [SetUp]
+            public override void SetUp()
+            {
+                base.SetUp();
+                this.Broker.DropConnections();
+            }
+
             [Test]
             public void should_reuse_connection_in_each_consumer_if_reusable()
             {

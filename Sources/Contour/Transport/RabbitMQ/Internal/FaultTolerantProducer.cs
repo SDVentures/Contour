@@ -38,7 +38,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                 }
             }
 
-            throw new Exception($"Failed to send a message after {this.attempts} attempts");
+            throw new FailoverException($"Failed to send a message after {this.attempts} attempts")
+            {
+                Attempts = this.attempts
+            };
         }
 
         private Task<MessageExchange> TrySend(MessageExchange exchange, IProducer producer)
