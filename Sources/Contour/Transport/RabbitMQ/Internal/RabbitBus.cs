@@ -125,8 +125,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(
                 $"A receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}] registered successfully");
             return receiver;
-                    // Since some of the configuration options are evaluated on receiver start the bus needs to check if a newly registered listener of each receiver is compatible with the rest of the receivers. Compatibility check list is defined by the receiver itself.
-                    // If some of the receivers are configured to receive messages of different types from the same source (queue) then each receiver should have a corresponding listener attached to that source to let the consuming actions of listeners execute.
         }
 
         /// <summary>
