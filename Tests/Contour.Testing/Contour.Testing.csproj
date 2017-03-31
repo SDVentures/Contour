@@ -49,8 +49,10 @@
     <Compile Include="Plumbing\RabbitJsonSerializer.cs" />
     <Compile Include="Plumbing\RabbitJsonSerializerStrategy.cs" />
     <Compile Include="Plumbing\TestFactory.cs" />
+    <Compile Include="Plumbing\VirtualHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transport\RabbitMq\RabbitMqFixture.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

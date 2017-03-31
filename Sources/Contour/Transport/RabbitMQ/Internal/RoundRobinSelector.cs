@@ -1,43 +1,45 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class RoundRobinSelector : IProducerSelector
     {
-        private readonly IEnumerator enumerator;
+        private readonly IEnumerator<IProducer> enumerator;
 
-        public RoundRobinSelector(IList items)
+        public RoundRobinSelector(IEnumerable<IProducer> items)
         {
             if (items == null)
             {
                 throw new ArgumentNullException(nameof(items));
             }
 
-            if (items.Count == 0)
+            var list = items.ToList();
+            if (!list.Any())
             {
                 throw new ArgumentOutOfRangeException(nameof(items));
             }
 
-            this.enumerator = items.GetEnumerator();
+            this.enumerator = list.GetEnumerator();
         }
 
-        public TProducer Next<TProducer>()
+        public IProducer Next()
         {
             while (true)
             {
                 if (this.enumerator.MoveNext())
                 {
-                    return (TProducer)this.enumerator.Current;
+                    return this.enumerator.Current;
                 }
 
                 this.enumerator.Reset();
             }
         }
 
-        public TProducer Next<TProducer>(IMessage message)
+        public IProducer Next(IMessage message)
         {
-            return this.Next<TProducer>();
+            return this.Next();
         }
     }
 }

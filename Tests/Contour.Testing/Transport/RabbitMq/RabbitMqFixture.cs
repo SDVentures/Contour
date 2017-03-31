@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Contour.Configuration;
 using Contour.Testing.Plumbing;
 using Contour.Transport.RabbitMQ;
@@ -99,7 +101,7 @@ namespace Contour.Testing.Transport.RabbitMq
         /// Очищает окружение после работы теста.
         /// </summary>
         [TearDown]
-        public void TearDown()
+        public virtual void TearDown()
         {
             foreach (var bus in this.Endpoints)
             {
@@ -197,6 +199,18 @@ namespace Contour.Testing.Transport.RabbitMq
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// Deletes all virtual hosts except the root
+        /// </summary>
+        protected void DeleteHosts()
+        {
+            var hosts = this.Broker.GetHosts().Where(h => h.name != "/");
+            foreach (var host in hosts)
+            {
+                this.Broker.DeleteHost(host.name);
+            }
         }
     }
 }

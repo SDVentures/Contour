@@ -1,7 +1,4 @@
 // ReSharper disable InconsistentNaming
-
-using FluentAssertions;
-
 namespace Contour.RabbitMq.Tests
 {
     using System;
@@ -66,15 +63,8 @@ namespace Contour.RabbitMq.Tests
 
             while (i++ < Count)
             {
-                var task = new Task<IConnection>(() => pool.Get(conString, false, source.Token));
-                task.Start();
-
-                if (!task.Wait(1.Minutes()))
-                {
-                    Assert.Ignore("Failed to get a connection from a pool; unable to continue the test");
-                }
-
-                connections.Add(task.Result);
+                var con = pool.Get(conString, false, source.Token);
+                connections.Add(con);
             }
 
             i = 0;
@@ -103,23 +93,19 @@ namespace Contour.RabbitMq.Tests
 
             var pool = new RabbitConnectionPool(bus);
             var source = new CancellationTokenSource();
-            var token = source.Token;
             
-            var task = new Task<IConnection>(() => pool.Get(ConString, false, token), token);
-            task.Start();
+            // ReSharper disable once MethodSupportsCancellation
+            var task = Task.Factory.StartNew(
+                () =>
+                {
+                    var con = pool.Get(ConString, false, source.Token);
+                    return con;
+                });
             
-            // Wait for the connection pool to initialize the connection
-            task.Wait(TimeSpan.FromSeconds(10));
+            task.Wait(5.Seconds());
             source.Cancel();
 
-            if (task.Wait(TimeSpan.FromMinutes(1)))
-            {
-                Assert.IsTrue(task.Result != null);
-            }
-            else
-            {
-                Assert.Fail("Operation has not been canceled");
-            }
+            Assert.Throws<AggregateException>(() => task.Wait(5.Seconds()));
         }
     }
 }
