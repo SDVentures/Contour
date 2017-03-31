@@ -107,6 +107,9 @@ namespace Contour.Configurator
             }
         }
 
+        [ConfigurationProperty("connectionStringProvider", IsRequired = false, DefaultValue = null)]
+        public string ConnectionStringProvider => (string)this["connectionStringProvider"];
+
         /// <summary>
         /// Gets the incoming.
         /// </summary>
