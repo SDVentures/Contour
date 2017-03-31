@@ -176,56 +176,58 @@ namespace Contour.Transport.RabbitMQ.Internal
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
                 this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a producer");
 
-                var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
-                var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
-                var routeResolverBuilder = this.Configuration.Options.GetRouteResolverBuilder();
-
-                Assumes.True(
-                    routeResolverBuilder.HasValue,
-                    "RouteResolverBuilder must be set for [{0}]",
-                    this.Configuration.Label);
-
-                var routeResolver = routeResolverBuilder.Value(builder);
-
-                var producer = new Producer(
-                    this.bus.Endpoint,
-                    connection,
-                    this.Configuration.Label,
-                    routeResolver,
-                    this.Configuration.Options.IsConfirmationRequired());
-
-                if (this.Configuration.RequiresCallback)
+                using (var topologyBuilder = new TopologyBuilder(connection.OpenChannel()))
                 {
-                    var callbackConfiguration = this.Configuration.CallbackConfiguration;
+                    var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
+                    var routeResolverBuilder = this.Configuration.Options.GetRouteResolverBuilder();
 
-                    this.logger.Trace(
-                        $"A sender of [{this.Configuration.Label}] requires a callback configuration; registering a receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}]");
+                    Assumes.True(
+                        routeResolverBuilder.HasValue,
+                        "RouteResolverBuilder must be set for [{0}]",
+                        this.Configuration.Label);
 
-                    var receiver = this.bus.RegisterReceiver(this.Configuration.CallbackConfiguration);
+                    var routeResolver = routeResolverBuilder.Value(builder);
 
-                    this.logger.Trace(
-                        $"A new callback receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}] has been successfully registered, getting one of its listeners with URL=[{producer.BrokerUrl}]...");
+                    var producer = new Producer(
+                        this.bus.Endpoint,
+                        connection,
+                        this.Configuration.Label,
+                        routeResolver,
+                        this.Configuration.Options.IsConfirmationRequired());
 
-                    var listener = receiver.GetListener(l => l.BrokerUrl == producer.BrokerUrl);
-
-                    if (listener == null)
+                    if (this.Configuration.RequiresCallback)
                     {
-                        throw new BusConfigurationException(
-                            $"Unable to find a suitable listener for receiver {receiver}");
+                        var callbackConfiguration = this.Configuration.CallbackConfiguration;
+
+                        this.logger.Trace(
+                            $"A sender of [{this.Configuration.Label}] requires a callback configuration; registering a receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}]");
+
+                        var receiver = this.bus.RegisterReceiver(this.Configuration.CallbackConfiguration);
+
+                        this.logger.Trace(
+                            $"A new callback receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}] has been successfully registered, getting one of its listeners with URL=[{producer.BrokerUrl}]...");
+
+                        var listener = receiver.GetListener(l => l.BrokerUrl == producer.BrokerUrl);
+
+                        if (listener == null)
+                        {
+                            throw new BusConfigurationException(
+                                $"Unable to find a suitable listener for receiver {receiver}");
+                        }
+
+                        this.logger.Trace(
+                            $"A listener at URL=[{listener.BrokerUrl}] belonging to callback receiver of [{callbackConfiguration.Label}] acquired");
+
+                        producer.UseCallbackListener(listener);
+
+                        this.logger.Trace(
+                            $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has registered a callback listener successfully");
                     }
 
+                    this.producers.Add(producer);
                     this.logger.Trace(
-                        $"A listener at URL=[{listener.BrokerUrl}] belonging to callback receiver of [{callbackConfiguration.Label}] acquired");
-
-                    producer.UseCallbackListener(listener);
-
-                    this.logger.Trace(
-                        $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has registered a callback listener successfully");
+                        $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been added to the sender");
                 }
-
-                this.producers.Add(producer);
-                this.logger.Trace(
-                    $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been added to the sender");
             }
         }
     }

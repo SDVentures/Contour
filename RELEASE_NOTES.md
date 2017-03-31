@@ -1,4 +1,9 @@
-﻿## 1.7.0
+﻿## 1.7.1
+ - Fixed:
+   - Topology builder channel usage defect;
+   - Rabbit connection operations access serialization;
+
+## 1.7.0
  - Connection failover support introduced;
  - Runtime connection string provider feature added;
 
