@@ -1,17 +1,19 @@
 // ReSharper disable InconsistentNaming
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Contour.Testing.Transport.RabbitMq;
+using Contour.Transport.RabbitMQ.Internal;
+using Contour.Transport.RabbitMQ.Topology;
+using FluentAssertions;
+using NUnit.Framework;
+
 namespace Contour.RabbitMq.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-    using Testing.Transport.RabbitMq;
-    using Transport.RabbitMQ.Internal;
-    using Transport.RabbitMQ.Topology;
-
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."), SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."), TestFixture]
     [Category("Integration")]
     public class ConnectionPoolSpecs : RabbitMqFixture
