@@ -67,8 +67,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                                         };
 
             var retryCount = 0;
-            while (!token.IsCancellationRequested)
+            while (true)
             {
+                token.ThrowIfCancellationRequested();
+
                 INativeConnection con = null;
                 try
                 {
@@ -101,23 +103,48 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
         }
 
+        [Obsolete("Use cancellable version")]
         public RabbitChannel OpenChannel()
         {
             if (this.connection == null || !this.connection.IsOpen)
             {
                 throw new InvalidOperationException("RabbitMQ connection is not open.");
             }
+
             try
             {
                 var model = this.connection.CreateModel();
-                var channel = new RabbitChannel(model, this.busContext);
-                channel.Failed += (ch, args) => this.OnChannelFailed(ch, args.GetException());
+                var channel = new RabbitChannel(this.Id, model, this.busContext);
                 return channel;
             }
             catch (Exception ex)
             {
                 this.logger.Error($"Failed to open a new channel in connection [{this}] due to: {ex.Message}", ex);
                 throw;
+            }
+        }
+
+        public RabbitChannel OpenChannel(CancellationToken token)
+        {
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+
+                if (this.connection == null || !this.connection.IsOpen)
+                {
+                    this.Open(token);
+                }
+                
+                try
+                {
+                    var model = this.connection.CreateModel();
+                    var channel = new RabbitChannel(this.Id, model, this.busContext);
+                    return channel;
+                }
+                catch (Exception ex)
+                {
+                    this.logger.Error($"Failed to open a new channel due to: {ex.Message}; retrying...", ex);
+                }
             }
         }
 
@@ -174,6 +201,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.connection = null;
                 }
             }
+            catch (Exception ex)
+            {
+                this.logger.Trace($"An error '{ex.Message}' during connection cleanup has been suppressed");
+            }
             finally
             {
                 this.OnDisposed();
@@ -200,20 +231,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.Disposed?.Invoke(this, EventArgs.Empty);
         }
 
-        protected virtual void OnChannelFailed(IChannel channel, Exception channelException)
-        {
-            this.logger.Warn($"A channel in connection [{this}] has failed: {channelException.Message}. Connection is going to be closed");
-
-            try
-            {
-                this.Close();
-            }
-            catch (Exception ex)
-            {
-                this.logger.Warn($"Failed to close a connection [{this}] due to {ex.Message}", ex);
-            }
-        }
-        
         private void OnConnectionShutdown(INativeConnection conn, ShutdownEventArgs eventArgs)
         {
             Task.Factory.StartNew(

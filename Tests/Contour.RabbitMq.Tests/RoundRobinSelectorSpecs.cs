@@ -35,13 +35,15 @@ namespace Contour.RabbitMq.Tests
                 const int LoopFactor = 5;
                 const int Size = Count * LoopFactor;
 
-                var producers = Enumerable.Range(0, Count).Select(i => new Mock<Producer>()).ToList();
-                var selector = new RoundRobinSelector(producers);
+                var producers = Enumerable.Range(0, Count).Select(i => new Mock<IProducer>().Object);
+                var list = producers.ToList();
+
+                var selector = new RoundRobinSelector(list);
 
                 for (var i = 0; i < Size; i++)
                 {
-                    var producer = selector.Next<Mock<Producer>>();
-                    var index = producers.IndexOf(producer);
+                    var producer = selector.Next();
+                    var index = list.IndexOf(producer);
 
                     index.Should().Be(i % Count);
                 }

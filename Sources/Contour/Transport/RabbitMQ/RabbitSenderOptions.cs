@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ
+﻿using Contour.Transport.RabbitMQ.Internal;
+
+namespace Contour.Transport.RabbitMQ
 {
     using Configuration;
     using Sending;

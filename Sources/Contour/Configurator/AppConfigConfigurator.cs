@@ -12,6 +12,7 @@ using Contour.Sending;
 using Contour.Validation;
 
 using Contour.Transport.RabbitMQ;
+using Contour.Transport.RabbitMQ.Internal;
 using Contour.Transport.RabbitMQ.Topology;
 
 namespace Contour.Configurator

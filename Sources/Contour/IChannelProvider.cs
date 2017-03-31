@@ -1,4 +1,6 @@
-﻿namespace Contour
+﻿using System.Threading;
+
+namespace Contour
 {
     /// <summary>
     /// Creates channels of <typeparamref name="TChannel"/> type using the underlying connection.
@@ -12,5 +14,16 @@
         /// </summary>
         /// <returns>An open channel</returns>
         TChannel OpenChannel();
+
+        /// <summary>
+        /// Opens a new channel in the underlying connection
+        /// </summary>
+        /// <param name="token">
+        /// Operation cancellation token
+        /// </param>
+        /// <returns>
+        /// An open channel
+        /// </returns>
+        TChannel OpenChannel(CancellationToken token);
     }
 }

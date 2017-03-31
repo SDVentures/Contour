@@ -27,16 +27,16 @@
         /// <summary>
         /// The handle confirmation.
         /// </summary>
-        /// <param name="isConfirmed">
+        /// <param name="confirmed">
         /// The is confirmed.
         /// </param>
-        /// <param name="seqNo">
+        /// <param name="sequenceNumber">
         /// The seq no.
         /// </param>
-        /// <param name="isMultiple">
+        /// <param name="multiple">
         /// The is multiple.
         /// </param>
-        void HandleConfirmation(bool isConfirmed, ulong seqNo, bool isMultiple);
+        void HandleConfirmation(bool confirmed, ulong sequenceNumber, bool multiple);
 
         /// <summary>
         /// The track.

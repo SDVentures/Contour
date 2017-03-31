@@ -50,11 +50,7 @@
                 }
                 
                 var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.cancellation.Token);
-                if (source.Token.IsCancellationRequested)
-                {
-                    this.logger.Trace("Connection pool Get operation has already been canceled");
-                    return null;
-                }
+                source.Token.ThrowIfCancellationRequested();
 
                 var group = this.groups.GetOrAdd(connectionString, s => new List<Tuple<TConnection, bool>>());
 

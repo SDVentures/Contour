@@ -1,31 +1,28 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Logging;
+using Contour.Configuration;
+using Contour.Sending;
+using RabbitMQ.Client;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Threading.Tasks;
-
-    using Common.Logging;
-
-    using Contour.Configuration;
-    using Contour.Sending;
-
-    using global::RabbitMQ.Client;
-
     /// <summary>
     /// Отправитель сообщений.
     /// Отправитель создается для конкретной метки сообщения и конкретной конечной точки.
     /// В случае отправки запроса с ожиданием ответа, отправитель создает получателя ответного сообщения.
     /// </summary>
-    internal class Producer : IDisposable
+    internal class Producer : IProducer
     {
         private readonly ILog logger;
-
-        /// <summary>
-        /// Отслеживает подтверждение ответов.
-        /// </summary>
-        private readonly IPublishConfirmationTracker confirmationTracker = new NullPublishConfirmationTracker();
         private readonly IEndpoint endpoint;
+        private readonly IRabbitConnection connection;
+        private readonly object syncRoot = new object();
+        private CancellationTokenSource cancellationTokenSource;
+        private IPublishConfirmationTracker confirmationTracker = new DummyPublishConfirmationTracker();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Producer"/> class. 
@@ -45,51 +42,29 @@
         /// <param name="confirmationIsRequired">
         /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
         /// </param>
-        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label,
+            IRouteResolver routeResolver, bool confirmationIsRequired)
         {
             this.endpoint = endpoint;
 
-            this.Channel = connection.OpenChannel();
+            this.connection = connection;
             this.BrokerUrl = connection.ConnectionString;
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(URL={this.BrokerUrl})");
-
             this.Label = label;
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
 
-            if (this.ConfirmationIsRequired)
-            {
-                this.confirmationTracker = new DefaultPublishConfirmationTracker(this.Channel);
-                this.Channel.EnablePublishConfirmation();
-                this.Channel.OnConfirmation(this.confirmationTracker.HandleConfirmation);
-            }
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})[{this.Label}]");
         }
-
-        /// <summary>
-        /// Событие о провале выполнения операции.
-        /// </summary>
-        public event Action<Producer> Failed = p => { };
 
         /// <summary>
         /// Метка сообщения, которая используется для отправки сообщения.
         /// </summary>
-        public MessageLabel Label { get; private set; }
-
-        /// <summary>
-        /// <c>true</c>, если в отправителе произошел отказ.
-        /// </summary>
-        public bool HasFailed
-        {
-            get
-            {
-                return !this.Channel.IsOpen;
-            }
-        }
+        public MessageLabel Label { get; }
 
         /// <summary>
         /// A URL assigned to the producer to access the RabbitMQ broker
         /// </summary>
-        public string BrokerUrl { get; private set; }
+        public string BrokerUrl { get; }
 
         /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.
@@ -104,12 +79,12 @@
         /// <summary>
         /// <c>true</c> - если при отправке необходимо подтверждение о том, что брокер сохранил сообщение.
         /// </summary>
-        protected bool ConfirmationIsRequired { get; private set; }
+        protected bool ConfirmationIsRequired { get; }
 
         /// <summary>
         /// Определитель маршрутов отправки и получения.
         /// </summary>
-        protected IRouteResolver RouteResolver { get; private set; }
+        protected IRouteResolver RouteResolver { get; }
 
         /// <summary>
         /// Освобождает занятые ресурсы.
@@ -117,16 +92,7 @@
         public void Dispose()
         {
             this.logger.Trace(m => m("Disposing producer of [{0}].", this.Label));
-
-            if (this.confirmationTracker != null)
-            {
-                this.confirmationTracker.Dispose();
-            }
-
-            if (this.Channel != null)
-            {
-                this.Channel.Dispose();
-            }
+            this.Stop();
         }
 
         /// <summary>
@@ -140,16 +106,13 @@
         /// </returns>
         public Task Publish(IMessage message)
         {
-            var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
-
-            this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
-
-            Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
-
-            // getting next seqno and publishing should go together
-            lock (this.confirmationTracker)
+            lock (this.syncRoot)
             {
-                Task confirmation = this.confirmationTracker.Track();
+                var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
+                this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
+                Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
+
+                var confirmation = this.confirmationTracker.Track();
                 this.Channel.Publish(nativeRoute, message, propsVisitor);
                 return confirmation;
             }
@@ -180,23 +143,22 @@
             var timeout = Headers.Extract<TimeSpan?>(request.Headers, Headers.Timeout);
             var correlationId = (string)request.Headers[Headers.CorrelationId];
 
-            Task<IMessage> responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, timeout);
+            var responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, timeout);
 
-            // TODO: join with responseTask (AttachToParent has proven to be too slow)
             this.Publish(request)
                 .ContinueWith(
                     t =>
+                    {
+                        if (t.IsFaulted)
                         {
-                            if (t.IsFaulted)
+                            if (t.Exception != null)
                             {
-                                if (t.Exception != null)
-                                {
-                                    throw t.Exception.Flatten().InnerException;
-                                }
-
-                                throw new MessageRejectedException();
+                                throw t.Exception.Flatten().InnerException;
                             }
-                        }, 
+
+                            throw new MessageRejectedException();
+                        }
+                    },
                     TaskContinuationOptions.ExecuteSynchronously)
                 .Wait();
 
@@ -208,10 +170,26 @@
         /// </summary>
         public void Start()
         {
-            this.logger.Trace(m => m("Starting producer of [{0}].", this.Label));
-            if (this.CallbackListener != null)
+            lock (this.syncRoot)
             {
-                this.CallbackListener.StartConsuming();
+                this.logger.Trace($"Starting producer of [{this.Label}]");
+
+                this.cancellationTokenSource = new CancellationTokenSource();
+                var token = this.cancellationTokenSource.Token;
+
+                this.Channel = this.connection.OpenChannel(token);
+                this.Channel.Shutdown += this.OnChannelShutdown;
+
+                if (this.ConfirmationIsRequired)
+                {
+                    this.confirmationTracker = new PublishConfirmationTracker(this.Channel);
+                    this.Channel.EnablePublishConfirmation();
+                    this.Channel.OnConfirmation(this.confirmationTracker.HandleConfirmation);
+                }
+
+                this.CallbackListener?.StartConsuming();
+
+                this.logger.Trace($"Producer of [{this.Label}] started successfully");
             }
         }
 
@@ -220,10 +198,26 @@
         /// </summary>
         public void Stop()
         {
-            this.logger.Trace(m => m("Stopping producer of [{0}].", this.Label));
-            if (this.CallbackListener != null)
+            lock (this.syncRoot)
             {
-                this.CallbackListener.StopConsuming();
+                this.logger.Trace($"Stopping producer of [{this.Label}]");
+
+                this.cancellationTokenSource.Cancel(true);
+                this.confirmationTracker?.Dispose();
+
+                try
+                {
+                    this.Channel.Shutdown -= this.OnChannelShutdown;
+                    this.Channel?.Dispose();
+                }
+                catch (Exception)
+                {
+                    // Any channel/model disposal exceptions are suppressed
+                }
+
+                this.CallbackListener?.StopConsuming();
+
+                this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
             }
         }
 
@@ -240,15 +234,11 @@
         {
             if (this.CallbackListener != null)
             {
-                throw new BusConfigurationException("Callback listener for producer [{0}] is already defined.".FormatEx(this.Label));
+                throw new BusConfigurationException(
+                    "Callback listener for producer [{0}] is already defined.".FormatEx(this.Label));
             }
 
             this.CallbackListener = listener;
-            this.CallbackListener.Failed += l =>
-                {
-                    this.CallbackListener = null;
-                    this.Failed(this);
-                };
         }
 
         /// <summary>
@@ -312,6 +302,17 @@
             }
 
             return this.CallbackListener.Endpoint.CallbackRouteResolver.Resolve(this.endpoint, MessageLabel.Any);
+        }
+
+        private void OnChannelShutdown(object sender, ShutdownEventArgs args)
+        {
+            if (args.Initiator != ShutdownInitiator.Application)
+            {
+                this.logger.Warn("The underlying channel has been closed, recovering the producer...");
+
+                this.Stop();
+                this.Start();
+            }
         }
     }
 }
