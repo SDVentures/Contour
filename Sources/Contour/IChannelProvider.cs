@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace Contour
 {
@@ -13,6 +14,7 @@ namespace Contour
         /// Opens a new channel in the underlying connection
         /// </summary>
         /// <returns>An open channel</returns>
+        [Obsolete("Use cancellable version")]
         TChannel OpenChannel();
 
         /// <summary>

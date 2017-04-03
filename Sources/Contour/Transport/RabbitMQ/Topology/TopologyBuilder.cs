@@ -1,18 +1,18 @@
-﻿using Contour.Receiving;
+﻿using System;
+using System.Threading;
+using Contour.Receiving;
 using Contour.Topology;
 using Contour.Transport.RabbitMQ.Internal;
 
 namespace Contour.Transport.RabbitMQ.Topology
 {
     /// <summary>
-    /// Построитель топологии.
+    /// The topology builder.
     /// </summary>
     public class TopologyBuilder : ITopologyBuilder
     {
-        /// <summary>
-        /// Соединение с шиной сообщений, через которое настраивается топология.
-        /// </summary>
         private readonly RabbitChannel channel;
+        private readonly IChannelProvider<IChannel> channelProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TopologyBuilder"/> class. 
@@ -20,10 +20,21 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// <param name="channel">
         /// Соединение с шиной сообщений, через которое настраивается топология.
         /// </param>
+        [Obsolete("Use a connection based constructor")]
         public TopologyBuilder(IChannel channel)
         {
-            // TODO: нужно работать с более общим типом IChannel.
             this.channel = (RabbitChannel)channel;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TopologyBuilder"/> class.
+        /// </summary>
+        /// <param name="channelProvider">
+        /// The provider.
+        /// </param>
+        public TopologyBuilder(IChannelProvider<IChannel> channelProvider)
+        {
+            this.channelProvider = channelProvider;
         }
 
         /// <summary>
@@ -40,7 +51,10 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </param>
         public void Bind(Exchange exchange, Queue queue, string routingKey = "")
         {
-            this.channel.Bind(queue, exchange, routingKey);
+            using (var channel = (RabbitChannel)this.channelProvider.OpenChannel(CancellationToken.None))
+            {
+                channel.Bind(queue, exchange, routingKey);
+            }
         }
 
         /// <summary>
@@ -52,9 +66,11 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </returns>
         public ISubscriptionEndpoint BuildTempReplyEndpoint()
         {
-            var queue = new Queue(this.channel.DeclareDefaultQueue());
-
-            return new SubscriptionEndpoint(queue, new StaticRouteResolver(string.Empty, queue.Name));
+            using (var channel = (RabbitChannel)this.channelProvider.OpenChannel(CancellationToken.None))
+            {
+                var queue = new Queue(channel.DeclareDefaultQueue());
+                return new SubscriptionEndpoint(queue, new StaticRouteResolver(string.Empty, queue.Name));
+            }
         }
 
         /// <summary>
@@ -67,12 +83,17 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </returns>
         public ISubscriptionEndpoint BuildTempReplyEndpoint(IEndpoint endpoint, MessageLabel label)
         {
-            var queue = Queue.Named(string.Format("{0}.replies-{1}-{2}", endpoint.Address, label.IsAny ? "any" : label.Name, NameGenerator.GetRandomName(8)))
-                .AutoDelete.Exclusive.Instance;
+            using (var channel = (RabbitChannel)this.channelProvider.OpenChannel(CancellationToken.None))
+            {
+                var queue =
+                    Queue.Named(
+                        $"{endpoint.Address}.replies-{(label.IsAny ? "any" : label.Name)}-{NameGenerator.GetRandomName(8)}")
+                        .AutoDelete.Exclusive.Instance;
 
-            this.channel.Declare(queue);
+                channel.Declare(queue);
 
-            return new SubscriptionEndpoint(queue, new StaticRouteResolver(string.Empty, queue.Name));
+                return new SubscriptionEndpoint(queue, new StaticRouteResolver(string.Empty, queue.Name));
+            }
         }
 
         /// <summary>
@@ -86,11 +107,12 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </returns>
         public Exchange Declare(ExchangeBuilder builder)
         {
-            Exchange exchange = builder.Instance;
-
-            this.channel.Declare(exchange);
-
-            return exchange;
+            using (var channel = (RabbitChannel)this.channelProvider.OpenChannel(CancellationToken.None))
+            {
+                var exchange = builder.Instance;
+                channel.Declare(exchange);
+                return exchange;
+            }
         }
 
         /// <summary>
@@ -104,11 +126,12 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </returns>
         public Queue Declare(QueueBuilder builder)
         {
-            Queue queue = builder.Instance;
-
-            this.channel.Declare(queue);
-
-            return queue;
+            using (var channel = (RabbitChannel)this.channelProvider.OpenChannel(CancellationToken.None))
+            {
+                var queue = builder.Instance;
+                channel.Declare(queue);
+                return queue;
+            }
         }
 
         /// <summary>

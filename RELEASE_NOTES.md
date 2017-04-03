@@ -1,4 +1,8 @@
-﻿## 1.7.1
+﻿## 1.7.2
+ - Fixed:
+   - Dynamic routing: a new disposable channel is obtained each time topology is rebuilt;
+
+## 1.7.1
  - Fixed:
    - Topology builder channel usage defect;
    - Rabbit connection operations access serialization;

@@ -254,7 +254,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
                 this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a listener");
 
-                using (var topologyBuilder = new TopologyBuilder(connection.OpenChannel()))
+                using (var topologyBuilder = new TopologyBuilder(connection))
                 {
                     var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
 

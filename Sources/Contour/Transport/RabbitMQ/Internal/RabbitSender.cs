@@ -176,17 +176,17 @@ namespace Contour.Transport.RabbitMQ.Internal
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
                 this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a producer");
 
-                using (var topologyBuilder = new TopologyBuilder(connection.OpenChannel()))
+                using (var topologyBuilder = new TopologyBuilder(connection))
                 {
                     var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
-                    var routeResolverBuilder = this.Configuration.Options.GetRouteResolverBuilder();
+                    var routeResolverBuilderFunc = this.Configuration.Options.GetRouteResolverBuilder();
 
                     Assumes.True(
-                        routeResolverBuilder.HasValue,
+                        routeResolverBuilderFunc.HasValue,
                         "RouteResolverBuilder must be set for [{0}]",
                         this.Configuration.Label);
 
-                    var routeResolver = routeResolverBuilder.Value(builder);
+                    var routeResolver = routeResolverBuilderFunc.Value(builder);
 
                     var producer = new Producer(
                         this.bus.Endpoint,
