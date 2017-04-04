@@ -1,4 +1,7 @@
-﻿## 1.7.2
+﻿## vNext
+ - Changed the .net framework version up to 4.6.1.
+
+## 1.7.2
  - Fixed:
    - Dynamic routing: a new disposable channel is obtained each time topology is rebuilt;
 
