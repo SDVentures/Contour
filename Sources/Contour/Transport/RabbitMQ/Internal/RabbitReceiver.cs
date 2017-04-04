@@ -19,7 +19,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly ILog logger;
         private readonly RabbitBus bus;
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
-        private readonly ConcurrentBag<Listener> listeners = new ConcurrentBag<Listener>();
+        private readonly ConcurrentQueue<IListener> listeners = new ConcurrentQueue<IListener>();
         private readonly RabbitReceiverOptions receiverOptions;
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Registers a specified <paramref name="listener"/> in this <see cref="RabbitReceiver"/>
         /// </summary>
         /// <param name="listener">A listener to be registered</param>
-        public void RegisterListener(Listener listener)
+        public void RegisterListener(IListener listener)
         {
             var listenerLabels = string.Join(",", listener.AcceptedLabels);
             var listenerAddress = listener.Endpoint.ListeningSource.Address;
@@ -137,7 +137,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             if (!this.listeners.Contains(listener))
             {
-                this.listeners.Add(listener);
+                this.listeners.Enqueue(listener);
                 this.logger.Trace(
                     $"External listener of labels ({listenerLabels}) at address [{listenerAddress}] has been registered in receiver of [{this.Configuration.Label}]");
             }
@@ -146,7 +146,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.Configuration.ReceiverRegistration?.Invoke(this);
         }
 
-        public Listener GetListener(Func<Listener, bool> predicate)
+        public IListener GetListener(Func<IListener, bool> predicate)
         {
             this.Configure();
             return this.listeners.FirstOrDefault(predicate);
@@ -157,7 +157,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         /// <param name="listener">A listener to check</param>
         /// <exception cref="BusConfigurationException">Raises a <see cref="BusConfigurationException"/> error if <paramref name="listener"/> is not compatible</exception>
-        public void CheckIfCompatible(Listener listener)
+        public void CheckIfCompatible(IListener listener)
         {
             var listenerOptions = listener.ReceiverOptions;
 
@@ -220,14 +220,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.logger.Trace(m => m("Stopping listeners in receiver of [{0}]", this.Configuration.Label));
 
-            Listener listener;
-            while (this.listeners.Any() && this.listeners.TryTake(out listener))
+            IListener listener;
+            while (this.listeners.Any() && this.listeners.TryDequeue(out listener))
             {
                 try
                 {
                     listener.StopConsuming();
                     listener.Dispose();
-                    this.logger.Trace("Listener stopped successfully");
                 }
                 catch (Exception ex)
                 {
@@ -241,57 +240,92 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Builds a set of listeners constructing one listener for each URL in the connection string
         /// </summary>
         private void BuildListeners()
-        {
-            var reuseConnectionProperty = this.receiverOptions.GetReuseConnection();
-            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
-            
+        {   
             this.logger.Trace(
                 $"Building listeners of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", this.receiverOptions.RabbitConnectionString.Select(url => $"Listener({this.Configuration.Label}): URL\t=>\t{url}"))}");
 
             foreach (var url in this.receiverOptions.RabbitConnectionString)
             {
-                var source = new CancellationTokenSource();
-                var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
-                this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a listener");
+                var newListener = this.BuildListener(url);
 
-                using (var topologyBuilder = new TopologyBuilder(connection))
+                // There is no need to register another listener at the same URL and for the same source; consuming actions can be registered for a single listener
+                var listener =
+                    this.listeners.FirstOrDefault(
+                        l =>
+                            l.BrokerUrl == newListener.BrokerUrl &&
+                            newListener.Endpoint.ListeningSource.Equals(l.Endpoint.ListeningSource));
+
+                if (listener == null)
                 {
-                    var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
-
-                    var endpointBuilder = this.Configuration.Options.GetEndpointBuilder();
-                    Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", this.Configuration.Label);
-
-                    var endpoint = endpointBuilder.Value(builder);
-
-                    var newListener = new Listener(
-                        this.bus,
-                        connection,
-                        endpoint,
-                        this.receiverOptions,
-                        this.bus.Configuration.ValidatorRegistry);
-
-                    // There is no need to register another listener at the same URL and for the same source; consuming actions can be registered for a single listener
-                    var listener =
-                        this.listeners.FirstOrDefault(
-                            l =>
-                                l.BrokerUrl == newListener.BrokerUrl &&
-                                newListener.Endpoint.ListeningSource.Equals(l.Endpoint.ListeningSource));
-
-                    if (listener == null)
-                    {
-                        listener = newListener;
-                        this.listeners.Add(listener);
-                    }
-                    else
-                    {
-                        // Check if an existing listener can be a substitute for a new one and if so just skip the new listeners
-                        this.CheckIfCompatible(newListener);
-                        listener = newListener;
-                    }
-
-                    // This event should be fired always, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
-                    this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
+                    listener = newListener;
+                    this.listeners.Enqueue(listener);
                 }
+                else
+                {
+                    // Check if an existing listener can be a substitute for a new one and if so just skip the new listeners
+                    this.CheckIfCompatible(newListener);
+                    listener = newListener;
+                }
+
+                listener.Stopped += (sender, args) => this.OnListenerStopped(args, sender);
+
+
+                // This event should be fired always, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
+                this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
+            }
+        }
+
+        private void OnListenerStopped(ListenerStoppedEventArgs args, object sender)
+        {
+            if (args.Reason == OperationStopReason.Regular)
+            {
+                return;
+            }
+
+            this.logger.Warn($"Listener [{sender.GetHashCode()}] has been stopped and will be reenlisted");
+
+            while (true)
+            {
+                IListener delistedListener;
+                if (this.listeners.TryDequeue(out delistedListener))
+                {
+                    if (sender == delistedListener)
+                    {
+                        this.logger.Trace($"Listener [{delistedListener.GetHashCode()}] has been delisted");
+                        break;
+                    }
+
+                    this.listeners.Enqueue(delistedListener);
+                }
+            }
+        }
+
+        private Listener BuildListener(string url)
+        {
+            var reuseConnectionProperty = this.receiverOptions.GetReuseConnection();
+            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
+
+            var source = new CancellationTokenSource();
+            var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
+            this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a listener");
+
+            using (var topologyBuilder = new TopologyBuilder(connection))
+            {
+                var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
+
+                var endpointBuilder = this.Configuration.Options.GetEndpointBuilder();
+                Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", this.Configuration.Label);
+
+                var endpoint = endpointBuilder.Value(builder);
+
+                var newListener = new Listener(
+                    this.bus,
+                    connection,
+                    endpoint,
+                    this.receiverOptions,
+                    this.bus.Configuration.ValidatorRegistry);
+
+                return newListener;
             }
         }
     }

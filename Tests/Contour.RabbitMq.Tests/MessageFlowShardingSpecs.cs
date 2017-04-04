@@ -268,6 +268,34 @@ namespace Contour.RabbitMq.Tests
 
                 Task.WaitAll(tasks, 1.Minutes()).Should().BeTrue();
             }
+
+            [Test]
+            public void bus_sender_should_create_temporary_queue_for_each_url()
+            {
+                const int Count = 4;
+                var urls = this.InitializeHosts(Count).ToArray();
+
+                var producerConnectionString = string.Join(",", urls);
+
+                this.ConnectionString = producerConnectionString;
+                var producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        cfg
+                            .Route("dummy.request")
+                            .WithConnectionString(producerConnectionString)
+                            .WithDefaultCallbackEndpoint();
+                    });
+                producer.WhenReady.WaitOne();
+
+                foreach (var url in urls)
+                {
+                    var vhostName = this.GetVhost(url);
+                    var queues = this.Broker.GetQueues(vhostName).Where(q => !q.Name.ToLower().Contains("fault")).ToList();
+                    queues.Count.Should().Be(1, $"sender should create only one queue at {url}");
+                }
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,9 +7,10 @@ namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class RoundRobinSelector : IProducerSelector
     {
-        private readonly IEnumerator<IProducer> enumerator;
+        private readonly ConcurrentQueue<IProducer> producers;
+        private IEnumerator<IProducer> enumerator;
 
-        public RoundRobinSelector(IEnumerable<IProducer> items)
+        public RoundRobinSelector(ConcurrentQueue<IProducer> items)
         {
             if (items == null)
             {
@@ -21,7 +23,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                 throw new ArgumentOutOfRangeException(nameof(items));
             }
 
-            this.enumerator = list.GetEnumerator();
+            this.producers = items;
+            this.enumerator = this.producers.GetEnumerator();
         }
 
         public IProducer Next()
@@ -33,7 +36,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                     return this.enumerator.Current;
                 }
 
-                this.enumerator.Reset();
+                // Do not reset, get the latest snapshot
+                this.enumerator = this.producers.GetEnumerator();
             }
         }
 

@@ -174,12 +174,15 @@
             {
                 this.Model.ModelShutdown -= this.OnModelShutdown;
 
-                if (this.Model.IsOpen)
+                try
                 {
-                    this.Model.Close();
+                    this.Model.Abort();
+                    this.Model.Dispose();
                 }
-
-                this.Model.Dispose();
+                catch (Exception)
+                {
+                    // Suppress all errors here
+                }
             }
         }
 

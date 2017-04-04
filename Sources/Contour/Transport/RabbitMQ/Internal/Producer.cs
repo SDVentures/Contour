@@ -15,7 +15,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// Отправитель создается для конкретной метки сообщения и конкретной конечной точки.
     /// В случае отправки запроса с ожиданием ответа, отправитель создает получателя ответного сообщения.
     /// </summary>
-    internal class Producer : IProducer
+    internal sealed class Producer : IProducer
     {
         private readonly ILog logger;
         private readonly IEndpoint endpoint;
@@ -42,8 +42,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="confirmationIsRequired">
         /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
         /// </param>
-        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label,
-            IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
         {
             this.endpoint = endpoint;
 
@@ -53,8 +52,12 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
 
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})[{this.Label}]");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})[{this.Label}][{this.GetHashCode()}]");
         }
+
+        public event EventHandler<ProducerStoppedEventArgs> Stopped = (sender, args) => { };
+
+        public bool StopOnChannelShutdown { get; set; }
 
         /// <summary>
         /// Метка сообщения, которая используется для отправки сообщения.
@@ -69,22 +72,22 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.
         /// </summary>
-        protected Listener CallbackListener { get; private set; }
+        private IListener CallbackListener { get; set; }
 
         /// <summary>
         /// Канал подключения к брокеру.
         /// </summary>
-        protected RabbitChannel Channel { get; private set; }
+        private RabbitChannel Channel { get; set; }
 
         /// <summary>
         /// <c>true</c> - если при отправке необходимо подтверждение о том, что брокер сохранил сообщение.
         /// </summary>
-        protected bool ConfirmationIsRequired { get; }
+        private bool ConfirmationIsRequired { get; }
 
         /// <summary>
         /// Определитель маршрутов отправки и получения.
         /// </summary>
-        protected IRouteResolver RouteResolver { get; }
+        private IRouteResolver RouteResolver { get; }
 
         /// <summary>
         /// Освобождает занятые ресурсы.
@@ -106,16 +109,32 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Task Publish(IMessage message)
         {
-            lock (this.syncRoot)
+            if (Monitor.TryEnter(this.syncRoot, 0))
             {
-                var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
-                this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
-                Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
+                try
+                {
+                    var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
+                    this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
+                    Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
 
-                var confirmation = this.confirmationTracker.Track();
-                this.Channel.Publish(nativeRoute, message, propsVisitor);
-                return confirmation;
+                    var confirmation = this.confirmationTracker.Track();
+                    this.Channel.Publish(nativeRoute, message, propsVisitor);
+                    return confirmation;
+                }
+                finally
+                {
+                    try
+                    {
+                        Monitor.Exit(this.syncRoot);
+                    }
+                    catch (Exception)
+                    {
+                        // Suppress all errors here
+                    }
+                }
             }
+
+            throw new Exception("Unable to publish via producer because it is not yet started or is recovering");
         }
 
         /// <summary>
@@ -140,10 +159,10 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             request.Headers[Headers.ReplyRoute] = this.ResolveCallbackRoute();
 
-            var timeout = Headers.Extract<TimeSpan?>(request.Headers, Headers.Timeout);
+            var responseTimeout = Headers.Extract<TimeSpan?>(request.Headers, Headers.Timeout);
             var correlationId = (string)request.Headers[Headers.CorrelationId];
 
-            var responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, timeout);
+            var responseTask = this.CallbackListener.Expect(correlationId, expectedResponseType, responseTimeout);
 
             this.Publish(request)
                 .ContinueWith(
@@ -172,7 +191,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             lock (this.syncRoot)
             {
-                this.logger.Trace($"Starting producer of [{this.Label}]");
+                this.logger.Trace($"Starting producer [{this.GetHashCode()}] of [{this.Label}]");
 
                 this.cancellationTokenSource = new CancellationTokenSource();
                 var token = this.cancellationTokenSource.Token;
@@ -198,6 +217,31 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public void Stop()
         {
+            this.InternalStop(OperationStopReason.Regular);
+        }
+
+        /// <summary>
+        /// Регистрирует слушателя ответа на запрос.
+        /// </summary>
+        /// <param name="listener">
+        /// Слушатель ответа на запрос.
+        /// </param>
+        /// <exception cref="BusConfigurationException">
+        /// Генерируется, если уже зарегистрирован слушатель ответа на запрос.
+        /// </exception>
+        public void UseCallbackListener(IListener listener)
+        {
+            if (this.CallbackListener != null)
+            {
+                throw new BusConfigurationException(
+                    "Callback listener for producer [{0}] is already defined.".FormatEx(this.Label));
+            }
+
+            this.CallbackListener = listener;
+        }
+
+        private void InternalStop(OperationStopReason reason)
+        {
             lock (this.syncRoot)
             {
                 this.logger.Trace($"Stopping producer of [{this.Label}]");
@@ -214,31 +258,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     // Any channel/model disposal exceptions are suppressed
                 }
-
-                this.CallbackListener?.StopConsuming();
-
+                
+                this.Stopped(this, new ProducerStoppedEventArgs(this, reason));
                 this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
             }
-        }
-
-        /// <summary>
-        /// Регистрирует слушателя ответа на запрос.
-        /// </summary>
-        /// <param name="listener">
-        /// Слушатель ответа на запрос.
-        /// </param>
-        /// <exception cref="BusConfigurationException">
-        /// Генерируется, если уже зарегистрирован слушатель ответа на запрос.
-        /// </exception>
-        public void UseCallbackListener(Listener listener)
-        {
-            if (this.CallbackListener != null)
-            {
-                throw new BusConfigurationException(
-                    "Callback listener for producer [{0}] is already defined.".FormatEx(this.Label));
-            }
-
-            this.CallbackListener = listener;
         }
 
         /// <summary>
@@ -306,12 +329,22 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void OnChannelShutdown(object sender, ShutdownEventArgs args)
         {
+            this.logger.Trace($"Channel shutdown details: {args}");
+
             if (args.Initiator != ShutdownInitiator.Application)
             {
-                this.logger.Warn("The underlying channel has been closed, recovering the producer...");
+                if (this.StopOnChannelShutdown)
+                {
+                    this.logger.Warn("The producer is configured to be stopped on channel failure");
+                    this.InternalStop(OperationStopReason.Terminate);
+                }
+                else
+                {
+                    this.logger.Warn("The underlying channel has been closed, recovering the producer...");
 
-                this.Stop();
-                this.Start();
+                    this.Stop();
+                    this.Start();
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
 using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Internal;
 using Moq;
@@ -18,6 +18,7 @@ namespace Contour.RabbitMq.Tests
         public void should_iterate_producers_on_send_failures()
         {
             const int Count = 5;
+
             var producers = Enumerable.Range(0, Count).Select(i =>
             {
                 var mock = new Mock<IProducer>();
@@ -30,7 +31,7 @@ namespace Contour.RabbitMq.Tests
                 return mock.Object;
             });
 
-            var selector = new RoundRobinSelector(producers.ToList());
+            var selector = new RoundRobinSelector(new ConcurrentQueue<IProducer>(producers));
             var producer = new FaultTolerantProducer(selector, Count);
 
             var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));

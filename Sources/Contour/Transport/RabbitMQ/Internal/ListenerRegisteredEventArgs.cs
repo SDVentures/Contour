@@ -7,7 +7,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class ListenerRegisteredEventArgs : EventArgs
     {
-        public ListenerRegisteredEventArgs(Listener listener)
+        public ListenerRegisteredEventArgs(IListener listener)
         {
             this.Listener = listener;
         }
@@ -15,7 +15,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// A newly registered listener
         /// </summary>
-        public Listener Listener
+        public IListener Listener
         {
             get;
         }

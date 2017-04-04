@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Contour.Transport.RabbitMQ.Topology;
+using RabbitMQ.Client;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -21,7 +22,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// <summary>
     /// Слушатель канала.
     /// </summary>
-    internal class Listener : IDisposable
+    internal class Listener : IListener
     {
         /// <summary>
         /// Обработчики сообщений.
@@ -111,6 +112,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})");
         }
 
+        public event EventHandler<ListenerStoppedEventArgs> Stopped = (sender, args) => { };
+
         /// <summary>
         /// Тип обработчика сообщений.
         /// </summary>
@@ -132,12 +135,17 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Настройки получателя.
         /// </summary>
-        public RabbitReceiverOptions ReceiverOptions { get; private set; }
+        public RabbitReceiverOptions ReceiverOptions { get; }
 
         /// <summary>
         /// A URL assigned to the listener to access the RabbitMQ broker
         /// </summary>
         public string BrokerUrl { get; }
+
+        /// <summary>
+        /// Denotes if a listener should dispose itself if any channel related errors have occurred
+        /// </summary>
+        public bool StopOnChannelShutdown { get; set; }
 
         /// <summary>
         /// Создает входящее сообщение.
@@ -267,49 +275,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public void StopConsuming()
         {
-            lock (this.syncRoot)
-            {
-                if (!this.isConsuming)
-                {
-                    return;
-                }
-
-                this.isConsuming = false;
-                this.logger.InfoFormat("Stopping consuming on [{0}].", this.endpoint.ListeningSource);
-
-                this.cancellationTokenSource.Cancel(true);
-
-                Task worker;
-                while (this.workers.TryTake(out worker))
-                {
-                    try
-                    {
-                        worker.Wait();
-                        worker.Dispose();
-                    }
-                    catch (Exception)
-                    {
-                        // May catch OperationCanceledExceptions here on Task.Wait()
-                    }
-                }
-
-                RabbitChannel channel;
-                while (this.channels.TryTake(out channel))
-                {
-                    try
-                    {
-                        channel.Shutdown -= this.OnChannelShutdown;
-                        channel.Dispose();
-                    }
-                    catch (Exception)
-                    {
-                        // Any channel/model disposal exceptions are suppressed
-                    }
-                }
-
-                this.ticketTimer.Dispose();
-                this.expectations.Values.ForEach(e => e.Cancel());
-            }
+            this.InternalStop(OperationStopReason.Regular);
         }
 
         /// <summary>
@@ -371,6 +337,57 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("Message labeled [{0}] processed in {1} ms.", delivery.Label, stopwatch.ElapsedMilliseconds));
         }
 
+        private void InternalStop(OperationStopReason reason)
+        {
+            lock (this.syncRoot)
+            {
+                if (!this.isConsuming)
+                {
+                    return;
+                }
+
+                this.isConsuming = false;
+                this.logger.InfoFormat("Stopping consuming on [{0}].", this.endpoint.ListeningSource);
+
+                this.cancellationTokenSource.Cancel(true);
+
+                Task worker;
+                while (this.workers.TryTake(out worker))
+                {
+                    try
+                    {
+                        worker.Wait();
+                        worker.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                        // May catch OperationCanceledExceptions here on Task.Wait()
+                    }
+                }
+
+                RabbitChannel channel;
+                while (this.channels.TryTake(out channel))
+                {
+                    try
+                    {
+                        channel.Shutdown -= this.OnChannelShutdown;
+                        channel.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                        // Any channel/model disposal exceptions are suppressed
+                    }
+                }
+
+                this.ticketTimer.Dispose();
+                this.expectations.Values.ForEach(e => e.Cancel());
+
+                this.Stopped(this, new ListenerStoppedEventArgs(this, reason));
+                this.logger.Trace("Listener stopped successfully");
+            }
+        }
+
+
         /// <summary>
         /// Формирует ответ на запрос.
         /// </summary>
@@ -413,7 +430,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
             catch (OperationCanceledException)
             {
-                this.logger.Info($"Listener has been canceled");
+                this.logger.Info($"Consume operation of listener has been canceled");
             }
             catch (Exception ex)
             {
@@ -451,9 +468,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             channel = this.connection.OpenChannel(token);
             channel.Shutdown += this.OnChannelShutdown;
             this.channels.Add(channel);
-
-            this.logger.Trace($"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has recovered");
-
+            
             if (this.ReceiverOptions.GetQoS().HasValue)
             {
                 channel.SetQos(
@@ -472,14 +487,24 @@ namespace Contour.Transport.RabbitMQ.Internal
             return consumer;
         }
 
-        private void OnChannelShutdown(IChannel arg1, ShutdownEventArgs args)
+        private void OnChannelShutdown(IChannel channel, ShutdownEventArgs args)
         {
+            this.logger.Trace($"Channel shutdown details: {args}");
+
             if (args.Initiator != ShutdownInitiator.Application)
             {
-                this.logger.Warn("The underlying channel has been closed, recovering the listener...");
+                if (this.StopOnChannelShutdown)
+                {
+                    this.logger.Warn("The listener is configured to be stopped on channel failure");
+                    this.InternalStop(OperationStopReason.Terminate);
+                }
+                else
+                {
+                    this.logger.Warn("The underlying channel has been closed, recovering the listener...");
 
-                this.StopConsuming();
-                this.StartConsuming();
+                    this.StopConsuming();
+                    this.StartConsuming();
+                }
             }
         }
 
