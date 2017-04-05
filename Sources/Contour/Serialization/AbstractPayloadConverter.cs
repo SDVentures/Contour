@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AbstractPayloadConverter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The abstract payload converter.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Serialization
+﻿namespace Contour.Serialization
 {
     using System;
 

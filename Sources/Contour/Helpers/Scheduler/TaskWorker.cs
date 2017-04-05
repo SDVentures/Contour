@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TaskWorker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The task worker.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.Scheduler
+﻿namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;

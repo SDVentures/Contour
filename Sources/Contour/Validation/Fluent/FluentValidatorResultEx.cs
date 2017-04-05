@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FluentValidatorResultEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The fluent validator result ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Validation.Fluent
+﻿namespace Contour.Validation.Fluent
 {
     using System.Linq;
 

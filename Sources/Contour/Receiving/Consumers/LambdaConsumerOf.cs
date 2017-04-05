@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LambdaConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The lambda consumer of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving.Consumers
+﻿namespace Contour.Receiving.Consumers
 {
     using System;
 

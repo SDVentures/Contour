@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MessageValidatorGroup.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The message validator group.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Validation
+﻿namespace Contour.Validation
 {
     using System.Collections.Generic;
     using System.Linq;

@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISubscriptionEndpoint.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The SubscriptionEndpoint interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using Contour.Sending;
 

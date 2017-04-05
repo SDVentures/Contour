@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DefaultBusLifecycleHandler.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The default bus lifecycle handler.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour
+﻿namespace Contour
 {
     using System;
 

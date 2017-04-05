@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Requires.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   Argument validation checks that throw some kind of ArgumentException when they fail (unless otherwise noted).
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.CodeContracts
+﻿namespace Contour.Helpers.CodeContracts
 {
     using System;
     using System.Collections.Generic;

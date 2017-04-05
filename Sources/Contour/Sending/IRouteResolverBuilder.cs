@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRouteResolverBuilder.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The RouteResolverBuilder interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Sending
+﻿namespace Contour.Sending
 {
     using Contour.Topology;
 

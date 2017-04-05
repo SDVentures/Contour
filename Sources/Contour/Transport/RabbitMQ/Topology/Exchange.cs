@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Exchange.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The exchange.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ.Topology
+﻿namespace Contour.Transport.RabbitMQ.Topology
 {
     using Contour.Sending;
     using Contour.Topology;

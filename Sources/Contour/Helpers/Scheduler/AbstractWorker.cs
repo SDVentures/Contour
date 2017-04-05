@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AbstractWorker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The abstract worker.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.Scheduler
+﻿namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;

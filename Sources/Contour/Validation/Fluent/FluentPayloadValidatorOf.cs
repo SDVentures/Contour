@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FluentPayloadValidatorOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The fluent payload validator of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Validation.Fluent
+﻿namespace Contour.Validation.Fluent
 {
     using FluentValidation;
 

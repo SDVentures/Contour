@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ValidationResult.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   Результат валидации сообщения.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Validation
+﻿namespace Contour.Validation
 {
     using System.Collections.Generic;
     using System.Linq;

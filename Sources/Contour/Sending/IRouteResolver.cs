@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRouteResolver.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The RouteResolver interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Sending
+﻿namespace Contour.Sending
 {
     /// <summary>
     /// The RouteResolver interface.

@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LazyConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The lazy consumer of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving.Consumers
+﻿namespace Contour.Receiving.Consumers
 {
     using System;
 

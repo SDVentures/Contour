@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FactoryConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The factory consumer of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving.Consumers
+﻿namespace Contour.Receiving.Consumers
 {
     using System;
 

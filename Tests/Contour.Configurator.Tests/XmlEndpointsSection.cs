@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="XmlEndpointsSection.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The xml endpoints section.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Configurator.Tests
+﻿namespace Contour.Configurator.Tests
 {
     using System.IO;
     using System.Xml;

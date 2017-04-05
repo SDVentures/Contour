@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RabbitProperties.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The rabbit properties.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     /// <summary>
     /// The rabbit properties.

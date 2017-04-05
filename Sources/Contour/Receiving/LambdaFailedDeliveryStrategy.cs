@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LambdaFailedDeliveryStrategy.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The lambda failed delivery strategy.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using System;
 

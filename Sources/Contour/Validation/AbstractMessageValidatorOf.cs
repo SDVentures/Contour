@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AbstractMessageValidatorOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The abstract message validator of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Validation
+﻿namespace Contour.Validation
 {
     /// <summary>
     /// The abstract message validator of.

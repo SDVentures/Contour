@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="EnumerableEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The enumerable ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers
+﻿namespace Contour.Helpers
 {
     using System;
     using System.Collections.Generic;

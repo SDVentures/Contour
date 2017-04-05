@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DisposableEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The disposable ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers
+﻿namespace Contour.Helpers
 {
     using System;
 

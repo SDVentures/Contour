@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IDeliveryContext.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The DeliveryContext interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// The DeliveryContext interface.

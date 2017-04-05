@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BusConsumerConfigurationEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The bus consumer configuration ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-using Contour.Helpers;
+﻿using Contour.Helpers;
 
 namespace Contour.Transport.RabbitMQ
 {

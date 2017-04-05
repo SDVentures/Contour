@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ExchangeBuilder.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The exchange builder.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ.Topology
+﻿namespace Contour.Transport.RabbitMQ.Topology
 {
     using global::RabbitMQ.Client;
 

@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LambdaUnhandledDeliveryStrategy.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The lambda unhandled delivery strategy.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using System;
 

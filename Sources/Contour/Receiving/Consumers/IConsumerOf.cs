@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The ConsumerOf interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving.Consumers
+﻿namespace Contour.Receiving.Consumers
 {
     /// <summary>
     /// The ConsumerOf interface.

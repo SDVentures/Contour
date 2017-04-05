@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RabbitException.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The rabbit exception.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     using System;
 

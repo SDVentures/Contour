@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="StaticRouter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The static route resolver.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     using Contour.Sending;
     using Contour.Transport.RabbitMQ.Topology;

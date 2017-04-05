@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMessageExchangeFilter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The MessageExchangeFilter interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Filters
+﻿namespace Contour.Filters
 {
     using System.Threading.Tasks;
 

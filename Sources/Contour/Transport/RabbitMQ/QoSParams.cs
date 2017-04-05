@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="QoSParams.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   QoS настройки для RabbitMQ.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     /// <summary>
     ///   QoS настройки для RabbitMQ.

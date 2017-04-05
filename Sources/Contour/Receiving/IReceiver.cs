@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IReceiver.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The Receiver interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using Contour.Configuration;
     using Contour.Receiving.Consumers;

@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Filter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The filter.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Filters
+﻿namespace Contour.Filters
 {
     using System.Threading.Tasks;
 

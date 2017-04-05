@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFailedDeliveryStrategy.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The FailedDeliveryStrategy interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// The FailedDeliveryStrategy interface.

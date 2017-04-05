@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Assumes.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   Internal state consistency checks that throw an internal error exception when they fail.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.CodeContracts
+﻿namespace Contour.Helpers.CodeContracts
 {
     using System;
     using System.Diagnostics;

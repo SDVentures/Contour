@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IWorker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The Worker interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.Scheduler
+﻿namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;

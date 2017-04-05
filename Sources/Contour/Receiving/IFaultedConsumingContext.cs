@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFaultedConsumingContext.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The FaultedConsumingContext interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// The FaultedConsumingContext interface.

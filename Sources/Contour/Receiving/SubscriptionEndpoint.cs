@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SubscriptionEndpoint.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The subscription endpoint.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using Contour.Sending;
 

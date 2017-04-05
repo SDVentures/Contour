@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MaybeExtensions.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The maybe extensions.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers
+﻿namespace Contour.Helpers
 {
     using System.ComponentModel;
 

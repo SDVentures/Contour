@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ITicketTimer.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The TicketTimer interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.Timing
+﻿namespace Contour.Helpers.Timing
 {
     using System;
 

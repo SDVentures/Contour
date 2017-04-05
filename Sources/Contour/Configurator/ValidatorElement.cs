@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ValidatorElement.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The validator element.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Configurator
+﻿namespace Contour.Configurator
 {
     using System.Configuration;
 

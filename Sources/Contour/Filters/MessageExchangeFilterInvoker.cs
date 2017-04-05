@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MessageExchangeFilterInvoker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The message exchange filter invoker.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Filters
+﻿namespace Contour.Filters
 {
     using System.Collections.Generic;
     using System.Linq;

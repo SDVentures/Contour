@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IUnhandledDeliveryStrategy.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The UnhandledDeliveryStrategy interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// The UnhandledDeliveryStrategy interface.

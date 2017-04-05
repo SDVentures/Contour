@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SubscriptionEndpointBuilderEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The subscription endpoint builder ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     using Contour.Receiving;
     using Contour.Transport.RabbitMQ.Topology;
