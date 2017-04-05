@@ -18,17 +18,10 @@ namespace Contour.Filters
     /// </summary>
     public class MessageExchangeFilterInvoker
     {
-        #region Fields
-
         /// <summary>
         /// The _filter enumerator.
         /// </summary>
         private readonly IEnumerator<IMessageExchangeFilter> filterEnumerator;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
         /// </summary>
@@ -40,20 +33,10 @@ namespace Contour.Filters
             this.filterEnumerator = filters.Reverse().
                 GetEnumerator();
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets or sets the inner.
         /// </summary>
         public IMessageExchangeFilter Inner { get; set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The continue.
         /// </summary>
@@ -86,7 +69,5 @@ namespace Contour.Filters
         {
             return this.Continue(exchange);
         }
-
-        #endregion
     }
 }

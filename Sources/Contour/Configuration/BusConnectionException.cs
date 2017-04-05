@@ -7,8 +7,6 @@
     /// </summary>
     public class BusConnectionException : Exception
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="BusConnectionException"/>.
         /// </summary>
@@ -33,7 +31,5 @@
             : base(message, innerException)
         {
         }
-
-        #endregion
     }
 }

@@ -10,8 +10,6 @@
     /// </summary>
     internal class JsonNetPayloadConverter : IPayloadConverter
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the content type.
         /// </summary>
@@ -22,11 +20,6 @@
                 return "application/json";
             }
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The from object.
         /// </summary>
@@ -61,7 +54,5 @@
 
             return JsonConvert.DeserializeObject(decoded, targetType);
         }
-
-        #endregion
     }
 }

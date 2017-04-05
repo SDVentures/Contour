@@ -7,8 +7,6 @@
     /// </summary>
     internal class MessageElement : ConfigurationElement
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the key.
         /// </summary>
@@ -32,7 +30,5 @@
                 return (string)base["label"];
             }
         }
-
-        #endregion
     }
 }

@@ -16,8 +16,6 @@ namespace Contour.Receiving
     /// </summary>
     public interface ISubscriptionEndpoint
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the callback route resolver.
         /// </summary>
@@ -27,7 +25,5 @@ namespace Contour.Receiving
         /// Gets the listening source.
         /// </summary>
         IListeningSource ListeningSource { get; }
-
-        #endregion
     }
 }

@@ -15,14 +15,10 @@
         [Message("zoo.msg")]
         public class Zoo
         {
-            #region Public Properties
-
             /// <summary>
             /// Gets or sets the content.
             /// </summary>
             public string Content { get; set; }
-
-            #endregion
         }
 
         /*

@@ -8,8 +8,6 @@
     /// </summary>
     public class StubDependencyResolver : IDependencyResolver
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The resolve.
         /// </summary>
@@ -26,7 +24,5 @@
         {
             return new InvalidOperationException("No IDependencyResolver provided.");
         }
-
-        #endregion
     }
 }

@@ -19,17 +19,10 @@ namespace Contour.Receiving.Consumers
     public class LambdaConsumerOf<T> : IConsumerOf<T>
         where T : class
     {
-        #region Fields
-
         /// <summary>
         /// The _handler action.
         /// </summary>
         private readonly Action<IConsumingContext<T>> _handlerAction;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LambdaConsumerOf{T}"/>.
         /// </summary>
@@ -40,11 +33,6 @@ namespace Contour.Receiving.Consumers
         {
             this._handlerAction = handlerAction;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -55,7 +43,5 @@ namespace Contour.Receiving.Consumers
         {
             this._handlerAction(context);
         }
-
-        #endregion
     }
 }

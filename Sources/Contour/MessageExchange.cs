@@ -7,8 +7,6 @@
     /// </summary>
     public class MessageExchange
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageExchange"/>.
         /// </summary>
@@ -34,11 +32,6 @@
             : this(@out, null)
         {
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets or sets the exception.
         /// </summary>
@@ -91,11 +84,6 @@
         /// Gets or sets the out.
         /// </summary>
         public IMessage Out { get; set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The throw if failed.
         /// </summary>
@@ -108,7 +96,5 @@
                 throw this.Exception;
             }
         }
-
-        #endregion
     }
 }

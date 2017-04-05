@@ -14,8 +14,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public class RabbitRoute : IRoute
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitRoute"/>. 
         /// Создает описание машрута для доставки сообщений через RabbitMQ.
@@ -31,11 +29,6 @@ namespace Contour.Transport.RabbitMQ
             this.Exchange = exchange;
             this.RoutingKey = routingKey;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         ///   Имя exchange.
         /// </summary>
@@ -45,11 +38,6 @@ namespace Contour.Transport.RabbitMQ
         ///   Routing key.
         /// </summary>
         public string RoutingKey { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The to string.
         /// </summary>
@@ -60,7 +48,5 @@ namespace Contour.Transport.RabbitMQ
         {
             return string.Format("Exchange: {0}, RoutingKey: {1}", this.Exchange, this.RoutingKey);
         }
-
-        #endregion
     }
 }

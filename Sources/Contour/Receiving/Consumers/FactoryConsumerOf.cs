@@ -19,17 +19,10 @@ namespace Contour.Receiving.Consumers
     public class FactoryConsumerOf<T> : IConsumerOf<T>
         where T : class
     {
-        #region Fields
-
         /// <summary>
         /// The _handler resolver.
         /// </summary>
         private readonly Func<IConsumerOf<T>> _handlerResolver;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="FactoryConsumerOf{T}"/>.
         /// </summary>
@@ -51,11 +44,6 @@ namespace Contour.Receiving.Consumers
         {
             this._handlerResolver = () => (IConsumerOf<T>)handlerResolver();
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -67,7 +55,5 @@ namespace Contour.Receiving.Consumers
             this._handlerResolver().
                 Handle(context);
         }
-
-        #endregion
     }
 }

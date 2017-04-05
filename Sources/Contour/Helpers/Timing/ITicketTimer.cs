@@ -16,8 +16,6 @@ namespace Contour.Helpers.Timing
     /// </summary>
     internal interface ITicketTimer : IDisposable
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The acquire.
         /// </summary>
@@ -39,7 +37,5 @@ namespace Contour.Helpers.Timing
         /// The ticket.
         /// </param>
         void Cancel(long ticket);
-
-        #endregion
     }
 }

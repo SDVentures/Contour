@@ -14,8 +14,6 @@ namespace Contour.Receiving
     /// </summary>
     public interface IUnhandledDeliveryStrategy
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -23,7 +21,5 @@ namespace Contour.Receiving
         /// The unhandled consuming context.
         /// </param>
         void Handle(IUnhandledConsumingContext unhandledConsumingContext);
-
-        #endregion
     }
 }

@@ -19,8 +19,6 @@ namespace Contour.Validation.Fluent
     public abstract class FluentPayloadValidatorOf<T> : AbstractValidator<T>, IMessageValidatorOf<T>
         where T : class
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The validate.
         /// </summary>
@@ -63,7 +61,5 @@ namespace Contour.Validation.Fluent
             return this.Validate(payload).
                 ToNative();
         }
-
-        #endregion
     }
 }

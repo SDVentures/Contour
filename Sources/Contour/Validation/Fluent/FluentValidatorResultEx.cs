@@ -16,8 +16,6 @@ namespace Contour.Validation.Fluent
     /// </summary>
     internal static class FluentValidatorResultEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The to native.
         /// </summary>
@@ -31,7 +29,5 @@ namespace Contour.Validation.Fluent
         {
             return result.IsValid ? ValidationResult.Valid : new ValidationResult(result.Errors.Select(e => new BrokenRule(e.ErrorMessage)));
         }
-
-        #endregion
     }
 }

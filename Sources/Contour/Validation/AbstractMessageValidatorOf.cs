@@ -17,8 +17,6 @@ namespace Contour.Validation
     public abstract class AbstractMessageValidatorOf<T> : IMessageValidatorOf<T>
         where T : class
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The validate.
         /// </summary>
@@ -43,7 +41,5 @@ namespace Contour.Validation
         {
             return this.Validate((Message<T>)message);
         }
-
-        #endregion
     }
 }

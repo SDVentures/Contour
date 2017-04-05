@@ -7,8 +7,6 @@
     /// </summary>
     internal class RequestConfiguration : IRequestConfiguration
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RequestConfiguration"/>.
         /// </summary>
@@ -27,11 +25,6 @@
             this.Persistently = persist;
             this.Ttl = ttl;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets a value indicating whether persistently.
         /// </summary>
@@ -46,7 +39,5 @@
         /// Gets the ttl.
         /// </summary>
         public TimeSpan? Ttl { get; private set; }
-
-        #endregion
     }
 }

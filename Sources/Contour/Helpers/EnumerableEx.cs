@@ -17,8 +17,6 @@ namespace Contour.Helpers
     /// </summary>
     public static class EnumerableEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The for each.
         /// </summary>
@@ -84,7 +82,5 @@ namespace Contour.Helpers
         {
             yield return obj;
         }
-
-        #endregion
     }
 }

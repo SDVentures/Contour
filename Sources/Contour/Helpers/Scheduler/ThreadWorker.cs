@@ -17,17 +17,10 @@ namespace Contour.Helpers.Scheduler
     /// </summary>
     internal class ThreadWorker : AbstractWorker
     {
-        #region Fields
-
         /// <summary>
         /// The _thread.
         /// </summary>
         private Thread _thread;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ThreadWorker"/>.
         /// </summary>
@@ -38,11 +31,6 @@ namespace Contour.Helpers.Scheduler
             : base(cancellationToken)
         {
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The start new.
         /// </summary>
@@ -73,11 +61,6 @@ namespace Contour.Helpers.Scheduler
                 this._thread = null;
             }
         }
-
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The internal start.
         /// </summary>
@@ -90,7 +73,5 @@ namespace Contour.Helpers.Scheduler
             this._thread = new Thread(threadAction) { IsBackground = true };
             this._thread.Start();
         }
-
-        #endregion
     }
 }

@@ -14,8 +14,6 @@ namespace Contour.Sending
     /// </summary>
     public interface IRouteResolver
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The resolve.
         /// </summary>
@@ -29,7 +27,5 @@ namespace Contour.Sending
         /// The <see cref="IRoute"/>.
         /// </returns>
         IRoute Resolve(IEndpoint endpoint, MessageLabel label);
-
-        #endregion
     }
 }

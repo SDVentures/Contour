@@ -14,13 +14,9 @@ namespace Contour.Topology
     /// </summary>
     public interface ITopologyEntity
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the name.
         /// </summary>
         string Name { get; }
-
-        #endregion
     }
 }

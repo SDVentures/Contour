@@ -10,8 +10,6 @@
     /// </summary>
     public interface IBusConfiguration
     {
-        #region Public Properties
-
         /// <summary>
         ///   Строка подключения к транспорту (брокеру).
         /// </summary>
@@ -31,7 +29,5 @@
         ///   Сериализатор сообщений.
         /// </summary>
         IPayloadConverter Serializer { get; }
-
-        #endregion
     }
 }

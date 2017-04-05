@@ -7,8 +7,6 @@
     /// </summary>
     public class DigestSection : ConfigurationSection
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the digests.
         /// </summary>
@@ -20,7 +18,5 @@
                 return (DigestCollection)(base[string.Empty]);
             }
         }
-
-        #endregion
     }
 }

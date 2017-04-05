@@ -16,8 +16,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public class RabbitException : Exception
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitException"/>.
         /// </summary>
@@ -42,7 +40,5 @@ namespace Contour.Transport.RabbitMQ
             : base(message, innerException)
         {
         }
-
-        #endregion
     }
 }

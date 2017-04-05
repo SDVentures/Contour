@@ -14,17 +14,10 @@ namespace Contour.Receiving
     /// </summary>
     public interface IFaultedConsumingContext
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the delivery.
         /// </summary>
         IDelivery Delivery { get; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The accept.
         /// </summary>
@@ -58,7 +51,5 @@ namespace Contour.Receiving
         /// The requeue.
         /// </param>
         void Reject(bool requeue);
-
-        #endregion
     }
 }

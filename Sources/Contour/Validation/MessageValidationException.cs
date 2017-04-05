@@ -16,8 +16,6 @@ namespace Contour.Validation
     /// </summary>
     public class MessageValidationException : Exception
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageValidationException"/>.
         /// </summary>
@@ -28,7 +26,5 @@ namespace Contour.Validation
             : base(message)
         {
         }
-
-        #endregion
     }
 }

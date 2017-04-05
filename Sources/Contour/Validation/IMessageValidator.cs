@@ -14,8 +14,6 @@ namespace Contour.Validation
     /// </summary>
     public interface IMessageValidator
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// Проверить валидность сообщения.
         /// </summary>
@@ -26,7 +24,5 @@ namespace Contour.Validation
         /// Результат валидации.
         /// </returns>
         ValidationResult Validate(IMessage message);
-
-        #endregion
     }
 }

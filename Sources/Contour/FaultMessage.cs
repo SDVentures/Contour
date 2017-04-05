@@ -16,8 +16,6 @@ namespace Contour
     /// </summary>
     public class FaultMessage
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="FaultMessage"/>.
         /// </summary>
@@ -41,11 +39,6 @@ namespace Contour
             this.ContentType = contentType;
             this.Exception = exception != null ? new FaultException(exception) : null;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the content type.
         /// </summary>
@@ -70,7 +63,5 @@ namespace Contour
         /// Gets the received.
         /// </summary>
         public DateTime Received { get; private set; }
-
-        #endregion
     }
 }

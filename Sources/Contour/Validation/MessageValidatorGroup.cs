@@ -19,17 +19,10 @@ namespace Contour.Validation
     /// </summary>
     public sealed class MessageValidatorGroup
     {
-        #region Fields
-
         /// <summary>
         /// The _validators.
         /// </summary>
         private readonly IList<IMessageValidator> _validators;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageValidatorGroup"/>.
         /// </summary>
@@ -42,11 +35,6 @@ namespace Contour.Validation
 
             this._validators = validators.ToList();
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the validators.
         /// </summary>
@@ -57,7 +45,5 @@ namespace Contour.Validation
                 return this._validators;
             }
         }
-
-        #endregion
     }
 }

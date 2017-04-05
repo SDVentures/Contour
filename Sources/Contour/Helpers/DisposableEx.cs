@@ -16,8 +16,6 @@ namespace Contour.Helpers
     /// </summary>
     internal static class DisposableEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The try dispose.
         /// </summary>
@@ -39,7 +37,5 @@ namespace Contour.Helpers
                 return false;
             }
         }
-
-        #endregion
     }
 }

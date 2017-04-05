@@ -30,8 +30,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_consuming_non_cls_compliant_message : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_deserialize_message_to_valid_clr_object.
             /// </summary>
@@ -68,24 +66,15 @@ namespace Contour.RabbitMq.Tests
                     Be(13);
             }
 
-            #endregion
-
             /// <summary>
             /// The lower case delimited property names contract resovler.
             /// </summary>
             public class LowerCaseDelimitedPropertyNamesContractResovler : DefaultContractResolver
             {
-                #region Fields
-
                 /// <summary>
                 /// The _delimiter.
                 /// </summary>
                 private readonly char _delimiter;
-
-                #endregion
-
-                #region Constructors and Destructors
-
                 /// <summary>
                 /// Инициализирует новый экземпляр класса <see cref="LowerCaseDelimitedPropertyNamesContractResovler"/>.
                 /// </summary>
@@ -97,11 +86,6 @@ namespace Contour.RabbitMq.Tests
                 {
                     this._delimiter = delimiter;
                 }
-
-                #endregion
-
-                #region Methods
-
                 /// <summary>
                 /// The create property.
                 /// </summary>
@@ -156,8 +140,6 @@ namespace Contour.RabbitMq.Tests
 
                     return sb.ToString();
                 }
-
-                #endregion
             }
 
             /// <summary>
@@ -165,8 +147,6 @@ namespace Contour.RabbitMq.Tests
             /// </summary>
             private class SmartJsonNetSerializer : IPayloadConverter
             {
-                #region Public Properties
-
                 /// <summary>
                 /// Gets the content type.
                 /// </summary>
@@ -177,11 +157,6 @@ namespace Contour.RabbitMq.Tests
                         return "application/json";
                     }
                 }
-
-                #endregion
-
-                #region Public Methods and Operators
-
                 /// <summary>
                 /// The from object.
                 /// </summary>
@@ -217,8 +192,6 @@ namespace Contour.RabbitMq.Tests
 
                     return JsonConvert.DeserializeObject(decoded, targetType, serializerSettings);
                 }
-
-                #endregion
             }
         }
 
@@ -229,8 +202,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_publishing_non_cls_compliant_message : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_catch_message_on_subscribed_consumer.
             /// </summary>
@@ -261,8 +232,6 @@ namespace Contour.RabbitMq.Tests
                 result.Should().
                     Be(13);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -272,8 +241,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_using_dynamic : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_deserialize_all_data.
             /// </summary>
@@ -304,8 +271,6 @@ namespace Contour.RabbitMq.Tests
                 result.Should().
                     Be(13);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -315,8 +280,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_removing_data_from_expandoobject_messages : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_apply_transformation.
             /// </summary>
@@ -358,8 +321,6 @@ namespace Contour.RabbitMq.Tests
                 ((string)result.Obsolete).Should().
                     BeNull();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -369,8 +330,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_sending_using_dynamic : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_serialize_all_data.
             /// </summary>
@@ -403,8 +362,6 @@ namespace Contour.RabbitMq.Tests
                 result.Should().
                     Be(13);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -414,8 +371,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_transforming_dynamic_messages : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_apply_transformation.
             /// </summary>
@@ -455,8 +410,6 @@ namespace Contour.RabbitMq.Tests
                 ((string)result.Obsolete).Should().
                     BeNull();
             }
-
-            #endregion
         }
     }
 

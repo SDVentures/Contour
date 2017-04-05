@@ -14,13 +14,9 @@ namespace Contour.Receiving
     /// </summary>
     public interface IDeliveryContext
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the delivery.
         /// </summary>
         IDelivery Delivery { get; }
-
-        #endregion
     }
 }

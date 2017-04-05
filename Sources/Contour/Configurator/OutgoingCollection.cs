@@ -8,8 +8,6 @@
     [ConfigurationCollection(typeof(OutgoingElement), AddItemName = "route")]
     internal class OutgoingCollection : ConfigurationElementCollection
     {
-        #region Methods
-
         /// <summary>
         /// The create new element.
         /// </summary>
@@ -34,7 +32,5 @@
         {
             return ((OutgoingElement)element).Key;
         }
-
-        #endregion
     }
 }

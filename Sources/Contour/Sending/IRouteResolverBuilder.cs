@@ -16,8 +16,6 @@ namespace Contour.Sending
     /// </summary>
     public interface IRouteResolverBuilder
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the endpoint.
         /// </summary>
@@ -32,7 +30,5 @@ namespace Contour.Sending
         /// Gets the topology.
         /// </summary>
         ITopologyBuilder Topology { get; }
-
-        #endregion
     }
 }

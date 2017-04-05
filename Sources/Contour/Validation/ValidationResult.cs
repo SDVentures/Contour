@@ -17,17 +17,10 @@ namespace Contour.Validation
     /// </summary>
     public sealed class ValidationResult
     {
-        #region Fields
-
         /// <summary>
         /// The _broken rules.
         /// </summary>
         private readonly IList<BrokenRule> _brokenRules;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ValidationResult"/>. 
         /// Создание результата валидации.
@@ -59,11 +52,6 @@ namespace Contour.Validation
         {
             this._brokenRules = new BrokenRule[0];
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         ///   Возвращает успешный результат валидации.
         /// </summary>
@@ -96,11 +84,6 @@ namespace Contour.Validation
                 return this._brokenRules.Count == 0;
             }
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         ///   Вызывает исключение в случае нарушения хотя бы одного правила валидации.
         /// </summary>
@@ -113,7 +96,5 @@ namespace Contour.Validation
 
             throw new MessageValidationException(string.Join(", ", this.BrokenRules.Select(r => r.Description)));
         }
-
-        #endregion
     }
 }

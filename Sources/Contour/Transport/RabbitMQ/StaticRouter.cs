@@ -17,17 +17,10 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public class StaticRouteResolver : IRouteResolver
     {
-        #region Fields
-
         /// <summary>
         /// The _route.
         /// </summary>
         private readonly IRoute _route;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="StaticRouteResolver"/>.
         /// </summary>
@@ -66,11 +59,6 @@ namespace Contour.Transport.RabbitMQ
             : this(exchange.Name, routingKey)
         {
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The resolve.
         /// </summary>
@@ -87,7 +75,5 @@ namespace Contour.Transport.RabbitMQ
         {
             return this._route;
         }
-
-        #endregion
     }
 }

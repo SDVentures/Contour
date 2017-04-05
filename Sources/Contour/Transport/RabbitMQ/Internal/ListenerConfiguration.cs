@@ -9,8 +9,6 @@
     /// </summary>
     internal class ListenerConfiguration
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the callback route resolver.
         /// </summary>
@@ -67,7 +65,5 @@
         /// Gets or sets the validator registry.
         /// </summary>
         public MessageValidatorRegistry ValidatorRegistry { get; set; }
-
-        #endregion
     }
 }

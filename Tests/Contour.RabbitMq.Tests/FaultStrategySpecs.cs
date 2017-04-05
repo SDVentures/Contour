@@ -125,8 +125,6 @@ namespace Contour.RabbitMq.Tests
 
         internal class XmlEndpointsSection : EndpointsSection
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="XmlEndpointsSection"/>.
             /// </summary>
@@ -141,9 +139,7 @@ namespace Contour.RabbitMq.Tests
                 this.DeserializeSection(reader);
 
                 // ReSharper restore DoNotCallOverridableMethodsInConstructor
-            }
-
-            #endregion
+            }
         }
     }
 }

@@ -8,8 +8,6 @@
     /// </summary>
     public sealed class Message : IMessage
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Message"/>.
         /// </summary>
@@ -42,11 +40,6 @@
             : this(label, new Dictionary<string, object>(), payload)
         {
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the headers.
         /// </summary>
@@ -61,8 +54,6 @@
         ///   Содержимое сообщения.
         /// </summary>
         public object Payload { get; private set; }
-
-        #endregion
 
         /// <summary>
         /// Создает копию сообщения с указанной меткой.
@@ -100,8 +91,6 @@
     public sealed class Message<T> : IMessage
         where T : class
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Message{T}"/>.
         /// </summary>
@@ -134,11 +123,6 @@
             : this(label, new Dictionary<string, object>(), payload)
         {
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the headers.
         /// </summary>
@@ -153,11 +137,6 @@
         ///   Содержимое сообщения.
         /// </summary>
         public T Payload { get; private set; }
-
-        #endregion
-
-        #region Explicit Interface Properties
-
         /// <summary>
         /// Gets the payload.
         /// </summary>
@@ -168,8 +147,6 @@
                 return this.Payload;
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Создает копию сообщения с указанной меткой.

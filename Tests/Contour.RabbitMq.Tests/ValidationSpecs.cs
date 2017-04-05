@@ -27,8 +27,6 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         public class BooValidator : FluentPayloadValidatorOf<BooMessage>
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
             /// </summary>
@@ -37,8 +35,6 @@ namespace Contour.RabbitMq.Tests
                 this.RuleFor(x => x.Num).
                     GreaterThan(100);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -46,8 +42,6 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         public class FooValidator : FluentPayloadValidatorOf<FooMessage>
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="FooValidator"/>.
             /// </summary>
@@ -56,8 +50,6 @@ namespace Contour.RabbitMq.Tests
                 this.RuleFor(x => x.Num).
                     LessThan(100);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -67,8 +59,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_broken_message_with_composite_validator_set_on_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate_according_to_payload_type.
             /// </summary>
@@ -133,8 +123,6 @@ namespace Contour.RabbitMq.Tests
                 exception.Message.Should().
                     Contain("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -144,8 +132,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_broken_message_with_validator_set_on_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_invoke_consumer.
             /// </summary>
@@ -188,8 +174,6 @@ namespace Contour.RabbitMq.Tests
                 exception.Message.Should().
                     Contain("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -199,8 +183,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_broken_message_with_validator_set_on_subscription : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_invoke_consumer.
             /// </summary>
@@ -239,8 +221,6 @@ namespace Contour.RabbitMq.Tests
                 exception.Message.Should().
                     Contain("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -250,8 +230,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_reply_message_with_validator_set_on_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_invoke_response_action.
             /// </summary>
@@ -306,8 +284,6 @@ namespace Contour.RabbitMq.Tests
                 exception.Message.Should().
                     Contain("Num");
             }
-
-            #endregion
         }
     }
 

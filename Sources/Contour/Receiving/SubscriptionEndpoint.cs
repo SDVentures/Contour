@@ -16,8 +16,6 @@ namespace Contour.Receiving
     /// </summary>
     public class SubscriptionEndpoint : ISubscriptionEndpoint
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="SubscriptionEndpoint"/>.
         /// </summary>
@@ -32,11 +30,6 @@ namespace Contour.Receiving
             this.ListeningSource = listeningSource;
             this.CallbackRouteResolver = callbackRouteResolver;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the callback route resolver.
         /// </summary>
@@ -46,7 +39,5 @@ namespace Contour.Receiving
         /// Gets the listening source.
         /// </summary>
         public IListeningSource ListeningSource { get; private set; }
-
-        #endregion
     }
 }

@@ -16,8 +16,6 @@ namespace Contour
     /// </summary>
     public class DefaultBusLifecycleHandler : IBusLifecycleHandler
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The on started.
         /// </summary>
@@ -73,7 +71,5 @@ namespace Contour
         {
             // no-op
         }
-
-        #endregion
     }
 }

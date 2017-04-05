@@ -10,8 +10,6 @@
     /// </summary>
     public class Expires
     {
-        #region Constants
-
         /// <summary>
         /// The date prefix.
         /// </summary>
@@ -21,11 +19,6 @@
         /// The period prefix.
         /// </summary>
         private const string PeriodPrefix = "in";
-
-        #endregion
-
-        #region Fields
-
         /// <summary>
         /// The date.
         /// </summary>
@@ -35,11 +28,6 @@
         /// The period.
         /// </summary>
         public readonly TimeSpan? Period;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Expires"/>.
         /// </summary>
@@ -61,11 +49,6 @@
         {
             this.Date = date;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The at.
         /// </summary>
@@ -148,7 +131,5 @@
 
             throw new InvalidOperationException("Invalid expiration specification.");
         }
-
-        #endregion
     }
 }

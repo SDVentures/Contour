@@ -14,8 +14,6 @@ namespace Contour.Receiving
     /// </summary>
     public interface IFailedDeliveryStrategy
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -23,7 +21,5 @@ namespace Contour.Receiving
         /// The failed consuming context.
         /// </param>
         void Handle(IFailedConsumingContext failedConsumingContext);
-
-        #endregion
     }
 }

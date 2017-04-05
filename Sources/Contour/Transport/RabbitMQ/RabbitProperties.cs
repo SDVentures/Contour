@@ -14,8 +14,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public static class RabbitProperties
     {
-        #region Constants
-
         /// <summary>
         /// The default qo s.
         /// </summary>
@@ -30,7 +28,5 @@ namespace Contour.Transport.RabbitMQ
         /// The subscription builder.
         /// </summary>
         public const string SubscriptionBuilder = "rabbit-subscription-builder";
-
-        #endregion
     }
 }

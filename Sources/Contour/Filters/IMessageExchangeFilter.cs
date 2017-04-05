@@ -16,8 +16,6 @@ namespace Contour.Filters
     /// </summary>
     public interface IMessageExchangeFilter
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The process.
         /// </summary>
@@ -31,7 +29,5 @@ namespace Contour.Filters
         /// The <see cref="Task"/>.
         /// </returns>
         Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker);
-
-        #endregion
     }
 }

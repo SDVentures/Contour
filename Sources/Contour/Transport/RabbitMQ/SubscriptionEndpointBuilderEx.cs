@@ -17,8 +17,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public static class SubscriptionEndpointBuilderEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The listen to.
         /// </summary>
@@ -37,7 +35,5 @@ namespace Contour.Transport.RabbitMQ
                 Queue.Named(queueName).
                     Instance);
         }
-
-        #endregion
     }
 }

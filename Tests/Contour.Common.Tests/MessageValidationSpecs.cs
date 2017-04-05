@@ -25,8 +25,6 @@
         /// </summary>
         public class Boo
         {
-            #region Public Properties
-
             /// <summary>
             /// Gets or sets the num.
             /// </summary>
@@ -36,8 +34,6 @@
             /// Gets or sets the str.
             /// </summary>
             public string Str { get; set; }
-
-            #endregion
         }
 
         /// <summary>
@@ -45,8 +41,6 @@
         /// </summary>
         public class BooValidator : FluentPayloadValidatorOf<Boo>
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
             /// </summary>
@@ -57,8 +51,6 @@
                 this.RuleFor(x => x.Str).
                     NotEmpty();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -66,8 +58,6 @@
         /// </summary>
         public class DynamicValidator : FluentPayloadValidatorOf<dynamic>
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="DynamicValidator"/>.
             /// </summary>
@@ -77,8 +67,6 @@
                     Must(x => x.Num > 10).
                     WithName("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -86,8 +74,6 @@
         /// </summary>
         public class ExpandoValidator : FluentPayloadValidatorOf<ExpandoObject>
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="ExpandoValidator"/>.
             /// </summary>
@@ -97,8 +83,6 @@
                     Must(x => x.Num > 10).
                     WithName("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -108,8 +92,6 @@
         [Category("Unit")]
         public class when_registering_validator_in_registry
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_use_registered_validator.
             /// </summary>
@@ -125,8 +107,6 @@
                 registry.Invoking(r => r.Validate(new Message<Boo>("label".ToMessageLabel(), payload))).
                     ShouldThrow<MessageValidationException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -136,8 +116,6 @@
         [Category("Unit")]
         public class when_registering_validator_in_registry_if_validator_already_present
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_replace_validator.
             /// </summary>
@@ -161,8 +139,6 @@
 
                 stubValidator.Verify(v => v.Validate(It.IsAny<IMessage>()), Times.Once);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -172,8 +148,6 @@
         [Category("Unit")]
         public class when_throwing_on_invalid_result
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_throw.
             /// </summary>
@@ -185,8 +159,6 @@
                 validationResult.Invoking(r => r.ThrowIfBroken()).
                     ShouldThrow<MessageValidationException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -196,8 +168,6 @@
         [Category("Unit")]
         public class when_throwing_on_valid_result
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_throw.
             /// </summary>
@@ -208,8 +178,6 @@
                 validationResult.Invoking(r => r.ThrowIfBroken()).
                     ShouldNotThrow();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -219,8 +187,6 @@
         [Category("Unit")]
         public class when_validating_message_of_concrete_class_with_invalid_data
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -241,8 +207,6 @@
                     Description.Should().
                     Contain("Str");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -252,8 +216,6 @@
         [Category("Unit")]
         public class when_validating_message_of_concrete_class_with_valid_data
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -269,8 +231,6 @@
                 result.IsValid.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -280,8 +240,6 @@
         [Category("Unit")]
         public class when_validating_message_using_dynamic_validator
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -303,8 +261,6 @@
                 result.IsValid.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -314,8 +270,6 @@
         [Category("Unit")]
         public class when_validating_message_using_expando_validator
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -340,8 +294,6 @@
                 result.IsValid.Should().
                     BeTrue();
             }
-
-            #endregion
         }
     }
 

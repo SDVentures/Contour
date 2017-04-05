@@ -21,8 +21,6 @@ namespace Contour.Helpers.CodeContracts
     /// </summary>
     public static class Requires
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// Throws an <see cref="ArgumentException"/>
         /// </summary>
@@ -326,7 +324,5 @@ namespace Contour.Helpers.CodeContracts
 
             Contract.EndContractBlock();
         }
-
-        #endregion
     }
 }

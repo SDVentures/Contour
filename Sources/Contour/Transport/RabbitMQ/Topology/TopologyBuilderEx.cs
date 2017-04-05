@@ -16,8 +16,6 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public static class TopologyBuilderEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The bind.
         /// </summary>
@@ -96,7 +94,5 @@ namespace Contour.Transport.RabbitMQ.Topology
         {
             return ((TopologyBuilder)topology).Declare(builder);
         }
-
-        #endregion
     }
 }

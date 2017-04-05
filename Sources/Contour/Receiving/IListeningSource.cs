@@ -14,13 +14,9 @@ namespace Contour.Receiving
     /// </summary>
     public interface IListeningSource
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the address.
         /// </summary>
         string Address { get; }
-
-        #endregion
     }
 }

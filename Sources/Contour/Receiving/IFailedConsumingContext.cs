@@ -16,13 +16,9 @@ namespace Contour.Receiving
     /// </summary>
     public interface IFailedConsumingContext : IFaultedConsumingContext
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the exception.
         /// </summary>
         Exception Exception { get; }
-
-        #endregion
     }
 }

@@ -17,8 +17,6 @@ namespace Contour.Helpers
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class MaybeExtensions
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The maybe.
         /// </summary>
@@ -34,7 +32,5 @@ namespace Contour.Helpers
         {
             return new Maybe<T>(value);
         }
-
-        #endregion
     }
 }

@@ -14,8 +14,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public class QoSParams
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="QoSParams"/>. 
         /// </summary>
@@ -31,11 +29,6 @@ namespace Contour.Transport.RabbitMQ
             this.PrefetchCount = prefetchCount;
             this.PrefetchSize = prefetchSize;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the prefetch count.
         /// </summary>
@@ -45,7 +38,5 @@ namespace Contour.Transport.RabbitMQ
         /// Gets the prefetch size.
         /// </summary>
         public uint PrefetchSize { get; private set; }
-
-        #endregion
     }
 }

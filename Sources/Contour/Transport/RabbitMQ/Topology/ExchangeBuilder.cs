@@ -16,8 +16,6 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public class ExchangeBuilder
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ExchangeBuilder"/>.
         /// </summary>
@@ -28,11 +26,6 @@ namespace Contour.Transport.RabbitMQ.Topology
         {
             this.Instance = new Exchange(name);
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the auto delete.
         /// </summary>
@@ -92,20 +85,10 @@ namespace Contour.Transport.RabbitMQ.Topology
                 return this;
             }
         }
-
-        #endregion
-
-        #region Properties
-
         /// <summary>
         /// Gets the instance.
         /// </summary>
         internal Exchange Instance { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The of type.
         /// </summary>
@@ -120,7 +103,5 @@ namespace Contour.Transport.RabbitMQ.Topology
             this.Instance.Type = type;
             return this;
         }
-
-        #endregion
     }
 }

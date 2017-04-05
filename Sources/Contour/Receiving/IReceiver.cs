@@ -17,8 +17,6 @@ namespace Contour.Receiving
     /// </summary>
     public interface IReceiver : IBusComponent
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The register consumer.
         /// </summary>
@@ -31,7 +29,5 @@ namespace Contour.Receiving
         /// <typeparam name="T">
         /// </typeparam>
         void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer) where T : class;
-
-        #endregion
     }
 }

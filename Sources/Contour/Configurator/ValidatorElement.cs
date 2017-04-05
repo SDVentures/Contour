@@ -16,8 +16,6 @@ namespace Contour.Configurator
     /// </summary>
     internal class ValidatorElement : ConfigurationElement
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets a value indicating whether group.
         /// </summary>
@@ -41,7 +39,5 @@ namespace Contour.Configurator
                 return (string)(base["name"]);
             }
         }
-
-        #endregion
     }
 }
