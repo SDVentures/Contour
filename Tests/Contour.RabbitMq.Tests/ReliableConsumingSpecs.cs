@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,8 @@ namespace Contour.RabbitMq.Tests
     /// The reliable consuming specs.
     /// </summary>
     // ReSharper disable InconsistentNaming
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter",
+        Justification = "Reviewed. Suppression is OK here.")]
     public class ReliableConsumingSpecs
     {
         /// <summary>
@@ -104,20 +106,20 @@ namespace Contour.RabbitMq.Tests
                 IBus producer = this.StartBus(
                     "producer",
                     cfg => cfg.Route("request").
-                               WithDefaultCallbackEndpoint());
+                        WithDefaultCallbackEndpoint());
                 this.StartBus(
                     "consumer",
                     cfg => cfg.On<DummyRequest>("request").
-                               ReactWith(
-                                   (m, ctx) => Task.Factory.StartNew(
-                                       () =>
-                                           {
-                                               Thread.Sleep(random.Next(10));
-                                               ctx.Accept();
-                                               ctx.Reply(new DummyResponse(m.Num));
-                                               countdown.Signal();
-                                           })).
-                               RequiresAccept());
+                        ReactWith(
+                            (m, ctx) => Task.Factory.StartNew(
+                                () =>
+                                {
+                                    Thread.Sleep(random.Next(10));
+                                    ctx.Accept();
+                                    ctx.Reply(new DummyResponse(m.Num));
+                                    countdown.Signal();
+                                })).
+                        RequiresAccept());
 
                 Enumerable.Range(0, count).
                     ForEach(i => producer.RequestAsync<DummyRequest, DummyResponse>("request", new DummyRequest(i)));
@@ -144,12 +146,12 @@ namespace Contour.RabbitMq.Tests
                 IBus producer = this.StartBus(
                     "producer",
                     cfg => cfg.Route("boo").
-                               WithConfirmation());
+                        WithConfirmation());
                 this.StartBus(
                     "consumer",
                     cfg => cfg.On<BooMessage>("boo").
-                               ReactWith((m, ctx) => ctx.Accept()).
-                               RequiresAccept());
+                        ReactWith((m, ctx) => ctx.Accept()).
+                        RequiresAccept());
 
                 Task confirmation = producer.Emit("boo", new BooMessage(13));
                 confirmation.Wait(5.Seconds()).
@@ -177,12 +179,12 @@ namespace Contour.RabbitMq.Tests
                 IBus producer = this.StartBus(
                     "producer",
                     cfg => cfg.Route("dummy.request").
-                               WithConfirmation());
+                        WithConfirmation());
                 this.StartBus(
                     "consumer",
                     cfg => cfg.On<DummyRequest>("dummy.request").
-                               ReactWith((m, ctx) => ctx.Reject(false)).
-                               RequiresAccept());
+                        ReactWith((m, ctx) => ctx.Reject(false)).
+                        RequiresAccept());
 
                 Task confirmation = producer.Emit("dummy.request", new DummyRequest(13));
                 confirmation.Wait(5.Seconds()).
@@ -235,6 +237,54 @@ namespace Contour.RabbitMq.Tests
                 this.CompletionHandler.WaitOne(5.Seconds()).
                     Should().
                     BeTrue();
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_consuming_several_labels_in_one_endpoint : RabbitMqFixture
+        {
+            [Test]
+            public void should_react_on_each_label()
+            {
+                const string Label1 = "label-1";
+                const string Label2 = "label-2";
+
+                var tcs1 = new TaskCompletionSource<bool>();
+                var tcs2 = new TaskCompletionSource<bool>();
+
+                var consumer = this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        cfg
+                            .On<DummyRequest>(Label1)
+                            .ReactWith((m, ctx) =>
+                            {
+                                tcs1.SetResult(true);
+                            });
+                        cfg
+                            .On<DummyRequest>(Label2)
+                            .ReactWith((m, ctx) =>
+                            {
+                                tcs2.SetResult(true);
+                            });
+                    });
+
+                consumer.WhenReady.WaitOne();
+
+                var producer = this.StartBus("producer", cfg =>
+                {
+                    cfg.Route(Label1);
+                    cfg.Route(Label2);
+                });
+                producer.WhenReady.WaitOne();
+
+                producer.Emit(Label1, new DummyRequest(0));
+                tcs1.Task.Wait(1.Minutes()).Should().BeTrue();
+
+                producer.Emit(Label2, new DummyRequest(0));
+                tcs2.Task.Wait(1.Minutes()).Should().BeTrue();
             }
         }
     }

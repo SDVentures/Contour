@@ -135,12 +135,23 @@ namespace Contour.Transport.RabbitMQ.Internal
                 $"Registering an external listener of labels ({listenerLabels}) at address [{listenerAddress}] in receiver of [{this.Configuration.Label}]");
             this.CheckIfCompatible(listener);
 
-            if (!this.listeners.Contains(listener))
+            // If a listener to be registered is attached to the same queue on the same host but is listening for a set of labels which is wider then any set of the registered listeners then it must be registered in this receiver
+            if (this.listeners.Contains(listener) ||
+                this.listeners.Any(l =>
+                    l.BrokerUrl == listener.BrokerUrl &&
+                    l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address &&
+                    !l.AcceptedLabels.Intersect(listener.AcceptedLabels).Any()) ||
+                this.listeners.Any(l =>
+                    l.BrokerUrl == listener.BrokerUrl &&
+                    l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address &&
+                    !listener.AcceptedLabels.Except(l.AcceptedLabels).Any()))
             {
-                this.listeners.Enqueue(listener);
-                this.logger.Trace(
-                    $"External listener of labels ({listenerLabels}) at address [{listenerAddress}] has been registered in receiver of [{this.Configuration.Label}]");
+                return;
             }
+
+            this.listeners.Enqueue(listener);
+            this.logger.Trace(
+                $"External listener of labels ({listenerLabels}) at address [{listenerAddress}] has been registered in receiver of [{this.Configuration.Label}]");
 
             // Update consumer registrations in all listeners; this may possibly register more then one label-consumer pairs for each listener
             this.Configuration.ReceiverRegistration?.Invoke(this);
@@ -208,9 +219,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         private void Configure()
         {
             this.BuildListeners();
-
-            // Update consumer registrations in all listeners
-            this.Configuration.ReceiverRegistration?.Invoke(this);
         }
 
         /// <summary>
@@ -248,7 +256,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             {
                 var newListener = this.BuildListener(url);
 
-                // There is no need to register another listener at the same URL and for the same source; consuming actions can be registered for a single listener
+                // There is no need to register another listener at the same URL and for the same listening source (queue); consuming actions can be registered in a single listener
                 var listener =
                     this.listeners.FirstOrDefault(
                         l =>
@@ -259,6 +267,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     listener = newListener;
                     this.listeners.Enqueue(listener);
+                    
+                    // Update consumer registrations in all listeners; this may possibly register more then one label-consumer pairs for each listener
+                    this.Configuration.ReceiverRegistration?.Invoke(this);
+
                 }
                 else
                 {
@@ -268,8 +280,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 }
 
                 listener.Stopped += (sender, args) => this.OnListenerStopped(args, sender);
-
-
+                
                 // This event should be fired always, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
                 this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
             }

@@ -121,8 +121,12 @@ namespace Contour.RabbitMq.Tests
                     "consumer",
                     cfg => cfg
                         .On<DummyRequest>("dummy.request")
-                        .WithConnectionString(consumerConnectionString)
-                        .ReactWith((m, ctx) => ctx.Reply(new DummyResponse(m.Num * Multiplier))));
+                        .WithConnectionString(consumerConnectionString).RequiresAccept()
+                        .ReactWith((m, ctx) =>
+                        {
+                            ctx.Accept();
+                            ctx.Reply(new DummyResponse(m.Num * Multiplier));
+                        }));
 
                 for (var i = 0; i < Count; i++)
                 {
