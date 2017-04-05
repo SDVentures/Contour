@@ -1,14 +1,15 @@
+FRAMEWORK: NET461
 NUGET
   remote: https://www.nuget.org/api/v2
-    Common.Logging (2.1.2) - framework: >= net40
-    FAKE (4.0.3) - framework: net40
-    FluentAssertions (2.1) - framework: >= net40
-    FluentValidation (5.0.0.1) - framework: >= net40
-    Moq (4.2.1312.1622) - framework: >= net40
-    Newtonsoft.Json (6.0.2) - framework: >= net40
-    Ninject (3.0.1.10) - framework: >= net40
-    NuGet.CommandLine (2.8.6) - framework: net40
+    Common.Logging (2.1.2)
+    FAKE (4.0.3)
+    FluentAssertions (2.1)
+    FluentValidation (5.0.0.1)
+    Moq (4.2.1312.1622)
+    Newtonsoft.Json (6.0.1)
+    Ninject (3.0.1.10)
+    NuGet.CommandLine (2.8.6)
     NUnit (2.6.4)
-    NUnit.Runners (2.6.4) - framework: net40
-    RabbitMQ.Client (3.3) - framework: >= net40
+    NUnit.Runners (2.6.4)
+    RabbitMQ.Client (3.3)
     RestSharp (105.2.3)

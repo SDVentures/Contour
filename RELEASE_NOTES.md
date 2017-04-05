@@ -1,4 +1,5 @@
-﻿## vNext
+﻿## 2.0.0
+ vNext:
  - Changed the .net framework version up to 4.6.1.
 
 ## 1.7.2

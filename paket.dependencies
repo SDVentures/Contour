@@ -1,14 +1,15 @@
 source https://www.nuget.org/api/v2/
+framework: net461
 
-nuget Common.Logging 2.1.2 framework: >= net40
-nuget FluentAssertions 2.1.0.0 framework: >= net40
-nuget FluentValidation 5.0.0.1 framework: >= net40
-nuget Moq 4.2.1312.1622 framework: >= net40
-nuget Newtonsoft.Json 6.0.2 framework: >= net40
-nuget Ninject 3.0.1.10 framework: >= net40
+nuget Common.Logging 2.1.2 
+nuget FluentAssertions 2.1.0.0
+nuget FluentValidation 5.0.0.1
+nuget Moq 4.2.1312.1622
+nuget Newtonsoft.Json 6.0.1
+nuget Ninject 3.0.1.10
 nuget NUnit 2.6.4
-nuget RabbitMQ.Client 3.3.0 framework: >= net40
+nuget RabbitMQ.Client 3.3.0
 nuget RestSharp 105.2.3
-nuget FAKE 4.0.3 framework: net40
-nuget NUnit.Runners 2.6.4 framework: net40
-nuget NuGet.CommandLine 2.8.6 framework: net40
+nuget FAKE 4.0.3
+nuget NUnit.Runners 2.6.4
+nuget NuGet.CommandLine 2.8.6
