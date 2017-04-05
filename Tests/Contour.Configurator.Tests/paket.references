@@ -3,6 +3,5 @@ FluentAssertions
 FluentValidation
 Moq
 Newtonsoft.Json
-Ninject
 NUnit
 RabbitMQ.Client
