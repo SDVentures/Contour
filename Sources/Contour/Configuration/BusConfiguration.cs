@@ -23,7 +23,7 @@
         /// <summary>
         /// The logger.
         /// </summary>
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger<BusConfiguration>();
 
         /// <summary>
         /// The _filters.
@@ -55,7 +55,7 @@
         /// </summary>
         public BusConfiguration()
         {
-            Logger.Trace(m => m("Вызван конструктор BusConfiguration"));
+            Logger.Trace(m => m("Created instance of BusConfiguration"));
 
             this.EndpointOptions = new EndpointOptions();
 
@@ -424,12 +424,12 @@
         /// </param>
         public void SetConnectionString(string connectionString)
         {
-            Logger.Trace(m => m("Установка строки подключения к брокеру RabbitMQ [{0}].", connectionString));
+            Logger.Trace(m => m("Setting connection string to the RabbitMQ broker [{0}].", connectionString));
 
             this.ConnectionString = connectionString;
             this.EndpointOptions.ConnectionString = connectionString;
 
-            Logger.Debug(m => m("Установлена строка подключения [{0}].", this.ConnectionString));
+            Logger.Debug(m => m("Set connection string [{0}].", this.ConnectionString));
         }
 
         /// <summary>
@@ -466,11 +466,11 @@
         /// </param>
         public void SetEndpoint(string address)
         {
-            Logger.Trace(m => m("Установка адреса конечной точки [{0}].", address));
+            Logger.Trace(m => m("Setting endpoint name [{0}].", address));
 
             this.Endpoint = new Endpoint(address);
 
-            Logger.Debug(m => m("Установлен адрес конечной точки [{0}].", this.Endpoint));
+            Logger.Debug(m => m("Set endpoint name [{0}].", this.Endpoint));
         }
 
         /// <summary>
@@ -564,7 +564,7 @@
         /// </exception>
         public void Validate()
         {
-            Logger.Trace(m => m("Вызван метод для валидации конфигурации. Строка соединия - [{0}], адрес конечной точки - [{1}], получаемые сообщения - [{2}], отправляемые сообщения - [{3}]", this.ConnectionString, this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
+            Logger.Trace(m => m("Validating. Connection string - [{0}], endpoint name - [{1}], incoming labels - [{2}], outgoing labels - [{3}]", this.ConnectionString, this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
 
             if (this.Serializer == null)
             {
@@ -578,13 +578,12 @@
 
             if (string.IsNullOrEmpty(this.ConnectionString))
             {
-                throw new BusConfigurationException(@"Не задана строка подключения к шине. Строку подключения можно задать явно при создании IBus 
-												или в конфигурационном файле приложения в секции /configuration/connectionStrings/add[@address='service-bus']");
+                throw new BusConfigurationException(@"Connection string not set. Connection string can be set explicit when IBus created or use configration section /configuration/connectionStrings/add[@address='service-bus']");
             }
 
             if (this.Endpoint == null)
             {
-                throw new BusConfigurationException("Не задано название компонента (Endpoint).");
+                throw new BusConfigurationException("Not set endpoint (Endpoint).");
             }
 
             if (!this.ReceiverConfigurations.Any() && !this.SenderConfigurations.Any())
@@ -602,7 +601,7 @@
                 consumer.Validate();
             }
 
-            Logger.Trace(m => m("Конец метода валидации конфигурации"));
+            Logger.Trace(m => m("Validation finished."));
         }
 
         /// <summary>

@@ -14,7 +14,7 @@ namespace Contour.Transport.RabbitMQ
     {
         private const string Separator = ",";
         private readonly IList<string> urls;
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog logger = LogManager.GetLogger<RabbitConnectionString>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitConnectionString"/> class.

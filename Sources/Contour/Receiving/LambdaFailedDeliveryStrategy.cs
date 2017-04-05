@@ -58,7 +58,7 @@ namespace Contour.Receiving
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger().
+                LogManager.GetLogger<LambdaFailedDeliveryStrategy>().
                     ErrorFormat("Unable to handle failed message [{0}].", ex, failedConsumingContext.Delivery.Label);
             }
         }

@@ -21,7 +21,7 @@ namespace Contour.Configuration
                 new CorrelationIdSeparator<TM, TK>(),
                 SingletonSagaFactory<TS, TK>.Instance, 
                 new LambdaSagaStep<TS, TM, TK>((sc, cc) => { }), 
-                new LambdaFailedHandler<TS, TM, TK>(cc => { throw new ArgumentException("Сага не найдена."); }, (sc, cc, e) => { }));
+                new LambdaFailedHandler<TS, TM, TK>(cc => { throw new ArgumentException("Sage not found"); }, (sc, cc, e) => { }));
         }
     }
 }

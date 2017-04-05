@@ -16,7 +16,7 @@ namespace Contour.Sending
     /// </summary>
     internal abstract class AbstractSender : ISender
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger<AbstractSender>();
 
         /// <summary>
         /// Фильтры обработки сообщений.
@@ -273,7 +273,7 @@ namespace Contour.Sending
             Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
             Headers.ApplyOriginalMessageId(outputHeaders);
 
-            Logger.Trace(m => m("Идентификатор первого сообщения [{0}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId)));
+            Logger.Trace(m => m("The ID of the origin message [{0}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId)));
 
             Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
             Headers.ApplyPersistently(outputHeaders, persist);

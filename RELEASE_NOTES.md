@@ -1,6 +1,9 @@
 ﻿## 2.0.0
  vNext:
  - Changed the .net framework version up to 4.6.1.
+ - Changed the .net framework of dependencies.
+ - Updated dependencies.
+ - Remove Ninject dependency.
 
 ## 1.7.2
  - Fixed:
