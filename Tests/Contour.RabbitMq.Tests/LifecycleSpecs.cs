@@ -32,7 +32,7 @@ namespace Contour.RabbitMq.Tests
 
                 var waitHandler = new AutoResetEvent(false);
 
-                bus.Connected += (b, args) => waitHandler.Set();
+                bus.Started += (b, args) => waitHandler.Set();
 
                 waitHandler.WaitOne(2.Seconds()).
                     Should().

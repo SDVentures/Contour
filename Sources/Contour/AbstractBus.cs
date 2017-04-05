@@ -49,18 +49,6 @@
         }
 
         /// <summary>
-        /// Событие установки соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        public event Action<IBus, EventArgs> Connected = (bus, args) => { };
-
-        /// <summary>
-        /// Событие разрыва соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        public event Action<IBus, EventArgs> Disconnected = (bus, args) => { };
-
-        /// <summary>
         /// Событие запуска шины сообщений.
         /// </summary>
         public event Action<IBus, EventArgs> Started = (bus, args) => { };
@@ -391,7 +379,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
+            this.Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
         }
 
         /// <summary>
@@ -419,7 +407,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            Request(label.ToMessageLabel(), request, options, responseAction);
+            this.Request(label.ToMessageLabel(), request, options, responseAction);
         }
 
         /// <summary>
@@ -433,7 +421,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(MessageLabel label, TRequest request, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            Request(label, request, (RequestOptions)null, responseAction);
+            this.Request(label, request, (RequestOptions)null, responseAction);
         }
 
         /// <summary>
@@ -447,7 +435,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, Action<TResponse> responseAction) where TResponse : class where TRequest : class
         {
-            Request(label.ToMessageLabel(), request, responseAction);
+            this.Request(label.ToMessageLabel(), request, responseAction);
         }
 
         /// <summary>
@@ -592,24 +580,6 @@
 
             return this.GetSenderFor(label)
                     .Send(label, payload, options ?? new PublishingOptions());
-        }
-
-        /// <summary>
-        /// Генерирует событие об установке соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        protected virtual void OnConnected()
-        {
-            this.Connected(this, null);
-        }
-
-        /// <summary>
-        /// Генерирует событие о разрыве соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        protected virtual void OnDisconnected()
-        {
-            this.Disconnected(this, null);
         }
 
         /// <summary>

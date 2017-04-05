@@ -1,15 +1,16 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Threading;
-    using Common.Logging;
-    using Helpers;
-    using Receiving;
-    using Topology;
-    using global::RabbitMQ.Client;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using Common.Logging;
+using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Transport.RabbitMQ.Topology;
 
+using global::RabbitMQ.Client;
+
+
+namespace Contour.Transport.RabbitMQ.Internal
+{
     /// <summary>
     /// The rabbit channel.
     /// </summary>
@@ -38,12 +39,6 @@
         public Guid ConnectionId { get; }
 
         /// <summary>
-        /// The failed.
-        /// </summary>
-        [Obsolete("Channel failures are no longer propagated outside via events, instead an exception is thrown")]
-        public event Action<IChannel, ErrorEventArgs> Failed = (channel, args) => { };
-
-        /// <summary>
         /// Is fired on channel shutdown.
         /// </summary>
         public event Action<IChannel, ShutdownEventArgs> Shutdown = (channel, args) => { };
@@ -51,7 +46,7 @@
         /// <summary>
         /// Gets the native.
         /// </summary>
-        protected IModel Model { get; }
+        private IModel Model { get; }
 
         /// <summary>
         /// Aborts the channel

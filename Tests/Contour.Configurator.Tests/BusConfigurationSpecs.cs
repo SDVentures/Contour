@@ -1038,7 +1038,7 @@ namespace Contour.Configurator.Tests
                 var configurator = new AppConfigConfigurator(section, resolverMock.Object);
                 var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
 
-                configuration.ConnectionString.Should().NotBeNullOrEmpty();
+                configuration.EndpointOptions.GetConnectionString().Value.Should().NotBeNullOrEmpty();
                 configuration.EndpointOptions.GetConnectionString().Should().NotBeNull();
             }
         }

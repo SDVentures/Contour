@@ -1,20 +1,20 @@
-﻿namespace Contour.Configuration
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+
+using Common.Logging;
+
+using Contour.Caching;
+using Contour.Filters;
+using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Serialization;
+using Contour.Validation;
+
+namespace Contour.Configuration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Linq;
-
-    using Common.Logging;
-
-    using Contour.Caching;
-    using Contour.Filters;
-    using Contour.Helpers;
-    using Contour.Receiving;
-    using Contour.Sending;
-    using Contour.Serialization;
-    using Contour.Validation;
-
     /// <summary>
     /// The bus configuration.
     /// </summary>
@@ -67,12 +67,6 @@
         /// Gets the bus factory func.
         /// </summary>
         public Func<IBusConfigurator, IBus> BusFactoryFunc { get; private set; }
-
-        /// <summary>
-        /// Gets the connection string.
-        /// </summary>
-        [Obsolete("Use EndpointOptions instead")]
-        public string ConnectionString { get; private set; }
 
         /// <summary>
         /// Gets the default subscription endpoint builder.
@@ -217,7 +211,7 @@
         /// </returns>
         public IReceiverConfigurator<T> On<T>(string label) where T : class
         {
-            return On(label).As<T>();
+            return this.On(label).As<T>();
         }
 
         /// <summary>
@@ -233,7 +227,7 @@
         /// </returns>
         public IReceiverConfigurator<T> On<T>(MessageLabel label) where T : class
         {
-            return On(label).As<T>();
+            return this.On(label).As<T>();
         }
 
         /// <summary>
@@ -426,10 +420,9 @@
         {
             Logger.Trace(m => m("Setting connection string to the RabbitMQ broker [{0}].", connectionString));
 
-            this.ConnectionString = connectionString;
             this.EndpointOptions.ConnectionString = connectionString;
 
-            Logger.Debug(m => m("Set connection string [{0}].", this.ConnectionString));
+            Logger.Debug(m => m("Set connection string [{0}].", connectionString));
         }
 
         /// <summary>
@@ -564,7 +557,7 @@
         /// </exception>
         public void Validate()
         {
-            Logger.Trace(m => m("Validating. Connection string - [{0}], endpoint name - [{1}], incoming labels - [{2}], outgoing labels - [{3}]", this.ConnectionString, this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
+            Logger.Trace(m => m("Validating. Connection string - [{0}], endpoint name - [{1}], incoming labels - [{2}], outgoing labels - [{3}]", this.EndpointOptions.GetConnectionString().HasValue ? this.EndpointOptions.GetConnectionString().Value : "N/A", this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
 
             if (this.Serializer == null)
             {
@@ -576,7 +569,7 @@
                 throw new BusConfigurationException("Bus factory is not set.");
             }
 
-            if (string.IsNullOrEmpty(this.ConnectionString))
+            if (!this.EndpointOptions.GetConnectionString().HasValue || string.IsNullOrEmpty(this.EndpointOptions.GetConnectionString().Value))
             {
                 throw new BusConfigurationException(@"Connection string not set. Connection string can be set explicit when IBus created or use configration section /configuration/connectionStrings/add[@address='service-bus']");
             }

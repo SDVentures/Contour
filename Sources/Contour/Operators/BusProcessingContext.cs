@@ -14,16 +14,6 @@ namespace Contour.Operators
         /// <summary>
         /// Initializes a new instance of the <see cref="BusProcessingContext"/> class. 
         /// </summary>
-        /// <param name="delivery">Current delivery</param>
-        [Obsolete("Must use constructor with IBusContext")]
-        public BusProcessingContext(IDelivery delivery)
-        {
-            this.Delivery = delivery;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BusProcessingContext"/> class. 
-        /// </summary>
         /// <param name="delivery">Current delivery. Must not be null</param>
         /// <param name="busContext">Bus context. Must not be null</param>
         public BusProcessingContext(IDelivery delivery, IBusContext busContext)

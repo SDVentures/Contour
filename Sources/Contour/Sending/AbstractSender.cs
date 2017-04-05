@@ -128,32 +128,6 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
-        /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
-        public Task Send(object payload, IDictionary<string, object> headers)
-        {
-            var message = new Message(this.Configuration.Label, headers, payload);
-
-            return this.ProcessFilter(message);
-        }
-
-        /// <summary>
-        /// Отправляет одностороннее сообщение.
-        /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
-        public Task Send(object payload, PublishingOptions options)
-        {
-            return this.Send(payload, this.ApplyOptions(options));
-        }
-
-        /// <summary>
         /// Sends message using request-reply pattern.
         /// Copies all allowed message headers. And generates new <see cref="Headers.CorrelationId"/> header. 
         /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
