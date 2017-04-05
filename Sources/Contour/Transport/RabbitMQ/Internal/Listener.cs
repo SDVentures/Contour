@@ -22,7 +22,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// <summary>
     /// Слушатель канала.
     /// </summary>
-    internal class Listener : IListener
+    internal sealed class Listener : IListener
     {
         /// <summary>
         /// Обработчики сообщений.
@@ -109,7 +109,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
 
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl}, {this.GetHashCode()})");
         }
 
         public event EventHandler<ListenerStoppedEventArgs> Stopped = (sender, args) => { };
@@ -298,7 +298,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
-        protected void Deliver(RabbitDelivery delivery)
+        private void Deliver(RabbitDelivery delivery)
         {
             this.logger.Trace(m => m("Received delivery labeled [{0}] from exchange [{1}] with consumer [{2}].", delivery.Label, delivery.Args.Exchange, delivery.Args.ConsumerTag));
 

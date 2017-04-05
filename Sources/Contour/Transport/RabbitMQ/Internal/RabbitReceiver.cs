@@ -38,7 +38,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.bus = bus;
             this.connectionPool = connectionPool;
             this.receiverOptions = (RabbitReceiverOptions)configuration.Options;
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(Endpoint=\"{this.bus.Endpoint}\")");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.bus.Endpoint}, {this.Configuration.Label})");
         }
 
         public event EventHandler<ListenerRegisteredEventArgs> ListenerRegistered = (sender, args) => { };
@@ -131,8 +131,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             var listenerLabels = string.Join(",", listener.AcceptedLabels);
             var listenerAddress = listener.Endpoint.ListeningSource.Address;
 
-            this.logger.Trace(
-                $"Registering an external listener of labels ({listenerLabels}) at address [{listenerAddress}] in receiver of [{this.Configuration.Label}]");
             this.CheckIfCompatible(listener);
 
             // If a listener to be registered is attached to the same queue on the same host but is listening for a set of labels which is wider then any set of the registered listeners then it must be registered in this receiver

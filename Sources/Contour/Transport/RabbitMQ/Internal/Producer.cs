@@ -52,7 +52,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.RouteResolver = routeResolver;
             this.ConfirmationIsRequired = confirmationIsRequired;
 
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl})[{this.Label}][{this.GetHashCode()}]");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl}, {this.Label}, {this.GetHashCode()})");
         }
 
         public event EventHandler<ProducerStoppedEventArgs> Stopped = (sender, args) => { };

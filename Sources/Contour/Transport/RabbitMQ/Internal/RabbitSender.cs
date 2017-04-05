@@ -51,7 +51,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.connectionPool = connectionPool;
             this.senderOptions = (RabbitSenderOptions)this.Configuration.Options;
 
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(Endpoint=\"{this.bus.Endpoint}\")");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.bus.Endpoint}, {this.Configuration.Label})");
         }
 
         /// <summary>
