@@ -7,7 +7,6 @@ NUGET
     Common.Logging.Core (3.3.1)
     FAKE (4.0.3)
     FluentAssertions (4.19.2)
-    FluentValidation (5.0.0.1)
     Moq (4.7.8)
       Castle.Core (>= 4.0)
     Newtonsoft.Json (6.0.1)

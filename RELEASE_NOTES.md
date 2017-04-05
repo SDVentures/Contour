@@ -3,7 +3,8 @@
  - Changed the .net framework version up to 4.6.1.
  - Changed the .net framework of dependencies.
  - Updated dependencies.
- - Remove Ninject dependency.
+ - Removed Ninject dependency.
+ - Removed FluentValidation dependency.
 
 ## 1.7.2
  - Fixed:

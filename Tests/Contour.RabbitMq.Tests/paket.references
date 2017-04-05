@@ -1,6 +1,5 @@
 Common.Logging
 FluentAssertions
-FluentValidation
 Newtonsoft.Json
 NUnit
 RabbitMQ.Client

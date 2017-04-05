@@ -11,13 +11,10 @@ using System.Threading;
 
 using FluentAssertions;
 
-using FluentValidation;
-
 using Contour.Operators;
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
 using Contour.Validation;
-using Contour.Validation.Fluent;
 
 using Moq;
 
@@ -49,14 +46,16 @@ namespace Contour.Configurator.Tests
         /// <summary>
         /// The boo payload validator.
         /// </summary>
-        public class BooPayloadValidator : FluentPayloadValidatorOf<BooMessage>
+        public class BooPayloadValidator : AbstractMessageValidatorOf<BooMessage>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooPayloadValidator"/>.
-            /// </summary>
-            public BooPayloadValidator()
+            public override ValidationResult Validate(Message<BooMessage> message)
             {
-                this.RuleFor(x => x.Num).GreaterThan(100);
+                if (message.Payload.Num > 100)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Something wrong."));
             }
         }
 
@@ -202,15 +201,16 @@ namespace Contour.Configurator.Tests
         /// <summary>
         /// The foo payload validator.
         /// </summary>
-        public class FooPayloadValidator : FluentPayloadValidatorOf<FooMessage>
+        public class FooPayloadValidator : AbstractMessageValidatorOf<FooMessage>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="FooPayloadValidator"/>.
-            /// </summary>
-            public FooPayloadValidator()
+            public override ValidationResult Validate(Message<FooMessage> message)
             {
-                this.RuleFor(x => x.Num).
-                    LessThan(100);
+                if (message.Payload.Num > 100)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Something wrong."));
             }
         }
 
@@ -373,14 +373,14 @@ namespace Contour.Configurator.Tests
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
 
-                BusDependentHandler.WaitEvent.Wait(500.Seconds()).Should().BeTrue();
+                BusDependentHandler.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
                 serviceLocator.GetCount(typeof(BusDependentHandler)).Should().Be(3);
 
                 producer.Emit("msg.b", new { Num = 13 });
                 producer.Emit("msg.b", new { Num = 13 });
                 producer.Emit("msg.b", new { Num = 13 });
 
-                BusDependentTransformer.WaitEvent.Wait(500.Seconds()).Should().BeTrue();
+                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
                 serviceLocator.GetCount(typeof(OperatorConsumerOf<BooMessage>)).Should().Be(3);
             }
         }

@@ -1,19 +1,17 @@
-﻿namespace Contour.Common.Tests
+﻿using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+
+using FluentAssertions;
+
+using Contour.Validation;
+
+using Moq;
+
+using NUnit.Framework;
+
+namespace Contour.Common.Tests
 {
-    using System.Dynamic;
-    using System.Linq;
-
-    using FluentAssertions;
-
-    using FluentValidation;
-
-    using Contour.Validation;
-    using Contour.Validation.Fluent;
-
-    using Moq;
-
-    using NUnit.Framework;
-
     /// <summary>
     /// The message validation specs.
     /// </summary>
@@ -39,49 +37,65 @@
         /// <summary>
         /// The boo validator.
         /// </summary>
-        public class BooValidator : FluentPayloadValidatorOf<Boo>
+        public class BooValidator : IMessageValidatorOf<Boo>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
-            /// </summary>
-            public BooValidator()
+            public ValidationResult Validate(Message<Boo> message)
             {
-                this.RuleFor(x => x.Num).
-                    GreaterThan(10);
-                this.RuleFor(x => x.Str).
-                    NotEmpty();
+                return this.ValidatePayload(message.Payload);
+            }
+
+            public ValidationResult Validate(IMessage message)
+            {
+                return this.ValidatePayload((Boo)message.Payload);
+            }
+
+            private ValidationResult ValidatePayload(Boo payload)
+            {
+                var brokenRules = new List<BrokenRule>();
+
+                if (payload.Num <= 10)
+                {
+                    brokenRules.Add(new BrokenRule("Num is wrong."));
+                }
+
+                if (payload.Str == string.Empty)
+                {
+                    brokenRules.Add(new BrokenRule("Str is wrong."));
+                }
+
+                return new ValidationResult(brokenRules);
             }
         }
 
         /// <summary>
         /// The dynamic validator.
         /// </summary>
-        public class DynamicValidator : FluentPayloadValidatorOf<dynamic>
+        public class DynamicValidator : AbstractMessageValidatorOf<dynamic>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="DynamicValidator"/>.
-            /// </summary>
-            public DynamicValidator()
+            public override ValidationResult Validate(Message<dynamic> message)
             {
-                this.RuleFor(x => x).
-                    Must(x => x.Num > 10).
-                    WithName("Num");
+                if (message.Payload.Num > 10)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Num is wrong."));
             }
         }
 
         /// <summary>
         /// The expando validator.
         /// </summary>
-        public class ExpandoValidator : FluentPayloadValidatorOf<ExpandoObject>
+        public class ExpandoValidator : AbstractMessageValidatorOf<ExpandoObject>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="ExpandoValidator"/>.
-            /// </summary>
-            public ExpandoValidator()
+            public override ValidationResult Validate(Message<ExpandoObject> message)
             {
-                this.RuleFor(x => (dynamic)x).
-                    Must(x => x.Num > 10).
-                    WithName("Num");
+                if (((dynamic)message.Payload).Num > 10)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Num is wrong."));
             }
         }
 

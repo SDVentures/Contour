@@ -40,11 +40,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusNotReadyException.cs" />
@@ -281,8 +277,6 @@
     <Compile Include="Transport\RabbitMQ\Topology\TopologyBuilderEx.cs" />
     <Compile Include="Validation\AbstractMessageValidatorOf.cs" />
     <Compile Include="Validation\BrokenRule.cs" />
-    <Compile Include="Validation\Fluent\FluentValidatorResultEx.cs" />
-    <Compile Include="Validation\Fluent\FluentPayloadValidatorOf.cs" />
     <Compile Include="Validation\IMessageValidator.cs" />
     <Compile Include="Validation\MessageValidatorGroup.cs" />
     <Compile Include="Validation\IMessageValidatorOf.cs" />
@@ -318,17 +312,6 @@
       <ItemGroup>
         <Reference Include="Common.Logging.Core">
           <HintPath>..\..\packages\Common.Logging.Core\lib\net40\Common.Logging.Core.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="FluentValidation">
-          <HintPath>..\..\packages\FluentValidation\lib\Net40\FluentValidation.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

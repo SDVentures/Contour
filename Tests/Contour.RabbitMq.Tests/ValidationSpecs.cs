@@ -6,10 +6,7 @@ using Contour.Testing.Transport.RabbitMq;
 
 using FluentAssertions;
 
-using FluentValidation;
-
 using Contour.Validation;
-using Contour.Validation.Fluent;
 
 using NUnit.Framework;
 
@@ -25,30 +22,52 @@ namespace Contour.RabbitMq.Tests
         /// <summary>
         /// The boo validator.
         /// </summary>
-        public class BooValidator : FluentPayloadValidatorOf<BooMessage>
+        public class BooValidator : IMessageValidatorOf<BooMessage>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
-            /// </summary>
-            public BooValidator()
+            public ValidationResult Validate(Message<BooMessage> message)
             {
-                this.RuleFor(x => x.Num).
-                    GreaterThan(100);
+                return this.ValidatePayload(message.Payload);
+            }
+
+            public ValidationResult Validate(IMessage message)
+            {
+                return this.ValidatePayload((BooMessage)message.Payload);
+            }
+
+            private ValidationResult ValidatePayload(BooMessage payload)
+            {
+                if (payload.Num > 100)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Num is less then 100"));
             }
         }
 
         /// <summary>
         /// The foo validator.
         /// </summary>
-        public class FooValidator : FluentPayloadValidatorOf<FooMessage>
+        public class FooValidator : IMessageValidatorOf<FooMessage>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="FooValidator"/>.
-            /// </summary>
-            public FooValidator()
+            public ValidationResult Validate(Message<FooMessage> message)
             {
-                this.RuleFor(x => x.Num).
-                    LessThan(100);
+                return this.ValidatePayload(message.Payload);
+            }
+
+            public ValidationResult Validate(IMessage message)
+            {
+                return this.ValidatePayload((FooMessage)message.Payload);
+            }
+
+            private ValidationResult ValidatePayload(FooMessage payload)
+            {
+                if (payload.Num < 100)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Num is less then 100"));
             }
         }
 
@@ -99,29 +118,19 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit("boo", new BooMessage(13));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
 
                 producer.Emit("foo", new FooMessage(130));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
         }
 
@@ -163,16 +172,11 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit("boo", new BooMessage(13));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
         }
 
@@ -210,16 +214,11 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit("boo", new BooMessage(13));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
         }
 
@@ -274,15 +273,11 @@ namespace Contour.RabbitMq.Tests
                             });
 
                 consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                    Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
         }
     }

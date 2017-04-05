@@ -1,6 +1,5 @@
 ﻿Common.Logging
 FluentAssertions
-FluentValidation
 Moq
 Newtonsoft.Json
 NUnit
