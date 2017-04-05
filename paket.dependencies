@@ -1,7 +1,7 @@
 source https://www.nuget.org/api/v2/
 framework: net461
 
-nuget Common.Logging 2.1.2 
+nuget Common.Logging 3.3.1 
 nuget FluentAssertions 2.1.0.0
 nuget FluentValidation 5.0.0.1
 nuget Moq 4.2.1312.1622
