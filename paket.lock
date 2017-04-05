@@ -1,13 +1,15 @@
 FRAMEWORK: NET461
 NUGET
   remote: https://www.nuget.org/api/v2
+    Castle.Core (4.0)
     Common.Logging (3.3.1)
       Common.Logging.Core (>= 3.3.1)
     Common.Logging.Core (3.3.1)
     FAKE (4.0.3)
     FluentAssertions (4.19.2)
     FluentValidation (5.0.0.1)
-    Moq (4.2.1312.1622)
+    Moq (4.7.8)
+      Castle.Core (>= 4.0)
     Newtonsoft.Json (6.0.1)
     Ninject (3.0.1.10)
     NuGet.CommandLine (2.8.6)
