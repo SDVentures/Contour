@@ -137,10 +137,14 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             // If a listener to be registered is attached to the same queue on the same host but is listening for a set of labels which is wider then any set of the registered listeners then it must be registered in this receiver
             if (this.listeners.Contains(listener) ||
+
+                // A new listener is attached to the same host and source but all existing listeners do not include the listener's labels
                 this.listeners.Any(l =>
                     l.BrokerUrl == listener.BrokerUrl &&
                     l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address &&
                     !l.AcceptedLabels.Intersect(listener.AcceptedLabels).Any()) ||
+
+                // A new listener is attached to the same host and source but has no extra labels it is listening to
                 this.listeners.Any(l =>
                     l.BrokerUrl == listener.BrokerUrl &&
                     l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address &&
