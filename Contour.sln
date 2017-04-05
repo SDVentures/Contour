@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{164DE6AD-73A5-4F62-85AC-9090D2D720FF}"
 	ProjectSection(SolutionItems) = preProject
 		paket.dependencies = paket.dependencies
@@ -15,15 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.RabbitMq.Tests", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.Common.Tests", "Tests\Contour.Common.Tests\Contour.Common.Tests.csproj", "{0A47BD78-3FD2-45A9-A991-F7140CE6357B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.SampleProducer", "Samples\Contour.SampleProducer\Contour.SampleProducer.csproj", "{4D89BCC3-27FF-4192-909A-0243F8FB396E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{B3204C02-BA4C-405E-8DDA-1E0E2DA5819D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.SampleConsumer", "Samples\Contour.SampleConsumer\Contour.SampleConsumer.csproj", "{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.Configurator.Tests", "Tests\Contour.Configurator.Tests\Contour.Configurator.Tests.csproj", "{64CEECA7-25C5-4ADA-A977-CE57846E1472}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfiguratorTestApp", "Samples\ConfiguratorTestApp\ConfiguratorTestApp.csproj", "{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.Testing", "Tests\Contour.Testing\Contour.Testing.csproj", "{B3F3D491-5C15-4C21-A155-EA34896253A6}"
 EndProject
@@ -53,30 +47,12 @@ Global
 		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Release|X64.ActiveCfg = Release|Any CPU
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E}.Release|X64.ActiveCfg = Release|Any CPU
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD}.Release|X64.ActiveCfg = Release|Any CPU
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Debug|X64.ActiveCfg = Debug|Any CPU
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Release|Any CPU.Build.0 = Release|Any CPU
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Release|X64.ActiveCfg = Release|Any CPU
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E}.Release|X64.ActiveCfg = Release|Any CPU
 		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Debug|X64.ActiveCfg = Debug|Any CPU
@@ -93,8 +69,5 @@ Global
 		{0A47BD78-3FD2-45A9-A991-F7140CE6357B} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
 		{64CEECA7-25C5-4ADA-A977-CE57846E1472} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
 		{B3F3D491-5C15-4C21-A155-EA34896253A6} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
-		{4D89BCC3-27FF-4192-909A-0243F8FB396E} = {B3204C02-BA4C-405E-8DDA-1E0E2DA5819D}
-		{7B6DF8B5-BEB1-49F8-BEB3-8FFAC0CCBDAD} = {B3204C02-BA4C-405E-8DDA-1E0E2DA5819D}
-		{C9BDF9C4-A66B-4378-B2E1-B0E3DA273E0E} = {B3204C02-BA4C-405E-8DDA-1E0E2DA5819D}
 	EndGlobalSection
 EndGlobal
