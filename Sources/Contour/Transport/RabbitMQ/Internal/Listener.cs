@@ -267,6 +267,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                                 () => this.ConsumerTaskMethod(token), token)));
 
                 this.isConsuming = true;
+                this.logger.Trace("Listener started successfully");
             }
         }
 

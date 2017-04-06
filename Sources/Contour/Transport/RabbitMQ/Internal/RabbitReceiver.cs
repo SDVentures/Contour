@@ -84,9 +84,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var listener in this.listeners)
             {
                 listener.RegisterConsumer(label, consumer, this.Configuration.Validator);
-
-                var listenerLabels = string.Join(",", listener.AcceptedLabels);
-                this.logger.Trace($"Listener of labels ({listenerLabels}) has registered a consumer of label [{label}]");
             }
         }
 
@@ -214,7 +211,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var listener in this.listeners)
             {
                 listener.StartConsuming();
-                this.logger.Trace($"Listener of [{this.Configuration.Label}] started successfully");
             }
         }
 
