@@ -124,6 +124,8 @@ namespace Contour.Sending
             var headers = this.ApplyOptions(options);
             headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
 
+            Logger.Trace(m => m("Message original Id [{0}], correlation Id [{1}].", Headers.GetString(headers, Headers.OriginalMessageId), Headers.GetString(headers, Headers.CorrelationId)));
+
             return this.Request<T>(payload, headers);
         }
 
@@ -167,6 +169,8 @@ namespace Contour.Sending
         {
             var headers = this.ApplyOptions(options);
             headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
+
+            Logger.Trace(m => m("Message original Id [{0}], correlation Id [{1}].", Headers.GetString(headers, Headers.OriginalMessageId), Headers.GetString(headers, Headers.CorrelationId)));
 
             return this.Request<T>(label, payload, headers);
         }
@@ -273,7 +277,7 @@ namespace Contour.Sending
             Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
             Headers.ApplyOriginalMessageId(outputHeaders);
 
-            Logger.Trace(m => m("Идентификатор первого сообщения [{0}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId)));
+            Logger.Trace(m => m("Message original Id [{0}], correlation Id [{1}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId), Headers.GetString(outputHeaders, Headers.CorrelationId)));
 
             Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
             Headers.ApplyPersistently(outputHeaders, persist);

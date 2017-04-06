@@ -599,15 +599,11 @@ namespace Contour.Transport.RabbitMQ.Internal
             ConsumingAction consumingAction;
             if (!this.consumers.TryGetValue(delivery.Label, out consumingAction))
             {
-                // NOTE: this is needed for compatibility with v1 of ServiceBus
-                if (this.consumers.Count == 1)
-                {
-                    consumingAction = this.consumers.Values.Single();
-                }
+                this.consumers.TryGetValue(MessageLabel.Any, out consumingAction);
 
                 if (consumingAction == null)
                 {
-                    this.consumers.TryGetValue(MessageLabel.Any, out consumingAction);
+                    consumingAction = this.consumers.Values.FirstOrDefault();
                 }
             }
 

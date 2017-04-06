@@ -30,7 +30,7 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         [TestFixture]
         [Category("Integration")]
-        public class when_consuming_messages_of_different_types_and_labels_on_same_queue : RabbitMqFixture
+        public class when_consuming_messages_of_different_labels_on_same_queue : RabbitMqFixture
         {
             /// <summary>
             /// The should_consume_with_valid_consumer.

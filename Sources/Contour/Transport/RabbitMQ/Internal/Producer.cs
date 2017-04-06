@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,7 +117,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
                     this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
-                    Action<IBasicProperties> propsVisitor = p => ApplyPublishingOptions(p, message.Headers);
+                    Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p => ExtractProperties(ref p, message.Headers);
 
                     var confirmation = this.confirmationTracker.Track();
                     this.Channel.Publish(nativeRoute, message, propsVisitor);
@@ -240,41 +242,21 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.CallbackListener = listener;
         }
 
-        private void InternalStop(OperationStopReason reason)
-        {
-            lock (this.syncRoot)
-            {
-                this.logger.Trace($"Stopping producer of [{this.Label}]");
-
-                this.cancellationTokenSource.Cancel(true);
-                this.confirmationTracker?.Dispose();
-
-                try
-                {
-                    this.Channel.Shutdown -= this.OnChannelShutdown;
-                    this.Channel?.Dispose();
-                }
-                catch (Exception)
-                {
-                    // Any channel/model disposal exceptions are suppressed
-                }
-                
-                this.Stopped(this, new ProducerStoppedEventArgs(this, reason));
-                this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
-            }
-        }
-
         /// <summary>
         /// Устанавливает заголовки сообщения в свойства сообщения.
         /// </summary>
-        /// <param name="props">Свойства сообщения, куда устанавливаются заголовки.</param>
-        /// <param name="headers">Устанавливаемые заголовки сообщения.</param>
-        private static void ApplyPublishingOptions(IBasicProperties props, IDictionary<string, object> headers)
+        /// <param name="props">
+        /// Свойства сообщения, куда устанавливаются заголовки.
+        /// </param>
+        /// <param name="sourceHeaders">
+        /// The source Headers.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IDictionary{K,V}"/>.
+        /// </returns>
+        private static IDictionary<string, object> ExtractProperties(ref IBasicProperties props, IDictionary<string, object> sourceHeaders)
         {
-            if (headers == null)
-            {
-                return;
-            }
+            var headers = new Dictionary<string, object>(sourceHeaders);
 
             var persist = Headers.Extract<bool?>(headers, Headers.Persist);
             var ttl = Headers.Extract<TimeSpan?>(headers, Headers.Ttl);
@@ -299,6 +281,33 @@ namespace Contour.Transport.RabbitMQ.Internal
             if (replyRoute != null)
             {
                 props.ReplyToAddress = new PublicationAddress("direct", replyRoute.Exchange, replyRoute.RoutingKey);
+            }
+
+            return headers;
+        }
+
+
+        private void InternalStop(OperationStopReason reason)
+        {
+            lock (this.syncRoot)
+            {
+                this.logger.Trace($"Stopping producer of [{this.Label}]");
+
+                this.cancellationTokenSource.Cancel(true);
+                this.confirmationTracker?.Dispose();
+
+                try
+                {
+                    this.Channel.Shutdown -= this.OnChannelShutdown;
+                    this.Channel?.Dispose();
+                }
+                catch (Exception)
+                {
+                    // Any channel/model disposal exceptions are suppressed
+                }
+                
+                this.Stopped(this, new ProducerStoppedEventArgs(this, reason));
+                this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
             }
         }
 
