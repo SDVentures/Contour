@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusNotReadyException.cs" />
+    <Compile Include="Caching\HashCalculator.cs" />
     <Compile Include="Caching\ICacheProvider.cs" />
+    <Compile Include="Caching\IHashCalculator.cs" />
     <Compile Include="Caching\MemoryCacheProvider.cs" />
     <Compile Include="Caching\Expires.cs" />
     <Compile Include="Configuration\BusComponentTracker.cs" />
@@ -61,7 +63,6 @@
     <Compile Include="Filters\SendingExchangeFilter.cs" />
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
-    <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="IIncomingMessageHeaderStorage.cs" />
     <Compile Include="IKeyValueStorage.cs" />
     <Compile Include="MessageExchange.cs" />
