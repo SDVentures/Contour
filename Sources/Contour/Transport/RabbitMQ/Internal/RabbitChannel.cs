@@ -174,12 +174,15 @@
             {
                 this.Model.ModelShutdown -= this.OnModelShutdown;
 
-                if (this.Model.IsOpen)
+                try
                 {
-                    this.Model.Close();
+                    this.Model.Abort();
+                    this.Model.Dispose();
                 }
-
-                this.Model.Dispose();
+                catch (Exception)
+                {
+                    // Suppress all errors here
+                }
             }
         }
 
@@ -232,7 +235,7 @@
         /// <param name="propsVisitor">
         /// The props visitor.
         /// </param>
-        public void Publish(IRoute route, IMessage message, Action<IBasicProperties> propsVisitor = null)
+        public void Publish(IRoute route, IMessage message, Func<IBasicProperties, IDictionary<string, object>> propsVisitor = null)
         {
             var nativeRoute = (RabbitRoute)route;
 
@@ -249,11 +252,10 @@
             props.ContentType = this.busContext.PayloadConverter.ContentType;
             props.Timestamp = new AmqpTimestamp(DateTime.UtcNow.ToUnixTimestamp());
 
-            propsVisitor?.Invoke(props);
+            var headers = propsVisitor?.Invoke(props);
+            headers.ForEach(i => props.Headers.Add(i));
 
-            message.Headers.ForEach(i => props.Headers.Add(i));
             this.busContext.MessageLabelHandler.Inject(props, message.Label);
-
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
         }
 
@@ -287,7 +289,11 @@
         /// </param>
         public void Reply(IMessage message, RabbitRoute replyTo, string correlationId)
         {
-            Action<IBasicProperties> propsVisitor = props => { props.CorrelationId = correlationId; };
+            Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p =>
+            {
+                p.CorrelationId = correlationId;
+                return message.Headers;
+            };
 
             this.Publish(new RabbitRoute(replyTo.Exchange, replyTo.RoutingKey), message, propsVisitor);
         }

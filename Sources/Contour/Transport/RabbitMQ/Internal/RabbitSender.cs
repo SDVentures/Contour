@@ -8,6 +8,7 @@ using Common.Logging;
 using Contour.Configuration;
 using Contour.Filters;
 using Contour.Helpers.CodeContracts;
+using Contour.Receiving;
 using Contour.Sending;
 using Contour.Transport.RabbitMQ.Topology;
 
@@ -20,10 +21,13 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitSender : AbstractSender
     {
+        private const int AttemptsDefault = 1;
+        private readonly TimeSpan timeoutDefault = TimeSpan.FromSeconds(30);
+        
         private readonly ILog logger;
         private readonly RabbitBus bus;
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
-        private readonly ConcurrentBag<Producer> producers = new ConcurrentBag<Producer>();
+        private readonly ConcurrentQueue<IProducer> producers = new ConcurrentQueue<IProducer>();
         private readonly RabbitSenderOptions senderOptions;
         private IProducerSelector producerSelector;
 
@@ -49,7 +53,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.connectionPool = connectionPool;
             this.senderOptions = (RabbitSenderOptions)this.Configuration.Options;
 
-            this.logger = LogManager.GetLogger($"{this.GetType().FullName}(Endpoint=\"{this.bus.Endpoint}\")");
+            this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.bus.Endpoint}, {this.Configuration.Label})");
         }
 
         /// <summary>
@@ -110,7 +114,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>Задача ожидания отправки сообщения.</returns>
         protected override Task<MessageExchange> InternalSend(MessageExchange exchange)
         {
-            var attempts = this.senderOptions.GetFailoverAttempts() ?? 1;
+            var attempts = this.senderOptions.GetFailoverAttempts() ?? AttemptsDefault;
+            
             var wrapper = new FaultTolerantProducer(this.producerSelector, attempts);
             return wrapper.Try(exchange);
         }
@@ -144,8 +149,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.logger.Trace(m => m("Stopping producers for sender of [{0}]", this.Configuration.Label));
 
-            Producer producer;
-            while (!this.producers.IsEmpty && this.producers.TryTake(out producer))
+            IProducer producer;
+            while (!this.producers.IsEmpty && this.producers.TryDequeue(out producer))
             {
                 try
                 {
@@ -166,71 +171,135 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         private void BuildProducers()
         {
-            var reuseConnectionProperty = this.senderOptions.GetReuseConnection();
-            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
-
             this.logger.Trace(
                 $"Building producers of [{this.Configuration.Label}]:\r\n\t{string.Join("\r\n\t", this.senderOptions.RabbitConnectionString.Select(url => $"Producer({this.Configuration.Label}): URL\t=>\t{url}"))}");
 
             foreach (var url in this.senderOptions.RabbitConnectionString)
             {
-                var source = new CancellationTokenSource();
-                var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
-                this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a producer");
+                this.EnlistProducer(url);
+            }
+        }
 
-                using (var topologyBuilder = new TopologyBuilder(connection))
+        private IProducer EnlistProducer(string url)
+        {
+            this.logger.Trace($">>> Enlisting a new producer of [{this.Configuration.Label}] at URL=[{url}]...");
+            var producer = this.BuildProducer(url);
+
+            this.producers.Enqueue(producer);
+            this.logger.Trace($"<<< A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been enlisted");
+
+            return producer;
+        }
+
+        private Producer BuildProducer(string url)
+        {
+            var reuseConnectionProperty = this.senderOptions.GetReuseConnection();
+            var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;
+
+            var source = new CancellationTokenSource();
+            var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
+            this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a producer");
+
+            using (var topologyBuilder = new TopologyBuilder(connection))
+            {
+                var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
+                var routeResolverBuilderFunc = this.Configuration.Options.GetRouteResolverBuilder();
+
+                Assumes.True(
+                    routeResolverBuilderFunc.HasValue,
+                    "RouteResolverBuilder must be set for [{0}]",
+                    this.Configuration.Label);
+
+                var routeResolver = routeResolverBuilderFunc.Value(builder);
+
+                var producer = new Producer(
+                    this.bus.Endpoint,
+                    connection,
+                    this.Configuration.Label,
+                    routeResolver,
+                    this.Configuration.Options.IsConfirmationRequired());
+
+                if (this.Configuration.RequiresCallback)
                 {
-                    var builder = new RouteResolverBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
-                    var routeResolverBuilderFunc = this.Configuration.Options.GetRouteResolverBuilder();
+                    var callbackConfiguration = this.CreateCallbackReceiverConfiguration(url);
+                    var receiver = this.bus.RegisterReceiver(callbackConfiguration);
 
-                    Assumes.True(
-                        routeResolverBuilderFunc.HasValue,
-                        "RouteResolverBuilder must be set for [{0}]",
-                        this.Configuration.Label);
+                    this.logger.Trace(
+                        $"A sender of [{this.Configuration.Label}] requires a callback configuration; registering a receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}]");
 
-                    var routeResolver = routeResolverBuilderFunc.Value(builder);
+                    this.logger.Trace(
+                        $"A new callback receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}] has been successfully registered, getting one of its listeners with URL=[{producer.BrokerUrl}]...");
 
-                    var producer = new Producer(
-                        this.bus.Endpoint,
-                        connection,
-                        this.Configuration.Label,
-                        routeResolver,
-                        this.Configuration.Options.IsConfirmationRequired());
+                    var listener = receiver.GetListener(l => l.BrokerUrl == producer.BrokerUrl);
 
-                    if (this.Configuration.RequiresCallback)
+                    if (listener == null)
                     {
-                        var callbackConfiguration = this.Configuration.CallbackConfiguration;
-
-                        this.logger.Trace(
-                            $"A sender of [{this.Configuration.Label}] requires a callback configuration; registering a receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}]");
-
-                        var receiver = this.bus.RegisterReceiver(this.Configuration.CallbackConfiguration);
-
-                        this.logger.Trace(
-                            $"A new callback receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}] has been successfully registered, getting one of its listeners with URL=[{producer.BrokerUrl}]...");
-
-                        var listener = receiver.GetListener(l => l.BrokerUrl == producer.BrokerUrl);
-
-                        if (listener == null)
-                        {
-                            throw new BusConfigurationException(
-                                $"Unable to find a suitable listener for receiver {receiver}");
-                        }
-
-                        this.logger.Trace(
-                            $"A listener at URL=[{listener.BrokerUrl}] belonging to callback receiver of [{callbackConfiguration.Label}] acquired");
-
-                        producer.UseCallbackListener(listener);
-
-                        this.logger.Trace(
-                            $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has registered a callback listener successfully");
+                        throw new BusConfigurationException(
+                            $"Unable to find a suitable listener for receiver {receiver}");
                     }
 
-                    this.producers.Add(producer);
                     this.logger.Trace(
-                        $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been added to the sender");
+                        $"A listener at URL=[{listener.BrokerUrl}] belonging to callback receiver of [{callbackConfiguration.Label}] acquired");
+                    
+                    listener.StopOnChannelShutdown = true;
+                    producer.UseCallbackListener(listener);
+
+                    producer.StopOnChannelShutdown = true;
+                    producer.Stopped += (sender, args) =>
+                    {
+                        this.OnProducerStopped(url, sender, args);
+                    };
+
+                    this.logger.Trace(
+                        $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has registered a callback listener successfully");
+                }
+
+                return producer;
+            }
+        }
+
+        private void OnProducerStopped(string url, object sender, ProducerStoppedEventArgs args)
+        {
+            if (args.Reason == OperationStopReason.Regular)
+            {
+                return;
+            }
+
+            this.logger.Warn($"Producer [{sender.GetHashCode()}] with response callback has been stopped and will be reenlisted");
+
+            while (true)
+            {
+                IProducer delistedProducer;
+                if (this.producers.TryDequeue(out delistedProducer))
+                {
+                    if (sender == delistedProducer)
+                    {
+                        this.logger.Trace($"Producer [{delistedProducer.GetHashCode()}] has been delisted");
+                        break;
+                    }
+
+                    this.producers.Enqueue(delistedProducer);
                 }
             }
+
+            var newProducer = this.EnlistProducer(url);
+            newProducer.Start();
+        }
+
+        /// <summary>
+        /// Overrides the callback configuration connection string with <paramref name="url"/>
+        /// since the callback configuration may contain a list of connection strings for sharding support.
+        /// </summary>
+        /// <param name="url">The connection string URL</param>
+        /// <returns>The reply receiver configuration</returns>
+        private ReceiverConfiguration CreateCallbackReceiverConfiguration(string url)
+        {
+            var callbackConfiguration = new ReceiverConfiguration(
+                this.Configuration.Label,
+                this.Configuration.CallbackConfiguration.Options);
+
+            callbackConfiguration.WithConnectionString(url);
+            return callbackConfiguration;
         }
     }
 }

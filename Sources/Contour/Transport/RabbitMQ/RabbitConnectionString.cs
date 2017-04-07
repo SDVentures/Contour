@@ -45,7 +45,7 @@ namespace Contour.Transport.RabbitMQ
             }
 
             this.logger.Trace(
-                $"The connection string [{connectionString}] has been split into the following URLs: {string.Join("; ", this.urls)}");
+                $"Connection string [{connectionString}] has been split into: {string.Join("; ", this.urls)}");
         }
 
         /// <summary>

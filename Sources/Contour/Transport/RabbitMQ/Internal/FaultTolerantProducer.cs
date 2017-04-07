@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Logging;
 
@@ -23,6 +24,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public Task<MessageExchange> Try(MessageExchange exchange)
         {
+            var errors = new List<Exception>();
+
             for (var count = 0; count < this.attempts; count++)
             {
                 this.logger.Trace($"Attempt to send #{count}");
@@ -32,13 +35,17 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     return this.TrySend(exchange, producer);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    this.logger.Warn($"Attempt #{count} to send a message on producer at [{producer.BrokerUrl}] has failed, will try the next producer");
+                    this.logger.Warn(
+                        $"Attempt #{count} to send a message on producer at [{producer.BrokerUrl}] has failed, will try the next producer",
+                        ex);
+
+                    errors.Add(ex);
                 }
             }
 
-            throw new FailoverException($"Failed to send a message after {this.attempts} attempts")
+            throw new FailoverException($"Failed to send a message after {this.attempts} attempts", new AggregateException(errors))
             {
                 Attempts = this.attempts
             };
