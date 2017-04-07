@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Contour.Transport.RabbitMQ.Internal;
@@ -25,7 +26,7 @@ namespace Contour.RabbitMq.Tests
             public void should_use_not_empty_collection()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(
-                    () => new RoundRobinSelector(Enumerable.Empty<Producer>().ToList()));
+                    () => new RoundRobinSelector(new ConcurrentQueue<IProducer>(Enumerable.Empty<IProducer>())));
             }
 
             [Test]
@@ -38,7 +39,7 @@ namespace Contour.RabbitMq.Tests
                 var producers = Enumerable.Range(0, Count).Select(i => new Mock<IProducer>().Object);
                 var list = producers.ToList();
 
-                var selector = new RoundRobinSelector(list);
+                var selector = new RoundRobinSelector(new ConcurrentQueue<IProducer>(list));
 
                 for (var i = 0; i < Size; i++)
                 {
@@ -46,6 +47,38 @@ namespace Contour.RabbitMq.Tests
                     var index = list.IndexOf(producer);
 
                     index.Should().Be(i % Count);
+                }
+            }
+
+            [Test]
+            public void should_update_sequence_on_full_round_if_producer_is_added()
+            {
+                const int Count = 3;
+                const int LoopFactor = 5;
+
+                var producers = Enumerable.Range(0, Count).Select(i => new Mock<IProducer>().Object);
+
+                var queue = new ConcurrentQueue<IProducer>(producers);
+                var selector = new RoundRobinSelector(queue);
+                
+                for (var i = 0; i < Count; i++)
+                {
+                    selector.Next();
+                    
+                    if (i == Count - 1)
+                    {
+                        queue.Enqueue(new Mock<IProducer>().Object);
+                    }
+                }
+
+                var size = (Count + 1) * LoopFactor;
+                var list = queue.ToList();
+                for (int i = 0; i < size; i++)
+                {
+                    var producer = selector.Next();
+                    var index = list.IndexOf(producer);
+
+                    index.Should().Be(i % (Count + 1));
                 }
             }
         }

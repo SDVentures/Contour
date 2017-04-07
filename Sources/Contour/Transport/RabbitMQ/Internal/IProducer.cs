@@ -5,10 +5,14 @@ namespace Contour.Transport.RabbitMQ.Internal
 {
     internal interface IProducer : IDisposable
     {
+        event EventHandler<ProducerStoppedEventArgs> Stopped;
+
+        bool StopOnChannelShutdown { get; set; }
+
         string BrokerUrl { get; }
 
         MessageLabel Label { get; }
-        
+
         Task Publish(IMessage message);
 
         Task<IMessage> Request(IMessage request, Type expectedResponseType);
@@ -17,6 +21,6 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         void Stop();
 
-        void UseCallbackListener(Listener listener);
+        void UseCallbackListener(IListener listener);
     }
 }

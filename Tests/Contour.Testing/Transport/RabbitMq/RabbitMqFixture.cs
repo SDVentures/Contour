@@ -201,6 +201,12 @@ namespace Contour.Testing.Transport.RabbitMq
             return list;
         }
 
+        protected string GetVhost(string connectionString)
+        {
+            var uri = new Uri(connectionString);
+            return uri.LocalPath;
+        }
+
         /// <summary>
         /// Deletes all virtual hosts except the root
         /// </summary>
