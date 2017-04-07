@@ -48,13 +48,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public bool IsStarted { get; private set; }
         
-        public override bool IsHealthy
-        {
-            get
-            {
-                return this.listeners.Any(l => !l.HasFailed);
-            }
-        }
+        public override bool IsHealthy => this.IsStarted;
 
         /// <summary>
         /// Checks if a receiver is able to process messages with <paramref name="label"/> label
@@ -260,42 +254,44 @@ namespace Contour.Transport.RabbitMQ.Internal
                 var connection = this.connectionPool.Get(url, reuseConnection, source.Token);
                 this.logger.Trace($"Using connection [{connection.Id}] at URL=[{url}] to resolve a listener");
 
-                var topologyBuilder = new TopologyBuilder(connection.OpenChannel());
-                var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
-
-                var endpointBuilder = this.Configuration.Options.GetEndpointBuilder();
-                Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", this.Configuration.Label);
-
-                var endpoint = endpointBuilder.Value(builder);
-
-                var newListener = new Listener(
-                    this.bus,
-                    connection,
-                    endpoint,
-                    this.receiverOptions,
-                    this.bus.Configuration.ValidatorRegistry);
-
-                // There is no need to register another listener at the same URL and for the same source; consuming actions can be registered for a single listener
-                var listener =
-                    this.listeners.FirstOrDefault(
-                        l =>
-                            l.BrokerUrl == newListener.BrokerUrl &&
-                            newListener.Endpoint.ListeningSource.Equals(l.Endpoint.ListeningSource));
-
-                if (listener == null)
+                using (var topologyBuilder = new TopologyBuilder(connection))
                 {
-                    listener = newListener;
-                    this.listeners.Add(listener);
-                }
-                else
-                {
-                    // Check if an existing listener can be a substitute for a new one and if so just skip the new listeners
-                    this.CheckIfCompatible(newListener);
-                    listener = newListener;
-                }
+                    var builder = new SubscriptionEndpointBuilder(this.bus.Endpoint, topologyBuilder, this.Configuration);
 
-                // This event should be fired always, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
-                this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
+                    var endpointBuilder = this.Configuration.Options.GetEndpointBuilder();
+                    Assumes.True(endpointBuilder != null, "EndpointBuilder is null for [{0}].", this.Configuration.Label);
+
+                    var endpoint = endpointBuilder.Value(builder);
+
+                    var newListener = new Listener(
+                        this.bus,
+                        connection,
+                        endpoint,
+                        this.receiverOptions,
+                        this.bus.Configuration.ValidatorRegistry);
+
+                    // There is no need to register another listener at the same URL and for the same source; consuming actions can be registered for a single listener
+                    var listener =
+                        this.listeners.FirstOrDefault(
+                            l =>
+                                l.BrokerUrl == newListener.BrokerUrl &&
+                                newListener.Endpoint.ListeningSource.Equals(l.Endpoint.ListeningSource));
+
+                    if (listener == null)
+                    {
+                        listener = newListener;
+                        this.listeners.Add(listener);
+                    }
+                    else
+                    {
+                        // Check if an existing listener can be a substitute for a new one and if so just skip the new listeners
+                        this.CheckIfCompatible(newListener);
+                        listener = newListener;
+                    }
+
+                    // This event should be fired always, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
+                    this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
+                }
             }
         }
     }

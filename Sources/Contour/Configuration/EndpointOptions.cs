@@ -28,12 +28,17 @@ namespace Contour.Configuration
         /// <summary>
         /// Specifies if a connection should be reused.
         /// </summary>
-        public bool? ReuseConnection {protected get; set; }
+        public bool? ReuseConnection { protected get; set; }
 
         /// <summary>
         /// Gets or sets the connection string.
         /// </summary>
         public Maybe<string> ConnectionString { protected get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of attempts to take when failing over
+        /// </summary>
+        public int? FailoverAttempts { protected get; set; }
 
         /// <summary>
         /// Gets the connection string.
@@ -55,6 +60,15 @@ namespace Contour.Configuration
         public bool? GetReuseConnection()
         {
             return this.Pick<EndpointOptions, bool>((o) => o.ReuseConnection);
+        }
+
+        /// <summary>
+        /// Gets the number of attempts to take when failing over
+        /// </summary>
+        /// <returns>A number of attempts to take</returns>
+        public int? GetFailoverAttempts()
+        {
+            return this.Pick<EndpointOptions, int>(o => o.FailoverAttempts);
         }
 
         /// <summary>

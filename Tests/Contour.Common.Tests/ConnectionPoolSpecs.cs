@@ -107,8 +107,7 @@ namespace Contour.Common.Tests
                 var source = new CancellationTokenSource();
                 source.Cancel();
 
-                var result = pool.Get(conString, false, source.Token);
-                Assert.IsTrue(result == null);
+                Assert.Throws<OperationCanceledException>(() => pool.Get(conString, false, source.Token));
             }
 
             [Test]

@@ -45,6 +45,7 @@
     <Compile Include="BusConfigurationSpecs.cs" />
     <Compile Include="BasicPublishingSpecs.cs" />
     <Compile Include="BasicRequestResponseSpecs.cs" />
+    <Compile Include="ConnectionFailoverSpecs.cs" />
     <Compile Include="ConnectionPoolSpecs.cs" />
     <Compile Include="ConnectionSpecs.cs" />
     <Compile Include="AliasSpecs.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="DummyRequest.cs" />
     <Compile Include="DummyResponse.cs" />
     <Compile Include="FaultStrategySpecs.cs" />
+    <Compile Include="FaultTolerantProducerSpecs.cs" />
     <Compile Include="FooMessage.cs" />
     <Compile Include="GooMessage.cs" />
     <Compile Include="MessageFlowShardingSpecs.cs" />

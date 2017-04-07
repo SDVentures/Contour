@@ -1102,17 +1102,383 @@ namespace Contour.Configurator.Tests
                                        <endpoint name=""{name}"" connectionString=""amqp://localhost/integration"" />
                                    </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var busConfigurator = new BusConfiguration();
 
                 var section = new XmlEndpointsSection(Config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
                 var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
 
                 configuration.ConnectionString.Should().NotBeNullOrEmpty();
                 configuration.EndpointOptions.GetConnectionString().Should().NotBeNull();
             }
         }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_connection_string_provider
+        {
+            [Test]
+            public void should_load_connection_string_provider_if_present()
+            {
+                const string name = "name";
+                const string provider = "provider";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" connectionString="""" connectionStringProvider=""{provider}"" />
+                                   </endpoints>";
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                resolverMock.Verify(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == provider),
+                        It.Is<Type>(type => type == typeof(IConnectionStringProvider))),
+                    Times.Once,
+                    "Should use a dependency resolver to load the connection string provider implementation.");
+            }
+
+            [Test]
+            public void should_not_load_connection_string_provider_if_not_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" connectionString="""" />
+                                   </endpoints>";
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                resolverMock.Verify(
+                    rm => rm.Resolve(
+                        It.IsAny<string>(),
+                        It.Is<Type>(type => type == typeof(IConnectionStringProvider))),
+                    Times.Never,
+                    "Should not use a dependency resolver to load the connection string provider implementation.");
+            }
+
+            [Test]
+            public void should_use_endpoint_connection_string_even_if_provider_is_present()
+            {
+                const string Name = "name";
+                const string SomeString = "someString";
+                string Config = 
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""provider"" />
+                    </endpoints>";
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfigurator);
+
+                Assert.AreEqual(SomeString, configuration.EndpointOptions.GetConnectionString().Value, "Should use a connection string from the endpoint connectionstring attribute.");
+            }
+
+            [Test]
+            public void should_set_connection_string_to_outgoing_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "someString";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <outgoing>
+                                <route key=""a"" label=""{Label}"" />
+                            </outgoing>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                resolverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for outgoing label.");
+            }
+
+            [Test]
+            public void should_override_connection_string_to_outgoing_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "some string";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <outgoing>
+                                <route key=""a"" label=""{Label}"" connectionString=""outgoing connection string"" />
+                            </outgoing>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                resolverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for outgoing label.");
+            }
+
+            [Test]
+            public void should_use_connection_string_from_outgoing_label_if_provider_returns_null()
+            {
+                const string Name = "name";
+                const string EndpointString = "endpoint string";
+                const string LabelString = "outgoing connection string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{EndpointString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <outgoing>
+                                <route key=""a"" label=""{Label}"" connectionString=""{LabelString}"" />
+                            </outgoing>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns((string)null);
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                resolverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
+                senderOptions.GetConnectionString().Value.Should().Be(LabelString, "Should use a connection string from the outgoing label.");
+            }
+
+
+            [Test]
+            public void should_set_connection_string_on_incoming_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "someString";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <incoming>
+                                <on key=""a"" label=""{Label}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
+                            </incoming>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                resolverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for incoming label.");
+            }
+
+            [Test]
+            public void should_override_connection_string_on_incoming_label_from_provider_if_present()
+            {
+                const string Name = "name";
+                const string SomeString = "some string";
+                const string AnotherString = "another string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{SomeString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <incoming>
+                                <on key=""a"" label=""{Label}"" connectionString=""incoming connection string"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
+                            </incoming>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns(AnotherString);
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                resolverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(AnotherString, "Should use a connection string from the provider for incoming label.");
+            }
+
+            [Test]
+            public void should_use_connection_string_from_incoming_label_if_provider_returns_null()
+            {
+                const string Name = "name";
+                const string EndpointString = "endpoint string";
+                const string LabelString = "incoming connection string";
+                const string Provider = "provider";
+                const string Label = "msg.a";
+                string Config =
+                    $@"<endpoints>
+                        <endpoint 
+                            name=""{Name}"" 
+                            connectionString=""{EndpointString}"" 
+                            connectionStringProvider=""{Provider}"" >
+                            <incoming>
+                                <on key=""a"" label=""{Label}"" connectionString=""{LabelString}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
+                            </incoming>
+                        </endpoint>
+                
+                    </endpoints>";
+
+                var connectionStringProviderMock = new Mock<IConnectionStringProvider>();
+                connectionStringProviderMock
+                    .Setup(cspm => cspm.GetConnectionString(It.Is<MessageLabel>(l => l.Name == Label)))
+                    .Returns((string)null);
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                resolverMock.Setup(
+                    rm => rm.Resolve(
+                        It.Is<string>(value => value == Provider),
+                        It.Is<Type>(t => t == typeof(IConnectionStringProvider))))
+                    .Returns(connectionStringProviderMock.Object);
+
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+
+                var busConfiguration = new BusConfiguration();
+                busConfiguration.UseRabbitMq();
+
+                var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
+
+                var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+                receiverOptions.GetConnectionString().Value.Should().Be(LabelString, "Should use a connection string from the outgoing label.");
+            }
+
+        }
+
 
         [TestFixture]
         [Category("Unit")]
@@ -1126,11 +1492,11 @@ namespace Contour.Configurator.Tests
                                        <endpoint name=""{name}"" connectionString=""amqp://localhost/integration"" reuseConnection=""true""/>
                                    </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var busConfigurator = new BusConfiguration();
 
                 var section = new XmlEndpointsSection(Config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
                 var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
 
                 var property = configuration.EndpointOptions.GetReuseConnection();
@@ -1146,11 +1512,11 @@ namespace Contour.Configurator.Tests
                                         <endpoint name=""{name}"" connectionString=""amqp://localhost/integration""/>
                                    </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var busConfigurator = new BusConfiguration();
 
                 var section = new XmlEndpointsSection(Config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
                 var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
 
                 var property = configuration.EndpointOptions.GetReuseConnection();
@@ -1180,9 +1546,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
                 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1216,9 +1582,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1251,9 +1617,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1287,9 +1653,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1321,9 +1687,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1356,9 +1722,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1392,9 +1758,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1423,9 +1789,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1453,9 +1819,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq(); //Basic receiver configurator and receiver options are actually unaware of any QoS settings; so these tests are not really Contour specific
@@ -1486,9 +1852,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1518,9 +1884,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1551,9 +1917,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1584,9 +1950,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1615,9 +1981,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1652,9 +2018,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1687,9 +2053,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1723,9 +2089,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1759,9 +2125,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();
@@ -1793,9 +2159,9 @@ namespace Contour.Configurator.Tests
                         </endpoint>
                     </endpoints>";
 
-                var resoverMock = new Mock<IDependencyResolver>();
+                var resolverMock = new Mock<IDependencyResolver>();
                 var section = new XmlEndpointsSection(config);
-                var configurator = new AppConfigConfigurator(section, resoverMock.Object);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
 
                 var busConfiguration = new BusConfiguration();
                 busConfiguration.UseRabbitMq();

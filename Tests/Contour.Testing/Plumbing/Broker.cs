@@ -133,7 +133,7 @@ namespace Contour.Testing.Plumbing
             var client = this.CreateClient();
             var request = CreateRequest("/api/vhosts/{name}", Method.PUT);
             request.AddUrlSegment("name", vhostName);
-            client.Execute(request);
+            var response = client.Execute(request);
         }
 
         /// <summary>
@@ -155,14 +155,38 @@ namespace Contour.Testing.Plumbing
         /// Создает пользователя в виртуальном хосте брокера.
         /// </summary>
         /// <param name="vhostName">Виртуальный хост брокера.</param>
-        /// <param name="user">Имя пользователя.</param>
+        /// <param name="name">Имя пользователя.</param>
         /// <param name="userPassword">Пароль пользователя.</param>
-        public void CreateUser(string vhostName, string user, string userPassword)
+        public void CreateUser(string vhostName, string name, string userPassword)
         {
+            var user = this.GetUser(name);
+            if (user != null)
+            {
+                return;
+            }
+
             var client = this.CreateClient();
             var request = CreateRequest("/api/users/{name}", Method.PUT);
-            request.AddUrlSegment("name", user);
+            request.AddUrlSegment("name", name);
             request.AddBody(new { password = userPassword, tags = "administrator" });
+            client.Execute(request);
+        }
+
+        public User GetUser(string name)
+        {
+            var client = this.CreateClient();
+            var request = CreateRequest("/api/users/{name}", Method.GET);
+            request.AddUrlSegment("name", name);
+
+            var response = client.Execute<User>(request);
+            return response.StatusCode == HttpStatusCode.OK ? response.Data : null;
+        }
+
+        public void DeleteUser(string name)
+        {
+            var client = this.CreateClient();
+            var request = CreateRequest("/api/users/{name}", Method.DELETE);
+            request.AddUrlSegment("name", name);
             client.Execute(request);
         }
 
@@ -175,6 +199,7 @@ namespace Contour.Testing.Plumbing
         {
             var client = this.CreateClient();
             var request = CreateRequest("/api/permissions/{vhost}/{user}", Method.PUT);
+            
             request.AddUrlSegment("vhost", vhostName);
             request.AddUrlSegment("user", user);
             request.AddBody(new { Configure = ".*", Write = ".*", Read = ".*" });
@@ -190,6 +215,15 @@ namespace Contour.Testing.Plumbing
             var client = this.CreateClient();
             var request = CreateRequest("/api/vhosts/{name}", Method.DELETE);
             request.AddUrlSegment("name", vhostName);
+            client.Execute(request);
+        }
+
+        public void PurgeQueue(string vhostName, string queueName)
+        {
+            var client = this.CreateClient();
+            var request = CreateRequest("/api/queues/{vhost}/{name}/contents", Method.DELETE);
+            request.AddUrlSegment("vhost", vhostName);
+            request.AddUrlSegment("name", queueName);
             client.Execute(request);
         }
 
@@ -225,25 +259,39 @@ namespace Contour.Testing.Plumbing
                 throw new Exception("Failed to get connections", response.ErrorException);
             }
 
-            var connections = response.Data;
+            var connections = response.Data ?? new List<Connection>();
             return connections;
         }
 
         public void DropConnections()
         {
-            var connections = GetConnections();
-
-            var client = this.CreateClient();
+            var connections = this.GetConnections();
+            
             foreach (var con in connections)
             {
-                var dropRequest = CreateRequest($"/api/connections/{con.name}", Method.DELETE);
-                var response = client.Execute(dropRequest);
-
-                if (response.ErrorException != null)
-                {
-                    throw new Exception("Failed to drop a connection", response.ErrorException);
-                }
+                this.DropConnection(con);
             }
+        }
+
+        public void DropConnection(Connection con)
+        {
+            var client = this.CreateClient();
+            var dropRequest = CreateRequest($"/api/connections/{con.name}", Method.DELETE);
+            var response = client.Execute(dropRequest);
+
+            if (response.ErrorException != null)
+            {
+                throw new Exception("Failed to drop a connection", response.ErrorException);
+            }
+        }
+
+        public IList<VirtualHost> GetHosts()
+        {
+            var client = this.CreateClient();
+            var request = CreateRequest("/api/vhosts", Method.GET);
+            
+            var response = client.Execute<List<VirtualHost>>(request);
+            return response.Data;
         }
     }
 }

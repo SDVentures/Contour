@@ -1,20 +1,19 @@
 // ReSharper disable InconsistentNaming
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Contour.Testing.Transport.RabbitMq;
+using Contour.Transport.RabbitMQ.Internal;
+using Contour.Transport.RabbitMQ.Topology;
 using FluentAssertions;
+using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-    using Testing.Transport.RabbitMq;
-    using Transport.RabbitMQ.Internal;
-    using Transport.RabbitMQ.Topology;
-
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."), SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."), TestFixture]
     [Category("Integration")]
     public class ConnectionPoolSpecs : RabbitMqFixture
@@ -66,15 +65,8 @@ namespace Contour.RabbitMq.Tests
 
             while (i++ < Count)
             {
-                var task = new Task<IConnection>(() => pool.Get(conString, false, source.Token));
-                task.Start();
-
-                if (!task.Wait(1.Minutes()))
-                {
-                    Assert.Ignore("Failed to get a connection from a pool; unable to continue the test");
-                }
-
-                connections.Add(task.Result);
+                var con = pool.Get(conString, false, source.Token);
+                connections.Add(con);
             }
 
             i = 0;
@@ -103,23 +95,19 @@ namespace Contour.RabbitMq.Tests
 
             var pool = new RabbitConnectionPool(bus);
             var source = new CancellationTokenSource();
-            var token = source.Token;
             
-            var task = new Task<IConnection>(() => pool.Get(ConString, false, token), token);
-            task.Start();
+            // ReSharper disable once MethodSupportsCancellation
+            var task = Task.Factory.StartNew(
+                () =>
+                {
+                    var con = pool.Get(ConString, false, source.Token);
+                    return con;
+                });
             
-            // Wait for the connection pool to initialize the connection
-            task.Wait(TimeSpan.FromSeconds(10));
+            task.Wait(5.Seconds());
             source.Cancel();
 
-            if (task.Wait(TimeSpan.FromMinutes(1)))
-            {
-                Assert.IsTrue(task.Result != null);
-            }
-            else
-            {
-                Assert.Fail("Operation has not been canceled");
-            }
+            Assert.Throws<AggregateException>(() => task.Wait(5.Seconds()));
         }
     }
 }

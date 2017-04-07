@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Contour.Testing.Plumbing;
 using Contour.Testing.Transport.RabbitMq;
@@ -26,6 +26,12 @@ namespace Contour.RabbitMq.Tests
 
                 this.Endpoints = new List<IBus>();
                 this.Broker = new Broker(this.ManagementConnection, this.AdminUserName, this.AdminUserPassword);
+            }
+
+            [TearDown]
+            public override void TearDown()
+            {
+                this.DeleteHosts();
             }
 
             [Test]
@@ -142,6 +148,12 @@ namespace Contour.RabbitMq.Tests
                 this.Broker = new Broker(this.ManagementConnection, this.AdminUserName, this.AdminUserPassword);
             }
 
+            [TearDown]
+            public override void TearDown()
+            {
+                this.DeleteHosts();
+            }
+
             [Test]
             public void bus_sender_should_use_next_producer_chosen_by_default_producer_selector_on_each_message()
             {
@@ -198,6 +210,12 @@ namespace Contour.RabbitMq.Tests
 
                 this.Endpoints = new List<IBus>();
                 this.Broker = new Broker(this.ManagementConnection, this.AdminUserName, this.AdminUserPassword);
+            }
+
+            [TearDown]
+            public override void TearDown()
+            {
+                this.DeleteHosts();
             }
 
             [Test]
