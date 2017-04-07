@@ -82,7 +82,7 @@ namespace Contour.Filters
             var currentFilter = this.filterEnumerator.Current;
             var currentFilterType = currentFilter.GetType();
 
-            if (this.filterDecorators.ContainsKey(currentFilterType))
+            if (this.filterDecorators != null && this.filterDecorators.ContainsKey(currentFilterType))
             {
                 return this.filterDecorators[currentFilterType].Process(currentFilter, exchange, this);
             }
