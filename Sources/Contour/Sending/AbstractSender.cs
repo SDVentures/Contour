@@ -107,7 +107,7 @@ namespace Contour.Sending
             var message = new Message(this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
-            var invoker = new MessageExchangeFilterInvoker(this.filters);
+            var invoker = this.filterDecorators != null ? new MessageExchangeFilterInvoker(this.filters, this.filterDecorators) : new MessageExchangeFilterInvoker(this.filters);
 
             return invoker.Process(exchange)
                 .ContinueWith(
