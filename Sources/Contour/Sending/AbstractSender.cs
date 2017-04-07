@@ -191,9 +191,7 @@ namespace Contour.Sending
             }
 
             Logger.Trace(
-                m =>
-                    m(
-                        $"Requesting with label [{label}], payload [{payload}] and correlationId = [{headers[Headers.CorrelationId]}]"));
+                $"Requesting with label [{label}], payload [{payload}] and correlationId = [{headers[Headers.CorrelationId]}]");
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
