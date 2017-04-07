@@ -158,7 +158,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(
                 $"Registering a new sender of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
 
-            var sender = new RabbitSender(this, configuration, this.connectionPool, this.Configuration.Filters.ToList());
+            var sender = new RabbitSender(this, configuration, this.connectionPool, this.Configuration.Filters.ToList(), this.Configuration.FilterDecorators);
             this.ComponentTracker.Register(sender);
 
             this.logger.Trace(
@@ -298,18 +298,6 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.IsConfigured = true;
             this.logger.Info($"Configuration of [{name}] completed successfully");
-        }
-
-        private void BuildSenders()
-        {
-            this.ProducerRegistry = new ProducerRegistry(this, this.connectionPool);
-
-            this.Configuration.SenderConfigurations.ForEach(
-                c =>
-                {
-                    var sender = new RabbitSender(this.Configuration.Endpoint, c, this.ProducerRegistry, this.Configuration.Filters.ToList(), this.Configuration.FilterDecorators);
-                    this.ComponentTracker.Register(sender);
-                });
         }
 
         private void ConnectionClosed(object sender, EventArgs e)

@@ -42,20 +42,14 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="filters">
         /// Фильтры сообщений.
         /// </param>
-        public RabbitSender(RabbitBus bus, ISenderConfiguration configuration, IConnectionPool<IRabbitConnection> connectionPool, IEnumerable<IMessageExchangeFilter> filters)
-            : base(bus.Endpoint, configuration, filters)
+        public RabbitSender(RabbitBus bus, ISenderConfiguration configuration, IConnectionPool<IRabbitConnection> connectionPool, IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators = null)
+            : base(bus.Endpoint, configuration, filters, filterDecorators)
         {
             this.bus = bus;
             this.connectionPool = connectionPool;
             this.senderOptions = (RabbitSenderOptions)this.Configuration.Options;
 
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}(Endpoint=\"{this.bus.Endpoint}\")");
-        }
-
-        public RabbitSender(IEndpoint endpoint, ISenderConfiguration configuration, ProducerRegistry producerRegistry, IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
-            : base(endpoint, configuration, filters, filterDecorators)
-        {
-            this.producerRegistry = producerRegistry;
         }
 
         /// <summary>
