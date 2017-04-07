@@ -5,7 +5,7 @@
     /// <summary>
     /// The callback endpoint element.
     /// </summary>
-    internal class CallbackEndpointElement : ConfigurationElement
+    public class CallbackEndpointElement : ConfigurationElement
     {
         #region Public Properties
 

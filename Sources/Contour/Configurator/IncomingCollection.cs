@@ -6,7 +6,7 @@
     /// The incoming collection.
     /// </summary>
     [ConfigurationCollection(typeof(IncomingElement), AddItemName = "on")]
-    internal class IncomingCollection : ConfigurationElementCollection
+    public class IncomingCollection : ConfigurationElementCollection
     {
         #region Methods
 

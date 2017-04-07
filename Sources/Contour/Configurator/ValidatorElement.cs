@@ -14,7 +14,7 @@ namespace Contour.Configurator
     /// <summary>
     /// The validator element.
     /// </summary>
-    internal class ValidatorElement : ConfigurationElement
+    public class ValidatorElement : ConfigurationElement
     {
         #region Public Properties
 

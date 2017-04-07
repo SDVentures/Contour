@@ -7,7 +7,7 @@ namespace Contour.Configurator
     /// <summary>
     /// The endpoint element.
     /// </summary>
-    internal class EndpointElement : ConfigurationElement
+    public class EndpointElement : ConfigurationElement
     {
         /// <summary>
         /// Gets the caching.

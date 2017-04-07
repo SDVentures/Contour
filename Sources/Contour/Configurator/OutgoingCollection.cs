@@ -6,7 +6,7 @@
     /// The outgoing collection.
     /// </summary>
     [ConfigurationCollection(typeof(OutgoingElement), AddItemName = "route")]
-    internal class OutgoingCollection : ConfigurationElementCollection
+    public class OutgoingCollection : ConfigurationElementCollection
     {
         #region Methods
 
