@@ -9,7 +9,7 @@
     public sealed class Message : IMessage
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Message"/>.
+        /// Initializes a new instance of the <see cref="Message"/> class.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Message"/>.
+        /// Initializes a new instance of the <see cref="Message"/> class.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -40,6 +40,7 @@
             : this(label, new Dictionary<string, object>(), payload)
         {
         }
+
         /// <summary>
         /// Gets the headers.
         /// </summary>
@@ -123,6 +124,7 @@
             : this(label, new Dictionary<string, object>(), payload)
         {
         }
+
         /// <summary>
         /// Gets the headers.
         /// </summary>
@@ -137,6 +139,7 @@
         ///   Содержимое сообщения.
         /// </summary>
         public T Payload { get; private set; }
+
         /// <summary>
         /// Gets the payload.
         /// </summary>

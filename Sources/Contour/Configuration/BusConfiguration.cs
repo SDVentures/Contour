@@ -186,7 +186,7 @@ namespace Contour.Configuration
         {
             this.RegisterFilter(
                 new CacheMessageExchangeFilter(
-                    new MemoryCacheProvider(), 
+                    new MemoryCacheProvider(),
                     new HashCalculator(
                         // need lazy load payload converter to escape race conditions during configuration caching and payload converters.
                         new Lazy<IPayloadConverter>(() => this.Serializer))));
@@ -562,7 +562,7 @@ namespace Contour.Configuration
         /// </exception>
         public void Validate()
         {
-            Logger.Trace(m => m("Validating. Connection string - [{0}], endpoint name - [{1}], incoming labels - [{2}], outgoing labels - [{3}]", this.EndpointOptions.GetConnectionString().HasValue ? this.EndpointOptions.GetConnectionString().Value : "N/A", this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations) : "null"));
+            Logger.Trace(m => m("Validating. Connection string - [{0}], endpoint name - [{1}], incoming labels - [{2}], outgoing labels - [{3}]", this.EndpointOptions.GetConnectionString().HasValue ? this.EndpointOptions.GetConnectionString().Value : "N/A", this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations.Select(x => x.Label)) : "null"));
 
             if (this.Serializer == null)
             {

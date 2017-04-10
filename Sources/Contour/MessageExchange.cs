@@ -8,7 +8,7 @@
     public class MessageExchange
     {
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageExchange"/>.
+        /// Initializes a new instance of the <see cref="MessageExchange"/> class.
         /// </summary>
         /// <param name="out">
         /// The out.
@@ -23,7 +23,7 @@
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MessageExchange"/>.
+        /// Initializes a new instance of the <see cref="MessageExchange"/> class.
         /// </summary>
         /// <param name="out">
         /// The out.
@@ -32,6 +32,7 @@
             : this(@out, null)
         {
         }
+
         /// <summary>
         /// Gets or sets the exception.
         /// </summary>
@@ -84,6 +85,7 @@
         /// Gets or sets the out.
         /// </summary>
         public IMessage Out { get; set; }
+
         /// <summary>
         /// The throw if failed.
         /// </summary>

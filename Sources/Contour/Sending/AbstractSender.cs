@@ -36,7 +36,7 @@ namespace Contour.Sending
         // TODO: refactor, don't copy filters
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractSender"/> class. 
+        /// Initializes a new instance of the <see cref="AbstractSender"/> class.
         /// </summary>
         /// <param name="endpoint">
         /// Sender's endpoint
@@ -86,8 +86,8 @@ namespace Contour.Sending
         public abstract void Dispose();
 
         /// <summary>
-        /// Sends message using request-reply pattern. 
-        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply, 
+        /// Sends message using request-reply pattern.
+        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply,
         /// new one is generated if none is supplied.
         /// </summary>
         /// <param name="payload">Message payload.</param>
@@ -112,7 +112,7 @@ namespace Contour.Sending
 
         /// <summary>
         /// Sends message using request-reply pattern.
-        /// Copies all allowed message headers and generates new <see cref="Headers.CorrelationId"/> header. 
+        /// Copies all allowed message headers and generates new <see cref="Headers.CorrelationId"/> header.
         /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
         /// </summary>
         /// <param name="payload">Message payload.</param>
@@ -124,12 +124,14 @@ namespace Contour.Sending
             var headers = this.ApplyOptions(options);
             headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
 
+            Logger.Trace(m => m("Message original Id [{0}], correlation Id [{1}].", Headers.GetString(headers, Headers.OriginalMessageId), Headers.GetString(headers, Headers.CorrelationId)));
+
             return this.Request<T>(payload, headers);
         }
 
         /// <summary>
         /// Sends message using request-reply pattern.
-        /// Copies all allowed message headers. And generates new <see cref="Headers.CorrelationId"/> header. 
+        /// Copies all allowed message headers. And generates new <see cref="Headers.CorrelationId"/> header.
         /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
         /// </summary>
         /// <param name="label">Message label.</param>
@@ -146,8 +148,8 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Sends message using request-reply pattern. 
-        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply, 
+        /// Sends message using request-reply pattern.
+        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply,
         /// new one is generated if none is supplied.
         /// </summary>
         /// <param name="label">Message label.</param>
@@ -162,7 +164,8 @@ namespace Contour.Sending
                 headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
             }
 
-            Logger.Trace(m => m("Invoking request for label [{0}] with payload [{1}] and correlationId = [{2}]", label, payload, headers[Headers.CorrelationId]));
+            Logger.Trace(
+                $"Requesting with label [{label}], payload [{payload}] and correlationId = [{headers[Headers.CorrelationId]}]");
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
@@ -246,8 +249,6 @@ namespace Contour.Sending
 
             Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
             Headers.ApplyOriginalMessageId(outputHeaders);
-
-            Logger.Trace(m => m("The ID of the origin message [{0}].", Headers.GetString(outputHeaders, Headers.OriginalMessageId)));
 
             Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
             Headers.ApplyPersistently(outputHeaders, persist);
