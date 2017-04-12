@@ -51,8 +51,6 @@
     <Compile Include="MaybeSpecs.cs" />
     <Compile Include="MessageHeaderStorageSpecs.cs" />
     <Compile Include="NameGeneratorSpecs.cs" />
-    <Compile Include="OperatorConsumerOfSpecs.cs" />
-    <Compile Include="PatternsSpecs.cs" />
     <Compile Include="MessageSpecs.cs" />
     <Compile Include="ExpiresSpecs.cs" />
     <Compile Include="MessageExchangeFilterSpecs.cs" />
