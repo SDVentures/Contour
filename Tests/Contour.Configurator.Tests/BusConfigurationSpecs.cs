@@ -11,7 +11,6 @@ using System.Threading;
 
 using FluentAssertions;
 
-using Contour.Operators;
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
 using Contour.Validation;
@@ -106,47 +105,6 @@ namespace Contour.Configurator.Tests
         }
 
         /// <summary>
-        /// The bus dependent transformer.
-        /// </summary>
-        public class BusDependentTransformer : IMessageOperator
-        {
-            /// <summary>
-            /// The wait event.
-            /// </summary>
-            public static CountdownEvent WaitEvent;
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BusDependentTransformer"/>.
-            /// </summary>
-            /// <param name="bus">
-            /// The bus.
-            /// </param>
-            public BusDependentTransformer(IBus bus)
-            {
-                this.Bus = bus;
-            }
-
-            /// <summary>
-            /// Gets the bus.
-            /// </summary>
-            public IBus Bus { get; private set; }
-
-            /// <summary>
-            /// The reset.
-            /// </summary>
-            public static void Reset()
-            {
-                WaitEvent = new CountdownEvent(3);
-            }
-
-            public IEnumerable<IMessage> Apply(IMessage message)
-            {
-                WaitEvent.Signal();
-                yield break;
-            }
-        }
-
-        /// <summary>
         /// The concrete handler of.
         /// </summary>
         /// <typeparam name="T">
@@ -173,28 +131,6 @@ namespace Contour.Configurator.Tests
             public void Handle(IConsumingContext<T> context)
             {
                 this._received.Set();
-            }
-        }
-
-        /// <summary>
-        /// The concrete transformer of.
-        /// </summary>
-        public class ConcreteTransformerOf : IMessageOperator
-        {
-            /// <summary>
-            /// The _received.
-            /// </summary>
-            private readonly ManualResetEvent received = new ManualResetEvent(false);
-
-            /// <summary>
-            /// Gets the received.
-            /// </summary>
-            public WaitHandle Received => this.received;
-
-            public IEnumerable<IMessage> Apply(IMessage message)
-            {
-                this.received.Set();
-                yield break;
             }
         }
 
@@ -336,7 +272,6 @@ namespace Contour.Configurator.Tests
                         </endpoints>";
 
                 BusDependentHandler.Reset();
-                BusDependentTransformer.Reset();
 
                 var serviceLocator = new ServiceLocator();
                 DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
@@ -353,13 +288,6 @@ namespace Contour.Configurator.Tests
                     typeof(IConsumerOf<BooMessage>), 
                     new BusDependentHandler(consumer));
 
-
-                serviceLocator.Register(
-                    "BooTransformer",
-                    typeof(IConsumerOf<BooMessage>),
-                    new OperatorConsumerOf<BooMessage>(
-                        new BusDependentTransformer(consumer)));
-
                 IBus producer = this.StartBus(
                     "producer", 
                     cfg =>
@@ -375,13 +303,6 @@ namespace Contour.Configurator.Tests
 
                 BusDependentHandler.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
                 serviceLocator.GetCount(typeof(BusDependentHandler)).Should().Be(3);
-
-                producer.Emit("msg.b", new { Num = 13 });
-                producer.Emit("msg.b", new { Num = 13 });
-                producer.Emit("msg.b", new { Num = 13 });
-
-                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
-                serviceLocator.GetCount(typeof(OperatorConsumerOf<BooMessage>)).Should().Be(3);
             }
         }
 
@@ -418,7 +339,6 @@ namespace Contour.Configurator.Tests
                         </endpoints>";
 
                 BusDependentHandler.Reset();
-                BusDependentTransformer.Reset();
 
                 var serviceLocator = new ServiceLocator();
                 DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
@@ -435,11 +355,6 @@ namespace Contour.Configurator.Tests
                     typeof(IConsumerOf<BooMessage>),
                     new BusDependentHandler(consumer));
 
-                serviceLocator.Register(
-                    "BooTransformer",
-                    typeof(IConsumerOf<BooMessage>),
-                    new OperatorConsumerOf<BooMessage>(new BusDependentTransformer(consumer)));
-
                 IBus producer = this.StartBus(
                     "producer", 
                     cfg =>
@@ -454,13 +369,6 @@ namespace Contour.Configurator.Tests
 
                 BusDependentHandler.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
                 serviceLocator.GetCount(typeof(BusDependentHandler)).Should().Be(1);
-
-                producer.Emit("msg.b", new { Num = 13 });
-                producer.Emit("msg.b", new { Num = 13 });
-                producer.Emit("msg.b", new { Num = 13 });
-
-                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
-                serviceLocator.GetCount(typeof(OperatorConsumerOf<BooMessage>)).Should().Be(1);
             }
         }
 
@@ -715,67 +623,6 @@ namespace Contour.Configurator.Tests
                 producer.Emit("msg.a", new { Num = 13 });
 
                 handler.Received.WaitOne(3.Seconds()).Should().BeFalse();
-            }
-        }
-
-        /// <summary>
-        /// The when_transforming_with_configured_concrete_transformer.
-        /// </summary>
-        [TestFixture]
-        [Category("Integration")]
-        public class when_transforming_with_configured_concrete_transformer : RabbitMqFixture
-        {
-            /// <summary>
-            /// The should_receive.
-            /// </summary>
-            [Test]
-            public void should_receive()
-            {
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
-                                <outgoing>
-                                    <route key=""a"" label=""msg.a"" />
-                                </outgoing>
-                            </endpoint>
-                        </endpoints>";
-
-                string consumerConfig = $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
-                                <incoming>
-                                    <on key=""a"" label=""msg.a"" react=""BooTransformer"" type=""BooMessage"" />
-                                </incoming>
-                            </endpoint>
-                        </endpoints>";
-
-                var handler = new ConcreteTransformerOf();
-
-                ServiceLocator serviceLocator = new ServiceLocator();
-                serviceLocator.Register(
-                    "BooTransformer",
-                    typeof(IConsumerOf<BooMessage>),
-                    new OperatorConsumerOf<BooMessage>(handler));
-
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
-
-                this.StartBus(
-                    "consumer", 
-                    cfg =>
-                        {
-                            var section = new XmlEndpointsSection(consumerConfig);
-                            new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
-                        });
-
-                IBus producer = this.StartBus(
-                    "producer", 
-                    cfg =>
-                        {
-                            var section = new XmlEndpointsSection(producerConfig);
-                            new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
-                        });
-
-                producer.Emit("msg.a", new { Num = 13 });
-
-                handler.Received.WaitOne(5.Seconds()).Should().BeTrue();
             }
         }
 

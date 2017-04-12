@@ -61,7 +61,6 @@
     <Compile Include="GooMessage.cs" />
     <Compile Include="MessageFlowShardingSpecs.cs" />
     <Compile Include="MessageHeaderSpecs.cs" />
-    <Compile Include="OperatorsSpecs.cs" />
     <Compile Include="MessageHandlingSpecs.cs" />
     <Compile Include="MessageAttributeSpecs.cs" />
     <Compile Include="RabbitConnectionStringSpecs.cs" />
