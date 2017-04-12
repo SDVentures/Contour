@@ -12,17 +12,10 @@
     /// </summary>
     internal class MessageLabelResolver
     {
-        #region Fields
-
         /// <summary>
         /// The _type labels.
         /// </summary>
         private readonly IDictionary<Type, MessageLabel> _typeLabels = new ConcurrentDictionary<Type, MessageLabel>();
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The resolve from.
         /// </summary>
@@ -56,11 +49,6 @@
         {
             return this.ResolveFrom(typeof(T));
         }
-
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The get label from.
         /// </summary>
@@ -83,7 +71,5 @@
 
             return ((MessageAttribute)attribute).Label.ToMessageLabel();
         }
-
-        #endregion
     }
 }

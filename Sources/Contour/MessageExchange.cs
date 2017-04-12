@@ -8,7 +8,7 @@
     public class MessageExchange
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageExchange"/> class. 
+        /// Initializes a new instance of the <see cref="MessageExchange"/> class.
         /// </summary>
         /// <param name="out">
         /// The out.
@@ -23,7 +23,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageExchange"/> class. 
+        /// Initializes a new instance of the <see cref="MessageExchange"/> class.
         /// </summary>
         /// <param name="out">
         /// The out.

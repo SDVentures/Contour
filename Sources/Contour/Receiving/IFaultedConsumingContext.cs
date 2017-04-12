@@ -1,30 +1,14 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFaultedConsumingContext.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The FaultedConsumingContext interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// The FaultedConsumingContext interface.
     /// </summary>
     public interface IFaultedConsumingContext
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the delivery.
         /// </summary>
         IDelivery Delivery { get; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The accept.
         /// </summary>
@@ -58,7 +42,5 @@ namespace Contour.Receiving
         /// The requeue.
         /// </param>
         void Reject(bool requeue);
-
-        #endregion
     }
 }

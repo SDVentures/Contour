@@ -1,21 +1,10 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRouteResolver.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The RouteResolver interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Sending
+﻿namespace Contour.Sending
 {
     /// <summary>
     /// The RouteResolver interface.
     /// </summary>
     public interface IRouteResolver
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The resolve.
         /// </summary>
@@ -29,7 +18,5 @@ namespace Contour.Sending
         /// The <see cref="IRoute"/>.
         /// </returns>
         IRoute Resolve(IEndpoint endpoint, MessageLabel label);
-
-        #endregion
     }
 }

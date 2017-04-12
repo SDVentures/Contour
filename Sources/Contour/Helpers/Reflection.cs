@@ -9,8 +9,6 @@
     /// </summary>
     internal static class Reflection
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The get generic type parameter of.
         /// </summary>
@@ -30,7 +28,5 @@
                     where iType.IsGenericType && iType.GetGenericTypeDefinition() == openType
                     select iType.GetGenericArguments()[0]).ToList();
         }
-
-        #endregion
     }
 }

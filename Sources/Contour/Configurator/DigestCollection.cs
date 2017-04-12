@@ -8,8 +8,6 @@
     [ConfigurationCollection(typeof(DigestElement), AddItemName = "digest")]
     public class DigestCollection : ConfigurationElementCollection
     {
-        #region Methods
-
         /// <summary>
         /// The create new element.
         /// </summary>
@@ -34,7 +32,5 @@
         {
             return ((DigestElement)element).Type;
         }
-
-        #endregion
     }
 }

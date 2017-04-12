@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MaybeExtensions.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The maybe extensions.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers
+﻿namespace Contour.Helpers
 {
     using System.ComponentModel;
 
@@ -17,8 +8,6 @@ namespace Contour.Helpers
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class MaybeExtensions
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The maybe.
         /// </summary>
@@ -34,7 +23,5 @@ namespace Contour.Helpers
         {
             return new Maybe<T>(value);
         }
-
-        #endregion
     }
 }

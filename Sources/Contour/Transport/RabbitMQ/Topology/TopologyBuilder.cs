@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using Contour.Receiving;
 using Contour.Topology;
 using Contour.Transport.RabbitMQ.Internal;
@@ -11,20 +10,7 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public class TopologyBuilder : ITopologyBuilder
     {
-        private readonly RabbitChannel channel;
         private readonly IChannelProvider<IChannel> channelProvider;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TopologyBuilder"/> class. 
-        /// </summary>
-        /// <param name="channel">
-        /// Соединение с шиной сообщений, через которое настраивается топология.
-        /// </param>
-        [Obsolete("Use a connection based constructor")]
-        public TopologyBuilder(IChannel channel)
-        {
-            this.channel = (RabbitChannel)channel;
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TopologyBuilder"/> class.
@@ -139,7 +125,6 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </summary>
         public void Dispose()
         {
-            this.channel?.Dispose();
         }
     }
 }

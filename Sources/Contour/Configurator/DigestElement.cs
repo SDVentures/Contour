@@ -7,8 +7,6 @@
     /// </summary>
     public class DigestElement : ConfigurationElement
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the distinct.
         /// </summary>
@@ -80,7 +78,5 @@
                 return (string)base["type"];
             }
         }
-
-        #endregion
     }
 }

@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ITicketTimer.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The TicketTimer interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.Timing
+﻿namespace Contour.Helpers.Timing
 {
     using System;
 
@@ -16,8 +7,6 @@ namespace Contour.Helpers.Timing
     /// </summary>
     internal interface ITicketTimer : IDisposable
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The acquire.
         /// </summary>
@@ -39,7 +28,5 @@ namespace Contour.Helpers.Timing
         /// The ticket.
         /// </param>
         void Cancel(long ticket);
-
-        #endregion
     }
 }

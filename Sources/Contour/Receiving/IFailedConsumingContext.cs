@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFailedConsumingContext.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The FailedConsumingContext interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using System;
 
@@ -16,13 +7,9 @@ namespace Contour.Receiving
     /// </summary>
     public interface IFailedConsumingContext : IFaultedConsumingContext
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the exception.
         /// </summary>
         Exception Exception { get; }
-
-        #endregion
     }
 }

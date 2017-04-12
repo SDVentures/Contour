@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DefaultBusLifecycleHandler.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The default bus lifecycle handler.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour
+﻿namespace Contour
 {
     using System;
 
@@ -16,8 +7,6 @@ namespace Contour
     /// </summary>
     public class DefaultBusLifecycleHandler : IBusLifecycleHandler
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The on started.
         /// </summary>
@@ -73,7 +62,5 @@ namespace Contour
         {
             // no-op
         }
-
-        #endregion
     }
 }

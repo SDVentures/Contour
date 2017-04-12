@@ -17,8 +17,6 @@
         [Category("Unit")]
         public class when_comparing_message_labels
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_use_structural_equality.
             /// </summary>
@@ -38,8 +36,6 @@
                     Should().
                     NotBe(MessageLabel.From("labe"));
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -49,8 +45,6 @@
         [Category("Unit")]
         public class when_comparing_message_labels_with_any_label
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_be_equal.
             /// </summary>
@@ -65,8 +59,6 @@
                 MessageLabel.Any.Should().
                     Be(MessageLabel.Any);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -76,8 +68,6 @@
         [Category("Unit")]
         public class when_creating_message_label_from_empty_or_null_string
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_produce_empty_label.
             /// </summary>
@@ -92,8 +82,6 @@
                 label.IsEmpty.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -103,8 +91,6 @@
         [Category("Unit")]
         public class when_creating_message_label_from_string_using_different_cases
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_build_label_with_lower_case.
             /// </summary>
@@ -118,8 +104,6 @@
                     Name.Should().
                     Be("label");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -129,8 +113,6 @@
         [Category("Unit")]
         public class when_validating_alias
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_only_pass_valid_label.
             /// </summary>
@@ -157,8 +139,6 @@
             {
                 return MessageLabel.IsValidAlias(alias);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -168,8 +148,6 @@
         [Category("Unit")]
         public class when_validating_message_label
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_only_pass_valid_label.
             /// </summary>
@@ -199,8 +177,6 @@
             {
                 return MessageLabel.IsValidLabel(label);
             }
-
-            #endregion
         }
     }
 

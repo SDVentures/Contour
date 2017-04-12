@@ -20,8 +20,6 @@
         /// </summary>
         public class Boo
         {
-            #region Public Properties
-
             /// <summary>
             /// Gets or sets the num.
             /// </summary>
@@ -31,8 +29,6 @@
             /// Gets or sets the str.
             /// </summary>
             public string Str { get; set; }
-
-            #endregion
         }
 
         /// <summary>
@@ -40,8 +36,6 @@
         /// </summary>
         public class LoggingFilter : IMessageExchangeFilter
         {
-            #region Fields
-
             /// <summary>
             /// The _log.
             /// </summary>
@@ -56,11 +50,6 @@
             /// The _stop.
             /// </summary>
             private readonly bool _stop;
-
-            #endregion
-
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="LoggingFilter"/>.
             /// </summary>
@@ -79,11 +68,6 @@
                 this._log = log;
                 this._stop = stop;
             }
-
-            #endregion
-
-            #region Public Methods and Operators
-
             /// <summary>
             /// The process.
             /// </summary>
@@ -113,8 +97,6 @@
                                 return t.Result;
                             });
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -124,8 +106,6 @@
         [Category("Unit")]
         public class when_filtering_out
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_skip_remaining_filters.
             /// </summary>
@@ -143,8 +123,6 @@
                 log.Should().
                     BeEquivalentTo(new object[] { "C: before", "B: before", "C: after" });
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -154,8 +132,6 @@
         [Category("Unit")]
         public class when_invoking_filter_list
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_invoke_starting_with_recent.
             /// </summary>
@@ -173,8 +149,6 @@
                 log.Should().
                     BeEquivalentTo(new object[] { "C: before", "B: before", "A: before", "A: after", "B: after", "C: after" });
             }
-
-            #endregion
         }
     }
 

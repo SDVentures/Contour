@@ -16,7 +16,7 @@ namespace Contour.Sending
     /// </summary>
     internal abstract class AbstractSender : ISender
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger<AbstractSender>();
 
         /// <summary>
         /// Фильтры обработки сообщений.
@@ -36,7 +36,7 @@ namespace Contour.Sending
         // TODO: refactor, don't copy filters
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractSender"/> class. 
+        /// Initializes a new instance of the <see cref="AbstractSender"/> class.
         /// </summary>
         /// <param name="endpoint">
         /// Sender's endpoint
@@ -86,8 +86,8 @@ namespace Contour.Sending
         public abstract void Dispose();
 
         /// <summary>
-        /// Sends message using request-reply pattern. 
-        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply, 
+        /// Sends message using request-reply pattern.
+        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply,
         /// new one is generated if none is supplied.
         /// </summary>
         /// <param name="payload">Message payload.</param>
@@ -112,7 +112,7 @@ namespace Contour.Sending
 
         /// <summary>
         /// Sends message using request-reply pattern.
-        /// Copies all allowed message headers and generates new <see cref="Headers.CorrelationId"/> header. 
+        /// Copies all allowed message headers and generates new <see cref="Headers.CorrelationId"/> header.
         /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
         /// </summary>
         /// <param name="payload">Message payload.</param>
@@ -130,34 +130,8 @@ namespace Contour.Sending
         }
 
         /// <summary>
-        /// Отправляет одностороннее сообщение.
-        /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="headers">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
-        public Task Send(object payload, IDictionary<string, object> headers)
-        {
-            var message = new Message(this.Configuration.Label, headers, payload);
-
-            return this.ProcessFilter(message);
-        }
-
-        /// <summary>
-        /// Отправляет одностороннее сообщение.
-        /// </summary>
-        /// <param name="payload">Тело сообщения.</param>
-        /// <param name="options">Заголовки сообщения.</param>
-        /// <returns>Задача выполнения отправки сообщения.</returns>
-        [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
-        public Task Send(object payload, PublishingOptions options)
-        {
-            return this.Send(payload, this.ApplyOptions(options));
-        }
-
-        /// <summary>
         /// Sends message using request-reply pattern.
-        /// Copies all allowed message headers. And generates new <see cref="Headers.CorrelationId"/> header. 
+        /// Copies all allowed message headers. And generates new <see cref="Headers.CorrelationId"/> header.
         /// <seealso ref="https://github.com/SDVentures/Contour#contour-message-headers"/>.
         /// </summary>
         /// <param name="label">Message label.</param>
@@ -169,13 +143,13 @@ namespace Contour.Sending
         {
             var headers = this.ApplyOptions(options);
             headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
-            
+
             return this.Request<T>(label, payload, headers);
         }
 
         /// <summary>
-        /// Sends message using request-reply pattern. 
-        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply, 
+        /// Sends message using request-reply pattern.
+        /// <see cref="Headers.CorrelationId"/> header from <see cref="headers"/> parameter is used to correlate the request with the reply,
         /// new one is generated if none is supplied.
         /// </summary>
         /// <param name="label">Message label.</param>

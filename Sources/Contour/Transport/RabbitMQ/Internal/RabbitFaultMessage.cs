@@ -11,17 +11,10 @@
     /// </summary>
     internal class RabbitFaultMessage : FaultMessage
     {
-        #region Static Fields
-
         /// <summary>
         /// The text based content types.
         /// </summary>
         private static readonly ISet<string> TextBasedContentTypes = new HashSet<string> { "text/plain", "text/html", "text/xml", "application/json", "application/xml" };
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitFaultMessage"/>.
         /// </summary>
@@ -47,16 +40,9 @@
             : this(delivery, null)
         {
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the route.
         /// </summary>
         public RabbitRoute Route { get; private set; }
-
-        #endregion
     }
 }

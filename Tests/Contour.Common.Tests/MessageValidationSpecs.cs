@@ -1,19 +1,17 @@
-﻿namespace Contour.Common.Tests
+﻿using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+
+using FluentAssertions;
+
+using Contour.Validation;
+
+using Moq;
+
+using NUnit.Framework;
+
+namespace Contour.Common.Tests
 {
-    using System.Dynamic;
-    using System.Linq;
-
-    using FluentAssertions;
-
-    using FluentValidation;
-
-    using Contour.Validation;
-    using Contour.Validation.Fluent;
-
-    using Moq;
-
-    using NUnit.Framework;
-
     /// <summary>
     /// The message validation specs.
     /// </summary>
@@ -25,8 +23,6 @@
         /// </summary>
         public class Boo
         {
-            #region Public Properties
-
             /// <summary>
             /// Gets or sets the num.
             /// </summary>
@@ -36,69 +32,71 @@
             /// Gets or sets the str.
             /// </summary>
             public string Str { get; set; }
-
-            #endregion
         }
 
         /// <summary>
         /// The boo validator.
         /// </summary>
-        public class BooValidator : FluentPayloadValidatorOf<Boo>
+        public class BooValidator : IMessageValidatorOf<Boo>
         {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
-            /// </summary>
-            public BooValidator()
+            public ValidationResult Validate(Message<Boo> message)
             {
-                this.RuleFor(x => x.Num).
-                    GreaterThan(10);
-                this.RuleFor(x => x.Str).
-                    NotEmpty();
+                return this.ValidatePayload(message.Payload);
             }
 
-            #endregion
+            public ValidationResult Validate(IMessage message)
+            {
+                return this.ValidatePayload((Boo)message.Payload);
+            }
+
+            private ValidationResult ValidatePayload(Boo payload)
+            {
+                var brokenRules = new List<BrokenRule>();
+
+                if (payload.Num <= 10)
+                {
+                    brokenRules.Add(new BrokenRule("Num is wrong."));
+                }
+
+                if (payload.Str == string.Empty)
+                {
+                    brokenRules.Add(new BrokenRule("Str is wrong."));
+                }
+
+                return new ValidationResult(brokenRules);
+            }
         }
 
         /// <summary>
         /// The dynamic validator.
         /// </summary>
-        public class DynamicValidator : FluentPayloadValidatorOf<dynamic>
+        public class DynamicValidator : AbstractMessageValidatorOf<dynamic>
         {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="DynamicValidator"/>.
-            /// </summary>
-            public DynamicValidator()
+            public override ValidationResult Validate(Message<dynamic> message)
             {
-                this.RuleFor(x => x).
-                    Must(x => x.Num > 10).
-                    WithName("Num");
-            }
+                if (message.Payload.Num > 10)
+                {
+                    return ValidationResult.Valid;
+                }
 
-            #endregion
+                return new ValidationResult(new BrokenRule("Num is wrong."));
+            }
         }
 
         /// <summary>
         /// The expando validator.
         /// </summary>
-        public class ExpandoValidator : FluentPayloadValidatorOf<ExpandoObject>
+        public class ExpandoValidator : AbstractMessageValidatorOf<ExpandoObject>
         {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="ExpandoValidator"/>.
-            /// </summary>
-            public ExpandoValidator()
+            public override ValidationResult Validate(Message<ExpandoObject> message)
             {
-                this.RuleFor(x => (dynamic)x).
-                    Must(x => x.Num > 10).
-                    WithName("Num");
-            }
+                if (((dynamic)message.Payload).Num > 10)
+                {
+                    return ValidationResult.Valid;
+                }
 
-            #endregion
+                return new ValidationResult(new BrokenRule("Num is wrong."));
+            }
         }
 
         /// <summary>
@@ -108,8 +106,6 @@
         [Category("Unit")]
         public class when_registering_validator_in_registry
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_use_registered_validator.
             /// </summary>
@@ -125,8 +121,6 @@
                 registry.Invoking(r => r.Validate(new Message<Boo>("label".ToMessageLabel(), payload))).
                     ShouldThrow<MessageValidationException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -136,8 +130,6 @@
         [Category("Unit")]
         public class when_registering_validator_in_registry_if_validator_already_present
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_replace_validator.
             /// </summary>
@@ -161,8 +153,6 @@
 
                 stubValidator.Verify(v => v.Validate(It.IsAny<IMessage>()), Times.Once);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -172,8 +162,6 @@
         [Category("Unit")]
         public class when_throwing_on_invalid_result
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_throw.
             /// </summary>
@@ -185,8 +173,6 @@
                 validationResult.Invoking(r => r.ThrowIfBroken()).
                     ShouldThrow<MessageValidationException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -196,8 +182,6 @@
         [Category("Unit")]
         public class when_throwing_on_valid_result
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_throw.
             /// </summary>
@@ -208,8 +192,6 @@
                 validationResult.Invoking(r => r.ThrowIfBroken()).
                     ShouldNotThrow();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -219,8 +201,6 @@
         [Category("Unit")]
         public class when_validating_message_of_concrete_class_with_invalid_data
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -241,8 +221,6 @@
                     Description.Should().
                     Contain("Str");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -252,8 +230,6 @@
         [Category("Unit")]
         public class when_validating_message_of_concrete_class_with_valid_data
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -269,8 +245,6 @@
                 result.IsValid.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -280,8 +254,6 @@
         [Category("Unit")]
         public class when_validating_message_using_dynamic_validator
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -303,8 +275,6 @@
                 result.IsValid.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -314,8 +284,6 @@
         [Category("Unit")]
         public class when_validating_message_using_expando_validator
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate.
             /// </summary>
@@ -340,8 +308,6 @@
                 result.IsValid.Should().
                     BeTrue();
             }
-
-            #endregion
         }
     }
 

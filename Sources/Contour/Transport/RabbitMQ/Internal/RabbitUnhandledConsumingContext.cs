@@ -7,8 +7,6 @@
     /// </summary>
     internal class RabbitUnhandledConsumingContext : FaultedConsumingContext, IUnhandledConsumingContext
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitUnhandledConsumingContext"/>.
         /// </summary>
@@ -19,11 +17,6 @@
             : base(delivery)
         {
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The build fault message.
         /// </summary>
@@ -34,7 +27,5 @@
         {
             return new RabbitFaultMessage((RabbitDelivery)this.Delivery);
         }
-
-        #endregion
     }
 }

@@ -124,7 +124,7 @@ namespace Contour.Configurator
         {
             if (cfg == null)
             {
-                throw new ArgumentNullException("cfg", "Файл конфигурации не может быть null");
+                throw new ArgumentNullException("cfg", "Configuration must not be null");
             }
 
             EndpointElement endpointConfig = this.GetEndPointByName(endpointName);
@@ -529,7 +529,7 @@ namespace Contour.Configurator
 
             if (endpoint == null)
             {
-                throw new ArgumentException(string.Format("Попытка найти конфигурацию для endpoint {0} закончилось провалом, пожалуйста укажите необходимую информацию в конфигурации {1}", endpointName, ServiceBusSectionName));
+                throw new ArgumentException($"Could not find a configuration for the endpoint {endpointName}, please set a configuration into {ServiceBusSectionName}");
             }
 
             return endpoint;

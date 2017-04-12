@@ -7,8 +7,6 @@
     /// </summary>
     public interface IDependencyResolver
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// Возвращает компонент по имени и типу.
         /// </summary>
@@ -22,7 +20,5 @@
         /// Найденный объект, либо null.
         /// </returns>
         object Resolve(string name, Type type);
-
-        #endregion
     }
 }
