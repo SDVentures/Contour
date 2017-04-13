@@ -1,7 +1,7 @@
-﻿namespace Contour.Configuration
-{
-    using System;
+﻿using System;
 
+namespace Contour.Configuration
+{
     /// <summary>
     ///   Компонент клиента шины сообщений, существующий в течение срока жизни самого клиента.
     /// </summary>

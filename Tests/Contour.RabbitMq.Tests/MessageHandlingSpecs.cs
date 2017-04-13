@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 
 using Contour.Receiving;
-using Contour.Transport.RabbitMQ;
-using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMq;
+using Contour.Transport.RabbitMq.Topology;
 
 using NUnit.Framework;
 

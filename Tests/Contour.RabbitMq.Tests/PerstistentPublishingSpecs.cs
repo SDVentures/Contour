@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading;
 
 using FluentAssertions;
 
 using Contour.Receiving;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMq.Topology;
 
 using NUnit.Framework;
 

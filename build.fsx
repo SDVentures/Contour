@@ -51,6 +51,8 @@ Target "AssemblyInfo" (fun _ ->
           Attribute.InformationalVersion release.NugetVersion
           Attribute.Copyright license ]
     CreateCSharpAssemblyInfo <| "./Sources/" @@ project @@ "/Properties/AssemblyInfo.cs" <| info
+    CreateCSharpAssemblyInfo <| "./Sources/" @@ "Contour.Configuration" @@ "/Properties/AssemblyInfo.cs" <| info
+    CreateCSharpAssemblyInfo <| "./Sources/" @@ "Contour.Transport.RabbitMq" @@ "/Properties/AssemblyInfo.cs" <| info
 )
 
 Target "Build" (fun () ->
@@ -101,7 +103,11 @@ Target "Deploy" (fun () ->
                   "Newtonsoft.Json", GetPackageVersion "packages" "Newtonsoft.Json" ]
             Files =
                 [ (@"..\" + buildDir + "Contour.dll", Some "lib/net461", None);
-                  (@"..\" + buildDir + "Contour.pdb", Some "lib/net461", None) ]})
+                  (@"..\" + buildDir + "Contour.pdb", Some "lib/net461", None);
+                  (@"..\" + buildDir + "Contour.Configuration.dll", Some "lib/net461", None);
+                  (@"..\" + buildDir + "Contour.Configuration.pdb", Some "lib/net461", None);
+                  (@"..\" + buildDir + "Contour.Transport.RabbitMq.dll", Some "lib/net461", None);
+                  (@"..\" + buildDir + "Contour.Transport.RabbitMq.pdb", Some "lib/net461", None) ]})
         <| (nugetDir + project + ".nuspec")
 )
 
