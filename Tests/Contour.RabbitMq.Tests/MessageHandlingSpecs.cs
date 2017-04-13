@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 
 using Contour.Receiving;
-using Contour.Transport.RabbitMQ;
-using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMq;
+using Contour.Transport.RabbitMq.Topology;
 
 using NUnit.Framework;
 
@@ -28,8 +28,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_handling_request_message : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_return_response.
             /// </summary>
@@ -74,8 +72,6 @@ namespace Contour.RabbitMq.Tests
                 ((RabbitRoute)message.Headers[Headers.ReplyRoute]).Exchange.Should().Be("dummy.response");
                 message.Headers[Headers.CorrelationId].Should().NotBeNull();
             }
-
-            #endregion
         }
 
     }

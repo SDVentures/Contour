@@ -2,18 +2,18 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Contour.Configuration;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMQ.Internal;
-using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMq;
+using Contour.Transport.RabbitMq.Internal;
+using Contour.Transport.RabbitMq.Topology;
 using FluentAssertions;
 using NUnit.Framework;
 using RabbitMQ.Client.Exceptions;
 
 namespace Contour.RabbitMq.Tests
 {
-    using Moq;
-    using Transport.RabbitMQ;
-
     // ReSharper disable InconsistentNaming
     
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here."), SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Reviewed. Suppression is OK here."),]
@@ -29,7 +29,7 @@ namespace Contour.RabbitMq.Tests
                 var bus = this.ConfigureBus("Test", cfg => { });
                 var tcs = new TaskCompletionSource<bool>(true);
                 
-                var connection = new RabbitConnection(new Endpoint("test"), bus.Configuration.ConnectionString, bus);
+                var connection = new RabbitConnection(new Endpoint("test"), this.ConnectionString, bus);
                 connection.Closed += (sender, args) => tcs.SetResult(false);
 
                 var tokenSource = new CancellationTokenSource();

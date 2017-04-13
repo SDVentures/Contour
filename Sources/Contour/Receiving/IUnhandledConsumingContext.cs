@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IUnhandledConsumingContext.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The UnhandledConsumingContext interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// The UnhandledConsumingContext interface.

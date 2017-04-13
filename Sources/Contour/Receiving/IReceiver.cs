@@ -1,15 +1,7 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IReceiver.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The Receiver interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
+﻿using Contour.Configuration;
 
 namespace Contour.Receiving
 {
-    using Contour.Configuration;
     using Contour.Receiving.Consumers;
 
     /// <summary>
@@ -17,8 +9,6 @@ namespace Contour.Receiving
     /// </summary>
     public interface IReceiver : IBusComponent
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The register consumer.
         /// </summary>
@@ -31,7 +21,5 @@ namespace Contour.Receiving
         /// <typeparam name="T">
         /// </typeparam>
         void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer) where T : class;
-
-        #endregion
     }
 }

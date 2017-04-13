@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IPayloadConverter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   Конвертер сообщений.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Serialization
+﻿namespace Contour.Serialization
 {
     using System;
 
@@ -16,17 +7,10 @@ namespace Contour.Serialization
     /// </summary>
     public interface IPayloadConverter
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the content type.
         /// </summary>
         string ContentType { get; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The from object.
         /// </summary>
@@ -51,7 +35,5 @@ namespace Contour.Serialization
         /// The <see cref="object"/>.
         /// </returns>
         object ToObject(byte[] payload, Type targetType);
-
-        #endregion
     }
 }

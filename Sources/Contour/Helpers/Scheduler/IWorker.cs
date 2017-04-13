@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IWorker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The Worker interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers.Scheduler
+﻿namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;
@@ -17,8 +8,6 @@ namespace Contour.Helpers.Scheduler
     /// </summary>
     internal interface IWorker : IDisposable
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the cancellation token.
         /// </summary>
@@ -28,11 +17,6 @@ namespace Contour.Helpers.Scheduler
         /// Gets the completion handle.
         /// </summary>
         WaitHandle CompletionHandle { get; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The start.
         /// </summary>
@@ -40,7 +24,5 @@ namespace Contour.Helpers.Scheduler
         /// The work action.
         /// </param>
         void Start(Action<CancellationToken> workAction);
-
-        #endregion
     }
 }

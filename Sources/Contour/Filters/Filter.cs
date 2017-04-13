@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Filter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The filter.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Filters
+﻿namespace Contour.Filters
 {
     using System.Threading.Tasks;
 
@@ -16,8 +7,6 @@ namespace Contour.Filters
     /// </summary>
     public static class Filter
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The result.
         /// </summary>
@@ -33,7 +22,5 @@ namespace Contour.Filters
             completionSource.SetResult(exchange);
             return completionSource.Task;
         }
-
-        #endregion
     }
 }

@@ -7,8 +7,6 @@
     /// </summary>
     public class BusNotReadyException : Exception
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="BusNotReadyException"/>.
         /// </summary>
@@ -40,7 +38,5 @@
             : base(message, innerException)
         {
         }
-
-        #endregion
     }
 }

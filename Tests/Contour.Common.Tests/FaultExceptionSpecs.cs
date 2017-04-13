@@ -24,11 +24,11 @@ namespace Contour.Common.Tests
             [Test]
             public void IfExceptionWithoutInnerExceptionsShouldBeWithoutInnerExceptions()
             {
-                var convertedException = new ArgumentException("Неверно задан параметр.");
+                var convertedException = new ArgumentException("Invalid argument");
 
                 var sut = new FaultException(convertedException);
 
-                CollectionAssert.IsEmpty(sut.InnerExceptions, "Список исключений дожен быть пустым.");
+                CollectionAssert.IsEmpty(sut.InnerExceptions, "Exception list must be empty.");
             }
 
             /// <summary>

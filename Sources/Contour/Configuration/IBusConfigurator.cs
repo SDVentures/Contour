@@ -1,13 +1,13 @@
-﻿namespace Contour.Configuration
+﻿using System;
+
+using Contour.Filters;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Serialization;
+using Contour.Validation;
+
+namespace Contour.Configuration
 {
-    using System;
-
-    using Contour.Filters;
-    using Contour.Receiving;
-    using Contour.Sending;
-    using Contour.Serialization;
-    using Contour.Validation;
-
     /// <summary>
     ///   Интерфейс для конфигурирования экземпляра шины событий
     /// </summary>

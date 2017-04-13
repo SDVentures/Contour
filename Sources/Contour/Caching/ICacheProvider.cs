@@ -9,8 +9,6 @@
     /// </summary>
     public interface ICacheProvider
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The find.
         /// </summary>
@@ -76,7 +74,5 @@
         /// The key.
         /// </param>
         void Remove(string key);
-
-        #endregion
     }
 }

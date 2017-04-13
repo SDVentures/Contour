@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DateTimeEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The date time ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Helpers
+﻿namespace Contour.Helpers
 {
     using System;
 
@@ -16,8 +7,6 @@ namespace Contour.Helpers
     /// </summary>
     internal static class DateTimeEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The from unix timestamp.
         /// </summary>
@@ -47,7 +36,5 @@ namespace Contour.Helpers
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return (long)(dateTime.ToUniversalTime() - epoch).TotalSeconds;
         }
-
-        #endregion
     }
 }

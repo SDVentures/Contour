@@ -1,15 +1,19 @@
-﻿namespace Contour
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Common.Logging;
+
+using Contour.Configuration;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Serialization;
+
+namespace Contour
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Common.Logging;
-    using Configuration;
-    using Receiving;
-    using Sending;
-    using Serialization;
+
 
     /// <summary>
     /// Шина сообщений, которая не знает о транспортном уровне.
@@ -29,7 +33,7 @@
         /// <summary>
         /// Журнал шины сообщений.
         /// </summary>
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog logger = LogManager.GetLogger<AbstractBus>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractBus"/> class.
@@ -47,18 +51,6 @@
                 this.Stopped += this.configuration.LifecycleHandler.OnStopped;
             }
         }
-
-        /// <summary>
-        /// Событие установки соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        public event Action<IBus, EventArgs> Connected = (bus, args) => { };
-
-        /// <summary>
-        /// Событие разрыва соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        public event Action<IBus, EventArgs> Disconnected = (bus, args) => { };
 
         /// <summary>
         /// Событие запуска шины сообщений.
@@ -391,7 +383,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
+            this.Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
         }
 
         /// <summary>
@@ -419,7 +411,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            Request(label.ToMessageLabel(), request, options, responseAction);
+            this.Request(label.ToMessageLabel(), request, options, responseAction);
         }
 
         /// <summary>
@@ -433,7 +425,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(MessageLabel label, TRequest request, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            Request(label, request, (RequestOptions)null, responseAction);
+            this.Request(label, request, (RequestOptions)null, responseAction);
         }
 
         /// <summary>
@@ -447,7 +439,7 @@
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, Action<TResponse> responseAction) where TResponse : class where TRequest : class
         {
-            Request(label.ToMessageLabel(), request, responseAction);
+            this.Request(label.ToMessageLabel(), request, responseAction);
         }
 
         /// <summary>
@@ -531,7 +523,7 @@
         /// </summary>
         /// <param name="label">Метка отправляемого сообщения.</param>
         /// <returns>Отправитель сообщения с указанной меткой.</returns>
-        /// <exception cref="BusConfigurationException">Генерируется исключение, если нет отправителя для указанной метки.</exception>
+        /// <exception cref=BusConfigurationExceptionn">Генерируется исключение, если нет отправителя для указанной метки.</exception>
         protected ISender GetSenderFor(MessageLabel label)
         {
             ISender sender = this.Senders.FirstOrDefault(s => s.CanRoute(label)) ?? this.Senders.FirstOrDefault(s => s.CanRoute(MessageLabel.Any));
@@ -592,24 +584,6 @@
 
             return this.GetSenderFor(label)
                     .Send(label, payload, options ?? new PublishingOptions());
-        }
-
-        /// <summary>
-        /// Генерирует событие об установке соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        protected virtual void OnConnected()
-        {
-            this.Connected(this, null);
-        }
-
-        /// <summary>
-        /// Генерирует событие о разрыве соединения.
-        /// </summary>
-        [Obsolete("Bus is no longer responsible for connection handling")]
-        protected virtual void OnDisconnected()
-        {
-            this.Disconnected(this, null);
         }
 
         /// <summary>

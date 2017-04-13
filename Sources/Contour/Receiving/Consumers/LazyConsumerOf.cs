@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LazyConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The lazy consumer of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving.Consumers
+﻿namespace Contour.Receiving.Consumers
 {
     using System;
 
@@ -19,17 +10,10 @@ namespace Contour.Receiving.Consumers
     public class LazyConsumerOf<T> : IConsumerOf<T>
         where T : class
     {
-        #region Fields
-
         /// <summary>
         /// The _handler.
         /// </summary>
         private readonly Lazy<IConsumerOf<T>> _handler;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LazyConsumerOf{T}"/>.
         /// </summary>
@@ -51,11 +35,6 @@ namespace Contour.Receiving.Consumers
         {
             this._handler = new Lazy<IConsumerOf<T>>(handlerResolver, true);
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -66,7 +45,5 @@ namespace Contour.Receiving.Consumers
         {
             this._handler.Value.Handle(context);
         }
-
-        #endregion
     }
 }
