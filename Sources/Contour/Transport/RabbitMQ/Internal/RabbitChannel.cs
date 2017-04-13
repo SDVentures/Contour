@@ -387,9 +387,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         public IMessage UnpackAs(Type type, RabbitDelivery delivery)
         {
             var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
-            MessageProperties properties = new MessageProperties { Timestamp = DateTimeEx.FromUnixTimestamp(delivery.Properties.Timestamp.UnixTime) };
 
-            return new Message(delivery.Label, delivery.Headers, payload, properties);
+            return new Message(delivery.Label, delivery.Headers, payload);
         }
 
         private void OnModelShutdown(IModel model, ShutdownEventArgs args)
