@@ -59,8 +59,6 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.headers = new Lazy<IDictionary<string, object>>(
                 () => this.ExtractHeadersFrom(args));
-
-            this.Properties = this.GetProperties(args);
         }
 
         /// <summary>
@@ -154,8 +152,6 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return this.ReplyRoute != null && !string.IsNullOrWhiteSpace(this.CorrelationId);
             }
         }
-
-        public RabbitMessageProperties Properties { get; private set; }
 
         /// <summary>
         /// Канал доставки сообщения.
@@ -317,11 +313,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             return h;
-        }
-
-        private RabbitMessageProperties GetProperties(BasicDeliverEventArgs args)
-        {
-            return new RabbitMessageProperties { Timestamp = args.BasicProperties.Timestamp };
         }
     }
 }
