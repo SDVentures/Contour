@@ -3,7 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
-using Contour.Configurator;
+using Contour.Configuration;
+using Contour.Configuration.Configurator;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;

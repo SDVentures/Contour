@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Contour.Transport.RabbitMQ.Internal;
+using Contour.Transport.RabbitMq.Internal;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;

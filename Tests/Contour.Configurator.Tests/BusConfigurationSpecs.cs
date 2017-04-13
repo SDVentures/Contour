@@ -2,17 +2,19 @@
 using Contour.Configuration;
 using Contour.Helpers;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMQ;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Threading;
 
+using Contour.Configuration.Configurator;
+
 using FluentAssertions;
 
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
+using Contour.Transport.RabbitMq;
 using Contour.Validation;
 
 using Moq;

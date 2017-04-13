@@ -60,6 +60,14 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sources\Contour.Configuration\Contour.Configuration.csproj">
+      <Project>{58943a4e-b4a1-4e2c-95f3-b24f784c5451}</Project>
+      <Name>Contour.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sources\Contour.Transport.RabbitMq\Contour.Transport.RabbitMq.csproj">
+      <Project>{52a89eb0-ef1c-4ab6-a159-eac39794fc2c}</Project>
+      <Name>Contour.Transport.RabbitMq</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sources\Contour\Contour.csproj">
       <Project>{bb96b5c3-5679-471e-a7b4-50c31d34ad05}</Project>
       <Name>Contour</Name>

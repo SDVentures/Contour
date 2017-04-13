@@ -1,9 +1,9 @@
-﻿namespace Contour.Configuration
+﻿using System;
+
+using Contour.Helpers;
+
+namespace Contour.Configuration
 {
-    using System;
-
-    using Contour.Helpers;
-
     /// <summary>
     /// The bus options.
     /// </summary>

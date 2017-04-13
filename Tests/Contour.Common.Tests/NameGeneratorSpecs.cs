@@ -1,4 +1,4 @@
-﻿using Contour.Transport.RabbitMQ.Topology;
+﻿using Contour.Topology;
 
 using NUnit.Framework;
 

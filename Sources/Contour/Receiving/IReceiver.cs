@@ -1,6 +1,7 @@
-﻿namespace Contour.Receiving
+﻿using Contour.Configuration;
+
+namespace Contour.Receiving
 {
-    using Contour.Configuration;
     using Contour.Receiving.Consumers;
 
     /// <summary>

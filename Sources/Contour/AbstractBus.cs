@@ -1,15 +1,19 @@
-﻿namespace Contour
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Common.Logging;
+
+using Contour.Configuration;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Serialization;
+
+namespace Contour
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Common.Logging;
-    using Configuration;
-    using Receiving;
-    using Sending;
-    using Serialization;
+
 
     /// <summary>
     /// Шина сообщений, которая не знает о транспортном уровне.
@@ -519,7 +523,7 @@
         /// </summary>
         /// <param name="label">Метка отправляемого сообщения.</param>
         /// <returns>Отправитель сообщения с указанной меткой.</returns>
-        /// <exception cref="BusConfigurationException">Генерируется исключение, если нет отправителя для указанной метки.</exception>
+        /// <exception cref=BusConfigurationExceptionn">Генерируется исключение, если нет отправителя для указанной метки.</exception>
         protected ISender GetSenderFor(MessageLabel label)
         {
             ISender sender = this.Senders.FirstOrDefault(s => s.CanRoute(label)) ?? this.Senders.FirstOrDefault(s => s.CanRoute(MessageLabel.Any));

@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{52A89EB0-EF1C-4AB6-A159-EAC39794FC2C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Contour.Transport.RabbitMq</RootNamespace>
+    <AssemblyName>Contour.Transport.RabbitMq</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BusConsumerConfigurationEx.cs" />
+    <Compile Include="FailoverException.cs" />
+    <Compile Include="Internal\CancellableQueueingConsumer.cs" />
+    <Compile Include="Internal\DefaultProducerSelectorBuilder.cs" />
+    <Compile Include="Internal\DefaultRabbitMessageLabelHandler.cs" />
+    <Compile Include="Internal\DummyPublishConfirmationTracker.cs" />
+    <Compile Include="Internal\FaultTolerantProducer.cs" />
+    <Compile Include="Internal\IListener.cs" />
+    <Compile Include="Internal\IProducer.cs" />
+    <Compile Include="Internal\IProducerSelector.cs" />
+    <Compile Include="Internal\IProducerSelectorBuilder.cs" />
+    <Compile Include="Internal\IPublishConfirmationTracker.cs" />
+    <Compile Include="Internal\IRabbitConnection.cs" />
+    <Compile Include="Internal\Listener.cs" />
+    <Compile Include="Internal\ListenerConfiguration.cs" />
+    <Compile Include="Internal\ListenerRegisteredEventArgs.cs" />
+    <Compile Include="Internal\ListenerStoppedEventArgs.cs" />
+    <Compile Include="Internal\OperationStopReason.cs" />
+    <Compile Include="Internal\Producer.cs" />
+    <Compile Include="Internal\ProducerStoppedEventArgs.cs" />
+    <Compile Include="Internal\PublishConfirmationTracker.cs" />
+    <Compile Include="Internal\RabbitBus.cs" />
+    <Compile Include="Internal\RabbitBusDefaults.cs" />
+    <Compile Include="Internal\RabbitChannel.cs" />
+    <Compile Include="Internal\RabbitClient.cs" />
+    <Compile Include="Internal\RabbitConnection.cs" />
+    <Compile Include="Internal\RabbitConnectionPool.cs" />
+    <Compile Include="Internal\RabbitConnectionProvider.cs" />
+    <Compile Include="Internal\RabbitDelivery.cs" />
+    <Compile Include="Internal\RabbitFailedConsumingContext.cs" />
+    <Compile Include="Internal\RabbitFaultMessage.cs" />
+    <Compile Include="Internal\RabbitReceiver.cs" />
+    <Compile Include="Internal\RabbitSender.cs" />
+    <Compile Include="Internal\RabbitUnhandledConsumingContext.cs" />
+    <Compile Include="Internal\RoundRobinSelector.cs" />
+    <Compile Include="Properties\CustomAssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QoSParams.cs" />
+    <Compile Include="RabbitConnectionString.cs" />
+    <Compile Include="RabbitException.cs" />
+    <Compile Include="RabbitProperties.cs" />
+    <Compile Include="RabbitReceiverOptions.cs" />
+    <Compile Include="RabbitRoute.cs" />
+    <Compile Include="RabbitSenderOptions.cs" />
+    <Compile Include="StaticRouter.cs" />
+    <Compile Include="SubscriptionEndpointBuilderEx.cs" />
+    <Compile Include="Topology\Exchange.cs" />
+    <Compile Include="Topology\ExchangeBuilder.cs" />
+    <Compile Include="Topology\Queue.cs" />
+    <Compile Include="Topology\QueueBuilder.cs" />
+    <Compile Include="Topology\TopologyBuilder.cs" />
+    <Compile Include="Topology\TopologyBuilderEx.cs" />
+    <Compile Include="UnconfirmedMessageException.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contour\Contour.csproj">
+      <Project>{bb96b5c3-5679-471e-a7b4-50c31d34ad05}</Project>
+      <Name>Contour</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
+      <ItemGroup>
+        <Reference Include="Common.Logging">
+          <HintPath>..\..\packages\Common.Logging\lib\net40\Common.Logging.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
+      <ItemGroup>
+        <Reference Include="Common.Logging.Core">
+          <HintPath>..\..\packages\Common.Logging.Core\lib\net40\Common.Logging.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
+      <ItemGroup>
+        <Reference Include="RabbitMQ.Client">
+          <HintPath>..\..\packages\RabbitMQ.Client\lib\net30\RabbitMQ.Client.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+</Project>
