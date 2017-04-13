@@ -7,8 +7,6 @@
     /// </summary>
     public interface IRequestConfiguration
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets a value indicating whether persistently.
         /// </summary>
@@ -23,7 +21,5 @@
         /// Gets the ttl.
         /// </summary>
         TimeSpan? Ttl { get; }
-
-        #endregion
     }
 }

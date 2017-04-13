@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="StaticRouter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The static route resolver.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     using Contour.Sending;
     using Contour.Transport.RabbitMQ.Topology;
@@ -17,17 +8,10 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public class StaticRouteResolver : IRouteResolver
     {
-        #region Fields
-
         /// <summary>
         /// The _route.
         /// </summary>
         private readonly IRoute _route;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="StaticRouteResolver"/>.
         /// </summary>
@@ -66,11 +50,6 @@ namespace Contour.Transport.RabbitMQ
             : this(exchange.Name, routingKey)
         {
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The resolve.
         /// </summary>
@@ -87,7 +66,5 @@ namespace Contour.Transport.RabbitMQ
         {
             return this._route;
         }
-
-        #endregion
     }
 }

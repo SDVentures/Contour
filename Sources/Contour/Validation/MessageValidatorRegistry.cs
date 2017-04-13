@@ -11,17 +11,10 @@
     /// </summary>
     internal class MessageValidatorRegistry
     {
-        #region Fields
-
         /// <summary>
         /// The _validators.
         /// </summary>
         private readonly IDictionary<Type, IMessageValidator> _validators = new Dictionary<Type, IMessageValidator>();
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The register.
         /// </summary>
@@ -85,7 +78,5 @@
             validator.Validate(message).
                 ThrowIfBroken();
         }
-
-        #endregion
     }
 }

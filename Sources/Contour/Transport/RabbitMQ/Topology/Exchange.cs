@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Exchange.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The exchange.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ.Topology
+﻿namespace Contour.Transport.RabbitMQ.Topology
 {
     using Contour.Sending;
     using Contour.Topology;
@@ -19,8 +10,6 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public class Exchange : ITopologyEntity, IRouteResolver
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Exchange"/>.
         /// </summary>
@@ -34,11 +23,6 @@ namespace Contour.Transport.RabbitMQ.Topology
             this.Durable = false;
             this.AutoDelete = false;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets a value indicating whether auto delete.
         /// </summary>
@@ -58,11 +42,6 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// Gets the type.
         /// </summary>
         public string Type { get; internal set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The named.
         /// </summary>
@@ -93,7 +72,5 @@ namespace Contour.Transport.RabbitMQ.Topology
         {
             return new RabbitRoute(this.Name);
         }
-
-        #endregion
     }
 }

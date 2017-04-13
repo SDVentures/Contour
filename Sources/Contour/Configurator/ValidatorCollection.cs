@@ -8,8 +8,6 @@
     [ConfigurationCollection(typeof(ValidatorElement), AddItemName = "add")]
     public class ValidatorCollection : ConfigurationElementCollection
     {
-        #region Methods
-
         /// <summary>
         /// The create new element.
         /// </summary>
@@ -34,7 +32,5 @@
         {
             return ((ValidatorElement)element).Name;
         }
-
-        #endregion
     }
 }

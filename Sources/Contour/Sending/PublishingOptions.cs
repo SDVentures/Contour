@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PublishingOptions.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The publishing options.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Sending
+﻿namespace Contour.Sending
 {
     using System;
 
@@ -18,8 +9,6 @@ namespace Contour.Sending
     /// </summary>
     public class PublishingOptions
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets or sets the persistently.
         /// </summary>
@@ -29,7 +18,5 @@ namespace Contour.Sending
         /// Gets or sets the ttl.
         /// </summary>
         public Maybe<TimeSpan?> Ttl { get; set; }
-
-        #endregion
     }
 }

@@ -23,8 +23,6 @@ namespace Contour.Common.Tests
         /// </summary>
         public class Boo
         {
-            #region Public Properties
-
             /// <summary>
             /// Gets or sets the num.
             /// </summary>
@@ -34,8 +32,6 @@ namespace Contour.Common.Tests
             /// Gets or sets the str.
             /// </summary>
             public string Str { get; set; }
-
-            #endregion
         }
 
         /// <summary>
@@ -45,8 +41,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_finding_non_existing_value_from_cache
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_throw.
             /// </summary>
@@ -61,8 +55,6 @@ namespace Contour.Common.Tests
                 value.HasValue.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -72,8 +64,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_getting_expired_value_from_cache
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_fail.
             /// </summary>
@@ -90,8 +80,6 @@ namespace Contour.Common.Tests
                     HasValue.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -101,8 +89,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_getting_expired_value_from_cache_using_absolute_expiration
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_fail.
             /// </summary>
@@ -119,8 +105,6 @@ namespace Contour.Common.Tests
                     HasValue.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -130,8 +114,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_getting_non_existing_value_from_cache
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_throw.
             /// </summary>
@@ -143,8 +125,6 @@ namespace Contour.Common.Tests
                 cacheProvider.Invoking(c => c.Get<Boo>("key")).
                     ShouldThrow<InvalidOperationException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -154,8 +134,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_getting_removed_value_from_cache
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_fail.
             /// </summary>
@@ -171,8 +149,6 @@ namespace Contour.Common.Tests
                     HasValue.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -182,8 +158,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_getting_value_from_cache_before_expiration_date
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_return_value.
             /// </summary>
@@ -198,8 +172,6 @@ namespace Contour.Common.Tests
                 value.Num.Should().
                     Be(13);
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -209,8 +181,6 @@ namespace Contour.Common.Tests
         [Category("Unit")]
         public class when_getting_value_from_cache_within_expiration_period
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_return_value.
             /// </summary>
@@ -225,8 +195,6 @@ namespace Contour.Common.Tests
                 value.Num.Should().
                     Be(13);
             }
-
-            #endregion
         }
 
         /// <summary>

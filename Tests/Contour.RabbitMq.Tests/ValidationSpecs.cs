@@ -6,10 +6,7 @@ using Contour.Testing.Transport.RabbitMq;
 
 using FluentAssertions;
 
-using FluentValidation;
-
 using Contour.Validation;
-using Contour.Validation.Fluent;
 
 using NUnit.Framework;
 
@@ -25,39 +22,53 @@ namespace Contour.RabbitMq.Tests
         /// <summary>
         /// The boo validator.
         /// </summary>
-        public class BooValidator : FluentPayloadValidatorOf<BooMessage>
+        public class BooValidator : IMessageValidatorOf<BooMessage>
         {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
-            /// </summary>
-            public BooValidator()
+            public ValidationResult Validate(Message<BooMessage> message)
             {
-                this.RuleFor(x => x.Num).
-                    GreaterThan(100);
+                return this.ValidatePayload(message.Payload);
             }
 
-            #endregion
+            public ValidationResult Validate(IMessage message)
+            {
+                return this.ValidatePayload((BooMessage)message.Payload);
+            }
+
+            private ValidationResult ValidatePayload(BooMessage payload)
+            {
+                if (payload.Num > 100)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Num is less then 100"));
+            }
         }
 
         /// <summary>
         /// The foo validator.
         /// </summary>
-        public class FooValidator : FluentPayloadValidatorOf<FooMessage>
+        public class FooValidator : IMessageValidatorOf<FooMessage>
         {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="FooValidator"/>.
-            /// </summary>
-            public FooValidator()
+            public ValidationResult Validate(Message<FooMessage> message)
             {
-                this.RuleFor(x => x.Num).
-                    LessThan(100);
+                return this.ValidatePayload(message.Payload);
             }
 
-            #endregion
+            public ValidationResult Validate(IMessage message)
+            {
+                return this.ValidatePayload((FooMessage)message.Payload);
+            }
+
+            private ValidationResult ValidatePayload(FooMessage payload)
+            {
+                if (payload.Num < 100)
+                {
+                    return ValidationResult.Valid;
+                }
+
+                return new ValidationResult(new BrokenRule("Num is less then 100"));
+            }
         }
 
         /// <summary>
@@ -67,8 +78,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_broken_message_with_composite_validator_set_on_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_validate_according_to_payload_type.
             /// </summary>
@@ -109,32 +118,20 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit("boo", new BooMessage(13));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
 
                 producer.Emit("foo", new FooMessage(130));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -144,8 +141,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_broken_message_with_validator_set_on_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_invoke_consumer.
             /// </summary>
@@ -177,19 +172,12 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit("boo", new BooMessage(13));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -199,8 +187,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_broken_message_with_validator_set_on_subscription : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_invoke_consumer.
             /// </summary>
@@ -228,19 +214,12 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit("boo", new BooMessage(13));
 
-                consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                consumed.WaitOne(3.Seconds()).Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -250,8 +229,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_receiving_reply_message_with_validator_set_on_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_invoke_response_action.
             /// </summary>
@@ -296,18 +273,12 @@ namespace Contour.RabbitMq.Tests
                             });
 
                 consumed.WaitOne(3.Seconds()).
-                    Should().
-                    BeFalse();
-                failed.WaitOne(3.Seconds()).
-                    Should().
-                    BeTrue();
+                    Should().BeFalse();
+                failed.WaitOne(3.Seconds()).Should().BeTrue();
                 exception.Should().
                     BeOfType<MessageValidationException>();
-                exception.Message.Should().
-                    Contain("Num");
+                exception.Message.Should().Contain("Num");
             }
-
-            #endregion
         }
     }
 

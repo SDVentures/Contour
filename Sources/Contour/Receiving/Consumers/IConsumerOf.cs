@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The ConsumerOf interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving.Consumers
+﻿namespace Contour.Receiving.Consumers
 {
     /// <summary>
     /// The ConsumerOf interface.
@@ -17,8 +8,6 @@ namespace Contour.Receiving.Consumers
     public interface IConsumerOf<T> : IConsumer
         where T : class
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -26,7 +15,5 @@ namespace Contour.Receiving.Consumers
         /// The context.
         /// </param>
         void Handle(IConsumingContext<T> context);
-
-        #endregion
     }
 }

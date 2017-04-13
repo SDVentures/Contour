@@ -59,7 +59,7 @@ namespace Contour.RabbitMq.Tests
             var pool = new RabbitConnectionPool(bus);
 
             var i = 0;
-            var conString = bus.Configuration.ConnectionString;
+            var conString = this.ConnectionString;
             var source = new CancellationTokenSource();
             var connections = new List<IConnection>();
 

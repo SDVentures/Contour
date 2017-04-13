@@ -7,8 +7,6 @@
     /// </summary>
     internal abstract class RabbitClient : IDisposable
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitClient"/>.
         /// </summary>
@@ -19,20 +17,10 @@
         {
             this.Channel = channel;
         }
-
-        #endregion
-
-        #region Properties
-
         /// <summary>
         /// Gets the channel.
         /// </summary>
         protected RabbitChannel Channel { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The dispose.
         /// </summary>
@@ -43,7 +31,5 @@
                 this.Channel.Dispose();
             }
         }
-
-        #endregion
     }
 }

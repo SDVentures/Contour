@@ -305,12 +305,12 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             if (delivery.Headers.ContainsKey(Headers.OriginalMessageId))
             {
-                this.logger.Trace(m => m("Сквозной идентификатор сообщения [{0}].", Headers.GetString(delivery.Headers, Headers.OriginalMessageId)));
+                this.logger.Trace(m => m("The ID of the origin message [{0}].", Headers.GetString(delivery.Headers, Headers.OriginalMessageId)));
             }
 
             if (delivery.Headers.ContainsKey(Headers.Breadcrumbs))
             {
-                this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
+                this.logger.Trace(m => m("The message has been delivered to: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
             }
 
             Stopwatch stopwatch = Stopwatch.StartNew();

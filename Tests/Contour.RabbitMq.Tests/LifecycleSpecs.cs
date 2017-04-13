@@ -22,8 +22,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_building_without_starting : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_attempt_to_connect.
             /// </summary>
@@ -34,7 +32,7 @@ namespace Contour.RabbitMq.Tests
 
                 var waitHandler = new AutoResetEvent(false);
 
-                bus.Connected += (b, args) => waitHandler.Set();
+                bus.Started += (b, args) => waitHandler.Set();
 
                 waitHandler.WaitOne(2.Seconds()).
                     Should().
@@ -55,8 +53,6 @@ namespace Contour.RabbitMq.Tests
                 bus.IsStarted.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -66,8 +62,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_shutting_down_non_started_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_throw.
             /// </summary>
@@ -85,8 +79,6 @@ namespace Contour.RabbitMq.Tests
                 bus.IsStarted.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -96,8 +88,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_shutting_down_started_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_shut_down_without_throwing.
             /// </summary>
@@ -116,8 +106,6 @@ namespace Contour.RabbitMq.Tests
                 bus.IsStarted.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -127,8 +115,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_shutting_down_starting_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_shut_down_without_throwing.
             /// </summary>
@@ -147,8 +133,6 @@ namespace Contour.RabbitMq.Tests
                 bus.IsStarted.Should().
                     BeFalse();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -158,8 +142,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_shutting_down_stopped_bus : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_throw.
             /// </summary>
@@ -182,8 +164,6 @@ namespace Contour.RabbitMq.Tests
                 bus.Invoking(b => b.Emit("some.label", new { })).
                     ShouldThrow<BusNotReadyException>();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -193,8 +173,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_starting_bus_after_shutdown : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_start_normally.
             /// </summary>
@@ -217,8 +195,6 @@ namespace Contour.RabbitMq.Tests
                 bus.Invoking(b => b.Emit("some.label", new { })).
                     ShouldNotThrow();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -228,8 +204,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_starting_bus_after_stop : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_start_normally.
             /// </summary>
@@ -252,8 +226,6 @@ namespace Contour.RabbitMq.Tests
                 bus.Invoking(b => b.Emit("some.label", new { })).
                     ShouldNotThrow();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -263,8 +235,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_starting_with_waiting : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_be_ready.
             /// </summary>
@@ -281,8 +251,6 @@ namespace Contour.RabbitMq.Tests
                 bus.IsStarted.Should().
                     BeTrue();
             }
-
-            #endregion
         }
 
         /// <summary>
@@ -292,8 +260,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_starting_without_waiting : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_not_be_ready.
             /// </summary>
@@ -310,8 +276,6 @@ namespace Contour.RabbitMq.Tests
                 bus.IsStarted.Should().
                     BeFalse();
             }
-
-            #endregion
         }
     }
 

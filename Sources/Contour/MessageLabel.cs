@@ -7,8 +7,6 @@
     /// </summary>
     public sealed class MessageLabel
     {
-        #region Constants
-
         /// <summary>
         /// The alias prefix.
         /// </summary>
@@ -23,11 +21,6 @@
         /// The empty name.
         /// </summary>
         private const string EmptyName = "";
-
-        #endregion
-
-        #region Static Fields
-
         /// <summary>
         /// The alias validator.
         /// </summary>
@@ -37,11 +30,6 @@
         /// The label validator.
         /// </summary>
         private static readonly Regex LabelValidator = new Regex(@"\A^[a-zA-Z_*][a-zA-Z\d-_.:]*\z", RegexOptions.Singleline | RegexOptions.Compiled);
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageLabel"/>.
         /// </summary>
@@ -52,11 +40,6 @@
         {
             this.Name = (name ?? EmptyName).ToLower();
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         ///   Метка без имени. Используется там, где метка ожидается, но имя не важно.
         /// </summary>
@@ -116,11 +99,6 @@
         ///   Название метки.
         /// </summary>
         public string Name { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// Создает экземпляр метки сообщения.
         /// </summary>
@@ -213,11 +191,6 @@
         {
             return this.Name;
         }
-
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The equals.
         /// </summary>
@@ -231,7 +204,5 @@
         {
             return string.Equals(this.Name, other.Name);
         }
-
-        #endregion
     }
 }

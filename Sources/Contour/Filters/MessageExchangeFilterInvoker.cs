@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MessageExchangeFilterInvoker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The message exchange filter invoker.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Filters
+﻿namespace Contour.Filters
 {
     using System;
     using System.Collections.Generic;
@@ -19,8 +10,6 @@ namespace Contour.Filters
     /// </summary>
     public class MessageExchangeFilterInvoker
     {
-        #region Fields
-
         /// <summary>
         /// The _filter enumerator.
         /// </summary>
@@ -28,9 +17,6 @@ namespace Contour.Filters
 
         private readonly IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
 
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
@@ -50,19 +36,10 @@ namespace Contour.Filters
             this.filterDecorators = filterDecorators;
         }
 
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets or sets the inner.
         /// </summary>
         public IMessageExchangeFilter Inner { get; set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The continue.
         /// </summary>
@@ -103,7 +80,5 @@ namespace Contour.Filters
         {
             return this.Continue(exchange);
         }
-
-        #endregion
     }
 }

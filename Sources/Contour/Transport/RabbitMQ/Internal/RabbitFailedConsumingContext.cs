@@ -9,8 +9,6 @@
     /// </summary>
     internal class RabbitFailedConsumingContext : FaultedConsumingContext, IFailedConsumingContext
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RabbitFailedConsumingContext"/>.
         /// </summary>
@@ -25,20 +23,10 @@
         {
             this.Exception = exception;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the exception.
         /// </summary>
         public Exception Exception { get; private set; }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The build fault message.
         /// </summary>
@@ -49,7 +37,5 @@
         {
             return new RabbitFaultMessage((RabbitDelivery)this.Delivery, this.Exception);
         }
-
-        #endregion
     }
 }

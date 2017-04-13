@@ -22,8 +22,6 @@
     /// </summary>
     internal interface IPublishConfirmationTracker : IDisposable
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle confirmation.
         /// </summary>
@@ -45,7 +43,5 @@
         /// The <see cref="Task"/>.
         /// </returns>
         Task Track();
-
-        #endregion
     }
 }

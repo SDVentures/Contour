@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TopologyBuilderEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The topology builder ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ.Topology
+﻿namespace Contour.Transport.RabbitMQ.Topology
 {
     using Contour.Topology;
 
@@ -16,8 +7,6 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public static class TopologyBuilderEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The bind.
         /// </summary>
@@ -96,7 +85,5 @@ namespace Contour.Transport.RabbitMQ.Topology
         {
             return ((TopologyBuilder)topology).Declare(builder);
         }
-
-        #endregion
     }
 }

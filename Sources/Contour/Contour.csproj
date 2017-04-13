@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Contour</RootNamespace>
     <AssemblyName>Contour</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Contour.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,21 +33,20 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Contour.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusNotReadyException.cs" />
+    <Compile Include="Caching\HashCalculator.cs" />
     <Compile Include="Caching\ICacheProvider.cs" />
+    <Compile Include="Caching\IHashCalculator.cs" />
     <Compile Include="Caching\MemoryCacheProvider.cs" />
     <Compile Include="Caching\Expires.cs" />
     <Compile Include="Configuration\BusComponentTracker.cs" />
@@ -63,32 +64,11 @@
     <Compile Include="Filters\SendingExchangeFilter.cs" />
     <Compile Include="Filters\IMessageExchangeFilter.cs" />
     <Compile Include="Filters\MessageExchangeFilterInvoker.cs" />
-    <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="IIncomingMessageHeaderStorage.cs" />
     <Compile Include="IKeyValueStorage.cs" />
     <Compile Include="MessageExchange.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="MessageHeaderStorage.cs" />
-    <Compile Include="MessageProperties.cs" />
-    <Compile Include="Operators\Acceptor.cs" />
-    <Compile Include="Operators\BusProcessingContext.cs" />
-    <Compile Include="Operators\ContentBasedRouter.cs" />
-    <Compile Include="Operators\DynamicFilter.cs" />
-    <Compile Include="Operators\DynamicRouter.cs" />
-    <Compile Include="Operators\Enricher.cs" />
-    <Compile Include="Operators\Filter.cs" />
-    <Compile Include="Operators\IMessageOperator.cs" />
-    <Compile Include="Operators\Pipeline.cs" />
-    <Compile Include="Operators\JsonPathFilter.cs" />
-    <Compile Include="Operators\PipelineConsumerOf.cs" />
-    <Compile Include="Operators\OperatorConsumerOf.cs" />
-    <Compile Include="Operators\RecipientList.cs" />
-    <Compile Include="Operators\Splitter.cs" />
-    <Compile Include="Operators\StaticRouter.cs" />
-    <Compile Include="Operators\Translator.cs" />
-    <Compile Include="Operators\Reply.cs" />
-    <Compile Include="Operators\TransparentReply.cs" />
-    <Compile Include="Operators\WireTap.cs" />
     <Compile Include="Configuration\EndpointOptions.cs" />
     <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
     <Compile Include="Transport\RabbitMQ\FailoverException.cs" />
@@ -285,8 +265,6 @@
     <Compile Include="Transport\RabbitMQ\Topology\TopologyBuilderEx.cs" />
     <Compile Include="Validation\AbstractMessageValidatorOf.cs" />
     <Compile Include="Validation\BrokenRule.cs" />
-    <Compile Include="Validation\Fluent\FluentValidatorResultEx.cs" />
-    <Compile Include="Validation\Fluent\FluentPayloadValidatorOf.cs" />
     <Compile Include="Validation\IMessageValidator.cs" />
     <Compile Include="Validation\MessageValidatorGroup.cs" />
     <Compile Include="Validation\IMessageValidatorOf.cs" />
@@ -307,7 +285,7 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
         <Reference Include="Common.Logging">
           <HintPath>..\..\packages\Common.Logging\lib\net40\Common.Logging.dll</HintPath>
@@ -318,10 +296,10 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
-        <Reference Include="FluentValidation">
-          <HintPath>..\..\packages\FluentValidation\lib\Net40\FluentValidation.dll</HintPath>
+        <Reference Include="Common.Logging.Core">
+          <HintPath>..\..\packages\Common.Logging.Core\lib\net40\Common.Logging.Core.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -329,16 +307,7 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
-      <ItemGroup>
-        <Reference Include="Newtonsoft.Json">
-          <HintPath>..\..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
         <Reference Include="Newtonsoft.Json">
           <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -349,7 +318,7 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
         <Reference Include="RabbitMQ.Client">
           <HintPath>..\..\packages\RabbitMQ.Client\lib\net30\RabbitMQ.Client.dll</HintPath>

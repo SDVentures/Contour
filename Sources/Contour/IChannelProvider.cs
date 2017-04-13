@@ -13,13 +13,6 @@ namespace Contour
         /// <summary>
         /// Opens a new channel in the underlying connection
         /// </summary>
-        /// <returns>An open channel</returns>
-        [Obsolete("Use cancellable version")]
-        TChannel OpenChannel();
-
-        /// <summary>
-        /// Opens a new channel in the underlying connection
-        /// </summary>
         /// <param name="token">
         /// Operation cancellation token
         /// </param>

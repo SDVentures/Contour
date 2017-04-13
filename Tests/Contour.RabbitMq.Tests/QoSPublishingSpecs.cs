@@ -26,8 +26,6 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_consuming_with_qos_set_to_prefetch_1 : RabbitMqFixture
         {
-            #region Public Methods and Operators
-
             /// <summary>
             /// The should_consume_serialized.
             /// </summary>
@@ -63,8 +61,6 @@ namespace Contour.RabbitMq.Tests
                     Should().
                     BeFalse();
             }
-
-            #endregion
         }
     }
 

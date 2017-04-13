@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SubscriptionEndpointBuilderEx.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The subscription endpoint builder ex.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     using Contour.Receiving;
     using Contour.Transport.RabbitMQ.Topology;
@@ -17,8 +8,6 @@ namespace Contour.Transport.RabbitMQ
     /// </summary>
     public static class SubscriptionEndpointBuilderEx
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The listen to.
         /// </summary>
@@ -37,7 +26,5 @@ namespace Contour.Transport.RabbitMQ
                 Queue.Named(queueName).
                     Instance);
         }
-
-        #endregion
     }
 }

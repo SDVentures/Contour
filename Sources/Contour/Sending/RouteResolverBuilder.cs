@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RouteResolverBuilder.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The route resolver builder.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Sending
+﻿namespace Contour.Sending
 {
     using Contour.Topology;
 
@@ -16,8 +7,6 @@ namespace Contour.Sending
     /// </summary>
     public class RouteResolverBuilder : IRouteResolverBuilder
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="RouteResolverBuilder"/>.
         /// </summary>
@@ -36,11 +25,6 @@ namespace Contour.Sending
             this.Topology = topology;
             this.Sender = sender;
         }
-
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets the endpoint.
         /// </summary>
@@ -55,7 +39,5 @@ namespace Contour.Sending
         /// Gets the topology.
         /// </summary>
         public ITopologyBuilder Topology { get; private set; }
-
-        #endregion
     }
 }

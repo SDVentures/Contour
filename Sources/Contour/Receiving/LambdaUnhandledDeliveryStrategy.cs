@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LambdaUnhandledDeliveryStrategy.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The lambda unhandled delivery strategy.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using System;
 
@@ -18,17 +9,10 @@ namespace Contour.Receiving
     /// </summary>
     public class LambdaUnhandledDeliveryStrategy : IUnhandledDeliveryStrategy
     {
-        #region Fields
-
         /// <summary>
         /// The _handler action.
         /// </summary>
         private readonly Action<IUnhandledConsumingContext> _handlerAction;
-
-        #endregion
-
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LambdaUnhandledDeliveryStrategy"/>.
         /// </summary>
@@ -39,11 +23,6 @@ namespace Contour.Receiving
         {
             this._handlerAction = handlerAction;
         }
-
-        #endregion
-
-        #region Public Methods and Operators
-
         /// <summary>
         /// The handle.
         /// </summary>
@@ -58,11 +37,9 @@ namespace Contour.Receiving
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger().
+                LogManager.GetLogger<LambdaUnhandledDeliveryStrategy>().
                     ErrorFormat("Unable to handle failed message [{0}].", ex, unhandledConsumingContext.Delivery.Label);
             }
         }
-
-        #endregion
     }
 }

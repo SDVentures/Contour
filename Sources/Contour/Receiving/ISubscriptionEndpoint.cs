@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISubscriptionEndpoint.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The SubscriptionEndpoint interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     using Contour.Sending;
 
@@ -16,8 +7,6 @@ namespace Contour.Receiving
     /// </summary>
     public interface ISubscriptionEndpoint
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the callback route resolver.
         /// </summary>
@@ -27,7 +16,5 @@ namespace Contour.Receiving
         /// Gets the listening source.
         /// </summary>
         IListeningSource ListeningSource { get; }
-
-        #endregion
     }
 }

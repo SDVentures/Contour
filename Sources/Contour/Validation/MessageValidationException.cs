@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MessageValidationException.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   Исключение вызванное неудачной валидацией сообщения.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Validation
+﻿namespace Contour.Validation
 {
     using System;
 
@@ -16,8 +7,6 @@ namespace Contour.Validation
     /// </summary>
     public class MessageValidationException : Exception
     {
-        #region Constructors and Destructors
-
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageValidationException"/>.
         /// </summary>
@@ -28,7 +17,5 @@ namespace Contour.Validation
             : base(message)
         {
         }
-
-        #endregion
     }
 }

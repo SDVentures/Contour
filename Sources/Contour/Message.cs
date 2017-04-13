@@ -9,7 +9,7 @@
     public sealed class Message : IMessage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Message"/> class. 
+        /// Initializes a new instance of the <see cref="Message"/> class.
         /// </summary>
         /// <param name="label">
         /// The label.
@@ -26,7 +26,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Message"/> class. 
+        /// Initializes a new instance of the <see cref="Message"/> class.
         /// </summary>
         /// <param name="label">
         /// The label.

@@ -13,8 +13,6 @@
     /// </summary>
     internal class DefaultRabbitMessageLabelHandler : IMessageLabelHandler
     {
-        #region Public Methods and Operators
-
         /// <summary>
         /// The inject.
         /// </summary>
@@ -88,7 +86,5 @@
             return Encoding.UTF8.GetString((byte[])binaryLabel).
                 ToMessageLabel();
         }
-
-        #endregion
     }
 }

@@ -1,21 +1,10 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RabbitProperties.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The rabbit properties.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ
+﻿namespace Contour.Transport.RabbitMQ
 {
     /// <summary>
     /// The rabbit properties.
     /// </summary>
     public static class RabbitProperties
     {
-        #region Constants
-
         /// <summary>
         /// The default qo s.
         /// </summary>
@@ -30,7 +19,5 @@ namespace Contour.Transport.RabbitMQ
         /// The subscription builder.
         /// </summary>
         public const string SubscriptionBuilder = "rabbit-subscription-builder";
-
-        #endregion
     }
 }

@@ -8,8 +8,6 @@
     [ConfigurationCollection(typeof(IncomingElement), AddItemName = "on")]
     public class IncomingCollection : ConfigurationElementCollection
     {
-        #region Methods
-
         /// <summary>
         /// The create new element.
         /// </summary>
@@ -34,7 +32,5 @@
         {
             return ((IncomingElement)element).Key;
         }
-
-        #endregion
     }
 }
