@@ -21,10 +21,8 @@
         /// The payload.
         /// </param>
         public Message(MessageLabel label, IDictionary<string, object> headers, object payload)
+            : this(label, headers, payload, new MessageProperties())
         {
-            this.Label = label;
-            this.Headers = headers;
-            this.Payload = payload;
         }
 
         /// <summary>
@@ -40,6 +38,23 @@
             : this(label, new Dictionary<string, object>(), payload)
         {
         }
+
+        /// <summary>Initializes a new instance of the <see cref="Message"/> class.</summary>
+        /// <param name="label">The label.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="payload">The payload.</param>
+        /// <param name="properties">The properties.</param>
+        public Message(MessageLabel label, IDictionary<string, object> headers, object payload, MessageProperties properties)
+        {
+            this.Label = label;
+            this.Headers = headers;
+            this.Payload = payload;
+            this.Properties = properties;
+        }
+
+        #endregion
+
+        #region Public Properties
 
         /// <summary>
         /// Gets the headers.
@@ -57,6 +72,13 @@
         public object Payload { get; private set; }
 
         /// <summary>
+        /// Message properties.
+        /// </summary>
+        public MessageProperties Properties { get; private set; }
+
+        #endregion
+
+        /// <summary>
         /// Создает копию сообщения с указанной меткой.
         /// </summary>
         /// <param name="label">
@@ -67,7 +89,7 @@
         /// </returns>
         public IMessage WithLabel(MessageLabel label)
         {
-            return new Message(label, Headers, Payload);
+            return new Message(label, Headers, Payload, Properties);
         }
 
         /// <summary>
@@ -78,7 +100,7 @@
         /// <returns>Новое сообщение.</returns>
         public IMessage WithPayload<T>(T payload) where T : class
         {
-            return new Message(Label, Headers, payload);
+            return new Message(Label, Headers, payload, Properties);
         }
     }
 
@@ -105,10 +127,8 @@
         /// The payload.
         /// </param>
         public Message(MessageLabel label, IDictionary<string, object> headers, T payload)
+            : this(label, headers, payload, new MessageProperties())
         {
-            this.Label = label;
-            this.Headers = headers;
-            this.Payload = payload;
         }
 
         /// <summary>
@@ -125,6 +145,19 @@
         {
         }
 
+        /// <summary>Initializes a new instance of the <see cref="Message{T}"/> class.</summary>
+        /// <param name="label">The label.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="payload">The payload.</param>
+        /// <param name="properties">The properties.</param>
+        public Message(MessageLabel label, IDictionary<string, object> headers, T payload, MessageProperties properties)
+        {
+            this.Label = label;
+            this.Headers = headers;
+            this.Payload = payload;
+            this.Properties = properties;
+        }
+
         /// <summary>
         /// Gets the headers.
         /// </summary>
@@ -139,6 +172,15 @@
         ///   Содержимое сообщения.
         /// </summary>
         public T Payload { get; private set; }
+
+        /// <summary>
+        /// Gets message properties
+        /// </summary>
+        public MessageProperties Properties { get; private set; }
+
+        #endregion
+
+        #region Explicit Interface Properties
 
         /// <summary>
         /// Gets the payload.
@@ -162,7 +204,7 @@
         /// </returns>
         public IMessage WithLabel(MessageLabel label)
         {
-            return new Message<T>(label, Headers, Payload);
+            return new Message<T>(label, Headers, Payload, Properties);
         }
 
         /// <summary>
@@ -173,7 +215,7 @@
         /// <returns>Новое сообщение.</returns>
         public IMessage WithPayload<T1>(T1 payload) where T1 : class
         {
-            return new Message<T1>(Label, Headers, payload);
+            return new Message<T1>(Label, Headers, payload, Properties);
         }
     }
 }

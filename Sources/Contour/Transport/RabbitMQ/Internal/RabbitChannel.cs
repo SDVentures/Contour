@@ -392,7 +392,9 @@
         public IMessage UnpackAs(Type type, RabbitDelivery delivery)
         {
             var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
-            return new Message(delivery.Label, delivery.Headers, payload);
+            MessageProperties properties = new MessageProperties { Timestamp = DateTimeEx.FromUnixTimestamp(delivery.Properties.Timestamp.UnixTime) };
+
+            return new Message(delivery.Label, delivery.Headers, payload, properties);
         }
 
         private void OnModelShutdown(IModel model, ShutdownEventArgs args)
