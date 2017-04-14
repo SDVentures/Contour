@@ -5,7 +5,7 @@ namespace Contour.Configuration.Configurator
     /// <summary>
     /// The callback endpoint element.
     /// </summary>
-    internal class CallbackEndpointElement : ConfigurationElement
+    public class CallbackEndpointElement : ConfigurationElement
     {
         /// <summary>
         /// Gets a value indicating whether default.

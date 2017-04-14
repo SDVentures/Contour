@@ -6,7 +6,7 @@ namespace Contour.Configuration.Configurator
     /// The incoming collection.
     /// </summary>
     [ConfigurationCollection(typeof(IncomingElement), AddItemName = "on")]
-    internal class IncomingCollection : ConfigurationElementCollection
+    public class IncomingCollection : ConfigurationElementCollection
     {
         /// <summary>
         /// The create new element.

@@ -388,6 +388,7 @@ namespace Contour.Transport.RabbitMq.Internal
         public IMessage UnpackAs(Type type, RabbitDelivery delivery)
         {
             var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
+
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 

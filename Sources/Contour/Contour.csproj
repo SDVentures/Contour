@@ -41,6 +41,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusNotReadyException.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="Configuration\IBusComponentTracker.cs" />
     <Compile Include="Configuration\IBusConfiguration.cs" />
     <Compile Include="Configuration\IBusConfigurator.cs" />
+    <Compile Include="Filters\IMessageExchangeFilterDecorator.cs" />
     <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\SendingExchangeFilter.cs" />

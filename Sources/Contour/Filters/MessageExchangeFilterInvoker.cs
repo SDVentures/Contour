@@ -1,5 +1,6 @@
 ﻿namespace Contour.Filters
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -13,6 +14,10 @@
         /// The _filter enumerator.
         /// </summary>
         private readonly IEnumerator<IMessageExchangeFilter> filterEnumerator;
+
+        private readonly IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
+
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
         /// </summary>
@@ -24,6 +29,13 @@
             this.filterEnumerator = filters.Reverse().
                 GetEnumerator();
         }
+
+        public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
+            : this(filters)
+        {
+            this.filterDecorators = filterDecorators;
+        }
+
         /// <summary>
         /// Gets or sets the inner.
         /// </summary>
@@ -44,7 +56,15 @@
                 return Filter.Result(exchange);
             }
 
-            return this.filterEnumerator.Current.Process(exchange, this);
+            var currentFilter = this.filterEnumerator.Current;
+            var currentFilterType = currentFilter.GetType();
+
+            if (this.filterDecorators != null && this.filterDecorators.ContainsKey(currentFilterType))
+            {
+                return this.filterDecorators[currentFilterType].Process(currentFilter, exchange, this);
+            }
+
+            return currentFilter.Process(exchange, this);
         }
 
         /// <summary>
