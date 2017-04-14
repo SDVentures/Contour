@@ -1,4 +1,6 @@
-﻿namespace Contour.Configurator.Tests
+﻿using Contour.Configuration.Configurator;
+
+namespace Contour.Configurator.Tests
 {
     using System.IO;
     using System.Xml;

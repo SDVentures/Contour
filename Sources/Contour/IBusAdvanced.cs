@@ -1,11 +1,11 @@
-﻿namespace Contour
+﻿using System.Collections.Generic;
+
+using Contour.Configuration;
+using Contour.Receiving;
+using Contour.Sending;
+
+namespace Contour
 {
-    using System.Collections.Generic;
-
-    using Contour.Configuration;
-    using Contour.Receiving;
-    using Contour.Sending;
-
     /// <summary>
     ///   Расширенный интерфейс шины для целей отладки.
     /// </summary>

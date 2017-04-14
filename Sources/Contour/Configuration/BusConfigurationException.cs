@@ -1,7 +1,7 @@
-﻿namespace Contour.Configuration
-{
-    using System;
+﻿using System;
 
+namespace Contour.Configuration
+{
     /// <summary>
     ///   Исключение связанное с некорректной конфигурацией шины.
     /// </summary>

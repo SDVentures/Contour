@@ -1,7 +1,7 @@
-﻿namespace Contour.Configuration
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Contour.Configuration
+{
     /// <summary>
     ///   Трекер компонентов клиента шины. Позволяет работать с компонентами пакетно.
     /// </summary>

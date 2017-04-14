@@ -7,8 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMQ.Internal;
-using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMq.Internal;
+using Contour.Transport.RabbitMq.Topology;
 using FluentAssertions;
 using NUnit.Framework;
 

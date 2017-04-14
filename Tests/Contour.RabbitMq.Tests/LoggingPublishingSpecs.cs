@@ -6,7 +6,7 @@ using FluentAssertions;
 
 using Contour.Receiving;
 using Contour.Sending;
-using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMq.Topology;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;

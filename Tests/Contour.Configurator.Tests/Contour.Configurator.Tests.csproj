@@ -56,6 +56,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sources\Contour.Configuration\Contour.Configuration.csproj">
+      <Project>{58943A4E-B4A1-4E2C-95F3-B24F784C5451}</Project>
+      <Name>Contour.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sources\Contour.Transport.RabbitMq\Contour.Transport.RabbitMq.csproj">
+      <Project>{52A89EB0-EF1C-4AB6-A159-EAC39794FC2C}</Project>
+      <Name>Contour.Transport.RabbitMq</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sources\Contour\Contour.csproj">
       <Project>{bb96b5c3-5679-471e-a7b4-50c31d34ad05}</Project>
       <Name>Contour</Name>
