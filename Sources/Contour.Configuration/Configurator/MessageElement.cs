@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-
-namespace Contour.Configuration.Configurator
+﻿namespace Contour.Configuration.Configurator
 {
     using System;
     using System.Collections.Generic;
