@@ -46,10 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusNotReadyException.cs" />
-    <Compile Include="Caching\HashCalculator.cs" />
-    <Compile Include="Caching\ICacheProvider.cs" />
-    <Compile Include="Caching\IHashCalculator.cs" />
-    <Compile Include="Caching\MemoryCacheProvider.cs" />
     <Compile Include="Caching\Expires.cs" />
     <Compile Include="Configuration\BusComponentTracker.cs" />
     <Compile Include="Configuration\BusConfiguration.cs" />
