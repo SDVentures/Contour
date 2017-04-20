@@ -6,14 +6,8 @@ namespace Contour.Configuration.Configurator
     /// <summary>
     /// The endpoint element.
     /// </summary>
-    public class EndpointElement : ConfigurationElement
+    public class EndpointElement : ExtensibleConfigurationElement
     {
-        /// <summary>
-        /// Gets the caching.
-        /// </summary>
-        [ConfigurationProperty("caching")]
-        public CachingElement Caching => (CachingElement)base["caching"];
-
         /// <summary>
         /// Настройки QoS для конечной точки.
         /// </summary>

@@ -182,19 +182,6 @@ namespace Contour.Configuration
         }
 
         /// <summary>
-        /// The enable caching.
-        /// </summary>
-        public void EnableCaching()
-        {
-            this.RegisterFilter(
-                new CacheMessageExchangeFilter(
-                    new MemoryCacheProvider(),
-                    new HashCalculator(
-                        // need lazy load payload converter to escape race conditions during configuration caching and payload converters.
-                        new Lazy<IPayloadConverter>(() => this.Serializer))));
-        }
-
-        /// <summary>
         /// The handle lifecycle with.
         /// </summary>
         /// <param name="lifecycleHandler">

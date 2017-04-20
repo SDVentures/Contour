@@ -51,7 +51,6 @@
     <Compile Include="Caching\IHashCalculator.cs" />
     <Compile Include="Caching\MemoryCacheProvider.cs" />
     <Compile Include="Caching\Expires.cs" />
-    <Compile Include="Caching\CacheMessageExchangeFilter.cs" />
     <Compile Include="Configuration\BusComponentTracker.cs" />
     <Compile Include="Configuration\BusConfiguration.cs" />
     <Compile Include="Configuration\BusConfigurationException.cs" />

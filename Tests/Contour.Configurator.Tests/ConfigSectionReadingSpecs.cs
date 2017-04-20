@@ -22,37 +22,6 @@ namespace Contour.Configurator.Tests
     public class ConfigSectionReadingSpecs
     {
         /// <summary>
-        /// The when_declaring_caching_for_endpoint.
-        /// </summary>
-        [TestFixture]
-        [Category("Unit")]
-        public class when_declaring_caching_for_endpoint
-        {
-            /// <summary>
-            /// The should_read_configuration_property.
-            /// </summary>
-            [Test]
-            public void should_read_configuration_property()
-            {
-                const string config = @"<endpoints>
-							<endpoint name=""a"" connectionString=""amqp://localhost:666"">
-								<caching enabled=""false"" />
-							</endpoint>
-							<endpoint name=""b"" connectionString=""amqp://localhost:777"">
-								<caching enabled=""true"" />
-							</endpoint>
-						</endpoints>";
-
-                var section = new XmlEndpointsSection(config);
-
-                section.Endpoints["a"].Caching.Enabled.Should().
-                    BeFalse();
-                section.Endpoints["b"].Caching.Enabled.Should().
-                    BeTrue();
-            }
-        }
-
-        /// <summary>
         /// The when_declaring_complex_configuration.
         /// </summary>
         [TestFixture]
