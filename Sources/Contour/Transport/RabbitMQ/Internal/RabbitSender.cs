@@ -220,7 +220,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 if (this.Configuration.RequiresCallback)
                 {
                     var callbackConfiguration = this.CreateCallbackReceiverConfiguration(url);
-                    var receiver = this.bus.RegisterReceiver(callbackConfiguration);
+                    var receiver = this.bus.RegisterReceiver(callbackConfiguration, true);
 
                     this.logger.Trace(
                         $"A sender of [{this.Configuration.Label}] requires a callback configuration; registering a receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}]");
@@ -293,7 +293,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private ReceiverConfiguration CreateCallbackReceiverConfiguration(string url)
         {
             var callbackConfiguration = new ReceiverConfiguration(
-                this.Configuration.Label,
+                MessageLabel.Any,
                 this.Configuration.CallbackConfiguration.Options);
 
             callbackConfiguration.WithConnectionString(url);

@@ -17,7 +17,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         IEnumerable<MessageLabel> AcceptedLabels { get; }
 
         string BrokerUrl { get; }
-
+        
         ISubscriptionEndpoint Endpoint { get; }
 
         RabbitReceiverOptions ReceiverOptions { get; }

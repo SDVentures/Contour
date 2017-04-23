@@ -19,7 +19,6 @@ namespace Contour.Receiving
         public ReceiverConfiguration(MessageLabel label, ReceiverOptions parentOptions)
         {
             this.Label = label;
-
             this.Options = (ReceiverOptions)parentOptions.Derive();
         }
 

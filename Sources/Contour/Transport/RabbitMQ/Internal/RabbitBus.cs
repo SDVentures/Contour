@@ -110,16 +110,29 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="configuration">
         /// Receiver configuration
         /// </param>
+        /// <param name="isCallback">
+        /// Denotes if a receiver should handle the callback messages
+        /// </param>
         /// <returns>
         /// The <see cref="RabbitReceiver"/>.
         /// </returns>
-        public RabbitReceiver RegisterReceiver(IReceiverConfiguration configuration)
+        public RabbitReceiver RegisterReceiver(IReceiverConfiguration configuration, bool isCallback = false)
         {
             this.logger.Trace(
                 $"Registering a new receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
 
-            var receiver = new RabbitReceiver(this, configuration, this.connectionPool);
-            receiver.ListenerRegistered += this.OnListenerRegistered;
+            RabbitReceiver receiver;
+            if (isCallback)
+            {
+                receiver = new RabbitCallbackReceiver(this, configuration, this.connectionPool);
+                
+                // No need to subscribe on listener-registered event as it will not be fired by the callback receiver
+            }
+            else
+            {
+                receiver = new RabbitReceiver(this, configuration, this.connectionPool);
+                receiver.ListenerRegistered += this.OnListenerRegistered;
+            }
             this.ComponentTracker.Register(receiver);
 
             this.logger.Trace(
@@ -290,12 +303,6 @@ namespace Contour.Transport.RabbitMQ.Internal
                 .Cast<RabbitReceiver>()
                 .ForEach(r =>
                 {
-                    // Since some of the configuration options are evaluated on receiver start the bus needs to check if a newly registered listener of each receiver is compatible with the rest of the listeners. Compatibility check list is defined by the receiver itself.
-                    r.CheckIfCompatible(e.Listener);
-                    
-                    // Update consumer registrations in all listeners; this may possibly register more then one label-consumer pairs for each listener
-                    r.Configuration.ReceiverRegistration?.Invoke(r);
-
                     // If some of the receivers are configured to receive messages of different types from the same source (queue) then each receiver should have a corresponding listener attached to that source to let the consuming actions of listeners execute.
                     r.RegisterListener(e.Listener);
                 });
