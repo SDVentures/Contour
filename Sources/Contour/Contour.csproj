@@ -97,6 +97,7 @@
     <Compile Include="Transport\RabbitMQ\Internal\ListenerStoppedEventArgs.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\OperationStopReason.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ProducerStoppedEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitCallbackReceiver.cs" />
     <Compile Include="Transport\RabbitMQ\UnconfirmedMessageException.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RoundRobinSelector.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\FaultTolerantProducer.cs" />

@@ -78,7 +78,7 @@ namespace Contour.RabbitMq.Tests
 
         [TestFixture(Description = "When replying to message without reply address")]
         [Category("Integration")]
-        internal class when_replying_to_message_without_reply_address : RabbitMqFixture
+        public class when_replying_to_message_without_reply_address : RabbitMqFixture
         {
             /// <summary>
             /// The should_not_throw_bus_configuration_exception.
@@ -163,6 +163,56 @@ namespace Contour.RabbitMq.Tests
 
                 responseException.Should().NotBeNull();
                 responseException.InnerException.Should().BeOfType<TimeoutException>();
+            }
+
+            /// <summary>
+            /// The should_not_handle_response.
+            /// </summary>
+            [Test]
+            public void should_not_handle_response()
+            {
+                var tcs = new TaskCompletionSource<bool>(true);
+                var producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                        {
+                            cfg.Route("dummy.request").WithDefaultCallbackEndpoint();
+                            cfg.On<Testing.Plumbing.Message>("dummy.message").ReactWith(
+                                (message, context) =>
+                                    {
+                                        tcs.SetResult(false);
+                                    });
+                        });
+
+                producer.WhenReady.WaitOne();
+
+                this.StartBus(
+                    "consumer",
+                    cfg => cfg.On<DummyRequest>("dummy.request").ReactWith(
+                        (m, ctx) =>
+                        {
+                            Thread.Sleep(TimeSpan.FromSeconds(5));
+                            ctx.Reply(new DummyResponse(m.Num));
+                        }));
+
+
+                var callback = new Action<DummyResponse>(
+                    (dr) =>
+                        {
+                            Assert.Fail("Should not execute callback at this point");
+                        });
+
+                Assert.Throws<AggregateException>(
+                    () =>
+                        {
+                            producer.Request(
+                                "dummy.request",
+                                new DummyRequest(13),
+                                new RequestOptions { Timeout = TimeSpan.FromSeconds(1) },
+                                callback);
+                        });
+                
+                Assert.False(tcs.Task.Wait(TimeSpan.FromSeconds(10)), "Producer should not handle messages except callbacks");
             }
         }
 
