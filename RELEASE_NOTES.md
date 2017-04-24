@@ -1,4 +1,8 @@
-﻿## 1.7.3
+﻿## 1.7.4
+- Fixed:
+  - Expired response handling (https://github.com/SDVentures/Contour/issues/76)
+
+## 1.7.3
  - Attempt errors aggregation added
  - Listener consuming action fallback changed to take the first action if none of the provided satisfy the accepted labels; Message properties extraction fixed: the source properties of the message are always preserved;
  - Listener sharing fixed: separate listeners are created for separate labels and queues on the same host; a shared listener is created for different labels(exchanges) attached to the same queue on the same host
