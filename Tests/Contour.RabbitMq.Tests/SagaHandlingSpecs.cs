@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 
 using Contour.Configuration;
-using Contour.Configuration.Configuration;
 using Contour.Receiving;
 using Contour.Receiving.Sagas;
 using Contour.Testing.Transport.RabbitMq;

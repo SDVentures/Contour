@@ -1,4 +1,13 @@
-﻿namespace Contour.Sending
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LambdaRouteResolver.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The lambda route resolver.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Sending
 {
     using System;
 
@@ -7,10 +16,17 @@
     /// </summary>
     public class LambdaRouteResolver : IRouteResolver
     {
+        #region Fields
+
         /// <summary>
         /// The _resolver func.
         /// </summary>
         private readonly Func<IEndpoint, MessageLabel, IRoute> _resolverFunc;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LambdaRouteResolver"/>.
         /// </summary>
@@ -21,6 +37,11 @@
         {
             this._resolverFunc = resolverFunc;
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The resolve.
         /// </summary>
@@ -37,5 +58,7 @@
         {
             return this._resolverFunc(endpoint, label);
         }
+
+        #endregion
     }
 }

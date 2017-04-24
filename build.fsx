@@ -51,8 +51,6 @@ Target "AssemblyInfo" (fun _ ->
           Attribute.InformationalVersion release.NugetVersion
           Attribute.Copyright license ]
     CreateCSharpAssemblyInfo <| "./Sources/" @@ project @@ "/Properties/AssemblyInfo.cs" <| info
-    CreateCSharpAssemblyInfo <| "./Sources/" @@ "Contour.Configuration" @@ "/Properties/AssemblyInfo.cs" <| info
-    CreateCSharpAssemblyInfo <| "./Sources/" @@ "Contour.Transport.RabbitMq" @@ "/Properties/AssemblyInfo.cs" <| info
 )
 
 Target "Build" (fun () ->
@@ -66,7 +64,7 @@ Target "RunUnitTests" (fun () ->
            { p with
                 DisableShadowCopy = false
                 ToolPath = "./packages/NUnit.Runners/tools/"
-                Framework = "4.6.1"
+                Framework = "4.0"
                 OutputFile = "TestResults.xml"
                 TimeOut = TimeSpan.FromMinutes 20. })
 )
@@ -78,7 +76,7 @@ Target "RunAllTests" (fun () ->
            { p with
                 DisableShadowCopy = false
                 ToolPath = "./packages/NUnit.Runners/tools/"
-                Framework = "4.6.1"
+                Framework = "4.0"
                 OutputFile = "TestResults.xml"
                 TimeOut = TimeSpan.FromMinutes 20. })
 )
@@ -100,14 +98,11 @@ Target "Deploy" (fun () ->
             Dependencies =
                 [ "RabbitMQ.Client", GetPackageVersion "packages" "RabbitMQ.Client";
                   "Common.Logging", GetPackageVersion "packages" "Common.Logging";
+                  "FluentValidation", GetPackageVersion "packages" "FluentValidation";
                   "Newtonsoft.Json", GetPackageVersion "packages" "Newtonsoft.Json" ]
             Files =
-                [ (@"..\" + buildDir + "Contour.dll", Some "lib/net461", None);
-                  (@"..\" + buildDir + "Contour.pdb", Some "lib/net461", None);
-                  (@"..\" + buildDir + "Contour.Configuration.dll", Some "lib/net461", None);
-                  (@"..\" + buildDir + "Contour.Configuration.pdb", Some "lib/net461", None);
-                  (@"..\" + buildDir + "Contour.Transport.RabbitMq.dll", Some "lib/net461", None);
-                  (@"..\" + buildDir + "Contour.Transport.RabbitMq.pdb", Some "lib/net461", None) ]})
+                [ (@"..\" + buildDir + "Contour.dll", Some "lib/net40", None);
+                  (@"..\" + buildDir + "Contour.pdb", Some "lib/net40", None) ]})
         <| (nugetDir + project + ".nuspec")
 )
 

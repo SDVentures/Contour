@@ -1,4 +1,13 @@
-﻿namespace Contour.Sending
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MessageRejectedException.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The message rejected exception.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Sending
 {
     using System;
 
@@ -7,6 +16,8 @@
     /// </summary>
     public class MessageRejectedException : Exception
     {
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageRejectedException"/>.
         /// </summary>
@@ -25,5 +36,7 @@
             : base("Message was rejected.", innerException)
         {
         }
+
+        #endregion
     }
 }

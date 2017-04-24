@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Common.Logging;
-
-using Contour.Configuration;
-using Contour.Receiving;
-using Contour.Sending;
-using Contour.Serialization;
-
-namespace Contour
+﻿namespace Contour
 {
-
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common.Logging;
+    using Configuration;
+    using Receiving;
+    using Sending;
+    using Serialization;
 
     /// <summary>
     /// Шина сообщений, которая не знает о транспортном уровне.
@@ -33,7 +29,7 @@ namespace Contour
         /// <summary>
         /// Журнал шины сообщений.
         /// </summary>
-        private readonly ILog logger = LogManager.GetLogger<AbstractBus>();
+        private readonly ILog logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractBus"/> class.
@@ -51,6 +47,18 @@ namespace Contour
                 this.Stopped += this.configuration.LifecycleHandler.OnStopped;
             }
         }
+
+        /// <summary>
+        /// Событие установки соединения.
+        /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
+        public event Action<IBus, EventArgs> Connected = (bus, args) => { };
+
+        /// <summary>
+        /// Событие разрыва соединения.
+        /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
+        public event Action<IBus, EventArgs> Disconnected = (bus, args) => { };
 
         /// <summary>
         /// Событие запуска шины сообщений.
@@ -383,7 +391,7 @@ namespace Contour
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            this.Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
+            Request(this.Configuration.MessageLabelResolver.ResolveFrom<TRequest>(), request, options, responseAction);
         }
 
         /// <summary>
@@ -411,7 +419,7 @@ namespace Contour
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, RequestOptions options, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            this.Request(label.ToMessageLabel(), request, options, responseAction);
+            Request(label.ToMessageLabel(), request, options, responseAction);
         }
 
         /// <summary>
@@ -425,7 +433,7 @@ namespace Contour
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(MessageLabel label, TRequest request, Action<TResponse> responseAction) where TRequest : class where TResponse : class
         {
-            this.Request(label, request, (RequestOptions)null, responseAction);
+            Request(label, request, (RequestOptions)null, responseAction);
         }
 
         /// <summary>
@@ -439,7 +447,7 @@ namespace Contour
         /// <typeparam name="TResponse">Тип ответа.</typeparam>
         public void Request<TRequest, TResponse>(string label, TRequest request, Action<TResponse> responseAction) where TResponse : class where TRequest : class
         {
-            this.Request(label.ToMessageLabel(), request, responseAction);
+            Request(label.ToMessageLabel(), request, responseAction);
         }
 
         /// <summary>
@@ -523,7 +531,7 @@ namespace Contour
         /// </summary>
         /// <param name="label">Метка отправляемого сообщения.</param>
         /// <returns>Отправитель сообщения с указанной меткой.</returns>
-        /// <exception cref=BusConfigurationExceptionn">Генерируется исключение, если нет отправителя для указанной метки.</exception>
+        /// <exception cref="BusConfigurationException">Генерируется исключение, если нет отправителя для указанной метки.</exception>
         protected ISender GetSenderFor(MessageLabel label)
         {
             ISender sender = this.Senders.FirstOrDefault(s => s.CanRoute(label)) ?? this.Senders.FirstOrDefault(s => s.CanRoute(MessageLabel.Any));
@@ -584,6 +592,24 @@ namespace Contour
 
             return this.GetSenderFor(label)
                     .Send(label, payload, options ?? new PublishingOptions());
+        }
+
+        /// <summary>
+        /// Генерирует событие об установке соединения.
+        /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
+        protected virtual void OnConnected()
+        {
+            this.Connected(this, null);
+        }
+
+        /// <summary>
+        /// Генерирует событие о разрыве соединения.
+        /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
+        protected virtual void OnDisconnected()
+        {
+            this.Disconnected(this, null);
         }
 
         /// <summary>

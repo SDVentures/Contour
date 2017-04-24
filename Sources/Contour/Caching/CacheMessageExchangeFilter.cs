@@ -6,26 +6,35 @@ using Contour.Helpers;
 namespace Contour.Caching
 {
     /// <summary>
-    /// Cache responses.
+    /// Фильтр, который кеширует ответные сообщения.
     /// </summary>
     public class CacheMessageExchangeFilter : IMessageExchangeFilter
     {
+        /// <summary>
+        /// Поставщик кеша.
+        /// </summary>
         private readonly ICacheProvider cacheProvider;
 
-        private readonly IHashCalculator hashCalculator;
+        /// <summary>
+        /// Поставщик кеш значения.
+        /// </summary>
+        private readonly Hasher hasher = new Hasher();
 
         /// <summary>
-        /// Initialize new instance of <see cref="CacheMessageExchangeFilter"/>.
+        /// Инициализирует новый экземпляр класса <see cref="CacheMessageExchangeFilter"/>.
         /// </summary>
-        /// <param name="cacheProvider">The cache storage provider to store responses.</param>
-        /// <param name="hashCalculator">The hash calculator to get unique key for cache.</param>
-        public CacheMessageExchangeFilter(ICacheProvider cacheProvider, IHashCalculator hashCalculator)
+        /// <param name="cacheProvider">Поставщик кеша.</param>
+        public CacheMessageExchangeFilter(ICacheProvider cacheProvider)
         {
             this.cacheProvider = cacheProvider;
-            this.hashCalculator = hashCalculator;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Если в кеше, есть ответное сообщение на входящее сообщение, тогда возвращает объект из кеша.
+        /// </summary>
+        /// <param name="exchange">Конвейер обработки сообщений.</param>
+        /// <param name="invoker">Фильтры вызывающий конвейер.</param>
+        /// <returns>Задача обработки сообщений.</returns>
         public Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker)
         {
             if (!exchange.IsIncompleteRequest)
@@ -33,7 +42,7 @@ namespace Contour.Caching
                 return invoker.Continue(exchange);
             }
 
-            string hash = this.hashCalculator.CalculateHash(exchange.Out);
+            string hash = this.hasher.CalculateHashOf(exchange.Out).ToString();
             Maybe<object> cached = this.cacheProvider.Find<object>(hash);
             if (cached.HasValue)
             {

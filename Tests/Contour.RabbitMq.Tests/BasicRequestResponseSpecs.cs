@@ -7,20 +7,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Contour.Configuration;
 using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
 using Contour.Testing.Plumbing;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMq;
-using Contour.Transport.RabbitMq.Topology;
+using Contour.Transport.RabbitMQ;
+using Contour.Transport.RabbitMQ.Topology;
 
 using FluentAssertions;
 using NUnit.Framework;
 
-using Exchange = Contour.Transport.RabbitMq.Topology.Exchange;
-using Queue = Contour.Transport.RabbitMq.Topology.Queue;
+using Exchange = Contour.Transport.RabbitMQ.Topology.Exchange;
+using Queue = Contour.Transport.RabbitMQ.Topology.Queue;
 
 namespace Contour.RabbitMq.Tests
 {

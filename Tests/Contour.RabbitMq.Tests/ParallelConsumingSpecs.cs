@@ -27,6 +27,8 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_consuming_multiple_messages_on_different_queues : RabbitMqFixture
         {
+            #region Public Methods and Operators
+
             /// <summary>
             /// The should_consume_in_parallel.
             /// </summary>
@@ -82,6 +84,8 @@ namespace Contour.RabbitMq.Tests
                     Should().
                     BeTrue();
             }
+
+            #endregion
         }
 
         /// <summary>
@@ -91,14 +95,26 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_consuming_multiple_messages_on_the_same_queue_using_one_worker : RabbitMqFixture
         {
+            #region Constants
+
             /// <summary>
             /// The message count.
             /// </summary>
             private const int MessageCount = 4;
+
+            #endregion
+
+            #region Fields
+
             /// <summary>
             /// The wait handle.
             /// </summary>
             public CountdownEvent WaitHandle = new CountdownEvent(MessageCount);
+
+            #endregion
+
+            #region Public Methods and Operators
+
             /// <summary>
             /// The should_consume_serialized.
             /// </summary>
@@ -129,6 +145,8 @@ namespace Contour.RabbitMq.Tests
                     Should().
                     BeFalse();
             }
+
+            #endregion
         }
 
         /// <summary>
@@ -138,14 +156,26 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_consuming_multiple_messages_on_the_same_queue_using_several_workers : RabbitMqFixture
         {
+            #region Constants
+
             /// <summary>
             /// The message count.
             /// </summary>
             private const int MessageCount = 4;
+
+            #endregion
+
+            #region Fields
+
             /// <summary>
             /// The wait handle.
             /// </summary>
             public CountdownEvent WaitHandle = new CountdownEvent(MessageCount);
+
+            #endregion
+
+            #region Public Methods and Operators
+
             /// <summary>
             /// The should_consume_in_parallel.
             /// </summary>
@@ -178,6 +208,8 @@ namespace Contour.RabbitMq.Tests
                     Should().
                     BeTrue();
             }
+
+            #endregion
         }
     }
 

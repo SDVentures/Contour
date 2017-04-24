@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers.Scheduler
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TaskWorker.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The task worker.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;
@@ -9,10 +18,17 @@
     /// </summary>
     internal class TaskWorker : AbstractWorker
     {
+        #region Fields
+
         /// <summary>
         /// The _task.
         /// </summary>
         private Task _task;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="TaskWorker"/>.
         /// </summary>
@@ -23,6 +39,11 @@
             : base(cancellationToken)
         {
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The dispose.
         /// </summary>
@@ -34,6 +55,11 @@
                 this._task = null;
             }
         }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// The internal start.
         /// </summary>
@@ -44,5 +70,7 @@
         {
             this._task = Task.Factory.StartNew(workAction, this.CancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
+
+        #endregion
     }
 }

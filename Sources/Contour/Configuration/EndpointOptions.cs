@@ -1,7 +1,7 @@
-using Contour.Helpers;
-
 namespace Contour.Configuration
 {
+    using Helpers;
+
     /// <summary>
     /// Stores the configuration options related to bus endpoint
     /// </summary>

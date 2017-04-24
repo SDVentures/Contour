@@ -11,14 +11,26 @@
     /// </summary>
     public class MemoryCacheProvider : ICacheProvider
     {
+        #region Constants
+
         /// <summary>
         /// The prefix.
         /// </summary>
         private const string Prefix = "ServiceBus.";
+
+        #endregion
+
+        #region Fields
+
         /// <summary>
         /// The _cache.
         /// </summary>
         private readonly MemoryCache _cache;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MemoryCacheProvider"/>.
         /// </summary>
@@ -37,6 +49,11 @@
             : this(MemoryCache.Default)
         {
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The find.
         /// </summary>
@@ -130,5 +147,7 @@
         {
             this._cache.Remove(Prefix + key);
         }
+
+        #endregion
     }
 }

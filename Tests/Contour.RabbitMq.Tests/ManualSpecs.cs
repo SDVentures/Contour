@@ -22,6 +22,8 @@ namespace Contour.RabbitMq.Tests
         [Category("Manual")]
         public class when_publishing_message_on_restarted_service : RabbitMqFixture
         {
+            #region Public Methods and Operators
+
             /// <summary>
             /// The should_reconnect_within_5_seconds.
             /// </summary>
@@ -54,6 +56,8 @@ namespace Contour.RabbitMq.Tests
 
                 countdown.Wait();
             }
+
+            #endregion
         }
     }
 

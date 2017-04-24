@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 
 using FluentAssertions;
 
 using Contour.Receiving;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMq.Topology;
+using Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
 
@@ -25,6 +26,8 @@ namespace Contour.RabbitMq.Tests
         [Category("Integration")]
         public class when_publishing_simple_message_persistently : RabbitMqFixture
         {
+            #region Public Methods and Operators
+
             /// <summary>
             /// The should_persist_message.
             /// </summary>
@@ -78,6 +81,8 @@ namespace Contour.RabbitMq.Tests
                 var messages = this.Broker.GetMessages(this.VhostName, "boo", int.MaxValue, false);
                 messages.Count.Should().Be(3);
             }
+
+            #endregion
         }
     }
 

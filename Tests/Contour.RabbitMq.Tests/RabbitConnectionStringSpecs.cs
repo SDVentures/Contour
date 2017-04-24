@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Contour.Transport.RabbitMq;
+using Contour.Transport.RabbitMQ;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable InconsistentNaming

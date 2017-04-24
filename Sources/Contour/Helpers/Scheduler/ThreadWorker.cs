@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers.Scheduler
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ThreadWorker.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The thread worker.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;
@@ -8,10 +17,17 @@
     /// </summary>
     internal class ThreadWorker : AbstractWorker
     {
+        #region Fields
+
         /// <summary>
         /// The _thread.
         /// </summary>
         private Thread _thread;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="ThreadWorker"/>.
         /// </summary>
@@ -22,6 +38,11 @@
             : base(cancellationToken)
         {
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The start new.
         /// </summary>
@@ -52,6 +73,11 @@
                 this._thread = null;
             }
         }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// The internal start.
         /// </summary>
@@ -64,5 +90,7 @@
             this._thread = new Thread(threadAction) { IsBackground = true };
             this._thread.Start();
         }
+
+        #endregion
     }
 }

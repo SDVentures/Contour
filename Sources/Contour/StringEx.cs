@@ -5,6 +5,8 @@
     /// </summary>
     public static class StringEx
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// Форматирует строку с использованием параметров.
         /// </summary>
@@ -35,5 +37,7 @@
         {
             return MessageLabel.From(s);
         }
+
+        #endregion
     }
 }

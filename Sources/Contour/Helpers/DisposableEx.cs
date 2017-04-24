@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DisposableEx.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The disposable ex.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers
 {
     using System;
 
@@ -7,6 +16,8 @@
     /// </summary>
     internal static class DisposableEx
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// The try dispose.
         /// </summary>
@@ -28,5 +39,7 @@
                 return false;
             }
         }
+
+        #endregion
     }
 }

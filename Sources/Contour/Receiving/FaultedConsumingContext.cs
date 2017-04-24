@@ -1,10 +1,21 @@
-﻿namespace Contour.Receiving
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FaultedConsumingContext.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The faulted consuming context.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Receiving
 {
     /// <summary>
     /// The faulted consuming context.
     /// </summary>
     internal abstract class FaultedConsumingContext : IFaultedConsumingContext
     {
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="FaultedConsumingContext"/>.
         /// </summary>
@@ -15,10 +26,20 @@
         {
             this.Delivery = delivery;
         }
+
+        #endregion
+
+        #region Public Properties
+
         /// <summary>
         /// Gets the delivery.
         /// </summary>
         public IDelivery Delivery { get; private set; }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The accept.
         /// </summary>
@@ -61,5 +82,7 @@
         {
             this.Delivery.Reject(requeue);
         }
+
+        #endregion
     }
 }

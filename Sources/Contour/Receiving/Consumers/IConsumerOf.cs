@@ -1,4 +1,13 @@
-﻿namespace Contour.Receiving.Consumers
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IConsumerOf.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The ConsumerOf interface.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Receiving.Consumers
 {
     /// <summary>
     /// The ConsumerOf interface.
@@ -8,6 +17,8 @@
     public interface IConsumerOf<T> : IConsumer
         where T : class
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// The handle.
         /// </summary>
@@ -15,5 +26,7 @@
         /// The context.
         /// </param>
         void Handle(IConsumingContext<T> context);
+
+        #endregion
     }
 }

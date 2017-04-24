@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="EnumerableEx.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The enumerable ex.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +17,8 @@
     /// </summary>
     public static class EnumerableEx
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// The for each.
         /// </summary>
@@ -73,5 +84,7 @@
         {
             yield return obj;
         }
+
+        #endregion
     }
 }

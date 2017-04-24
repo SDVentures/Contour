@@ -1,4 +1,13 @@
-﻿namespace Contour.Receiving.Consumers
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LambdaConsumerOf.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The lambda consumer of.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Receiving.Consumers
 {
     using System;
 
@@ -10,10 +19,17 @@
     public class LambdaConsumerOf<T> : IConsumerOf<T>
         where T : class
     {
+        #region Fields
+
         /// <summary>
         /// The _handler action.
         /// </summary>
         private readonly Action<IConsumingContext<T>> _handlerAction;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LambdaConsumerOf{T}"/>.
         /// </summary>
@@ -24,6 +40,11 @@
         {
             this._handlerAction = handlerAction;
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The handle.
         /// </summary>
@@ -34,5 +55,7 @@
         {
             this._handlerAction(context);
         }
+
+        #endregion
     }
 }

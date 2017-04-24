@@ -1,21 +1,28 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-
-using Contour.Configuration;
-
-namespace Contour
+﻿namespace Contour
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Contour.Configuration;
+
     /// <summary>
     /// The message label resolver.
     /// </summary>
     internal class MessageLabelResolver
     {
+        #region Fields
+
         /// <summary>
         /// The _type labels.
         /// </summary>
         private readonly IDictionary<Type, MessageLabel> _typeLabels = new ConcurrentDictionary<Type, MessageLabel>();
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The resolve from.
         /// </summary>
@@ -49,6 +56,11 @@ namespace Contour
         {
             return this.ResolveFrom(typeof(T));
         }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// The get label from.
         /// </summary>
@@ -58,7 +70,7 @@ namespace Contour
         /// <returns>
         /// The <see cref="MessageLabel"/>.
         /// </returns>
-        /// <exception cref="Contour.Configuration.Configuration.BusConfigurationException">
+        /// <exception cref="BusConfigurationException">
         /// </exception>
         private static MessageLabel GetLabelFrom(Type payloadType)
         {
@@ -71,5 +83,7 @@ namespace Contour
 
             return ((MessageAttribute)attribute).Label.ToMessageLabel();
         }
+
+        #endregion
     }
 }

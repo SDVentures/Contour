@@ -14,6 +14,18 @@ namespace Contour
     public interface IBus : IBusContext, IDisposable
     {
         /// <summary>
+        ///   Событие подключения к брокеру
+        /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
+        event Action<IBus, EventArgs> Connected;
+
+        /// <summary>
+        ///   Событие разрыва соединения с брокером
+        /// </summary>
+        [Obsolete("Bus is no longer responsible for connection handling")]
+        event Action<IBus, EventArgs> Disconnected;
+
+        /// <summary>
         ///   Событие окончания запуска шины
         /// </summary>
         event Action<IBus, EventArgs> Started;

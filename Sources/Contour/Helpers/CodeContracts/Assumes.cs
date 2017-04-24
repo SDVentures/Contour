@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers.CodeContracts
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Assumes.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Internal state consistency checks that throw an internal error exception when they fail.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers.CodeContracts
 {
     using System;
     using System.Diagnostics;
@@ -12,6 +21,8 @@
     /// </summary>
     public static class Assumes
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// Throws an internal error exception.
         /// </summary>
@@ -71,6 +82,8 @@
             }
         }
 
+        #endregion
+
         /// <summary>
         ///   An internal error exception that should never be caught.
         /// </summary>
@@ -78,6 +91,8 @@
         [Serializable]
         public class InternalErrorException : Exception
         {
+            #region Constructors and Destructors
+
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="InternalErrorException"/>. 
             ///   Initializes a new instance of the <see cref="InternalErrorException"/> class.
@@ -121,6 +136,8 @@
                 : base(info, context)
             {
             }
+
+            #endregion
         }
     }
 }

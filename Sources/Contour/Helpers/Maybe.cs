@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Maybe.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The maybe.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers
 {
     using System;
 
@@ -11,14 +20,26 @@
     [Obsolete]
     public sealed class Maybe<T>
     {
+        #region Static Fields
+
         /// <summary>
         /// The empty.
         /// </summary>
         public static readonly Maybe<T> Empty = new Maybe<T>(default(T));
+
+        #endregion
+
+        #region Fields
+
         /// <summary>
         /// The value.
         /// </summary>
         private readonly T value;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Maybe{T}"/>.
         /// </summary>
@@ -29,6 +50,11 @@
         {
             this.value = value;
         }
+
+        #endregion
+
+        #region Public Properties
+
         /// <summary>
         /// Gets a value indicating whether has value.
         /// </summary>
@@ -51,6 +77,11 @@
                 return this.value;
             }
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The op_ explicit.
         /// </summary>
@@ -101,6 +132,11 @@
         {
             return this.HasValue ? this.value.ToString() : string.Format("Empty Maybe of {0}.", typeof(T));
         }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// The assert not null value.
         /// </summary>
@@ -113,5 +149,7 @@
                 throw new InvalidOperationException(string.Format("Maybe of {0} must have value.", typeof(T)));
             }
         }
+
+        #endregion
     }
 }

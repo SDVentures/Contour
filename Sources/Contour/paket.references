@@ -1,3 +1,4 @@
 ﻿Common.Logging
+FluentValidation
 Newtonsoft.Json
 RabbitMQ.Client

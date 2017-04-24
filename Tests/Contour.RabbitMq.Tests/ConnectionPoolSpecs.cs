@@ -7,8 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMq.Internal;
-using Contour.Transport.RabbitMq.Topology;
+using Contour.Transport.RabbitMQ.Internal;
+using Contour.Transport.RabbitMQ.Topology;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -59,7 +59,7 @@ namespace Contour.RabbitMq.Tests
             var pool = new RabbitConnectionPool(bus);
 
             var i = 0;
-            var conString = this.ConnectionString;
+            var conString = bus.Configuration.ConnectionString;
             var source = new CancellationTokenSource();
             var connections = new List<IConnection>();
 

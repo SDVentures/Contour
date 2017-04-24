@@ -7,6 +7,8 @@
     /// </summary>
     public interface IBusLifecycleHandler
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// The on started.
         /// </summary>
@@ -50,5 +52,7 @@
         /// The args.
         /// </param>
         void OnStopping(IBus bus, EventArgs args);
+
+        #endregion
     }
 }

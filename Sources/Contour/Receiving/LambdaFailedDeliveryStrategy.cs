@@ -1,4 +1,13 @@
-﻿namespace Contour.Receiving
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LambdaFailedDeliveryStrategy.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The lambda failed delivery strategy.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Receiving
 {
     using System;
 
@@ -9,10 +18,17 @@
     /// </summary>
     public class LambdaFailedDeliveryStrategy : IFailedDeliveryStrategy
     {
+        #region Fields
+
         /// <summary>
         /// The _handler action.
         /// </summary>
         private readonly Action<IFailedConsumingContext> _handlerAction;
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="LambdaFailedDeliveryStrategy"/>.
         /// </summary>
@@ -23,6 +39,11 @@
         {
             this._handlerAction = handlerAction;
         }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The handle.
         /// </summary>
@@ -37,9 +58,11 @@
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger<LambdaFailedDeliveryStrategy>().
+                LogManager.GetCurrentClassLogger().
                     ErrorFormat("Unable to handle failed message [{0}].", ex, failedConsumingContext.Delivery.Label);
             }
         }
+
+        #endregion
     }
 }

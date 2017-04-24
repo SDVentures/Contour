@@ -5,11 +5,11 @@ using System.Threading;
 using FluentAssertions;
 
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMq.Topology;
+using Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
 
-using Queue = Contour.Transport.RabbitMq.Topology.Queue;
+using Queue = Contour.Transport.RabbitMQ.Topology.Queue;
 
 namespace Contour.RabbitMq.Tests
 {

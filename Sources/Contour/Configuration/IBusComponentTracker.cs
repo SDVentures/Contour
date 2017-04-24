@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace Contour.Configuration
+﻿namespace Contour.Configuration
 {
+    using System.Collections.Generic;
+
     /// <summary>
     ///   Трекер компонентов клиента шины. Позволяет работать с компонентами пакетно.
     /// </summary>
     public interface IBusComponentTracker
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// Позволяет получить доступ к списку зарегистрированных компонентов.
         /// </summary>
@@ -40,6 +42,8 @@ namespace Contour.Configuration
         ///   Остановка всех зарегистрированных компонентов.
         /// </summary>
         void StopAll();
+
+        #endregion
 
         /// <summary>
         /// Проверка работоспособности зарегистрированных компонентов.

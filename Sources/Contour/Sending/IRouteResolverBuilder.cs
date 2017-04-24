@@ -1,4 +1,13 @@
-﻿namespace Contour.Sending
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IRouteResolverBuilder.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The RouteResolverBuilder interface.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Sending
 {
     using Contour.Topology;
 
@@ -7,6 +16,8 @@
     /// </summary>
     public interface IRouteResolverBuilder
     {
+        #region Public Properties
+
         /// <summary>
         /// Gets the endpoint.
         /// </summary>
@@ -21,5 +32,7 @@
         /// Gets the topology.
         /// </summary>
         ITopologyBuilder Topology { get; }
+
+        #endregion
     }
 }

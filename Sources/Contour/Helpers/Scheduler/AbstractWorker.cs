@@ -1,4 +1,13 @@
-﻿namespace Contour.Helpers.Scheduler
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AbstractWorker.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The abstract worker.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Helpers.Scheduler
 {
     using System;
     using System.Threading;
@@ -8,10 +17,17 @@
     /// </summary>
     internal abstract class AbstractWorker : IWorker
     {
+        #region Fields
+
         /// <summary>
         /// The _completion handle.
         /// </summary>
         private readonly ManualResetEvent _completionHandle = new ManualResetEvent(true);
+
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="AbstractWorker"/>.
         /// </summary>
@@ -24,6 +40,11 @@
 
             this.CompletionHandle = new ManualResetEvent(true);
         }
+
+        #endregion
+
+        #region Public Properties
+
         /// <summary>
         /// Gets the cancellation token.
         /// </summary>
@@ -33,6 +54,11 @@
         /// Gets the completion handle.
         /// </summary>
         public WaitHandle CompletionHandle { get; private set; }
+
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
         /// The dispose.
         /// </summary>
@@ -49,6 +75,11 @@
             this._completionHandle.Reset();
             this.InternalStart(this.WrapAction(workAction));
         }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// The internal start.
         /// </summary>
@@ -80,5 +111,7 @@
                     }
                 };
         }
+
+        #endregion
     }
 }

@@ -2,27 +2,31 @@
 using Contour.Configuration;
 using Contour.Helpers;
 using Contour.Testing.Transport.RabbitMq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
-using System.Threading;
-
-using Contour.Configuration.Configurator;
-
-using FluentAssertions;
-
-using Contour.Receiving;
-using Contour.Receiving.Consumers;
-using Contour.Transport.RabbitMq;
-using Contour.Validation;
-
-using Moq;
-
-using NUnit.Framework;
+using Contour.Transport.RabbitMQ;
 
 namespace Contour.Configurator.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Dynamic;
+    using System.Threading;
+
+    using FluentAssertions;
+
+    using FluentValidation;
+
+    using Contour.Operators;
+    using Contour.Receiving;
+    using Contour.Receiving.Consumers;
+    using Contour.Validation;
+    using Contour.Validation.Fluent;
+
+    using Moq;
+
+    using Ninject;
+
+    using NUnit.Framework;
 
     /// <summary>
     /// The bus configuration specs.
@@ -47,16 +51,14 @@ namespace Contour.Configurator.Tests
         /// <summary>
         /// The boo payload validator.
         /// </summary>
-        public class BooPayloadValidator : AbstractMessageValidatorOf<BooMessage>
+        public class BooPayloadValidator : FluentPayloadValidatorOf<BooMessage>
         {
-            public override ValidationResult Validate(Message<BooMessage> message)
+            /// <summary>
+            /// Инициализирует новый экземпляр класса <see cref="BooPayloadValidator"/>.
+            /// </summary>
+            public BooPayloadValidator()
             {
-                if (message.Payload.Num > 100)
-                {
-                    return ValidationResult.Valid;
-                }
-
-                return new ValidationResult(new BrokenRule("Something wrong."));
+                this.RuleFor(x => x.Num).GreaterThan(100);
             }
         }
 
@@ -65,6 +67,11 @@ namespace Contour.Configurator.Tests
         /// </summary>
         public class BusDependentHandler : IConsumerOf<BooMessage>
         {
+            /// <summary>
+            /// The build count.
+            /// </summary>
+            public static int BuildCount;
+
             /// <summary>
             /// The wait event.
             /// </summary>
@@ -79,6 +86,8 @@ namespace Contour.Configurator.Tests
             public BusDependentHandler(IBus bus)
             {
                 this.Bus = bus;
+
+                BuildCount++;
             }
 
             /// <summary>
@@ -92,6 +101,7 @@ namespace Contour.Configurator.Tests
             public static void Reset()
             {
                 WaitEvent = new CountdownEvent(3);
+                BuildCount = 0;
             }
 
             /// <summary>
@@ -103,6 +113,55 @@ namespace Contour.Configurator.Tests
             public void Handle(IConsumingContext<BooMessage> context)
             {
                 WaitEvent.Signal();
+            }
+        }
+
+        /// <summary>
+        /// The bus dependent transformer.
+        /// </summary>
+        public class BusDependentTransformer : IMessageOperator
+        {
+            /// <summary>
+            /// The build count.
+            /// </summary>
+            public static int BuildCount;
+
+            /// <summary>
+            /// The wait event.
+            /// </summary>
+            public static CountdownEvent WaitEvent;
+
+            /// <summary>
+            /// Инициализирует новый экземпляр класса <see cref="BusDependentTransformer"/>.
+            /// </summary>
+            /// <param name="bus">
+            /// The bus.
+            /// </param>
+            public BusDependentTransformer(IBus bus)
+            {
+                this.Bus = bus;
+
+                BuildCount++;
+            }
+
+            /// <summary>
+            /// Gets the bus.
+            /// </summary>
+            public IBus Bus { get; private set; }
+
+            /// <summary>
+            /// The reset.
+            /// </summary>
+            public static void Reset()
+            {
+                WaitEvent = new CountdownEvent(3);
+                BuildCount = 0;
+            }
+
+            public IEnumerable<IMessage> Apply(IMessage message)
+            {
+                WaitEvent.Signal();
+                yield break;
             }
         }
 
@@ -122,7 +181,13 @@ namespace Contour.Configurator.Tests
             /// <summary>
             /// Gets the received.
             /// </summary>
-            public WaitHandle Received => this._received;
+            public WaitHandle Received
+            {
+                get
+                {
+                    return this._received;
+                }
+            }
 
             /// <summary>
             /// The handle.
@@ -137,61 +202,50 @@ namespace Contour.Configurator.Tests
         }
 
         /// <summary>
+        /// The concrete transformer of.
+        /// </summary>
+        /// <typeparam name="T">
+        /// </typeparam>
+        public class ConcreteTransformerOf<T> : IMessageOperator
+            where T : class
+        {
+            /// <summary>
+            /// The _received.
+            /// </summary>
+            private readonly ManualResetEvent received = new ManualResetEvent(false);
+
+            /// <summary>
+            /// Gets the received.
+            /// </summary>
+            public WaitHandle Received
+            {
+                get
+                {
+                    return this.received;
+                }
+            }
+
+            public IEnumerable<IMessage> Apply(IMessage message)
+            {
+                this.received.Set();
+                yield break;
+            }
+        }
+
+        /// <summary>
         /// The foo payload validator.
         /// </summary>
-        public class FooPayloadValidator : AbstractMessageValidatorOf<FooMessage>
+        public class FooPayloadValidator : FluentPayloadValidatorOf<FooMessage>
         {
-            public override ValidationResult Validate(Message<FooMessage> message)
+            /// <summary>
+            /// Инициализирует новый экземпляр класса <see cref="FooPayloadValidator"/>.
+            /// </summary>
+            public FooPayloadValidator()
             {
-                if (message.Payload.Num > 100)
-                {
-                    return ValidationResult.Valid;
-                }
-
-                return new ValidationResult(new BrokenRule("Something wrong."));
+                this.RuleFor(x => x.Num).
+                    LessThan(100);
             }
         }
-
-        internal class ServiceLocator
-        {
-            private readonly IDictionary<Tuple<string, Type>, object> services = new Dictionary<Tuple<string, Type>, object>();
-
-            private readonly IDictionary<Type, int>  getCount = new Dictionary<Type, int>();
-
-            public void Register(string name, Type type, object instance)
-            {
-                this.services.Add(Tuple.Create(name, type), instance);
-                this.getCount.Add(instance.GetType(), 0);
-            }
-
-            public object Get(Type type, string name)
-            {
-                var key = Tuple.Create(name, type);
-                if (this.services.ContainsKey(key))
-                {
-                    this.getCount[this.services[key].GetType()]++;
-                    return this.services[key];
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            public int GetCount(Type type)
-            {
-                if (this.getCount.ContainsKey(type))
-                {
-                    return this.getCount[type];
-                }
-                else
-                {
-                    return 0;
-                }
-
-            }
-        }
-
 
         /// <summary>
         /// The when_configuring_endpoint_with_lifecycle_handler.
@@ -206,20 +260,25 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_handle_state_changes()
             {
-                string producerConfig = $@"<endpoints>
-                        <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"" lifecycleHandler=""ProducerHandler"">
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                        <endpoint name=""producer"" connectionString=""{0}{1}"" lifecycleHandler=""ProducerHandler"">
                             <outgoing>
                                 <route key=""a"" label=""msg.a"" />
                             </outgoing>
                         </endpoint>
-                    </endpoints>";
+                    </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
                 var handler = new Mock<IBusLifecycleHandler>();
 
-                var serviceLocator = new ServiceLocator();
-                serviceLocator.Register("ProducerHandler", typeof(IBusLifecycleHandler), handler.Object);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IBusLifecycleHandler>().
+                    ToConstant(handler.Object).
+                    Named("ProducerHandler");
 
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
 
                 IBus producer = this.StartBus(
                     "producer", 
@@ -254,41 +313,54 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_build_consumer_each_time()
             {
-                string producerConfig = $@"<endpoints>
-                        <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                        <endpoint name=""producer"" connectionString=""{0}{1}"">
                             <outgoing>
                                 <route key=""a"" label=""msg.a"" />
                                 <route key=""b"" label=""msg.b"" />
                             </outgoing>
                         </endpoint>
-                    </endpoints>";
+                    </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
-                string consumerConfig =
-                    $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
+                string consumerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
                                     <on key=""b"" label=""msg.b"" react=""BooTransformer"" type=""BooMessage"" lifestyle=""Delegated"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
                 BusDependentHandler.Reset();
+                BusDependentTransformer.Reset();
 
-                var serviceLocator = new ServiceLocator();
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>().
+                    To<BusDependentHandler>().
+                    InTransientScope().
+                    Named("BooHandler");
+
+                kernel.Bind<IMessageOperator>().To<BusDependentTransformer>();
+
+                kernel.Bind<IConsumerOf<BooMessage>>().To<OperatorConsumerOf<BooMessage>>()
+                    .InTransientScope()
+                    .Named("BooTransformer");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
                 IBus consumer = this.StartBus(
-                    "consumer",
+                    "consumer", 
                     cfg =>
-                    {
-                        var section = new XmlEndpointsSection(consumerConfig);
-                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
-                    });
-
-                serviceLocator.Register(
-                    "BooHandler", 
-                    typeof(IConsumerOf<BooMessage>), 
-                    new BusDependentHandler(consumer));
+                        {
+                            var section = new XmlEndpointsSection(consumerConfig);
+                            new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                        });
 
                 IBus producer = this.StartBus(
                     "producer", 
@@ -298,13 +370,24 @@ namespace Contour.Configurator.Tests
                             new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
                         });
 
+                kernel.Bind<IBus>().ToConstant(consumer);
 
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
 
                 BusDependentHandler.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
-                serviceLocator.GetCount(typeof(BusDependentHandler)).Should().Be(3);
+                BusDependentHandler.BuildCount.Should().Be(3);
+
+                producer.Emit("msg.b", new { Num = 13 });
+                producer.Emit("msg.b", new { Num = 13 });
+                producer.Emit("msg.b", new { Num = 13 });
+
+                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).
+                    Should().
+                    BeTrue();
+                BusDependentTransformer.BuildCount.Should().
+                    Be(3);
             }
         }
 
@@ -321,41 +404,53 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_build_consumer_once()
             {
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                     <route key=""b"" label=""msg.b"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
-                string consumerConfig =
-                    $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
+                string consumerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Lazy"" />
                                     <on key=""b"" label=""msg.b"" react=""BooTransformer"" type=""BooMessage"" lifestyle=""Lazy"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
                 BusDependentHandler.Reset();
+                BusDependentTransformer.Reset();
 
-                var serviceLocator = new ServiceLocator();
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>().
+                    To<BusDependentHandler>().
+                    InTransientScope().
+                    Named("BooHandler");
+                kernel.Bind<IMessageOperator>().To<BusDependentTransformer>();
+
+                kernel.Bind<IConsumerOf<BooMessage>>().To<OperatorConsumerOf<BooMessage>>()
+                    .InTransientScope()
+                    .Named("BooTransformer");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
                 IBus consumer = this.StartBus(
-                    "consumer",
+                    "consumer", 
                     cfg =>
-                    {
-                        var section = new XmlEndpointsSection(consumerConfig);
-                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
-                    });
-
-                serviceLocator.Register(
-                    "BooHandler",
-                    typeof(IConsumerOf<BooMessage>),
-                    new BusDependentHandler(consumer));
+                        {
+                            var section = new XmlEndpointsSection(consumerConfig);
+                            new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                        });
 
                 IBus producer = this.StartBus(
                     "producer", 
@@ -365,12 +460,28 @@ namespace Contour.Configurator.Tests
                             new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
                         });
 
+                kernel.Bind<IBus>().
+                    ToConstant(consumer);
+
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
 
-                BusDependentHandler.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
-                serviceLocator.GetCount(typeof(BusDependentHandler)).Should().Be(1);
+                BusDependentHandler.WaitEvent.Wait(5.Seconds()).
+                    Should().
+                    BeTrue();
+                BusDependentHandler.BuildCount.Should().
+                    Be(1);
+
+                producer.Emit("msg.b", new { Num = 13 });
+                producer.Emit("msg.b", new { Num = 13 });
+                producer.Emit("msg.b", new { Num = 13 });
+
+                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).
+                    Should().
+                    BeTrue();
+                BusDependentTransformer.BuildCount.Should().
+                    Be(1);
             }
         }
 
@@ -387,27 +498,36 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_receive()
             {
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
-                string consumerConfig = $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
+                string consumerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
-                ServiceLocator serviceLocator = new ServiceLocator();
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
-                serviceLocator.Register("BooHandler", typeof(IConsumerOf<BooMessage>), handler);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>().
+                    ToConstant(handler).
+                    Named("BooHandler");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -443,27 +563,36 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_receive()
             {
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
 
-                string consumerConfig = $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""DynamicHandler"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
 
                 var handler = new ConcreteHandlerOf<ExpandoObject>();
 
-                ServiceLocator serviceLocator = new ServiceLocator();
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
-                serviceLocator.Register("DynamicHandler", typeof(IConsumerOf<ExpandoObject>), handler);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<ExpandoObject>>().
+                    ToConstant(handler).
+                    Named("DynamicHandler");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -482,7 +611,10 @@ namespace Contour.Configurator.Tests
                         });
 
                 producer.Emit("msg.a", new { This = "That" });
-                handler.Received.WaitOne(5.Seconds()).Should().BeTrue();
+
+                handler.Received.WaitOne(5.Seconds()).
+                    Should().
+                    BeTrue();
             }
         }
 
@@ -501,17 +633,20 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_validate()
             {
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
 
-                string consumerConfig =
-                    $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <validators>
                                     <add name=""ValidatorGroup"" group=""true"" />
                                 </validators>
@@ -519,26 +654,31 @@ namespace Contour.Configurator.Tests
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
-                ServiceLocator serviceLocator = new ServiceLocator();
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
-                serviceLocator.Register(
-                    "BooHandler",
-                    typeof(IConsumerOf<BooMessage>),
-                    handler);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+                kernel.Bind<IMessageValidator>()
+                    .To<BooPayloadValidator>()
+                    .InSingletonScope();
+                kernel.Bind<IMessageValidator>()
+                    .To<FooPayloadValidator>()
+                    .InSingletonScope();
 
-                serviceLocator.Register(
-                    "ValidatorGroup",
-                    typeof(MessageValidatorGroup),
-                    new MessageValidatorGroup(
-                        new List<IMessageValidator>
-                            {
-                                new BooPayloadValidator(),
-                                new FooPayloadValidator(),
-                            }));
+                kernel.Bind<MessageValidatorGroup>()
+                    .ToSelf()
+                    .InSingletonScope()
+                    .Named("ValidatorGroup")
+                    .WithConstructorArgument("validators", ctx => ctx.Kernel.GetAll<IMessageValidator>());
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -558,7 +698,9 @@ namespace Contour.Configurator.Tests
 
                 producer.Emit("msg.a", new { Num = 13 });
 
-                handler.Received.WaitOne(3.Seconds()).Should().BeFalse();
+                handler.Received.WaitOne(3.Seconds()).
+                    Should().
+                    BeFalse();
             }
         }
 
@@ -575,36 +717,41 @@ namespace Contour.Configurator.Tests
             [Test]
             public void should_validate()
             {
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""{this.Url}{this.VhostName}"">
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"" />
                                 </outgoing>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
 
-                string consumerConfig = $@"<endpoints>
-                            <endpoint name=""consumer"" connectionString=""{this.Url}{this.VhostName}"">
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
                                 <incoming>
                                     <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" validate=""BooValidator"" />
                                 </incoming>
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
-                ServiceLocator serviceLocator = new ServiceLocator();
-                serviceLocator.Register(
-                    "BooHandler",
-                    typeof(IConsumerOf<BooMessage>),
-                    handler);
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+                kernel.Bind<IMessageValidatorOf<BooMessage>>()
+                    .To<BooPayloadValidator>()
+                    .InSingletonScope()
+                    .Named("BooValidator");
 
-                serviceLocator.Register(
-                    "BooValidator",
-                    typeof(IMessageValidatorOf<BooMessage>),
-                    new BooPayloadValidator());
-
-                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -624,7 +771,80 @@ namespace Contour.Configurator.Tests
 
                 producer.Emit("msg.a", new { Num = 13 });
 
-                handler.Received.WaitOne(3.Seconds()).Should().BeFalse();
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
+            }
+        }
+
+        /// <summary>
+        /// The when_transforming_with_configured_concrete_transformer.
+        /// </summary>
+        [TestFixture]
+        [Category("Integration")]
+        public class when_transforming_with_configured_concrete_transformer : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_receive.
+            /// </summary>
+            [Test]
+            public void should_receive()
+            {
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"" />
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooTransformer"" type=""BooMessage"" />
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new ConcreteTransformerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IMessageOperator>().ToConstant(handler);
+
+                kernel.Bind<IConsumerOf<BooMessage>>().To<OperatorConsumerOf<BooMessage>>()
+                    .InTransientScope()
+                    .Named("BooTransformer");
+
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer", 
+                    cfg =>
+                        {
+                            var section = new XmlEndpointsSection(consumerConfig);
+                            new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                        });
+
+                IBus producer = this.StartBus(
+                    "producer", 
+                    cfg =>
+                        {
+                            var section = new XmlEndpointsSection(producerConfig);
+                            new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                        });
+
+                producer.Emit("msg.a", new { Num = 13 });
+
+                handler.Received.WaitOne(5.Seconds())
+                    .Should()
+                    .BeTrue();
             }
         }
 
@@ -795,10 +1015,12 @@ namespace Contour.Configurator.Tests
             public void should_set_queue_limit()
             {
                 const int queueLimit = 100;
-                string producerConfig = $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" faultQueueLimit=""{queueLimit}"">
+                string producerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" faultQueueLimit=""{0}"">
                             </endpoint>
-                        </endpoints>";
+                        </endpoints>", 
+                        queueLimit);
 
                 Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
                 var busConfigurator = new BusConfiguration();
@@ -887,7 +1109,7 @@ namespace Contour.Configurator.Tests
                 var configurator = new AppConfigConfigurator(section, resolverMock.Object);
                 var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
 
-                configuration.EndpointOptions.GetConnectionString().Value.Should().NotBeNullOrEmpty();
+                configuration.ConnectionString.Should().NotBeNullOrEmpty();
                 configuration.EndpointOptions.GetConnectionString().Should().NotBeNull();
             }
         }

@@ -1,4 +1,13 @@
-﻿namespace Contour.Receiving
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AbstractReceiver.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The abstract receiver.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Receiving
 {
     using Contour.Receiving.Consumers;
 

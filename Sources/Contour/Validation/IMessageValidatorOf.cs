@@ -1,4 +1,13 @@
-﻿namespace Contour.Validation
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IMessageValidatorOf.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Валидатор сообщения.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Validation
 {
     /// <summary>
     /// Валидатор сообщения.
@@ -9,6 +18,8 @@
     public interface IMessageValidatorOf<T> : IMessageValidator
         where T : class
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// Проверить валидность сообщения.
         /// </summary>
@@ -19,5 +30,7 @@
         /// Результат валидации.
         /// </returns>
         ValidationResult Validate(Message<T> message);
+
+        #endregion
     }
 }

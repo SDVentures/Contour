@@ -1,4 +1,13 @@
-﻿namespace Contour.Validation
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AbstractMessageValidatorOf.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The abstract message validator of.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Contour.Validation
 {
     /// <summary>
     /// The abstract message validator of.
@@ -8,6 +17,8 @@
     public abstract class AbstractMessageValidatorOf<T> : IMessageValidatorOf<T>
         where T : class
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// The validate.
         /// </summary>
@@ -32,5 +43,7 @@
         {
             return this.Validate((Message<T>)message);
         }
+
+        #endregion
     }
 }

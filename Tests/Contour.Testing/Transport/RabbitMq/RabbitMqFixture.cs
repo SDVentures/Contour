@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Contour.Configuration;
 using Contour.Testing.Plumbing;
+using Contour.Transport.RabbitMQ;
 
 using NUnit.Framework;
 

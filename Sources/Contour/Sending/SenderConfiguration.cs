@@ -1,12 +1,13 @@
 ﻿using System;
 
-using Contour.Configuration;
 using Contour.Helpers;
 using Contour.Helpers.CodeContracts;
 using Contour.Receiving;
 
 namespace Contour.Sending
 {
+    using Configuration;
+
     /// <summary>
     /// Конфигурация отправителя сообщений.
     /// Используется для конфигурирования вариантов односторонних коммуникаций и коммуникаций в формате запрос-ответ.

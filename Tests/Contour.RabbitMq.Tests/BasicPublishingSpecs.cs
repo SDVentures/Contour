@@ -9,13 +9,15 @@ using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMq;
-using Contour.Transport.RabbitMq.Topology;
+using Contour.Transport.RabbitMQ;
+using Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
 {
+    using Configuration;
+
     /// <summary>
     /// The basic publishing specs.
     /// </summary>

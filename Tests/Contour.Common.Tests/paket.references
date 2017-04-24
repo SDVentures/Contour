@@ -1,4 +1,5 @@
 ﻿Common.Logging
 FluentAssertions
+FluentValidation
 Moq
 NUnit

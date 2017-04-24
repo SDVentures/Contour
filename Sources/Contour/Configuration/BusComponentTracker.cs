@@ -1,11 +1,12 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-
-using Contour.Helpers;
 
 namespace Contour.Configuration
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Contour.Helpers;
+
     /// <summary>
     /// The bus component tracker.
     /// </summary>

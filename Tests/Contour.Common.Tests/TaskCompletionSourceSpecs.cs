@@ -15,6 +15,8 @@
     // ReSharper disable InconsistentNaming
     public class TaskCompletionSourceSpecs
     {
+        #region Public Methods and Operators
+
         /// <summary>
         /// The get threads count.
         /// </summary>
@@ -28,6 +30,8 @@
                 Count( /*t => t.ThreadState == System.Diagnostics.ThreadState.Running*/);
         }
 
+        #endregion
+
         /// <summary>
         /// The when_waiting_on_incomplete_task_completion_source.
         /// </summary>
@@ -35,6 +39,8 @@
         [Category("Unit")]
         public class when_waiting_on_incomplete_task_completion_source
         {
+            #region Public Methods and Operators
+
             /// <summary>
             /// The should_use_threads_while_waiting.
             /// </summary>
@@ -67,6 +73,8 @@
                     cancellation.Cancel();
                 }
             }
+
+            #endregion
         }
     }
 
