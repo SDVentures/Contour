@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Logging;
+using Contour.Helpers;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -28,7 +29,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             for (var count = 0; count < this.attempts; count++)
             {
-                this.logger.Trace($"Attempt to send #{count}");
+                this.logger.Trace(() => $"Attempt to send #{count}");
                 var producer = this.selector.Next();
 
                 try
@@ -38,7 +39,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 catch (Exception ex)
                 {
                     this.logger.Warn(
-                        $"Attempt #{count} to send a message on producer at [{producer.BrokerUrl}] has failed, will try the next producer",
+                        () => $"Attempt #{count} to send a message on producer at [{producer?.BrokerUrl}] has failed, will try the next producer",
                         ex);
 
                     errors.Add(ex);
