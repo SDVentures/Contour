@@ -1,4 +1,8 @@
-﻿## 1.7.4
+﻿## 1.7.5
+- Fixed:
+  - Round robin will not rotate if everyone has jumped off (https://github.com/SDVentures/Contour/issues/79)
+
+## 1.7.4
 - Fixed:
   - Expired response handling (https://github.com/SDVentures/Contour/issues/76)
 

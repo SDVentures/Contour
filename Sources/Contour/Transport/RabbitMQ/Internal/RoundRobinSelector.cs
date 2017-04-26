@@ -31,6 +31,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public IProducer Next()
         {
+            var freshCycle = false;
+
             while (true)
             {
                 if (this.enumerator.MoveNext())
@@ -38,7 +40,13 @@ namespace Contour.Transport.RabbitMQ.Internal
                     return this.enumerator.Current;
                 }
 
+                if (freshCycle)
+                {
+                    throw new Exception("Unable to take the next producer because no available producers left");
+                }
+
                 Logger.Trace("Starting the next round of producers' selection");
+                freshCycle = true;
                 this.enumerator = this.producers.GetEnumerator();
             }
         }

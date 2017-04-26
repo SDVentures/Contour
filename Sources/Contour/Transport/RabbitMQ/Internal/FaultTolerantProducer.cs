@@ -29,18 +29,15 @@ namespace Contour.Transport.RabbitMQ.Internal
             for (var count = 0; count < this.attempts; count++)
             {
                 this.logger.Trace($"Attempt to send #{count}");
-                var producer = this.selector.Next();
 
                 try
                 {
+                    var producer = this.selector.Next();
                     return this.TrySend(exchange, producer);
                 }
                 catch (Exception ex)
                 {
-                    this.logger.Warn(
-                        $"Attempt #{count} to send a message on producer at [{producer.BrokerUrl}] has failed, will try the next producer",
-                        ex);
-
+                    this.logger.Warn($"Attempt #{count} to send a message has failed", ex);
                     errors.Add(ex);
                 }
             }

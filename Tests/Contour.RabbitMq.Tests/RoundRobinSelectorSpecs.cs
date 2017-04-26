@@ -81,6 +81,29 @@ namespace Contour.RabbitMq.Tests
                     index.Should().Be(i % (Count + 1));
                 }
             }
+
+            [Test]
+            public void should_raise_error_if_all_producers_have_been_removed()
+            {
+                const int Count = 3;
+
+                var producers = Enumerable.Range(0, Count).Select(i => new Mock<IProducer>().Object);
+
+                var queue = new ConcurrentQueue<IProducer>(producers);
+                var selector = new RoundRobinSelector(queue);
+
+                IProducer p;
+                while (queue.TryDequeue(out p))
+                {
+                }
+
+                for (var i = 0; i < Count; i++)
+                {
+                    selector.Next();
+                }
+                
+                Assert.Throws<Exception>(() => { selector.Next(); });
+            }
         }
     }
 }
