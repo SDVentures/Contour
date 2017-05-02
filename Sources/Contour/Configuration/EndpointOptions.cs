@@ -7,7 +7,6 @@ namespace Contour.Configuration
     /// </summary>
     public class EndpointOptions : BusOptions
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="EndpointOptions"/> class.
         /// </summary>

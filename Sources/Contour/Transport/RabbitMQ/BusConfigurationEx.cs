@@ -71,7 +71,9 @@ namespace Contour.Transport.RabbitMQ
                 IncomingMessageHeaderStorage = messageHeaderStorage,
                 ReuseConnection = true,
                 ProducerSelectorBuilder = RabbitBusDefaults.ProducerSelectorBuilder,
-                FailoverAttempts = 7
+                FailoverAttempts = 7,
+                MaxRetryDelay = 30,
+                InactivityResetDelay = 120
             };
 
             c.ReceiverDefaults = new RabbitReceiverOptions(c.EndpointOptions)

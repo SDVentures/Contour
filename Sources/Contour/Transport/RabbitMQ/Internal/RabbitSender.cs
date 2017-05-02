@@ -19,9 +19,6 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitSender : AbstractSender
     {
-        private const int AttemptsDefault = 1;
-        private readonly TimeSpan timeoutDefault = TimeSpan.FromSeconds(30);
-        
         private readonly ILog logger;
         private readonly RabbitBus bus;
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
@@ -112,10 +109,12 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>Задача ожидания отправки сообщения.</returns>
         protected override Task<MessageExchange> InternalSend(MessageExchange exchange)
         {
-            var attempts = this.senderOptions.GetFailoverAttempts() ?? AttemptsDefault;
+            var attempts = this.senderOptions.GetFailoverAttempts() ?? 1;
+            var maxRetryDelay = this.senderOptions.GetMaxRetryDelay().GetValueOrDefault();
+            var inactivityResetDelay = this.senderOptions.GetInactivityResetDelay().GetValueOrDefault();
             
-            var wrapper = new FaultTolerantProducer(this.producerSelector, attempts);
-            return wrapper.Try(exchange);
+            var producer = new FaultTolerantProducer(this.producerSelector, attempts, maxRetryDelay, inactivityResetDelay);
+            return producer.Send(exchange);
         }
 
         /// <summary>
