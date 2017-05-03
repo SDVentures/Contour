@@ -1,4 +1,9 @@
-﻿## 1.7.5
+﻿## 1.7.6
+- Improvements:
+  - Fault tolerant producer is now able to set and manage retry delays when making send attempts (see https://github.com/SDVentures/Contour/issues/47);
+  - Payload logging in sender has been removed;
+
+## 1.7.5
 - Fixed:
   - Round robin will not rotate if everyone has jumped off (https://github.com/SDVentures/Contour/issues/79)
 
