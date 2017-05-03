@@ -7,19 +7,20 @@ using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
-    internal sealed class FaultTolerantProducer : IDisposable
+    internal sealed class FaultTolerantProducer : IFaultTolerantProducer
     {
         private readonly ILog logger;
         private readonly ConcurrentDictionary<int, int> delays = new ConcurrentDictionary<int, int>();
         private readonly IProducerSelector selector;
         private readonly int maxAttempts;
-        private readonly int retryDelay;
+        private readonly int maxRetryDelay;
         private readonly int inactivityResetDelay;
         private readonly Timer resetTimer;
+
         private DateTime lastOperationTime = DateTime.Now;
         private bool disposed;
         
-        public FaultTolerantProducer(IProducerSelector selector, int maxAttempts, int retryDelay, int inactivityResetDelay)
+        public FaultTolerantProducer(IProducerSelector selector, int maxAttempts, int maxRetryDelay, int inactivityResetDelay)
         {
             if (selector == null)
             {
@@ -30,13 +31,13 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.selector = selector;
             this.maxAttempts = maxAttempts;
-            this.retryDelay = retryDelay;
+            this.maxRetryDelay = maxRetryDelay;
             this.inactivityResetDelay = inactivityResetDelay;
 
             this.resetTimer = new Timer(this.OnTimer);
 
             this.logger.Trace(
-                $"Initialized with max attempts = {this.maxAttempts}, max retry delay = {this.retryDelay}, inactivity reset delay = {this.inactivityResetDelay}");
+                $"Initialized with max attempts = {this.maxAttempts}, max retry delay = {this.maxRetryDelay}, inactivity reset delay = {this.inactivityResetDelay}");
         }
 
         public IEnumerable<KeyValuePair<int, int>> Delays => this.delays;
@@ -139,7 +140,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.delays.AddOrUpdate(
                 hash,
                 delay,
-                (h, previousDelay) => Math.Min(2 * (previousDelay + 1), this.retryDelay));
+                (h, previousDelay) => Math.Min(2 * (previousDelay + 1), this.maxRetryDelay));
         }
 
         private void OnTimer(object state)

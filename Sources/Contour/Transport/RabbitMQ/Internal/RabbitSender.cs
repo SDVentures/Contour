@@ -25,6 +25,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly ConcurrentQueue<IProducer> producers = new ConcurrentQueue<IProducer>();
         private readonly RabbitSenderOptions senderOptions;
         private IProducerSelector producerSelector;
+        private IFaultTolerantProducer faultTolerantProducer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitSender"/> class. 
@@ -99,6 +100,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("Stopping sender of [{0}]", this.Configuration.Label));
 
             this.StopProducers();
+            this.faultTolerantProducer.Dispose();
+
             this.IsStarted = false;
         }
 
@@ -109,12 +112,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>Задача ожидания отправки сообщения.</returns>
         protected override Task<MessageExchange> InternalSend(MessageExchange exchange)
         {
-            var attempts = this.senderOptions.GetFailoverAttempts() ?? 1;
-            var maxRetryDelay = this.senderOptions.GetMaxRetryDelay().GetValueOrDefault();
-            var inactivityResetDelay = this.senderOptions.GetInactivityResetDelay().GetValueOrDefault();
-            
-            var producer = new FaultTolerantProducer(this.producerSelector, attempts, maxRetryDelay, inactivityResetDelay);
-            return producer.Send(exchange);
+            return this.faultTolerantProducer.Send(exchange);
         }
 
         /// <summary>
@@ -136,7 +134,14 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.BuildProducers();
             var builder = this.senderOptions.GetProducerSelectorBuilder();
+
             this.producerSelector = builder.Build(this.producers);
+            
+            var sendAttempts = this.senderOptions.GetFailoverAttempts() ?? 1;
+            var maxRetryDelay = this.senderOptions.GetMaxRetryDelay().GetValueOrDefault();
+            var resetDelay = this.senderOptions.GetInactivityResetDelay().GetValueOrDefault();
+
+            this.faultTolerantProducer = new FaultTolerantProducer(this.producerSelector, sendAttempts, maxRetryDelay, resetDelay);
         }
 
         /// <summary>
