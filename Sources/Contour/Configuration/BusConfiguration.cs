@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Linq;
 
@@ -29,6 +30,8 @@ namespace Contour.Configuration
         /// The _filters.
         /// </summary>
         private readonly IList<IMessageExchangeFilter> filters = new List<IMessageExchangeFilter>();
+
+        private readonly IList<IPayloadConverter> converters = new List<IPayloadConverter>();
 
         /// <summary>
         /// The _message label resolver.
@@ -61,6 +64,8 @@ namespace Contour.Configuration
 
             this.SenderDefaults = new SenderOptions(this.EndpointOptions);
             this.ReceiverDefaults = new ReceiverOptions(this.EndpointOptions);
+
+            this.converters = new List<IPayloadConverter>();
         }
 
         /// <summary>
@@ -147,10 +152,7 @@ namespace Contour.Configuration
         /// </summary>
         public SenderOptions SenderDefaults { get; internal set; }
 
-        /// <summary>
-        /// Gets the serializer.
-        /// </summary>
-        public IPayloadConverter Serializer { get; private set; }
+        public IReadOnlyCollection<IPayloadConverter> Converters => new ReadOnlyCollection<IPayloadConverter>(this.converters);
 
         /// <summary>
         /// Gets the validator registry.
@@ -189,7 +191,7 @@ namespace Contour.Configuration
                     new MemoryCacheProvider(),
                     new HashCalculator(
                         // need lazy load payload converter to escape race conditions during configuration caching and payload converters.
-                        new Lazy<IPayloadConverter>(() => this.Serializer))));
+                        new Lazy<IPayloadConverter>(() => this.Converters.First()))));
         }
 
         /// <summary>
@@ -519,7 +521,7 @@ namespace Contour.Configuration
         /// </param>
         public void UsePayloadConverter(IPayloadConverter converter)
         {
-            this.Serializer = converter;
+            this.converters.Add(converter);
         }
 
         /// <summary>
@@ -564,7 +566,7 @@ namespace Contour.Configuration
         {
             Logger.Trace(m => m("Validating. Connection string - [{0}], endpoint name - [{1}], incoming labels - [{2}], outgoing labels - [{3}]", this.EndpointOptions.GetConnectionString().HasValue ? this.EndpointOptions.GetConnectionString().Value : "N/A", this.Endpoint, this.ReceiverConfigurations != null ? string.Join(";", this.ReceiverConfigurations.Select(x => x.Label)) : "null", this.SenderConfigurations != null ? string.Join(";", this.SenderConfigurations.Select(x => x.Label)) : "null"));
 
-            if (this.Serializer == null)
+            if (!this.Converters.Any())
             {
                 throw new BusConfigurationException("PayloadConverter is not set.");
             }

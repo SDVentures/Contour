@@ -48,7 +48,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <param name="requiresAccept">
         /// Верно, если требуется подтверждение доставки.
         /// </param>
-        public RabbitDelivery(IBusContext busContext, RabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept)
+        public RabbitDelivery(IBusContext busContext, IRabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept)
         {
             this.busContext = busContext;
 
@@ -69,7 +69,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <summary>
         /// Канал доставки сообщения.
         /// </summary>
-        public RabbitChannel Channel { get; private set; }
+        public IRabbitChannel Channel { get; private set; }
         
         /// <summary>
         /// Формат содержимого сообщения.
@@ -210,6 +210,11 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <param name="message">Ответное сообщение.</param>
         public void ReplyWith(IMessage message)
         {
+            if (!string.IsNullOrEmpty(this.ContentType))
+            {
+                message.Headers[Contour.Headers.ContentType] = this.ContentType;
+            }
+
             if (!this.CanReply)
             {
                 throw new BusConfigurationException("No ReplyToAddress or CorrelationId were found in delivery. Make sure that you have callback endpoint set.");

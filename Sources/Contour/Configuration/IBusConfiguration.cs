@@ -23,6 +23,6 @@ namespace Contour.Configuration
         /// <summary>
         ///   Сериализатор сообщений.
         /// </summary>
-        IPayloadConverter Serializer { get; }
+        IReadOnlyCollection<IPayloadConverter> Converters { get; }
     }
 }

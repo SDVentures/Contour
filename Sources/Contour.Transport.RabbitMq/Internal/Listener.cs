@@ -64,7 +64,7 @@ namespace Contour.Transport.RabbitMq.Internal
         private readonly IBusContext busContext;
         private readonly IRabbitConnection connection;
         
-        private readonly ConcurrentBag<RabbitChannel> channels = new ConcurrentBag<RabbitChannel>();
+        private readonly ConcurrentBag<IRabbitChannel> channels = new ConcurrentBag<IRabbitChannel>();
         private CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <returns>
         /// Входящее сообщение.
         /// </returns>
-        public RabbitDelivery BuildDeliveryFrom(RabbitChannel deliveryChannel, BasicDeliverEventArgs args)
+        public RabbitDelivery BuildDeliveryFrom(IRabbitChannel deliveryChannel, BasicDeliverEventArgs args)
         {
             return new RabbitDelivery(this.busContext, deliveryChannel, args, this.ReceiverOptions.IsAcceptRequired());
         }
@@ -368,7 +368,7 @@ namespace Contour.Transport.RabbitMq.Internal
                     }
                 }
 
-                RabbitChannel channel;
+                IRabbitChannel channel;
                 while (this.channels.TryTake(out channel))
                 {
                     try
@@ -422,7 +422,7 @@ namespace Contour.Transport.RabbitMq.Internal
         {
             try
             {
-                RabbitChannel channel;
+                IRabbitChannel channel;
                 var consumer = this.InitializeConsumer(token, out channel);
 
                 while (!token.IsCancellationRequested)
@@ -465,7 +465,7 @@ namespace Contour.Transport.RabbitMq.Internal
             return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
         }
         
-        private CancellableQueueingConsumer InitializeConsumer(CancellationToken token, out RabbitChannel channel)
+        private CancellableQueueingConsumer InitializeConsumer(CancellationToken token, out IRabbitChannel channel)
         {
             // Opening a new channel may lead to a new connection creation
             channel = this.connection.OpenChannel(token);

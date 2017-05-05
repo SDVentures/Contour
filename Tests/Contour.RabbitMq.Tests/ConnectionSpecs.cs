@@ -29,7 +29,11 @@ namespace Contour.RabbitMq.Tests
                 var bus = this.ConfigureBus("Test", cfg => { });
                 var tcs = new TaskCompletionSource<bool>(true);
                 
-                var connection = new RabbitConnection(new Endpoint("test"), this.ConnectionString, bus);
+                var connection = new RabbitConnection(
+                    new Endpoint("test"), 
+                    this.ConnectionString, 
+                    bus, 
+                    new DefaultPayloadConverterResolver(bus.Configuration.Converters));
                 connection.Closed += (sender, args) => tcs.SetResult(false);
 
                 var tokenSource = new CancellationTokenSource();

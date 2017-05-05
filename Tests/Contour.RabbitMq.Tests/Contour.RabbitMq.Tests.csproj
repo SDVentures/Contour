@@ -63,6 +63,7 @@
     <Compile Include="MessageHeaderSpecs.cs" />
     <Compile Include="MessageHandlingSpecs.cs" />
     <Compile Include="MessageAttributeSpecs.cs" />
+    <Compile Include="PayloadConverterSpecs.cs" />
     <Compile Include="RabbitConnectionStringSpecs.cs" />
     <Compile Include="RoundRobinSelectorSpecs.cs" />
     <Compile Include="SagaHandlingSpecs.cs" />

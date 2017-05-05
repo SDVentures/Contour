@@ -18,5 +18,7 @@
         /// Gets or sets the ttl.
         /// </summary>
         public Maybe<TimeSpan?> Ttl { get; set; }
+
+        public Maybe<string> ContentType { get; set; }
     }
 }

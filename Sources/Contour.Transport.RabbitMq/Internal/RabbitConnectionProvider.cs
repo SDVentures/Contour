@@ -7,17 +7,19 @@ namespace Contour.Transport.RabbitMq.Internal
         private readonly ILog logger = LogManager.GetLogger<RabbitConnectionProvider>();
         private readonly IEndpoint endpoint;
         private readonly IBusContext context;
+        private readonly IPayloadConverterResolver payloadConverterResolver;
 
-        public RabbitConnectionProvider(IBusContext context)
+        public RabbitConnectionProvider(IBusContext context, IPayloadConverterResolver payloadConverterResolver)
         {
             this.endpoint = context.Endpoint;
             this.context = context;
+            this.payloadConverterResolver = payloadConverterResolver;
         }
 
         public IRabbitConnection Create(string connectionString)
         {
             this.logger.Trace($"Creating a new connection for endpoint [{this.endpoint}] at [{connectionString}]");
-            return new RabbitConnection(this.endpoint, connectionString, this.context);
+            return new RabbitConnection(this.endpoint, connectionString, this.context, this.payloadConverterResolver);
         }
     }
 }

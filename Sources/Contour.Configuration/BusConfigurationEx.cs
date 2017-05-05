@@ -55,7 +55,8 @@ namespace Contour.Configuration
                                          Headers.QueueMessageTtl,
                                          Headers.ReplyRoute,
                                          Headers.Timeout,
-                                         Headers.Ttl
+                                         Headers.Ttl,
+                                         Headers.ContentType
                                      };
             var messageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(new MessageHeaderStorage(blockedHeaders));
 

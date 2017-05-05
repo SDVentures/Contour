@@ -22,15 +22,17 @@ namespace Contour.Transport.RabbitMq.Internal
         private readonly ILog logger = LogManager.GetLogger<RabbitConnection>();
         private readonly IEndpoint endpoint;
         private readonly IBusContext busContext;
+        private readonly IPayloadConverterResolver payloadConverterResolver;
         private readonly ConnectionFactory connectionFactory;
         private INativeConnection connection;
         
-        public RabbitConnection(IEndpoint endpoint, string connectionString, IBusContext busContext)
+        public RabbitConnection(IEndpoint endpoint, string connectionString, IBusContext busContext, IPayloadConverterResolver payloadConverterResolver)
         {
             this.Id = Guid.NewGuid();
             this.endpoint = endpoint;
             this.ConnectionString = connectionString;
             this.busContext = busContext;
+            this.payloadConverterResolver = payloadConverterResolver;
 
             var clientProperties = new Dictionary<string, object>
             {
@@ -108,7 +110,7 @@ namespace Contour.Transport.RabbitMq.Internal
             }
         }
 
-        public RabbitChannel OpenChannel(CancellationToken token)
+        public IRabbitChannel OpenChannel(CancellationToken token)
         {
             lock (this.syncRoot)
             {
@@ -124,7 +126,7 @@ namespace Contour.Transport.RabbitMq.Internal
                     try
                     {
                         var model = this.connection.CreateModel();
-                        var channel = new RabbitChannel(this.Id, model, this.busContext);
+                        var channel = new RabbitChannel(this.Id, model, this.busContext, this.payloadConverterResolver);
                         return channel;
                     }
                     catch (Exception ex)

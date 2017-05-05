@@ -30,7 +30,7 @@ namespace Contour.RabbitMq.Tests
                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))));
                    });
 
-            var pool = new RabbitConnectionPool(bus);
+            var pool = new RabbitConnectionPool(bus, new DefaultPayloadConverterResolver(bus.Configuration.Converters));
             var source = new CancellationTokenSource();
             var conString = string.Empty;
 
@@ -56,7 +56,7 @@ namespace Contour.RabbitMq.Tests
                                builder => builder.ListenTo(builder.Topology.Declare(Queue.Named("one.queue"))));
                    });
 
-            var pool = new RabbitConnectionPool(bus);
+            var pool = new RabbitConnectionPool(bus, new DefaultPayloadConverterResolver(bus.Configuration.Converters));
 
             var i = 0;
             var conString = this.ConnectionString;
@@ -93,7 +93,7 @@ namespace Contour.RabbitMq.Tests
                        cfg.Route("some.label");
                     });
 
-            var pool = new RabbitConnectionPool(bus);
+            var pool = new RabbitConnectionPool(bus, new DefaultPayloadConverterResolver(bus.Configuration.Converters));
             var source = new CancellationTokenSource();
             
             // ReSharper disable once MethodSupportsCancellation

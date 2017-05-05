@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -80,7 +78,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <summary>
         /// Канал подключения к брокеру.
         /// </summary>
-        private RabbitChannel Channel { get; set; }
+        private IRabbitChannel Channel { get; set; }
 
         /// <summary>
         /// <c>true</c> - если при отправке необходимо подтверждение о том, что брокер сохранил сообщение.
@@ -118,10 +116,9 @@ namespace Contour.Transport.RabbitMq.Internal
                 {
                     var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
                     this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
-                    Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p => ExtractProperties(ref p, message.Headers);
 
                     var confirmation = this.confirmationTracker.Track();
-                    this.Channel.Publish(nativeRoute, message, propsVisitor);
+                    this.Channel.Publish(nativeRoute, message);
                     return confirmation;
                 }
                 finally
@@ -242,51 +239,6 @@ namespace Contour.Transport.RabbitMq.Internal
 
             this.CallbackListener = listener;
         }
-
-        /// <summary>
-        /// Устанавливает заголовки сообщения в свойства сообщения.
-        /// </summary>
-        /// <param name="props">
-        /// Свойства сообщения, куда устанавливаются заголовки.
-        /// </param>
-        /// <param name="sourceHeaders">
-        /// The source Headers.
-        /// </param>
-        /// <returns>
-        /// The <see cref="IDictionary{K,V}"/>.
-        /// </returns>
-        private static IDictionary<string, object> ExtractProperties(ref IBasicProperties props, IDictionary<string, object> sourceHeaders)
-        {
-            var headers = new Dictionary<string, object>(sourceHeaders);
-
-            var persist = Headers.Extract<bool?>(headers, Headers.Persist);
-            var ttl = Headers.Extract<TimeSpan?>(headers, Headers.Ttl);
-            var correlationId = Headers.Extract<string>(headers, Headers.CorrelationId);
-            var replyRoute = Headers.Extract<RabbitRoute>(headers, Headers.ReplyRoute);
-
-            if (persist.HasValue && persist.Value)
-            {
-                props.DeliveryMode = 2;
-            }
-
-            if (ttl.HasValue)
-            {
-                props.Expiration = ttl.Value.TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
-            }
-
-            if (correlationId != null)
-            {
-                props.CorrelationId = correlationId;
-            }
-
-            if (replyRoute != null)
-            {
-                props.ReplyToAddress = new PublicationAddress("direct", replyRoute.Exchange, replyRoute.RoutingKey);
-            }
-
-            return headers;
-        }
-
 
         private void InternalStop(OperationStopReason reason)
         {

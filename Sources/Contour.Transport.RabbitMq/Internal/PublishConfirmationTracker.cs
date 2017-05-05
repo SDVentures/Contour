@@ -17,7 +17,7 @@ namespace Contour.Transport.RabbitMq.Internal
     internal sealed class PublishConfirmationTracker : IPublishConfirmationTracker
     {
         private readonly ILog logger; 
-        private readonly RabbitChannel channel;
+        private readonly IRabbitChannel channel;
         private readonly ConcurrentDictionary<ulong, TaskCompletionSource<object>> pending = new ConcurrentDictionary<ulong, TaskCompletionSource<object>>();
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <param name="channel">
         /// The channel.
         /// </param>
-        public PublishConfirmationTracker(RabbitChannel channel)
+        public PublishConfirmationTracker(IRabbitChannel channel)
         {
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.GetHashCode()})");
             this.channel = channel;
