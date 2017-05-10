@@ -224,7 +224,7 @@ Sending operations can fail if a certain broker specifed in the connection strin
 
 The broker delays are stored for a certain period of time after which all delays are reset.
 
-*These following defaults apply: the maximum delay value is limited by 30 seconds; 7 attempts will be made to fulfill the send operation; delays are reset after 120 seconds of sender inactivity.*
+*The following defaults apply: the maximum delay value is limited by 30 seconds; 7 attempts will be made to fulfill the send operation; delays are reset after 120 seconds of sender inactivity.*
 
 ### Applying configuration
 
