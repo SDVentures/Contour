@@ -138,6 +138,8 @@ Endpoint provides ability to setup the necessary number of handler threads, proc
 ```
 By default, one handler for incoming messages is used.
 
+The '**parallelismLevel**' property can also be specified at the incoming element level. This will override the endpoint configuration.
+
 ### Configuring QoS
 
 Endpoint also provides ability to setup a certain number of incoming messages by one access to the broker. This field specifies the prefetch window size.  When the handler finishes processing a message, the following message is already held locally, rather than needing to be sent down the channel. Prefetching gives a performance improvement.
@@ -150,6 +152,8 @@ Endpoint also provides ability to setup a certain number of incoming messages by
 </endpoints>
 ```
 By default, uses the value of 50 messages, which will be read by one access. We strongly recommend starting with 1 message, increasing the number of messages after performance testing.
+
+The '**qos**' property can also be specified at the incoming element level. This will override the endpoint configuration.
 
 ### Declaration of outgoing messages
 
@@ -190,9 +194,9 @@ Dynamic routing can be useful in cases, when you don’t have enough information
 </endpoints>
 ```
 
-### Connection strings and fault tolerance (RabbitMQ)
+### Scaling and fault tolerance (RabbitMQ)
 
-An endpoint can be configured to use a list of connection strings (URLs) delimited by comma to provide some fault tolerance capabilities. The number of hosts in the connectionString property is not restricted:
+An endpoint can be configured to use a list of connection strings (URLs) delimited by comma to provide fault tolerance and scaling capabilities. The number of hosts in the connectionString property is not restricted:
 
 ```xml
 <endpoints>
@@ -216,7 +220,7 @@ Since incoming (and outgoing) connection strings can override the endpoint setti
 
 In both cases the endpoint will listen for incoming messages at each URL which can be useful when message load is split among a number of brokers.
 
-If an endpoint is configured to send messages a specific algorithm will be used to select a URL for each particular message being sent. This capability enables load distrubution and can be utilized in flow sharding scenarios.
+If an endpoint is configured to send messages a specific algorithm will be used to select a URL for each particular message being sent. This capability enables load distrubution and can be utilized in outgoing flow sharding scenarios.
 
 *Only Round Robin algorithm is implemented in this version.*
 
@@ -225,6 +229,52 @@ Sending operations can fail if a certain broker specifed in the connection strin
 The broker delays are stored for a certain period of time after which all delays are reset.
 
 *The following defaults apply: the maximum delay value is limited by 30 seconds; 7 attempts will be made to fulfill the send operation; delays are reset after 120 seconds of sender inactivity.*
+
+### Connection string provider
+
+Specifying URLs in connection strings can be cumbersome when one has a huge broker fleet. To simplify the endpoint configuration a connection string provider can be specified:
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionStringProvider="providerName" />
+</endpoints>"
+```
+
+An implementing type of the IConnectionStringProvider will be resolved using the name in the '**connectionStringProvider**' property. *See the Applying configuration section for details on dependency resolution.*
+
+Each time a connection string is requested by the endpoint it will be fetched from the provider. One can have a couple of providers for testing and production purposes which include service discovery scenario.
+
+### Connection string reuse
+
+When a connection string is split into a number of URLs a connection may be created for each of them. To minimize the number of connections created by the endpoint a reuse behavior can be switched on:
+
+```xml
+<endpoints>
+    <endpoint name="name" connectionString="amqp://localhost:5672" reuseConnection="true"/>
+</endpoints>
+```
+
+The '**reuseConnection**' property can also be specified at the incoming and outgoing elements level. This will override the endpoint configuration:
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://localhost:5672" >
+        <incoming>
+            <on reuseConnection="true"/>
+        </incoming>
+    </endpoint>
+</endpoints>
+```
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://localhost:5672" >
+        <outgoing>
+            <route reuseConnection="false"/>
+        </outgoing>
+    </endpoint>
+</endpoints>
+```
 
 ### Applying configuration
 
