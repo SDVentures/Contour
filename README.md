@@ -190,6 +190,42 @@ Dynamic routing can be useful in cases, when you don’t have enough information
 </endpoints>
 ```
 
+### Connection strings and fault tolerance (RabbitMQ)
+
+An endpoint can be configured to use a list of connection strings (URLs) delimited by comma to provide some fault tolerance capabilities. The number of hosts in the connectionString property is not restricted:
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://host-1:5672,amqp://host-2:5672,amqp://host-3:5672">
+        
+    </endpoint>
+</endpoints>
+```
+
+Since incoming (and outgoing) connection strings can override the endpoint setting, this also applies to the fault tolerant configuration:
+
+```xml
+<endpoints>
+    <endpoint name="point1">
+        <incoming>
+            <on connectionString="amqp://host-1:5672,amqp://host-2:5672,amqp://host-3:5672"/>
+        </incoming>
+    </endpoint>
+</endpoints>
+```
+
+In both cases the endpoint will listen for incoming messages at each URL which can be useful when message load is split among a number of brokers.
+
+If an endpoint is configured to send messages a specific algorithm will be used to select a URL for each particular message being sent. This capability enables load distrubution and can be utilized in flow sharding scenarios.
+
+*Only Round Robin algorithm is implemented in this version.*
+
+Sending operations can fail if a certain broker specifed in the connection string becomes unavailable or unstable for some reason. To mitigate this condition an endpoint will apply a retry algorithm with delays: when a failure occurres an endpoint incrementally updates a delay set for the failed broker and switches to another one. Next time this broker is chosen a new delay will be in effect.
+
+The broker delays are stored for a certain period of time after which all delays are reset.
+
+*These following defaults apply: the maximum delay value is limited by 30 seconds; 7 attempts will be made to fulfill the send operation; delays are reset after 120 seconds of sender inactivity.*
+
 ### Applying configuration
 
 [AppConfigConfigurator](https://github.com/SDVentures/Contour/blob/master/Sources/Contour/Configurator/AppConfigConfigurator.cs) class is used for applying xml-configuration.

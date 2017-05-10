@@ -133,19 +133,18 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.CheckIfCompatible(listener);
 
-            // If a listener to be registered is attached to the same queue on the same host but is listening for a set of labels which is wider then any set of the registered listeners then it must be registered in this receiver
             if (this.listeners.Contains(listener) ||
 
                 // A new listener is attached to the same host and source but all existing listeners do not include the listener's labels
                 this.listeners.Any(l =>
                     l.BrokerUrl == listener.BrokerUrl &&
-                    l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address &&
+                    l.Endpoint.ListeningSource.Address == listenerAddress &&
                     !l.AcceptedLabels.Intersect(listener.AcceptedLabels).Any()) ||
 
                 // A new listener is attached to the same host and source but has no extra labels it is listening to
                 this.listeners.Any(l =>
                     l.BrokerUrl == listener.BrokerUrl &&
-                    l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address &&
+                    l.Endpoint.ListeningSource.Address == listenerAddress &&
                     !listener.AcceptedLabels.Except(l.AcceptedLabels).Any()))
             {
                 return;
@@ -180,7 +179,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     l =>
                         l != listener
                         && l.BrokerUrl == listener.BrokerUrl
-                        && l.Endpoint.ListeningSource.Equals(listener.Endpoint.ListeningSource));
+                        && l.Endpoint.ListeningSource.Address == listener.Endpoint.ListeningSource.Address);
 
             foreach (var existingListener in checkList)
             {
@@ -271,7 +270,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.listeners.FirstOrDefault(
                         l =>
                             l.BrokerUrl == newListener.BrokerUrl &&
-                            newListener.Endpoint.ListeningSource.Equals(l.Endpoint.ListeningSource));
+                            newListener.Endpoint.ListeningSource.Address == l.Endpoint.ListeningSource.Address);
 
                 if (listener == null)
                 {

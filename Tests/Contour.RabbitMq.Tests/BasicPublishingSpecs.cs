@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 using FluentAssertions;
@@ -13,6 +15,7 @@ using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
+using RabbitMQ.Client;
 
 namespace Contour.RabbitMq.Tests
 {
@@ -83,6 +86,8 @@ namespace Contour.RabbitMq.Tests
                                         })
                                 .WithEndpoint(subscriptionBuilder);
                         });
+
+                consumer.WhenReady.WaitOne(10.Seconds()).Should().BeTrue();
 
                 producer.Emit("boo.request", new BooMessage(13));
                 

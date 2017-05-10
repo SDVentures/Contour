@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ using Contour.Transport.RabbitMQ.Topology;
 
 using FluentAssertions;
 using NUnit.Framework;
-
+using RabbitMQ.Client;
 using Exchange = Contour.Transport.RabbitMQ.Topology.Exchange;
 using Queue = Contour.Transport.RabbitMQ.Topology.Queue;
 
@@ -678,13 +679,13 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         [TestFixture]
         [Category("Integration")]
-        public class WhenConsumeMessage : RabbitMqFixture
+        public class when_consuming_message : RabbitMqFixture
         {
             /// <summary>
             /// Можно ответить на запрос.
             /// </summary>
             [Test]
-            public void CanReplyIfRequest()
+            public void can_reply_on_request()
             {
                 var autoReset = new AutoResetEvent(false);
                 string messageLabel = "command.handle.this";
@@ -713,7 +714,7 @@ namespace Contour.RabbitMq.Tests
             /// Нельзя ответить, если не запрос.
             /// </summary>
             [Test]
-            public void CanNotReplyIfEmit()
+            public void can_not_reply_on_emit()
             {
                 var autoReset = new AutoResetEvent(false);
                 string messageLabel = "command.handle.this";
@@ -740,7 +741,7 @@ namespace Contour.RabbitMq.Tests
             /// Можно обработать сообщение, метка которого отличается от метки получателя.
             /// </summary>
             [Test]
-            public void CanConsumeWithWrongLabel()
+            public void can_consume_with_wrong_label()
             {
                 var autoReset = new AutoResetEvent(false);
                 string messageLabel = "command.handle.this";
