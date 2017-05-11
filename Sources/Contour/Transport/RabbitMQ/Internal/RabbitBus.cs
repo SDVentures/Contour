@@ -131,8 +131,9 @@ namespace Contour.Transport.RabbitMQ.Internal
             else
             {
                 receiver = new RabbitReceiver(this, configuration, this.connectionPool);
-                receiver.ListenerRegistered += this.OnListenerRegistered;
+                receiver.ListenerCreated += this.OnListenerCreated;
             }
+
             this.ComponentTracker.Register(receiver);
 
             this.logger.Trace(
@@ -296,16 +297,12 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Info($"Configuration of [{name}] completed successfully");
         }
         
-        private void OnListenerRegistered(object sender, ListenerRegisteredEventArgs e)
+        private void OnListenerCreated(object sender, ListenerCreatedEventArgs e)
         {
             this.Receivers
                 .Where(r => r is RabbitReceiver)
                 .Cast<RabbitReceiver>()
-                .ForEach(r =>
-                {
-                    // If some of the receivers are configured to receive messages of different types from the same source (queue) then each receiver should have a corresponding listener attached to that source to let the consuming actions of listeners execute.
-                    r.RegisterListener(e.Listener);
-                });
+                .ForEach(r => r.CheckIfCompatible(e.Listener));
         }
     }
 }

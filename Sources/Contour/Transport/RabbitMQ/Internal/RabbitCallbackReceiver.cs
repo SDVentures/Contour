@@ -9,7 +9,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
         }
 
-        protected override void OnListenerRegistered(IListener listener)
+        protected override void OnListenerCreated(IListener listener)
         {
             // Suppress listener registrations for the callback receiver
         }

@@ -21,7 +21,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
         private readonly ConcurrentQueue<IListener> listeners = new ConcurrentQueue<IListener>();
         private readonly RabbitReceiverOptions receiverOptions;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitReceiver"/> class. 
         /// </summary>
@@ -44,7 +44,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.bus.Endpoint}, {this.Configuration.Label})");
         }
 
-        public event EventHandler<ListenerRegisteredEventArgs> ListenerRegistered = (sender, args) => { };
+        public event EventHandler<ListenerCreatedEventArgs> ListenerCreated = (sender, args) => { };
 
         /// <summary>
         /// Gets a value indicating whether is started.
@@ -122,42 +122,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.IsStarted = false;
         }
 
-        /// <summary>
-        /// Registers a specified <paramref name="listener"/> in this <see cref="RabbitReceiver"/>
-        /// </summary>
-        /// <param name="listener">A listener to be registered</param>
-        public void RegisterListener(IListener listener)
-        {
-            var listenerLabels = string.Join(",", listener.AcceptedLabels);
-            var listenerAddress = listener.Endpoint.ListeningSource.Address;
-
-            this.CheckIfCompatible(listener);
-
-            if (this.listeners.Contains(listener) ||
-
-                // A new listener is attached to the same host and source but all existing listeners do not include the listener's labels
-                this.listeners.Any(l =>
-                    l.BrokerUrl == listener.BrokerUrl &&
-                    l.Endpoint.ListeningSource.Address == listenerAddress &&
-                    !l.AcceptedLabels.Intersect(listener.AcceptedLabels).Any()) ||
-
-                // A new listener is attached to the same host and source but has no extra labels it is listening to
-                this.listeners.Any(l =>
-                    l.BrokerUrl == listener.BrokerUrl &&
-                    l.Endpoint.ListeningSource.Address == listenerAddress &&
-                    !listener.AcceptedLabels.Except(l.AcceptedLabels).Any()))
-            {
-                return;
-            }
-
-            this.listeners.Enqueue(listener);
-            this.logger.Trace(
-                $"External listener of labels ({listenerLabels}) at address [{listenerAddress}] has been registered in receiver of [{this.Configuration.Label}]");
-
-            // Update consumer registrations in all listeners; this may possibly register more then one label-consumer pairs for each listener
-            this.Configuration.ReceiverRegistration?.Invoke(this);
-        }
-
         public IListener GetListener(Func<IListener, bool> predicate)
         {
             this.Configure();
@@ -206,9 +170,9 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Fires an event if a listener has been registered
         /// </summary>
         /// <param name="listener">The listener which has been registered in the receiver</param>
-        protected virtual void OnListenerRegistered(IListener listener)
+        protected virtual void OnListenerCreated(IListener listener)
         {
-            this.ListenerRegistered(this, new ListenerRegisteredEventArgs(listener));
+            this.ListenerCreated(this, new ListenerCreatedEventArgs(listener));
         }
 
         /// <summary>
@@ -263,7 +227,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             foreach (var url in this.receiverOptions.RabbitConnectionString)
             {
-                var newListener = this.BuildListener(url);
+                var newListener = this.CreateListener(url);
 
                 // There is no need to register another listener at the same URL and for the same listening source (queue); consuming actions can be registered in a single listener
                 var listener =
@@ -286,9 +250,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                 }
 
                 listener.Stopped += (sender, args) => this.OnListenerStopped(args, sender);
-                
-                // This event should always be fired, no matter if a listener already existed; this will ensure the event will be handled outside (in the bus)
-                this.OnListenerRegistered(listener);
+
+                this.OnListenerCreated(listener);
             }
         }
 
@@ -317,7 +280,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
         }
 
-        private Listener BuildListener(string url)
+        private Listener CreateListener(string url)
         {
             var reuseConnectionProperty = this.receiverOptions.GetReuseConnection();
             var reuseConnection = reuseConnectionProperty.HasValue && reuseConnectionProperty.Value;

@@ -291,14 +291,12 @@ namespace Contour.RabbitMq.Tests
             }
         }
 
-
         [TestFixture]
-        [Category("Manual")]
-        [Ignore("This requirement can only be implemented if a single consuming action is registered in listener which skips consumer selection based on the incoming message label (which is currently based on the x-message-type attribute)")]
         public class when_consuming_without_label : RabbitMqFixture
         {
             /// <summary>
-            /// Can consume a message if no label is set
+            /// The default message routing suggests that there should be exactly one queue bound to the exchange and only one consumer attached to a queue.
+            /// This fixture will ensure that a message without a label will be handled correctly in the only consumer attached.
             /// </summary>
             [Test]
             public void should_take_consumer_by_exchange()
@@ -326,7 +324,7 @@ namespace Contour.RabbitMq.Tests
                         });
                     });
 
-                bus.WhenReady.WaitOne();
+                bus.WhenReady.WaitOne(1.Minutes()).Should().BeTrue();
 
                 var factory = new ConnectionFactory() { Uri = this.ConnectionString };
                 var connection = factory.CreateConnection();

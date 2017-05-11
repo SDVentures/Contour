@@ -94,7 +94,7 @@
     <Compile Include="Transport\RabbitMQ\Internal\IFaultTolerantProducer.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IListener.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\IProducer.cs" />
-    <Compile Include="Transport\RabbitMQ\Internal\ListenerRegisteredEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\ListenerCreatedEventArgs.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerStoppedEventArgs.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\OperationStopReason.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ProducerStoppedEventArgs.cs" />

@@ -33,6 +33,7 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         [TestFixture]
         [Category("Integration")]
+        [Ignore("This requirement is removed until the following is implemented: receiver configuration and topology should be evaluated before receiver start; this will let the bus check what labels should be listened on by each listener")]
         public class when_consuming_messages_of_different_labels_on_same_queue : RabbitMqFixture
         {
             /// <summary>
