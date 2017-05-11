@@ -1,4 +1,8 @@
-﻿## 1.7.6
+﻿## 1.7.7
+- Changes:
+  + Listeners are no longer shared between receivers; thus in case of concurrent message consumption by two or more listeners from the same queue the broker will define a listener to handle the message.
+
+## 1.7.6
 - Improvements:
   - Fault tolerant producer is now able to set and manage retry delays when making send attempts (see https://github.com/SDVentures/Contour/issues/47);
   - Payload logging in sender has been removed;
