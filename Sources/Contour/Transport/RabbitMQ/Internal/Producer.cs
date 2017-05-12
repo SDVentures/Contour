@@ -22,7 +22,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly ILog logger;
         private readonly IEndpoint endpoint;
         private readonly IRabbitConnection connection;
-        private readonly object syncRoot = new object();
+        private readonly ReaderWriterLockSlim slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private CancellationTokenSource cancellationTokenSource;
         private IPublishConfirmationTracker confirmationTracker = new DummyPublishConfirmationTracker();
 
@@ -111,7 +111,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Task Publish(IMessage message)
         {
-            if (Monitor.TryEnter(this.syncRoot, 0))
+            if (this.slimLock.TryEnterReadLock(TimeSpan.Zero))
             {
                 try
                 {
@@ -127,7 +127,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     try
                     {
-                        Monitor.Exit(this.syncRoot);
+                        this.slimLock.ExitReadLock();
                     }
                     catch (Exception)
                     {
@@ -191,10 +191,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public void Start()
         {
-            lock (this.syncRoot)
+            try
             {
                 this.logger.Trace($"Starting producer [{this.GetHashCode()}] of [{this.Label}]");
-
+                this.slimLock.EnterWriteLock();
+                
                 this.cancellationTokenSource = new CancellationTokenSource();
                 var token = this.cancellationTokenSource.Token;
 
@@ -211,6 +212,17 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.CallbackListener?.StartConsuming();
 
                 this.logger.Trace($"Producer of [{this.Label}] started successfully");
+            }
+            finally
+            {
+                try
+                {
+                    this.slimLock.ExitWriteLock();
+                }
+                catch (Exception)
+                {
+                    // Suppress all errors
+                }
             }
         }
 
@@ -289,10 +301,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void InternalStop(OperationStopReason reason)
         {
-            lock (this.syncRoot)
+            try
             {
                 this.logger.Trace($"Stopping producer of [{this.Label}]");
-
+                this.slimLock.EnterWriteLock();
+                
                 this.cancellationTokenSource.Cancel(true);
                 this.confirmationTracker?.Dispose();
 
@@ -308,6 +321,17 @@ namespace Contour.Transport.RabbitMQ.Internal
                 
                 this.Stopped(this, new ProducerStoppedEventArgs(this, reason));
                 this.logger.Trace($"Producer of [{this.Label}] stopped successfully");
+            }
+            finally
+            {
+                try
+                {
+                    this.slimLock.ExitWriteLock();
+                }
+                catch (Exception)
+                {
+                    // Suppress all errors
+                }
             }
         }
 

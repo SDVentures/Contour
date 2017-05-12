@@ -1,4 +1,8 @@
-﻿## 1.7.7
+﻿## 1.7.8
+- Fixed:
+  + Producer locking in send operation has been relaxed to use read-write locking, since an ordinary lock may make the send operation in parallel thread (of a listener, for example) to "fail fast" while acquiring a lock which will look like a producer is re-starting. This condition can be observed in a scenario with a huge number of listeners (high number of incoming labels and/or high parallelism level) trying to emit messages via a specific sender. Despite the incoming message rate can be high, an endpoint is not currently able to scale on the outgoing side.
+
+## 1.7.7
 - Changes:
   + Listeners are no longer shared between receivers; thus in case of concurrent message consumption by two or more listeners from the same queue the broker will define a listener to handle the message.
 

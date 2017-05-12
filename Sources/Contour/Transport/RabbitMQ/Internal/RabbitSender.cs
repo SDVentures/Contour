@@ -126,7 +126,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var producer in this.producers)
             {
                 producer.Start();
-                this.logger.Trace($"Producer of [{this.Configuration.Label}] started successfully");
             }
         }
 
