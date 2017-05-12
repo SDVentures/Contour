@@ -125,8 +125,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             if (isCallback)
             {
                 receiver = new RabbitCallbackReceiver(this, configuration, this.connectionPool);
-                
-                // No need to subscribe on listener-registered event as it will not be fired by the callback receiver
+
+                // No need to subscribe to listener-created event as it will not be fired by the callback receiver. A callback listener is not checked with listeners in other receivers for compatibility.
             }
             else
             {

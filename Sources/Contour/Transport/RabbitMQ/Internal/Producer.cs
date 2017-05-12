@@ -136,7 +136,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 }
             }
 
-            throw new Exception("Unable to publish via producer because it is not yet started or is recovering");
+            throw new Exception($"Unable to publish via producer [{this.GetHashCode()}] because it is not yet started or is recovering");
         }
 
         /// <summary>

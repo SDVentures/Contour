@@ -1,4 +1,8 @@
-﻿## 1.7.8
+﻿## 1.7.9
+- Changes:
+  + All producers will now be re-enlisted on channel failure. This will optimize the time needed to send a message in case of connection drops because the sender will immediatelly switch to the next available producer in queue.
+
+## 1.7.8
 - Fixed:
   + Producer locking in send operation has been relaxed to use read-write locking, since an ordinary lock may make the send operation in parallel thread (of a listener, for example) to "fail fast" while acquiring a lock which will look like a producer is re-starting. This condition can be observed in a scenario with a huge number of listeners (high number of incoming labels and/or high parallelism level) trying to emit messages via a specific sender. Despite the incoming message rate can be high, an endpoint is not currently able to scale on the outgoing side.
 

@@ -183,11 +183,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private IProducer EnlistProducer(string url)
         {
-            this.logger.Trace($">>> Enlisting a new producer of [{this.Configuration.Label}] at URL=[{url}]...");
+            this.logger.Trace($"Enlisting a new producer of [{this.Configuration.Label}] at URL=[{url}]...");
             var producer = this.BuildProducer(url);
 
             this.producers.Enqueue(producer);
-            this.logger.Trace($"<<< A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been enlisted");
+            this.logger.Trace($"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been enlisted");
 
             return producer;
         }
@@ -245,15 +245,15 @@ namespace Contour.Transport.RabbitMQ.Internal
                     listener.StopOnChannelShutdown = true;
                     producer.UseCallbackListener(listener);
 
-                    producer.StopOnChannelShutdown = true;
-                    producer.Stopped += (sender, args) =>
-                    {
-                        this.OnProducerStopped(url, sender, args);
-                    };
-
                     this.logger.Trace(
                         $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has registered a callback listener successfully");
                 }
+
+                producer.StopOnChannelShutdown = true;
+                producer.Stopped += (sender, args) =>
+                {
+                    this.OnProducerStopped(url, sender, args);
+                };
 
                 return producer;
             }
@@ -266,7 +266,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return;
             }
 
-            this.logger.Warn($"Producer [{sender.GetHashCode()}] with response callback has been stopped and will be reenlisted");
+            this.logger.Warn($"Producer [{sender.GetHashCode()}] has been stopped and will be reenlisted");
 
             while (true)
             {
