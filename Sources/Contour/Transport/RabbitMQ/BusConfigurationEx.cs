@@ -65,7 +65,7 @@ namespace Contour.Transport.RabbitMQ
             {
                 ConfirmationIsRequired = false,
                 Persistently = false,
-                RequestTimeout = default(TimeSpan?),
+                RequestTimeout = TimeSpan.FromSeconds(30),
                 Ttl = default(TimeSpan?),
                 RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
                 IncomingMessageHeaderStorage = messageHeaderStorage,
