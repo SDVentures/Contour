@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Contour.Configuration;
 using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
@@ -43,7 +43,7 @@ namespace Contour.RabbitMq.Tests
             /// The should_use_overrided_timeout_value.
             /// </summary>
             [Test]
-            public void should_use_overrided_timeout_value()
+            public void should_use_overridden_timeout_value()
             {
                 IBus producer = this.StartBus(
                     "producer",
@@ -402,6 +402,40 @@ namespace Contour.RabbitMq.Tests
 
                 response.Wait(3.Seconds()).Should().BeTrue();
                 result.Should().Be(26);
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_requesting_using_default_request_timeout:RabbitMqFixture
+        {
+            [Test]
+            public void should_timeout_if_no_response_received()
+            {
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg => cfg.Route("dummy.request")
+                        .WithDefaultCallbackEndpoint());
+
+                producer.Configuration.Should().BeOfType<BusConfiguration>();
+
+                var configuration = (BusConfiguration)producer.Configuration;
+                var timeout = configuration.SenderDefaults.GetRequestTimeout();
+
+                timeout.HasValue.Should().BeTrue();
+                timeout.Value.Should().HaveValue();
+                var timeoutValue = timeout.Value.Value;
+
+                var responseTask =
+                    producer.RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(13));
+
+                responseTask.Invoking(t =>
+                    {
+                        t.Wait(timeoutValue.Add(TimeSpan.FromMinutes(1)));
+                    })
+                    .ShouldThrow<AggregateException>()
+                    .And
+                    .InnerExceptions.Should().ContainSingle(ex => ex.GetType() == typeof(TimeoutException));
             }
         }
 
