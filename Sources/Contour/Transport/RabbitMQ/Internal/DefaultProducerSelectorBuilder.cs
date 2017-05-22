@@ -1,10 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
     internal class DefaultProducerSelectorBuilder : IProducerSelectorBuilder
     {
-        public IProducerSelector Build(ConcurrentQueue<IProducer> items)
+        public IProducerSelector Build(IEnumerable<IProducer> items)
         {
             return new RoundRobinSelector(items);
         }
