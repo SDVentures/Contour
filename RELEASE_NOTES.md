@@ -1,4 +1,10 @@
-﻿## 1.7.9
+﻿## 1.7.10
+- Changes:
+  + Round robin selector made thread-safe; empty collection requirement removed;
+  + Request default timeout fixture added;
+  + Sender request timeout is set to 30 seconds by default
+
+## 1.7.9
 - Changes:
   + All producers will now be re-enlisted on channel failure. This will optimize the time needed to send a message in case of connection drops because the sender will immediatelly switch to the next available producer in queue.
 
