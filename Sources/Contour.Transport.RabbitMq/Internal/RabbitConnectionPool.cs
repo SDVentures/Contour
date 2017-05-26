@@ -2,9 +2,9 @@ namespace Contour.Transport.RabbitMq.Internal
 {
     internal class RabbitConnectionPool : ConnectionPool<IRabbitConnection>
     {
-        public RabbitConnectionPool(IBusContext context, IPayloadConverterResolver payloadConverterResolver)
+        public RabbitConnectionPool(IBusContext context)
         {
-            this.Provider = new RabbitConnectionProvider(context, payloadConverterResolver);
+            this.Provider = new RabbitConnectionProvider(context);
         }
     }
 }

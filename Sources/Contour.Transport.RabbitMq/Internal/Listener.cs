@@ -13,6 +13,7 @@ using Contour.Helpers;
 using Contour.Helpers.Timing;
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
+using Contour.Serialization;
 using Contour.Validation;
 
 using Contour.Transport.RabbitMq.Internal;
@@ -163,7 +164,25 @@ namespace Contour.Transport.RabbitMq.Internal
         /// </returns>
         public RabbitDelivery BuildDeliveryFrom(IRabbitChannel deliveryChannel, BasicDeliverEventArgs args)
         {
-            return new RabbitDelivery(this.busContext, deliveryChannel, args, this.ReceiverOptions.IsAcceptRequired());
+            IPayloadConverterResolver payloadConverterResolver = this.ReceiverOptions.GetPayloadConverterResolver();
+            IPayloadConverter payloadConverter;
+            try
+            {
+                payloadConverter = payloadConverterResolver.ResolveConverter(args.BasicProperties.ContentType);
+            }
+            catch (Exception ex)
+            {
+                this.OnFailure(
+                    new RabbitDelivery(
+                        this.busContext, 
+                        deliveryChannel, args, 
+                        this.ReceiverOptions.IsAcceptRequired(), 
+                        new ByteArrayPayloadConverter()),
+                    ex);
+                throw;
+            }
+            return new RabbitDelivery(this.busContext, deliveryChannel, args, this.ReceiverOptions.IsAcceptRequired(), payloadConverter);
+
         }
 
         /// <summary>

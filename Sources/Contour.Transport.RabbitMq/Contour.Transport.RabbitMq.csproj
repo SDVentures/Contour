@@ -38,14 +38,13 @@
   <ItemGroup>
     <Compile Include="BusConsumerConfigurationEx.cs" />
     <Compile Include="FailoverException.cs" />
+    <Compile Include="Internal\ByteArrayPayloadConverter.cs" />
     <Compile Include="Internal\CancellableQueueingConsumer.cs" />
-    <Compile Include="Internal\DefaultPayloadConverterResolver.cs" />
     <Compile Include="Internal\DefaultProducerSelectorBuilder.cs" />
     <Compile Include="Internal\DefaultRabbitMessageLabelHandler.cs" />
     <Compile Include="Internal\DummyPublishConfirmationTracker.cs" />
     <Compile Include="Internal\FaultTolerantProducer.cs" />
     <Compile Include="Internal\IListener.cs" />
-    <Compile Include="Internal\IPayloadConverterResolver.cs" />
     <Compile Include="Internal\IProducer.cs" />
     <Compile Include="Internal\IProducerSelector.cs" />
     <Compile Include="Internal\IProducerSelectorBuilder.cs" />

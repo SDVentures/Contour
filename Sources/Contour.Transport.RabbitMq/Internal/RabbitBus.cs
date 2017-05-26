@@ -38,7 +38,7 @@ namespace Contour.Transport.RabbitMq.Internal
             completion.SetResult(new object());
             this.restartTask = completion.Task;
             
-            this.connectionPool = new RabbitConnectionPool(this, new DefaultPayloadConverterResolver(configuration.Converters));
+            this.connectionPool = new RabbitConnectionPool(this);
         }
         
         /// <summary>

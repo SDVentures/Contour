@@ -32,8 +32,7 @@ namespace Contour.RabbitMq.Tests
                 var connection = new RabbitConnection(
                     new Endpoint("test"), 
                     this.ConnectionString, 
-                    bus, 
-                    new DefaultPayloadConverterResolver(bus.Configuration.Converters));
+                    bus);
                 connection.Closed += (sender, args) => tcs.SetResult(false);
 
                 var tokenSource = new CancellationTokenSource();

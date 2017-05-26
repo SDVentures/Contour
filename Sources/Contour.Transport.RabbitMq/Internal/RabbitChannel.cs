@@ -22,8 +22,6 @@ namespace Contour.Transport.RabbitMq.Internal
         private readonly object sync = new object();
         private readonly IBusContext busContext;
 
-        private readonly IPayloadConverterResolver payloadConverterResolver;
-
         private readonly ILog logger;
 
         /// <summary>
@@ -32,13 +30,11 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <param name="connectionId">A connection identifier to which this channel belongs</param>
         /// <param name="model">A native transport channel</param>
         /// <param name="busContext">A bus context</param>
-        /// <param name="payloadConverterResolver">Resolves converters to serialize or deserialize message's payload.</param>
-        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext, IPayloadConverterResolver payloadConverterResolver)
+        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext)
         {
             this.ConnectionId = connectionId;
             this.Model = model;
             this.busContext = busContext;
-            this.payloadConverterResolver = payloadConverterResolver;
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.ConnectionId}, {this.GetHashCode()})");
 
             this.Model.ModelShutdown += this.OnModelShutdown;
@@ -226,7 +222,7 @@ namespace Contour.Transport.RabbitMq.Internal
                     });
         }
 
-        public void Publish(IRoute route, IMessage message)
+        public void Publish(IRoute route, IMessage message, IPayloadConverter payloadConverter)
         {
             var nativeRoute = (RabbitRoute)route;
 
@@ -240,12 +236,9 @@ namespace Contour.Transport.RabbitMq.Internal
             }
 
             var headers = ExtractProperties(props, message.Headers);
+            var body = payloadConverter.FromObject(message.Payload);
 
-            string contentType = Headers.GetString(message.Headers, Headers.ContentType);
-            IPayloadConverter converter = this.payloadConverterResolver.ResolveConverter(contentType);
-            var body = converter.FromObject(message.Payload);
-
-            props.ContentType = converter.ContentType;
+            props.ContentType = payloadConverter.ContentType;
             props.Timestamp = new AmqpTimestamp(DateTimeEx.ToUnixTimestamp(DateTime.UtcNow));
 
             headers.ForEach(i => props.Headers.Add(i));
@@ -259,13 +252,6 @@ namespace Contour.Transport.RabbitMq.Internal
             this.logger.Trace(m => m("Rejecting message [{0}] ({1}).", delivery.Label, delivery.Args.DeliveryTag));
 
             this.SafeNativeInvoke(n => n.BasicNack(delivery.Args.DeliveryTag, false, requeue));
-        }
-
-        public void Reply(IMessage message, RabbitRoute replyTo, string correlationId)
-        {
-            message.Headers.Add(Headers.CorrelationId, correlationId);
-
-            this.Publish(new RabbitRoute(replyTo.Exchange, replyTo.RoutingKey), message);
         }
 
         public void RequestPublish(QoSParams qos)
@@ -305,9 +291,8 @@ namespace Contour.Transport.RabbitMq.Internal
             }
         }
 
-        public IMessage UnpackAs(Type type, RabbitDelivery delivery)
+        public IMessage UnpackAs(Type type, RabbitDelivery delivery, IPayloadConverter payloadConverter)
         {
-            IPayloadConverter payloadConverter = this.payloadConverterResolver.ResolveConverter(delivery.Args.BasicProperties.ContentType);
             var payload = payloadConverter.ToObject(delivery.Args.Body, type);
             return new Message(delivery.Label, delivery.Headers, payload);
         }

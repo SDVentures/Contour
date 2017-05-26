@@ -13,6 +13,7 @@ namespace Contour.Testing.Plumbing
 
             configure(config);
             config.Validate();
+            config.EndpointOptions.PayloadConverterResolver = new DefaultPayloadConverterResolver(config.Converters);
 
             var bus = config.BusFactoryFunc(config);
 

@@ -64,8 +64,6 @@ namespace Contour.Configuration
 
             this.SenderDefaults = new SenderOptions(this.EndpointOptions);
             this.ReceiverDefaults = new ReceiverOptions(this.EndpointOptions);
-
-            this.converters = new List<IPayloadConverter>();
         }
 
         /// <summary>
@@ -152,7 +150,7 @@ namespace Contour.Configuration
         /// </summary>
         public SenderOptions SenderDefaults { get; internal set; }
 
-        public IReadOnlyCollection<IPayloadConverter> Converters => new ReadOnlyCollection<IPayloadConverter>(this.converters);
+        public ReadOnlyCollection<IPayloadConverter> Converters => new ReadOnlyCollection<IPayloadConverter>(this.converters);
 
         /// <summary>
         /// Gets the validator registry.
@@ -568,7 +566,7 @@ namespace Contour.Configuration
 
             if (!this.Converters.Any())
             {
-                throw new BusConfigurationException("PayloadConverter is not set.");
+                throw new BusConfigurationException("Payload converter is not set. UsePayloadConverter should be called before transport configuration.");
             }
 
             if (this.BusFactoryFunc == null)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Contour.Helpers;
 using Contour.Sending;
+using Contour.Serialization;
 using Contour.Transport.RabbitMq;
 using Contour.Transport.RabbitMq.Internal;
 using Contour.Transport.RabbitMq.Topology;

@@ -6,48 +6,30 @@ using Common.Logging;
 
 using Contour.Configuration;
 using Contour.Sending;
+using Contour.Serialization;
 
 using RabbitMQ.Client;
 
 namespace Contour.Transport.RabbitMq.Internal
 {
-    /// <summary>
-    /// Отправитель сообщений.
-    /// Отправитель создается для конкретной метки сообщения и конкретной конечной точки.
-    /// В случае отправки запроса с ожиданием ответа, отправитель создает получателя ответного сообщения.
-    /// </summary>
     internal sealed class Producer : IProducer
     {
         private readonly ILog logger;
         private readonly IEndpoint endpoint;
         private readonly IRabbitConnection connection;
+
+        private readonly IPayloadConverterResolver payloadConverterResolver;
+
         private readonly object syncRoot = new object();
         private CancellationTokenSource cancellationTokenSource;
         private IPublishConfirmationTracker confirmationTracker = new DummyPublishConfirmationTracker();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Producer"/> class. 
-        /// </summary>
-        /// <param name="endpoint">
-        /// The endpoint.
-        /// </param>
-        /// <param name="connection">
-        /// Соединение с шиной сообщений
-        /// </param>
-        /// <param name="label">
-        /// Метка сообщения, которая будет использоваться при отправлении сообщений.
-        /// </param>
-        /// <param name="routeResolver">
-        /// Определитель маршрутов, по которым можно отсылать и получать сообщения.
-        /// </param>
-        /// <param name="confirmationIsRequired">
-        /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
-        /// </param>
-        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired, IPayloadConverterResolver payloadConverterResolver)
         {
             this.endpoint = endpoint;
 
             this.connection = connection;
+            this.payloadConverterResolver = payloadConverterResolver;
             this.BrokerUrl = connection.ConnectionString;
             this.Label = label;
             this.RouteResolver = routeResolver;
@@ -118,7 +100,11 @@ namespace Contour.Transport.RabbitMq.Internal
                     this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
 
                     var confirmation = this.confirmationTracker.Track();
-                    this.Channel.Publish(nativeRoute, message);
+
+                    string contentType = Headers.GetString(message.Headers, Headers.ContentType);
+                    IPayloadConverter converter = this.payloadConverterResolver.ResolveConverter(contentType);
+
+                    this.Channel.Publish(nativeRoute, message, converter);
                     return confirmation;
                 }
                 finally

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 
+using Contour.Configuration;
 using Contour.Sending;
 using Contour.Serialization;
 using Contour.Testing.Transport.RabbitMq;
@@ -18,7 +19,7 @@ namespace Contour.RabbitMq.Tests
     public class PayloadConverterSpecs : RabbitMqFixture
     {
         [Test]
-        public void when_publish_with_two_converters_should_be_used_by_options()
+        public void when_publish_message_via_bus_with_two_converters_should_be_choosen_converter_by_message_options()
         {
             var contentType = "application/fake-protobuf";
             var bus = this.ConfigureBus(

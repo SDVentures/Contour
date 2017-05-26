@@ -47,20 +47,20 @@ namespace Contour.Common.Tests
         }
 
         [Test]
-        public void when_no_message_content_type_should_return_first_converter()
+        public void when_create_with_duplicate_content_types_should_override_first_by_last()
         {
-            var jsonConverter = new StubPayloadConverter("application/json");
+            var first = new StubPayloadConverter("application/protobuf");
+            var last = new StubPayloadConverter("application/protobuf");
             var sut = new DefaultPayloadConverterResolver(
-                new ReadOnlyCollection<IPayloadConverter>(
-                    new List<IPayloadConverter>
-                        {
-                            jsonConverter,
-                            new StubPayloadConverter("application/protobuf")
-                        }));
+                new ReadOnlyCollection<IPayloadConverter>(new List<IPayloadConverter>
+                                                              {
+                                                                first,
+                                                                new StubPayloadConverter("application/json"),
+                                                                last
+                                                              }));
+            var converter = sut.ResolveConverter("application/protobuf");
 
-            var converter = sut.ResolveConverter("application/json");
-
-            Assert.AreEqual(converter, jsonConverter);
+            Assert.AreEqual(last, converter);
         }
 
         private class StubPayloadConverter : IPayloadConverter

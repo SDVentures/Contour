@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Contour.Serialization;
 using Contour.Transport.RabbitMq;
 using Contour.Transport.RabbitMq.Internal;
 
@@ -26,6 +27,8 @@ namespace Contour.Common.Tests
             busContextMock.SetupGet(ctx => ctx.MessageLabelHandler)
                 .Returns(messageLabelHandlerMock.Object);
 
+            Mock<IPayloadConverter> payloadConverterMock = new Mock<IPayloadConverter>();
+
             var args = new BasicDeliverEventArgs();
             args.BasicProperties = new BasicProperties();
             args.BasicProperties.ReplyTo = "some.address";
@@ -36,17 +39,22 @@ namespace Contour.Common.Tests
             Mock<IRabbitChannel> rabbitChannelMock = new Mock<IRabbitChannel>();
             IMessage resultMessage = null;
             rabbitChannelMock.Setup(
-                rc => rc.Reply(
+                rc => rc.Publish(
+                    It.IsAny<IRoute>(),
                     It.IsAny<IMessage>(),
-                    It.IsAny<RabbitRoute>(),
-                    It.IsAny<string>()))
-                .Callback<IMessage, RabbitRoute, string>((m, r, c) => { resultMessage = m; });
+                    It.IsAny<IPayloadConverter>()))
+                .Callback<IRoute, IMessage, IPayloadConverter>((r, m, c) => { resultMessage = m; });
 
             Mock<IMessage> messageMock = new Mock<IMessage>();
             IDictionary<string, object> messageHeaders = new Dictionary<string, object>();
             messageMock.Setup(m => m.Headers).Returns(messageHeaders);
 
-            var sut = new RabbitDelivery(busContextMock.Object, rabbitChannelMock.Object, args, true);
+            var sut = new RabbitDelivery(
+                busContextMock.Object, 
+                rabbitChannelMock.Object, 
+                args, 
+                true, 
+                payloadConverterMock.Object);
 
             sut.ReplyWith(messageMock.Object);
 
