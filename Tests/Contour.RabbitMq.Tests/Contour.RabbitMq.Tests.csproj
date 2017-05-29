@@ -56,6 +56,7 @@
     <Compile Include="FaultTolerantProducerSpecs.cs" />
     <Compile Include="FooMessage.cs" />
     <Compile Include="GooMessage.cs" />
+    <Compile Include="ListenerSpecs.cs" />
     <Compile Include="MessageFlowShardingSpecs.cs" />
     <Compile Include="MessageHeaderSpecs.cs" />
     <Compile Include="OperatorsSpecs.cs" />

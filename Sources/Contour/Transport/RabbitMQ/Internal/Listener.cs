@@ -259,12 +259,15 @@ namespace Contour.Transport.RabbitMQ.Internal
                 var count = (int)this.ReceiverOptions.GetParallelismLevel().Value;
                 var token = this.cancellationTokenSource.Token;
 
+                // In order to increase the performance of the listener on startup the task factory should be configured to create long running tasks. These tasks will run on dedicated threads instead of thread pool threads which may be created with delays in certain conditions. As a workaround for this condition one can set the minimum number of threads created by the pool before switching the thread creation policy. See https://stackoverflow.com/questions/22036365/newly-created-threads-using-task-factory-startnew-starts-very-slowly for details.
+
                 this.workers = new ConcurrentBag<Task>(Enumerable
                     .Range(0, count)
                     .Select(
                         _ =>
                             Task.Factory.StartNew(
-                                () => this.ConsumerTaskMethod(token), token)));
+                                () => this.ConsumerTaskMethod(token), token, TaskCreationOptions.LongRunning,
+                                TaskScheduler.Default)));
 
                 this.isConsuming = true;
                 this.logger.Trace("Listener started successfully");
