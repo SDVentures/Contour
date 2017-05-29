@@ -3,6 +3,7 @@
   + Round robin selector made thread-safe; empty collection requirement removed;
   + Request default timeout fixture added;
   + Sender request timeout is set to 30 seconds by default
+  + Listener tasks are now created as long running on dedicated threads due to poor application performance while using the thread pool with default configuration;
 
 ## 1.7.9
 - Changes:
