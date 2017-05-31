@@ -1,4 +1,4 @@
-﻿## 1.7.10-rc1
+﻿## 1.7.10
 - Changes:
   + Round robin selector made thread-safe; empty collection requirement removed;
   + Request default timeout fixture added;
