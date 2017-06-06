@@ -16,7 +16,7 @@ using NUnit.Framework;
 namespace Contour.RabbitMq.Tests
 {
     [TestFixture]
-    public class PayloadConverterSpecs : RabbitMqFixture
+    public class PayloadConvertionSpecs : RabbitMqFixture
     {
         [Test]
         public void when_publish_message_via_bus_with_two_converters_should_be_choosen_converter_by_message_options()

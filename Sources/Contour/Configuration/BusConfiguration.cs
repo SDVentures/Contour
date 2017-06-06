@@ -188,7 +188,7 @@ namespace Contour.Configuration
                 new CacheMessageExchangeFilter(
                     new MemoryCacheProvider(),
                     new HashCalculator(
-                        // need lazy load payload converter to escape race conditions during configuration caching and payload converters.
+                        // if caching is to be enabled before a payload converter is configured then an null reference exception might be thrown. To avoid it hash calculator loads converters lazily.
                         new Lazy<IPayloadConverter>(() => this.Converters.First()))));
         }
 
