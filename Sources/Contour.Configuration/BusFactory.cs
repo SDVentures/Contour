@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Contour.Serialization;
+
 namespace Contour.Configuration
 {
     /// <summary>
@@ -21,11 +23,12 @@ namespace Contour.Configuration
         /// </returns>
         public IBus Create(Action<IBusConfigurator> configure, bool autoStart = true)
         {
-            var config = DefaultBusConfigurationBuilder.Build();
+            var config = new BusConfiguration();
 
             configure(config);
 
             config.Validate();
+            config.EndpointOptions.PayloadConverterResolver = new DefaultPayloadConverterResolver(config.Converters);
 
             var bus = config.BusFactoryFunc(config);
 

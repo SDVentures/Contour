@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,48 +6,30 @@ using Common.Logging;
 
 using Contour.Configuration;
 using Contour.Sending;
+using Contour.Serialization;
 
 using RabbitMQ.Client;
 
 namespace Contour.Transport.RabbitMq.Internal
 {
-    /// <summary>
-    /// Отправитель сообщений.
-    /// Отправитель создается для конкретной метки сообщения и конкретной конечной точки.
-    /// В случае отправки запроса с ожиданием ответа, отправитель создает получателя ответного сообщения.
-    /// </summary>
     internal sealed class Producer : IProducer
     {
         private readonly ILog logger;
         private readonly IEndpoint endpoint;
         private readonly IRabbitConnection connection;
+
+        private readonly IPayloadConverterResolver payloadConverterResolver;
+
         private readonly object syncRoot = new object();
         private CancellationTokenSource cancellationTokenSource;
         private IPublishConfirmationTracker confirmationTracker = new DummyPublishConfirmationTracker();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Producer"/> class. 
-        /// </summary>
-        /// <param name="endpoint">
-        /// The endpoint.
-        /// </param>
-        /// <param name="connection">
-        /// Соединение с шиной сообщений
-        /// </param>
-        /// <param name="label">
-        /// Метка сообщения, которая будет использоваться при отправлении сообщений.
-        /// </param>
-        /// <param name="routeResolver">
-        /// Определитель маршрутов, по которым можно отсылать и получать сообщения.
-        /// </param>
-        /// <param name="confirmationIsRequired">
-        /// Если <c>true</c> - тогда отправитель будет ожидать подтверждения о том, что сообщение было сохранено в брокере.
-        /// </param>
-        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired)
+        public Producer(IEndpoint endpoint, IRabbitConnection connection, MessageLabel label, IRouteResolver routeResolver, bool confirmationIsRequired, IPayloadConverterResolver payloadConverterResolver)
         {
             this.endpoint = endpoint;
 
             this.connection = connection;
+            this.payloadConverterResolver = payloadConverterResolver;
             this.BrokerUrl = connection.ConnectionString;
             this.Label = label;
             this.RouteResolver = routeResolver;
@@ -80,7 +60,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <summary>
         /// Канал подключения к брокеру.
         /// </summary>
-        private RabbitChannel Channel { get; set; }
+        private IRabbitChannel Channel { get; set; }
 
         /// <summary>
         /// <c>true</c> - если при отправке необходимо подтверждение о том, что брокер сохранил сообщение.
@@ -118,10 +98,13 @@ namespace Contour.Transport.RabbitMq.Internal
                 {
                     var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
                     this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
-                    Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p => ExtractProperties(ref p, message.Headers);
 
                     var confirmation = this.confirmationTracker.Track();
-                    this.Channel.Publish(nativeRoute, message, propsVisitor);
+
+                    string contentType = Headers.GetString(message.Headers, Headers.ContentType);
+                    IPayloadConverter converter = this.payloadConverterResolver.ResolveConverter(contentType);
+
+                    this.Channel.Publish(nativeRoute, message, converter);
                     return confirmation;
                 }
                 finally
@@ -242,51 +225,6 @@ namespace Contour.Transport.RabbitMq.Internal
 
             this.CallbackListener = listener;
         }
-
-        /// <summary>
-        /// Устанавливает заголовки сообщения в свойства сообщения.
-        /// </summary>
-        /// <param name="props">
-        /// Свойства сообщения, куда устанавливаются заголовки.
-        /// </param>
-        /// <param name="sourceHeaders">
-        /// The source Headers.
-        /// </param>
-        /// <returns>
-        /// The <see cref="IDictionary{K,V}"/>.
-        /// </returns>
-        private static IDictionary<string, object> ExtractProperties(ref IBasicProperties props, IDictionary<string, object> sourceHeaders)
-        {
-            var headers = new Dictionary<string, object>(sourceHeaders);
-
-            var persist = Headers.Extract<bool?>(headers, Headers.Persist);
-            var ttl = Headers.Extract<TimeSpan?>(headers, Headers.Ttl);
-            var correlationId = Headers.Extract<string>(headers, Headers.CorrelationId);
-            var replyRoute = Headers.Extract<RabbitRoute>(headers, Headers.ReplyRoute);
-
-            if (persist.HasValue && persist.Value)
-            {
-                props.DeliveryMode = 2;
-            }
-
-            if (ttl.HasValue)
-            {
-                props.Expiration = ttl.Value.TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
-            }
-
-            if (correlationId != null)
-            {
-                props.CorrelationId = correlationId;
-            }
-
-            if (replyRoute != null)
-            {
-                props.ReplyToAddress = new PublicationAddress("direct", replyRoute.Exchange, replyRoute.RoutingKey);
-            }
-
-            return headers;
-        }
-
 
         private void InternalStop(OperationStopReason reason)
         {

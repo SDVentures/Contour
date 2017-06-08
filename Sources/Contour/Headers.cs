@@ -11,6 +11,8 @@ namespace Contour
     /// </summary>
     public class Headers
     {
+        public static readonly string ContentType = "content_type";
+
         /// <summary>
         /// Корреляционный идентификатор, нужен для объединения в группу набора сообщений.
         /// </summary>
@@ -178,6 +180,16 @@ namespace Contour
             if (ttl != null && ttl.HasValue)
             {
                 headers[Ttl] = ttl.Value;
+            }
+
+            return headers;
+        }
+
+        public static IDictionary<string, object> ApplyContentType(IDictionary<string, object> headers, Maybe<string> contentType)
+        {
+            if (contentType != null && contentType.HasValue)
+            {
+                headers[ContentType] = contentType.Value;
             }
 
             return headers;

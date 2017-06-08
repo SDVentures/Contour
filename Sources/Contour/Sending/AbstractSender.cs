@@ -256,6 +256,9 @@ namespace Contour.Sending
             Maybe<TimeSpan?> ttl = BusOptions.Pick(options.Ttl, this.Configuration.Options.GetTtl());
             Headers.ApplyTtl(outputHeaders, ttl);
 
+            Maybe<string> contentType = BusOptions.Pick(options.ContentType, Maybe<string>.Empty);
+            Headers.ApplyContentType(outputHeaders, contentType);
+
             return outputHeaders;
         }
 

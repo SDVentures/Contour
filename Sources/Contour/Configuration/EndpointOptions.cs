@@ -41,6 +41,11 @@ namespace Contour.Configuration
         public int? FailoverAttempts { protected get; set; }
 
         /// <summary>
+        /// Gets or sets the payload converter resolver.
+        /// </summary>
+        public IPayloadConverterResolver PayloadConverterResolver { protected get; set; }
+
+        /// <summary>
         /// Gets the connection string.
         /// </summary>
         /// <returns>
@@ -78,6 +83,15 @@ namespace Contour.Configuration
         public override BusOptions Derive()
         {
             return new EndpointOptions(this);
+        }
+
+        /// <summary>
+        /// Gets the payload converter resolver.
+        /// </summary>
+        /// <returns></returns>
+        public IPayloadConverterResolver GetPayloadConverterResolver()
+        {
+            return this.Pick<EndpointOptions, IPayloadConverterResolver>((o) => o.PayloadConverterResolver);
         }
     }
 }

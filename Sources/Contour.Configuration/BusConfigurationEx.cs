@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Contour.Helpers;
 using Contour.Sending;
+using Contour.Serialization;
 using Contour.Transport.RabbitMq;
 using Contour.Transport.RabbitMq.Internal;
 using Contour.Transport.RabbitMq.Topology;
@@ -55,7 +56,8 @@ namespace Contour.Configuration
                                          Headers.QueueMessageTtl,
                                          Headers.ReplyRoute,
                                          Headers.Timeout,
-                                         Headers.Ttl
+                                         Headers.Ttl,
+                                         Headers.ContentType
                                      };
             var messageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(new MessageHeaderStorage(blockedHeaders));
 

@@ -67,7 +67,6 @@
     <Compile Include="Configurator\StubDependencyResolver.cs" />
     <Compile Include="Configurator\ValidatorCollection.cs" />
     <Compile Include="Configurator\ValidatorElement.cs" />
-    <Compile Include="DefaultBusConfigurationBuilder.cs" />
     <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

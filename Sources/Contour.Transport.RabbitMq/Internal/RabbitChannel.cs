@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 
 using Common.Logging;
 
 using Contour.Helpers;
 using Contour.Receiving;
+using Contour.Serialization;
 using Contour.Transport.RabbitMq.Topology;
 
 using RabbitMQ.Client;
@@ -15,10 +17,11 @@ namespace Contour.Transport.RabbitMq.Internal
     /// <summary>
     /// The rabbit channel.
     /// </summary>
-    internal sealed class RabbitChannel : IChannel
+    internal sealed class RabbitChannel : IRabbitChannel
     {
         private readonly object sync = new object();
         private readonly IBusContext busContext;
+
         private readonly ILog logger;
 
         /// <summary>
@@ -219,51 +222,31 @@ namespace Contour.Transport.RabbitMq.Internal
                     });
         }
 
-        /// <summary>
-        /// The publish.
-        /// </summary>
-        /// <param name="route">
-        /// The route.
-        /// </param>
-        /// <param name="message">
-        /// The message.
-        /// </param>
-        /// <param name="propsVisitor">
-        /// The props visitor.
-        /// </param>
-        public void Publish(IRoute route, IMessage message, Func<IBasicProperties, IDictionary<string, object>> propsVisitor = null)
+        public void Publish(IRoute route, IMessage message, IPayloadConverter payloadConverter)
         {
             var nativeRoute = (RabbitRoute)route;
 
             this.logger.Trace(m => m("Emitting message [{0}] ({1}) through [{2}].", message.Label, message.Payload, nativeRoute));
 
             var props = this.Model.CreateBasicProperties();
-            var body = this.busContext.PayloadConverter.FromObject(message.Payload);
 
             if (props.Headers == null)
             {
                 props.Headers = new Dictionary<string, object>();
             }
 
-            props.ContentType = this.busContext.PayloadConverter.ContentType;
+            var headers = ExtractProperties(props, message.Headers);
+            var body = payloadConverter.FromObject(message.Payload);
+
+            props.ContentType = payloadConverter.ContentType;
             props.Timestamp = new AmqpTimestamp(DateTimeEx.ToUnixTimestamp(DateTime.UtcNow));
 
-            var headers = propsVisitor?.Invoke(props);
             headers.ForEach(i => props.Headers.Add(i));
 
             this.busContext.MessageLabelHandler.Inject(props, message.Label);
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
         }
 
-        /// <summary>
-        /// The reject.
-        /// </summary>
-        /// <param name="delivery">
-        /// The delivery.
-        /// </param>
-        /// <param name="requeue">
-        /// The requeue.
-        /// </param>
         public void Reject(RabbitDelivery delivery, bool requeue)
         {
             this.logger.Trace(m => m("Rejecting message [{0}] ({1}).", delivery.Label, delivery.Args.DeliveryTag));
@@ -271,66 +254,16 @@ namespace Contour.Transport.RabbitMq.Internal
             this.SafeNativeInvoke(n => n.BasicNack(delivery.Args.DeliveryTag, false, requeue));
         }
 
-        /// <summary>
-        /// The reply.
-        /// </summary>
-        /// <param name="message">
-        /// The message.
-        /// </param>
-        /// <param name="replyTo">
-        /// The reply to.
-        /// </param>
-        /// <param name="correlationId">
-        /// The correlation id.
-        /// </param>
-        public void Reply(IMessage message, RabbitRoute replyTo, string correlationId)
-        {
-            Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p =>
-            {
-                p.CorrelationId = correlationId;
-                return message.Headers;
-            };
-
-            this.Publish(new RabbitRoute(replyTo.Exchange, replyTo.RoutingKey), message, propsVisitor);
-        }
-
-        /// <summary>
-        /// The request publish.
-        /// </summary>
-        /// <param name="qos">
-        /// The qos.
-        /// </param>
         public void RequestPublish(QoSParams qos)
         {
             this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
         }
 
-        /// <summary>
-        /// The set qos.
-        /// </summary>
-        /// <param name="qos">
-        /// The qos.
-        /// </param>
         public void SetQos(QoSParams qos)
         {
             this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
         }
 
-        /// <summary>
-        /// The start consuming.
-        /// </summary>
-        /// <param name="listeningSource">
-        /// The listening source.
-        /// </param>
-        /// <param name="requireAccept">
-        /// The require accept.
-        /// </param>
-        /// <param name="consumer">
-        /// The consumer.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
         public string StartConsuming(IListeningSource listeningSource, bool requireAccept, IBasicConsumer consumer)
         {
             string consumerTag = string.Empty;
@@ -340,26 +273,11 @@ namespace Contour.Transport.RabbitMq.Internal
             return consumerTag;
         }
 
-        /// <summary>
-        /// The stop consuming.
-        /// </summary>
-        /// <param name="consumerTag">
-        /// The consumer tag.
-        /// </param>
         public void StopConsuming(string consumerTag)
         {
             this.SafeNativeInvoke(n => n.BasicCancel(consumerTag));
         }
 
-        /// <summary>
-        /// The try stop consuming.
-        /// </summary>
-        /// <param name="consumerTag">
-        /// The consumer tag.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
         public bool TryStopConsuming(string consumerTag)
         {
             try
@@ -373,21 +291,9 @@ namespace Contour.Transport.RabbitMq.Internal
             }
         }
 
-        /// <summary>
-        /// The unpack as.
-        /// </summary>
-        /// <param name="type">
-        /// The type.
-        /// </param>
-        /// <param name="delivery">
-        /// The delivery.
-        /// </param>
-        /// <returns>
-        /// The <see cref="IMessage"/>.
-        /// </returns>
-        public IMessage UnpackAs(Type type, RabbitDelivery delivery)
+        public IMessage UnpackAs(Type type, RabbitDelivery delivery, IPayloadConverter payloadConverter)
         {
-            var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
+            var payload = payloadConverter.ToObject(delivery.Args.Body, type);
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 
@@ -397,12 +303,6 @@ namespace Contour.Transport.RabbitMq.Internal
             this.Shutdown(this, args);
         }
 
-        /// <summary>
-        /// The safe native invoke.
-        /// </summary>
-        /// <param name="invokeAction">
-        /// The invoke action.
-        /// </param>
         private void SafeNativeInvoke(Action<IModel> invokeAction)
         {
             try
@@ -418,6 +318,40 @@ namespace Contour.Transport.RabbitMq.Internal
                 this.logger.Error($"Channel action failed due to {ex.Message}", ex);
                 throw;
             }
+        }
+
+        private static IDictionary<string, object> ExtractProperties(
+            IBasicProperties props, 
+            IDictionary<string, object> sourceHeaders)
+        {
+            var headers = new Dictionary<string, object>(sourceHeaders);
+
+            var persist = Headers.Extract<bool?>(headers, Headers.Persist);
+            var ttl = Headers.Extract<TimeSpan?>(headers, Headers.Ttl);
+            var correlationId = Headers.Extract<string>(headers, Headers.CorrelationId);
+            var replyRoute = Headers.Extract<RabbitRoute>(headers, Headers.ReplyRoute);
+
+            if (persist.HasValue && persist.Value)
+            {
+                props.DeliveryMode = 2;
+            }
+
+            if (ttl.HasValue)
+            {
+                props.Expiration = ttl.Value.TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+            }
+
+            if (correlationId != null)
+            {
+                props.CorrelationId = correlationId;
+            }
+
+            if (replyRoute != null)
+            {
+                props.ReplyToAddress = new PublicationAddress("direct", replyRoute.Exchange, replyRoute.RoutingKey);
+            }
+
+            return headers;
         }
     }
 }

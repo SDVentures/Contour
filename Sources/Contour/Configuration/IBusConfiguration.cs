@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 using Contour.Filters;
 using Contour.Serialization;
@@ -23,6 +24,6 @@ namespace Contour.Configuration
         /// <summary>
         ///   Сериализатор сообщений.
         /// </summary>
-        IPayloadConverter Serializer { get; }
+        ReadOnlyCollection<IPayloadConverter> Converters { get; }
     }
 }

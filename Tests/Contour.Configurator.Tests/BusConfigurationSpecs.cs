@@ -14,6 +14,7 @@ using FluentAssertions;
 
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
+using Contour.Serialization;
 using Contour.Transport.RabbitMq;
 using Contour.Validation;
 
@@ -680,7 +681,14 @@ namespace Contour.Configurator.Tests
                 var section = new XmlEndpointsSection(ProducerConfig);
                 var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
 
-                using (var bus = new BusFactory().Create(cfg => sut.Configure("producer", cfg), false))
+                using (var bus = new BusFactory().Create(
+                    cfg =>
+                        {
+                            cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                            cfg.UseRabbitMq();
+                            sut.Configure("producer", cfg);
+                        }, 
+                    false))
                 {
                     RabbitReceiverOptions rabbitReceiverOptions = ((BusConfiguration)bus.Configuration).ReceiverDefaults as RabbitReceiverOptions;
                     Assert.IsNotNull(rabbitReceiverOptions, "Долны быть установлены настройки получателя.");
@@ -861,7 +869,14 @@ namespace Contour.Configurator.Tests
                 var section = new XmlEndpointsSection(ProducerConfig);
                 var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
 
-                using (var bus = new BusFactory().Create(cfg => sut.Configure("producer", cfg), false))
+                using (var bus = new BusFactory().Create(
+                    cfg =>
+                        {
+                            cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                            cfg.UseRabbitMq();
+                            sut.Configure("producer", cfg);
+                        }, 
+                    false))
                 {
                     Assert.IsTrue(bus.CanRoute(MessageLabel.Any), "Должна быть включена динамическая маршрутизация.");
                 }

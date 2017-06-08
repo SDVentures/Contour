@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Contour.Configuration;
 using Contour.Receiving;
+using Contour.Serialization;
 
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -25,30 +26,15 @@ namespace Contour.Transport.RabbitMq.Internal
         /// Верно, если сообщение требует подтверждения обработки.
         /// </summary>
         private readonly bool requiresAccept;
+
+        private readonly IPayloadConverter payloadConverter;
+
         private readonly IBusContext busContext;
 
-        /// <summary>
-        /// Верно, если обработка сообщения подтверждена.
-        /// </summary>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         private volatile bool isAccepted;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RabbitDelivery"/> class. 
-        /// </summary>
-        /// <param name="busContext">
-        /// The bus Context.
-        /// </param>
-        /// <param name="channel">
-        /// Канал поставки сообщения.
-        /// </param>
-        /// <param name="args">
-        /// Параметры поставки сообщения.
-        /// </param>
-        /// <param name="requiresAccept">
-        /// Верно, если требуется подтверждение доставки.
-        /// </param>
-        public RabbitDelivery(IBusContext busContext, RabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept)
+        public RabbitDelivery(IBusContext busContext, IRabbitChannel channel, BasicDeliverEventArgs args, bool requiresAccept, IPayloadConverter payloadConverter)
         {
             this.busContext = busContext;
 
@@ -56,6 +42,7 @@ namespace Contour.Transport.RabbitMq.Internal
             this.Label = this.busContext.MessageLabelHandler.Resolve(args);
             this.Args = args;
             this.requiresAccept = requiresAccept;
+            this.payloadConverter = payloadConverter;
 
             this.headers = new Lazy<IDictionary<string, object>>(
                 () => this.ExtractHeadersFrom(args));
@@ -69,7 +56,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <summary>
         /// Канал доставки сообщения.
         /// </summary>
-        public RabbitChannel Channel { get; private set; }
+        public IRabbitChannel Channel { get; private set; }
         
         /// <summary>
         /// Формат содержимого сообщения.
@@ -210,12 +197,22 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <param name="message">Ответное сообщение.</param>
         public void ReplyWith(IMessage message)
         {
+            if (!string.IsNullOrEmpty(this.ContentType))
+            {
+                message.Headers[Contour.Headers.ContentType] = this.ContentType;
+            }
+
             if (!this.CanReply)
             {
                 throw new BusConfigurationException("No ReplyToAddress or CorrelationId were found in delivery. Make sure that you have callback endpoint set.");
             }
 
-            this.Channel.Reply(message, this.ReplyRoute, this.CorrelationId);
+            message.Headers.Add(Contour.Headers.CorrelationId, this.CorrelationId);
+
+            this.Channel.Publish(
+                new RabbitRoute(this.ReplyRoute.Exchange, this.ReplyRoute.RoutingKey), 
+                message, 
+                this.payloadConverter);
         }
 
         /// <summary>
@@ -225,7 +222,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <returns>Сообщение указанного типа.</returns>
         public Message<T> UnpackAs<T>() where T : class
         {
-            IMessage message = this.Channel.UnpackAs(typeof(T), this);
+            IMessage message = this.Channel.UnpackAs(typeof(T), this, this.payloadConverter);
             return new Message<T>(message.Label, message.Headers, (T)message.Payload);
         }
 
@@ -236,7 +233,7 @@ namespace Contour.Transport.RabbitMq.Internal
         /// <returns>Сообщение указанного типа.</returns>
         public IMessage UnpackAs(Type type)
         {
-            return this.Channel.UnpackAs(type, this);
+            return this.Channel.UnpackAs(type, this, this.payloadConverter);
         }
 
         /// <summary>
