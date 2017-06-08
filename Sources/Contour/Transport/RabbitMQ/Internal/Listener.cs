@@ -106,7 +106,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.ReceiverOptions = receiverOptions;
             this.BrokerUrl = connection.ConnectionString;
 
-            this.ReceiverOptions.GetIncomingMessageHeaderStorage();
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
 
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl}, {this.GetHashCode()})");
