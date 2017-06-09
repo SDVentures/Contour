@@ -33,7 +33,7 @@
         public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
             : this(filters)
         {
-            this.filterDecorators = filterDecorators;
+            this.filterDecorators = filterDecorators ?? new Dictionary<Type, IMessageExchangeFilterDecorator>();
         }
 
         /// <summary>
@@ -59,7 +59,7 @@
             var currentFilter = this.filterEnumerator.Current;
             var currentFilterType = currentFilter.GetType();
 
-            if (this.filterDecorators != null && this.filterDecorators.ContainsKey(currentFilterType))
+            if (this.filterDecorators.ContainsKey(currentFilterType))
             {
                 return this.filterDecorators[currentFilterType].Process(currentFilter, exchange, this);
             }
