@@ -5,6 +5,8 @@
  - Updated dependencies.
  - Removed Ninject dependency.
  - Removed FluentValidation dependency.
+ - Added support of multiple payload converters. Issue #64.
+    - Payload convertion (UsePayloadConverter) and transport (UseRabbitMq) of bus configuration made mandatory;
 
 ﻿## 1.7.3
  - Attempt errors aggregation added

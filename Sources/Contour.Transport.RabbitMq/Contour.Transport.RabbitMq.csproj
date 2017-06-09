@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="BusConsumerConfigurationEx.cs" />
     <Compile Include="FailoverException.cs" />
+    <Compile Include="Internal\ByteArrayPayloadConverter.cs" />
     <Compile Include="Internal\CancellableQueueingConsumer.cs" />
     <Compile Include="Internal\DefaultProducerSelectorBuilder.cs" />
     <Compile Include="Internal\DefaultRabbitMessageLabelHandler.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="Internal\IProducerSelector.cs" />
     <Compile Include="Internal\IProducerSelectorBuilder.cs" />
     <Compile Include="Internal\IPublishConfirmationTracker.cs" />
+    <Compile Include="Internal\IRabbitChannel.cs" />
     <Compile Include="Internal\IRabbitConnection.cs" />
     <Compile Include="Internal\Listener.cs" />
     <Compile Include="Internal\ListenerConfiguration.cs" />

@@ -34,6 +34,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RabbitMQ.Client, Version=3.3.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RabbitMQ.Client\lib\net30\RabbitMQ.Client.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,6 +49,7 @@
   <ItemGroup>
     <Compile Include="AbstactSenderSpecs.cs" />
     <Compile Include="ConnectionPoolSpecs.cs" />
+    <Compile Include="DefaultPayloadConverterResolverSpecs.cs" />
     <Compile Include="DefaultSagaLifecycleSpecs.cs" />
     <Compile Include="FakeConnectionPool.cs" />
     <Compile Include="FaultExceptionSpecs.cs" />
@@ -56,6 +61,8 @@
     <Compile Include="MessageExchangeFilterSpecs.cs" />
     <Compile Include="MessageValidationSpecs.cs" />
     <Compile Include="QueueBuilderSpecs.cs" />
+    <Compile Include="ProducerSpecs.cs" />
+    <Compile Include="RabbitDeliverySpecs.cs" />
     <Compile Include="SagaConsumerSpecs.cs" />
     <Compile Include="TaskCompletionSourceSpecs.cs" />
     <Compile Include="RoughTicketTimerSpecs.cs" />

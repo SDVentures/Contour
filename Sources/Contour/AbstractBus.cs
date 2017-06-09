@@ -145,13 +145,7 @@ namespace Contour
         /// <summary>
         /// Преобразователь сообщений.
         /// </summary>
-        public IPayloadConverter PayloadConverter
-        {
-            get
-            {
-                return this.Configuration.Serializer;
-            }
-        }
+        public IReadOnlyCollection<IPayloadConverter> PayloadConverters => this.Configuration.Converters;
 
         /// <summary>
         /// Получатели сообщений.

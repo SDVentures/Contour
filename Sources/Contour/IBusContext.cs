@@ -32,7 +32,7 @@ namespace Contour
         /// <summary>
         /// Преобразует тело сообщения, в двоичное представление.
         /// </summary>
-        IPayloadConverter PayloadConverter { get; }
+        IReadOnlyCollection<IPayloadConverter> PayloadConverters { get; }
 
         /// <summary>
         /// Признак полной готовности шины.

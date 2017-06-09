@@ -5,6 +5,8 @@ using System.Xml;
 
 using Contour.Configuration;
 using Contour.Configuration.Configurator;
+using Contour.Serialization;
+using Contour.Testing.Plumbing;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;
@@ -38,7 +40,12 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new TestFactory().Create(cfg =>
+                    {
+                        cfg.UseRabbitMq();
+                        sut.Configure("producer", cfg);
+                    }, 
+                    true));
                 bus.WhenReady.WaitOne();
 
 
@@ -63,7 +70,13 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new TestFactory().Create(
+                    cfg =>
+                        {
+                            cfg.UseRabbitMq();
+                            sut.Configure("producer", cfg);
+                        }, 
+                    true));
                 bus.WhenReady.WaitOne();
 
 
@@ -89,7 +102,13 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new TestFactory().Create(
+                    cfg =>
+                        {
+                            cfg.UseRabbitMq();
+                            sut.Configure("producer", cfg);                            
+                        }, 
+                    true));
                 bus.WhenReady.WaitOne();
 
 
@@ -114,7 +133,14 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(
+                    () => new TestFactory().Create(
+                        cfg =>
+                            {
+                                cfg.UseRabbitMq();
+                                sut.Configure("producer", cfg);
+                            }, 
+                        true));
                 bus.WhenReady.WaitOne();
 
 

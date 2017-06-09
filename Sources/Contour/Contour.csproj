@@ -57,6 +57,7 @@
     <Compile Include="Configuration\IBusConfiguration.cs" />
     <Compile Include="Configuration\IBusConfigurator.cs" />
     <Compile Include="Filters\IMessageExchangeFilterDecorator.cs" />
+    <Compile Include="IPayloadConverterResolver.cs" />
     <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\SendingExchangeFilter.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Sending\ISenderConfiguration.cs" />
     <Compile Include="Receiving\ReceiverConfiguration.cs" />
     <Compile Include="Serialization\AbstractPayloadConverter.cs" />
+    <Compile Include="Serialization\DefaultPayloadConverterResolver.cs" />
     <Compile Include="Topology\ITopologyBuilder.cs" />
     <Compile Include="Receiving\IListeningSource.cs" />
     <Compile Include="Receiving\ISubscriptionEndpointBuilder.cs" />

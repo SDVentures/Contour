@@ -108,7 +108,7 @@ namespace Contour.Transport.RabbitMq.Internal
             }
         }
 
-        public RabbitChannel OpenChannel(CancellationToken token)
+        public IRabbitChannel OpenChannel(CancellationToken token)
         {
             lock (this.syncRoot)
             {

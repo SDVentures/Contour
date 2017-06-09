@@ -24,7 +24,7 @@ namespace Contour.Transport.RabbitMq.Internal
 
         RabbitReceiverOptions ReceiverOptions { get; }
 
-        RabbitDelivery BuildDeliveryFrom(RabbitChannel deliveryChannel, BasicDeliverEventArgs args);
+        RabbitDelivery BuildDeliveryFrom(IRabbitChannel deliveryChannel, BasicDeliverEventArgs args);
         
         Task<IMessage> Expect(string correlationId, Type expectedResponseType, TimeSpan? timeout);
 
