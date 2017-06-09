@@ -331,7 +331,7 @@ namespace Contour.Configuration
             this.filters.Add(filter);
         }
 
-        public void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator)
+        public void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator) where T : IMessageExchangeFilter
         {
             this.FilterDecorators[typeof(T)] = decorator;
         }

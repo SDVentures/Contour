@@ -153,7 +153,7 @@ namespace Contour.Configuration
         /// </param>
         void RegisterFilter(IMessageExchangeFilter filter);
 
-        void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator);
+        void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator) where T : IMessageExchangeFilter;
 
         /// <summary>
         /// Регистрирует конкретный валидатор тела сообщения.
