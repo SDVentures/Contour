@@ -1,5 +1,6 @@
 ﻿namespace Contour.Filters
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -13,6 +14,10 @@
         /// The _filter enumerator.
         /// </summary>
         private readonly IEnumerator<IMessageExchangeFilter> filterEnumerator;
+
+        private readonly IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
+
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
         /// </summary>
@@ -20,10 +25,17 @@
         /// The filters.
         /// </param>
         public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters)
+            : this(filters, null)
+        {
+        }
+
+        public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
         {
             this.filterEnumerator = filters.Reverse().
                 GetEnumerator();
+            this.filterDecorators = filterDecorators ?? new Dictionary<Type, IMessageExchangeFilterDecorator>();
         }
+
         /// <summary>
         /// Gets or sets the inner.
         /// </summary>
@@ -44,7 +56,15 @@
                 return Filter.Result(exchange);
             }
 
-            return this.filterEnumerator.Current.Process(exchange, this);
+            var currentFilter = this.filterEnumerator.Current;
+            var currentFilterType = currentFilter.GetType();
+
+            if (this.filterDecorators.ContainsKey(currentFilterType))
+            {
+                return this.filterDecorators[currentFilterType].Process(currentFilter, exchange, this);
+            }
+
+            return currentFilter.Process(exchange, this);
         }
 
         /// <summary>

@@ -1,11 +1,11 @@
-﻿using System.Configuration;
-
-namespace Contour.Configuration.Configurator
+﻿namespace Contour.Configuration.Configurator
 {
+    using System.Configuration;
+
     /// <summary>
     /// The message element.
     /// </summary>
-    internal class MessageElement : ConfigurationElement
+    public class MessageElement : ExtensibleConfigurationElement
     {
         /// <summary>
         /// Gets the key.

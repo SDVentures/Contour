@@ -6,7 +6,7 @@ namespace Contour.Configuration.Configurator
     /// The endpoint collection.
     /// </summary>
     [ConfigurationCollection(typeof(EndpointElement), AddItemName = "endpoint")]
-    internal class EndpointCollection : ConfigurationElementCollection
+    public class EndpointCollection : ConfigurationElementCollection
     {
         /// <summary>
         /// The this.

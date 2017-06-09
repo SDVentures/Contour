@@ -6,7 +6,7 @@ namespace Contour.Configuration.Configurator
     /// The validator collection.
     /// </summary>
     [ConfigurationCollection(typeof(ValidatorElement), AddItemName = "add")]
-    internal class ValidatorCollection : ConfigurationElementCollection
+    public class ValidatorCollection : ConfigurationElementCollection
     {
         /// <summary>
         /// The create new element.

@@ -5,7 +5,7 @@ namespace Contour.Configuration.Configurator
     /// <summary>
     /// The endpoints section.
     /// </summary>
-    internal class EndpointsSection : ConfigurationSection
+    public class EndpointsSection : ConfigurationSection
     {
         /// <summary>
         /// The _current.

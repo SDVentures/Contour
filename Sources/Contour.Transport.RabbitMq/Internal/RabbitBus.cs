@@ -143,7 +143,7 @@ namespace Contour.Transport.RabbitMq.Internal
             this.logger.Trace(
                 $"Registering a new sender of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
 
-            var sender = new RabbitSender(this, configuration, this.connectionPool, this.Configuration.Filters.ToList());
+            var sender = new RabbitSender(this, configuration, this.connectionPool, this.Configuration.Filters.ToList(), this.Configuration.FilterDecorators);
             this.ComponentTracker.Register(sender);
 
             this.logger.Trace(

@@ -14,11 +14,6 @@ namespace Contour.Configuration
     public interface IBusConfigurator
     {
         /// <summary>
-        /// The enable caching.
-        /// </summary>
-        void EnableCaching();
-
-        /// <summary>
         /// Устанавливает обработчик жизненного цикла конечной точки.
         /// </summary>
         /// <param name="lifecycleHandler">
@@ -157,6 +152,8 @@ namespace Contour.Configuration
         /// The filter.
         /// </param>
         void RegisterFilter(IMessageExchangeFilter filter);
+
+        void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator) where T : IMessageExchangeFilter;
 
         /// <summary>
         /// Регистрирует конкретный валидатор тела сообщения.

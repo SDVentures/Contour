@@ -6,7 +6,7 @@ namespace Contour.Configuration.Configurator
     /// The outgoing collection.
     /// </summary>
     [ConfigurationCollection(typeof(OutgoingElement), AddItemName = "route")]
-    internal class OutgoingCollection : ConfigurationElementCollection
+    public class OutgoingCollection : ConfigurationElementCollection
     {
         /// <summary>
         /// The create new element.

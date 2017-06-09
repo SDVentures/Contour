@@ -5,7 +5,7 @@ namespace Contour.Configuration.Configurator
     /// <summary>
     /// The incoming element.
     /// </summary>
-    internal class IncomingElement : MessageElement
+    public class IncomingElement : MessageElement
     {
         /// <summary>
         /// Gets the lifestyle.

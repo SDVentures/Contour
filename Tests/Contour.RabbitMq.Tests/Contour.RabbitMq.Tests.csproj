@@ -52,7 +52,6 @@
     <Compile Include="ConnectionPoolSpecs.cs" />
     <Compile Include="ConnectionSpecs.cs" />
     <Compile Include="AliasSpecs.cs" />
-    <Compile Include="CachingResponseSpecs.cs" />
     <Compile Include="DummyRequest.cs" />
     <Compile Include="DummyResponse.cs" />
     <Compile Include="FaultStrategySpecs.cs" />
