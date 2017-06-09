@@ -25,14 +25,14 @@
         /// The filters.
         /// </param>
         public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters)
+            : this(filters, null)
         {
-            this.filterEnumerator = filters.Reverse().
-                GetEnumerator();
         }
 
         public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
-            : this(filters)
         {
+            this.filterEnumerator = filters.Reverse().
+                GetEnumerator();
             this.filterDecorators = filterDecorators ?? new Dictionary<Type, IMessageExchangeFilterDecorator>();
         }
 
