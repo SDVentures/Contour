@@ -558,20 +558,18 @@ namespace Contour.Configuration
         /// <inheritdoc />
         public void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders)
         {
-            var blockedHeaders = new List<string>
-                                     {
-                                         Headers.Expires,
-                                         Headers.MessageLabel,
-                                         Headers.Persist,
-                                         Headers.QueueMessageTtl,
-                                         Headers.ReplyRoute,
-                                         Headers.Timeout,
-                                         Headers.Ttl
-                                     };
-            blockedHeaders.AddRange(excludedHeaders ?? Enumerable.Empty<string>());
-            var messageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(new MessageHeaderStorage(blockedHeaders));
-            this.SenderDefaults.IncomingMessageHeaderStorage = messageHeaderStorage;
-            this.ReceiverDefaults.IncomingMessageHeaderStorage = messageHeaderStorage;
+            var blockedHeaders = (excludedHeaders ?? Enumerable.Empty<string>()).ToArray();
+            var strg = this.SenderDefaults.GetIncomingMessageHeaderStorage();
+            if(strg.HasValue)
+            {
+                strg.Value.RegisterExcludedHeaders(blockedHeaders);
+            }
+
+            var rcvrStrg = this.ReceiverDefaults.GetIncomingMessageHeaderStorage();
+            if (rcvrStrg.HasValue && rcvrStrg.Value != strg.Value)
+            {
+                rcvrStrg.Value.RegisterExcludedHeaders(blockedHeaders);
+            }
         }
 
         /// <summary>

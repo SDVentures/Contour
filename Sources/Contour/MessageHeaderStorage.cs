@@ -35,5 +35,14 @@ namespace Contour
         {
             return (IDictionary<string, object>)CallContext.LogicalGetData(this.storageKey);
         }
+
+        /// <summary>
+        /// Registers header names to be excluded on storing
+        /// </summary>
+        /// <param name="headers">Header names</param>
+        public void RegisterExcludedHeaders(IEnumerable<string> headers)
+        {
+            this.blackHeaderSet.UnionWith(headers);
+        }
     }
 }

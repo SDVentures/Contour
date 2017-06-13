@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+
 using Contour.Configuration;
+using Contour.Helpers;
 using Contour.Sending;
 using Contour.Transport.RabbitMQ.Internal;
 using Contour.Transport.RabbitMQ.Topology;
@@ -44,6 +47,18 @@ namespace Contour.Transport.RabbitMQ
                 return busConfigurator;
             }
 
+            var blockedHeaders = new List<string>
+                                     {
+                                         Headers.Expires,
+                                         Headers.MessageLabel,
+                                         Headers.Persist,
+                                         Headers.QueueMessageTtl,
+                                         Headers.ReplyRoute,
+                                         Headers.Timeout,
+                                         Headers.Ttl
+                                     };
+            var messageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(new MessageHeaderStorage(blockedHeaders));
+
             c.BuildBusUsing(bc => new RabbitBus(c));
 
             c.SenderDefaults = new RabbitSenderOptions(c.EndpointOptions)
@@ -53,6 +68,7 @@ namespace Contour.Transport.RabbitMQ
                 RequestTimeout = TimeSpan.FromSeconds(30),
                 Ttl = default(TimeSpan?),
                 RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
+                IncomingMessageHeaderStorage = messageHeaderStorage,
                 ReuseConnection = true,
                 ProducerSelectorBuilder = RabbitBusDefaults.ProducerSelectorBuilder,
                 FailoverAttempts = 7,
@@ -66,10 +82,10 @@ namespace Contour.Transport.RabbitMQ
                 ParallelismLevel = 1,
                 EndpointBuilder = RabbitBusDefaults.SubscriptionEndpointBuilder,
                 QoS = new QoSParams(50, 0),
+                IncomingMessageHeaderStorage = messageHeaderStorage,
                 ReuseConnection = true
             };
 
-            c.SetExcludedIncomingHeaders(null);
             c.UseMessageLabelHandler(new DefaultRabbitMessageLabelHandler());
            
             // TODO: extract, combine routing and handler definition
