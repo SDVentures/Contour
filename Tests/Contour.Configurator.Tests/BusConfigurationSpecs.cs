@@ -1000,8 +1000,11 @@ namespace Contour.Configurator.Tests
                 var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
                 var result = sut.Configure("producer", busConfigurator);
 
-                var resultHeaders = ((BusConfiguration)result).ExcludedIncomingHeaders;
-                Assert.IsTrue(headers.OrderBy(_ => _).SequenceEqual(resultHeaders.OrderBy(_ => _)));
+                var strg = ((BusConfiguration)result).SenderDefaults.GetIncomingMessageHeaderStorage();
+                strg.Value.Store(headers.ToDictionary(k => k, v => (object)v));
+                var hdrs = strg.Value.Load();
+                
+                Assert.AreEqual(0, hdrs.Keys.Count);
             }
         }
 
@@ -1010,7 +1013,7 @@ namespace Contour.Configurator.Tests
         /// </summary>
         [TestFixture]
         [Category("Unit")]
-        public class c_with_parallelism_level
+        public class when_configuring_endpoint_with_parallelism_level
         {
             /// <summary>
             /// Тогда это значение должно быть использовано при конфигурации.

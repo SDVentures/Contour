@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Contour.Configuration;
-using Contour.Helpers;
 using Contour.Sending;
 using Contour.Transport.RabbitMQ.Internal;
 using Contour.Transport.RabbitMQ.Topology;
@@ -72,7 +69,7 @@ namespace Contour.Transport.RabbitMQ
                 ReuseConnection = true
             };
 
-            c.UseMessageHeaderStorage(c.ExcludedIncomingHeaders);
+            c.SetExcludedIncomingHeaders(null);
             c.UseMessageLabelHandler(new DefaultRabbitMessageLabelHandler());
            
             // TODO: extract, combine routing and handler definition
@@ -111,32 +108,6 @@ namespace Contour.Transport.RabbitMQ
                         d.Accept();
                     });
 
-            return busConfigurator;
-        }
-
-        /// <summary>
-        /// Enables incoming message headers storage with custom set of excluded headers
-        /// </summary>
-        /// <param name="busConfigurator">Bus configurator</param>
-        /// <param name="excludedIncomingHeaders">Excluded headers</param>
-        /// <returns></returns>
-        public static IBusConfigurator UseMessageHeaderStorage(this IBusConfigurator busConfigurator, IEnumerable<string> excludedIncomingHeaders)
-        {
-            var c = (BusConfiguration)busConfigurator;
-            var blockedHeaders = new List<string>
-                                     {
-                                         Headers.Expires,
-                                         Headers.MessageLabel,
-                                         Headers.Persist,
-                                         Headers.QueueMessageTtl,
-                                         Headers.ReplyRoute,
-                                         Headers.Timeout,
-                                         Headers.Ttl
-                                     };
-            blockedHeaders.AddRange(excludedIncomingHeaders ?? Enumerable.Empty<string>());
-            var messageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(new MessageHeaderStorage(blockedHeaders));
-            c.SenderDefaults.IncomingMessageHeaderStorage = messageHeaderStorage;
-            c.ReceiverDefaults.IncomingMessageHeaderStorage = messageHeaderStorage;
             return busConfigurator;
         }
     }

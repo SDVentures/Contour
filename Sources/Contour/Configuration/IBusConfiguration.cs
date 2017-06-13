@@ -28,10 +28,5 @@ namespace Contour.Configuration
         ///   Сериализатор сообщений.
         /// </summary>
         IPayloadConverter Serializer { get; }
-
-        /// <summary>
-        /// Incoming headers that are excluded from copying to outgoing message
-        /// </summary>
-        IEnumerable<string> ExcludedIncomingHeaders { get; }
     }
 }
