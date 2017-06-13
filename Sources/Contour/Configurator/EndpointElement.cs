@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Contour.Configurator
 {
@@ -175,5 +177,21 @@ namespace Contour.Configurator
             }
         }
 
+        [ConfigurationProperty("excluded-headers")]
+        public string ExcludedHeadersString => (string)base["excluded-headers"];
+
+        public IEnumerable<string> ExcludedHeaders
+        {
+            get
+            {
+                var excluded = this.ExcludedHeadersString;
+                if (string.IsNullOrWhiteSpace(excluded))
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                return excluded.Split(',', ';');
+            }
+        }
     }
 }

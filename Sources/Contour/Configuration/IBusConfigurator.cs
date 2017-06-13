@@ -1,4 +1,6 @@
-﻿namespace Contour.Configuration
+﻿using System.Collections.Generic;
+
+namespace Contour.Configuration
 {
     using System;
 
@@ -294,5 +296,12 @@
         /// <param name="endpointBuilder">
         /// </param>
         void UseSubscriptionEndpointBuilder(Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> endpointBuilder);
+
+
+        /// <summary>
+        /// Sets excluded incoming message headers
+        /// </summary>
+        /// <param name="excludedHeaders">Excluded headers</param>
+        void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Contour.Configuration
+﻿using Contour.Transport.RabbitMQ;
+
+namespace Contour.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -157,6 +159,9 @@
         /// Gets the serializer.
         /// </summary>
         public IPayloadConverter Serializer { get; private set; }
+
+        /// <inheritdoc />
+        public IEnumerable<string> ExcludedIncomingHeaders { get; private set; }
 
         /// <summary>
         /// Gets the validator registry.
@@ -555,6 +560,12 @@
         public void UseSubscriptionEndpointBuilder(Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> endpointBuilder)
         {
             this.DefaultSubscriptionEndpointBuilder = endpointBuilder;
+        }
+
+        public void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders)
+        {
+            this.ExcludedIncomingHeaders = excludedHeaders;
+            this.UseMessageHeaderStorage(this.ExcludedIncomingHeaders);
         }
 
         /// <summary>
