@@ -863,8 +863,6 @@ namespace Contour.Configurator.Tests
 
                 var excludedHeaders = new[] { "bad-header", "x-bad-header" };
 
-                DependencyResolverFunc dependencyResolver = (name, type) => null;
-                
                 var bus = new BusFactory().Create(
                     c =>
                     {
@@ -882,8 +880,7 @@ namespace Contour.Configurator.Tests
                 IBus producer = this.ConfigureBus("producer", cfg => cfg.Route(MessageLabel.From(producerMessage)));
                 producer.Start();
                 producer.WhenReady.WaitOne(5.Seconds());
-
-
+                
                 var handler = new ManualResetEventSlim();
                 IDictionary<string, object> headers = null;
 
@@ -988,23 +985,23 @@ namespace Contour.Configurator.Tests
                 var headers = new[] { "bad-header", "banned-header" };
                 string ProducerConfig =
                         $@"<endpoints>
-                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" excluded-headers=""{string.Join(",", headers)}"">
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" excludedHeaders=""{string.Join(",", headers)}"">
                             </endpoint>
                         </endpoints>";
 
                 Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
-                var busConfigurator = new BusConfiguration();
-                busConfigurator.UseRabbitMq();
+                var busConfiguratorMoq = new Mock<IBusConfigurator>();
 
                 var section = new XmlEndpointsSection(ProducerConfig);
                 var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
-                var result = sut.Configure("producer", busConfigurator);
-
-                var strg = ((BusConfiguration)result).SenderDefaults.GetIncomingMessageHeaderStorage();
-                strg.Value.Store(headers.ToDictionary(k => k, v => (object)v));
-                var hdrs = strg.Value.Load();
+                sut.Configure("producer", busConfiguratorMoq.Object);
                 
-                Assert.AreEqual(0, hdrs.Keys.Count);
+                busConfiguratorMoq.Verify(
+                    bcf => bcf.SetExcludedIncomingHeaders(
+                        It.Is<IEnumerable<string>>(
+                            e => e.OrderBy(_ => _)
+                                     .SequenceEqual(headers.OrderBy(_ => _)))), 
+                    Times.Once);
             }
         }
 

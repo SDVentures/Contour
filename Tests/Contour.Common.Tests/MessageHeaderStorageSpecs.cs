@@ -22,14 +22,22 @@ namespace Contour.Common.Tests
             [Test]
             public void ShouldFilterHeadersOfBlackList()
             {
-                var blackList = new List<string> { "b", "c" };
+                var excludedList = new List<string> { "b", "c" };
 
-                var sut = new MessageHeaderStorage(blackList);
+                var excludedListAddition = new List<string> { "e", "f" };
 
-                sut.Store(new Dictionary<string, object> { { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 4 } });
+                var sut = new MessageHeaderStorage(excludedList);
 
-                CollectionAssert.DoesNotContain(sut.Load().Keys, "b", "Заголовок должен быть исключен при сохранении.");
-                CollectionAssert.DoesNotContain(sut.Load().Keys, "c", "Заголовок должен быть исключен при сохранении.");
+                sut.RegisterExcludedHeaders(excludedListAddition);
+
+                sut.Store(new Dictionary<string, object> { { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 4 }, { "e", 5 }, { "f", 6 }, { "g", 7 } });
+
+                var storedResult = sut.Load();
+
+                CollectionAssert.DoesNotContain(storedResult.Keys, "b", "Заголовок должен быть исключен при сохранении.");
+                CollectionAssert.DoesNotContain(storedResult.Keys, "c", "Заголовок должен быть исключен при сохранении.");
+                CollectionAssert.DoesNotContain(storedResult.Keys, "e", "Заголовок должен быть исключен при сохранении.");
+                CollectionAssert.DoesNotContain(storedResult.Keys, "f", "Заголовок должен быть исключен при сохранении.");
             }
         }
     }

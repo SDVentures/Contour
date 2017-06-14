@@ -177,8 +177,8 @@ namespace Contour.Configurator
             }
         }
 
-        [ConfigurationProperty("excluded-headers")]
-        public string ExcludedHeadersString => (string)base["excluded-headers"];
+        [ConfigurationProperty("excludedHeaders")]
+        public string ExcludedHeadersString => (string)base["excludedHeaders"];
 
         public IEnumerable<string> ExcludedHeaders
         {
