@@ -56,7 +56,9 @@ Additionally, we can pass component name of [IBusLifecycleHandler](https://githu
 It may be helpful, if your component needs to know when service bus was started or stopped.
 
 Every message, that failed to be processed, is added to the fault queue. Fault queue has the same name as the endpoint with additional '.Fault' postfix.
+
 **faultQueueTtl** attribute controls TTL of fault messages in such queues.
+
 **faultQueueLimit** attribute limits maximum number of messages. If number of fault messages reaches this limit, old messages will be substituted.
 
 ```xml
@@ -69,6 +71,17 @@ Every message, that failed to be processed, is added to the fault queue. Fault q
 </serviceBus>
 ```
 Default value for TTL - 21 days, for maximum size of the fault queue - no limits.
+
+**excludedHeaders** attribute specifies the list of incoming message headers to be excluded from copying to outgoing messages (that are send as a result of processing incoming message). Contour specific headers copying is covered in details in section [Contour message headers](#contour-message-headers)
+```xml
+<serviceBus>
+    <endpoints>
+        <endpoint name="point1" connectionString="amqp://localhost:5672/" excludedHeaders="x-excluded-header,another-excluded-header">
+            <!-- ... -->
+        </endpoint>
+    </endpoints>
+</serviceBus>
+```
 
 ### Declaration of incoming messages
 
@@ -355,6 +368,8 @@ IBus bus2 = new BusFactory().Create(
 List of used headers is represented in table below.
 
 For message tracking in chain of  application components interaction through service bus several incoming messages headers are copied in the outgoing messages.
+
+All incoming headers not mentioned in the table below are copied to outgoing messages, except for the headers listed in endpoint section attribute **excludedHeaders** see [Endpoints declaration](#endpoints-declaration).
 
 Header field name | Description | Copying
 ----------------- | ----------- |--------
