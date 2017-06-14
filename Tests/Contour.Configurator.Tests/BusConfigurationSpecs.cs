@@ -848,6 +848,75 @@ namespace Contour.Configurator.Tests
             }
         }
 
+        [TestFixture]
+        [Category("Integration")]
+        public class when_excluded_headers_configured : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_receive.
+            /// </summary>
+            [Test]
+            public void should_not_copy_them_on_sending()
+            {
+                var producerMessage = "excluded.msg.a";
+                var consumerMessage = "excluded.msg.b";
+
+                var excludedHeaders = new[] { "bad-header", "x-bad-header" };
+
+                var bus = new BusFactory().Create(
+                    c =>
+                    {
+                        c.SetConnectionString(this.ConnectionString);
+                        c.SetExcludedIncomingHeaders(excludedHeaders);
+                        c.UseRabbitMq();
+                        c.SetEndpoint("consumer");
+                        c.Route(consumerMessage);
+                        c.On<ExpandoObject>(producerMessage)
+                            .ReactWith((m, ctx) => ctx.Bus.Emit(consumerMessage, m));
+                    });
+                bus.WhenReady.WaitOne(5.Seconds());
+
+
+                IBus producer = this.ConfigureBus("producer", cfg => cfg.Route(MessageLabel.From(producerMessage)));
+                producer.Start();
+                producer.WhenReady.WaitOne(5.Seconds());
+                
+                var handler = new ManualResetEventSlim();
+                IDictionary<string, object> headers = null;
+
+                IBus trap = this.ConfigureBus(
+                    "trap",
+                    cfg => cfg.On<ExpandoObject>(consumerMessage)
+                               .ReactWith(
+                                   (eo, ctx) =>
+                                       {
+                                           headers = ctx.Message.Headers;
+                                           handler.Set();
+                                       }));
+                trap.Start();
+                trap.WhenReady.WaitOne(10.Seconds());
+
+                producer.Emit(
+                    MessageLabel.From(producerMessage),
+                    new
+                        {
+                            Num = 13
+                        },
+                    new Dictionary<string, object>
+                        {
+                            ["bad-header"] = "bad-header",
+                            ["x-bad-header"] = "x-bad-header",
+                            ["good-header"] = "good-header"
+                        }).Wait(5.Seconds());
+
+                Assert.IsTrue(handler.Wait(5.Seconds()));
+                Assert.IsNotNull(headers);
+                Assert.IsFalse(headers.ContainsKey("bad-header"));
+                Assert.IsFalse(headers.ContainsKey("x-bad-header"));
+                Assert.IsTrue(headers.ContainsKey("good-header"));
+            }
+        }
+
         /// <summary>
         /// При указании конечной точки.
         /// </summary>
@@ -908,7 +977,31 @@ namespace Contour.Configurator.Tests
                     Assert.IsTrue(qosMaybe.HasValue, "QoS должен быть установлен.");
                     Assert.AreEqual(50, qosMaybe.Value.PrefetchCount, "Должно быть установлено количество потоков.");
                 }
+            }
 
+            [Test]
+            public void should_set_excluded_headers()
+            {
+                var headers = new[] { "bad-header", "banned-header" };
+                string ProducerConfig =
+                        $@"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" excludedHeaders=""{string.Join(",", headers)}"">
+                            </endpoint>
+                        </endpoints>";
+
+                Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
+                var busConfiguratorMoq = new Mock<IBusConfigurator>();
+
+                var section = new XmlEndpointsSection(ProducerConfig);
+                var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
+                sut.Configure("producer", busConfiguratorMoq.Object);
+                
+                busConfiguratorMoq.Verify(
+                    bcf => bcf.SetExcludedIncomingHeaders(
+                        It.Is<IEnumerable<string>>(
+                            e => e.OrderBy(_ => _)
+                                     .SequenceEqual(headers.OrderBy(_ => _)))), 
+                    Times.Once);
             }
         }
 

@@ -136,8 +136,8 @@ namespace Contour.Configurator
             }
 
             cfg.SetEndpoint(endpointConfig.Name);
-
             cfg.SetConnectionString(endpointConfig.ConnectionString);
+            cfg.SetExcludedIncomingHeaders(endpointConfig.ExcludedHeaders);
 
             if (endpointConfig.ReuseConnection.HasValue)
             {

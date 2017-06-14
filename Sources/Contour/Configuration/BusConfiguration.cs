@@ -1,20 +1,18 @@
-﻿namespace Contour.Configuration
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using Common.Logging;
+using Contour.Caching;
+using Contour.Filters;
+using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Serialization;
+using Contour.Validation;
+
+namespace Contour.Configuration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Linq;
-
-    using Common.Logging;
-
-    using Contour.Caching;
-    using Contour.Filters;
-    using Contour.Helpers;
-    using Contour.Receiving;
-    using Contour.Sending;
-    using Contour.Serialization;
-    using Contour.Validation;
-
     /// <summary>
     /// The bus configuration.
     /// </summary>
@@ -555,6 +553,23 @@
         public void UseSubscriptionEndpointBuilder(Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> endpointBuilder)
         {
             this.DefaultSubscriptionEndpointBuilder = endpointBuilder;
+        }
+
+        /// <inheritdoc />
+        public void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders)
+        {
+            var excludedHeadersArray = (excludedHeaders ?? Enumerable.Empty<string>()).ToArray();
+            var storage = this.SenderDefaults.GetIncomingMessageHeaderStorage();
+            if(storage.HasValue)
+            {
+                storage.Value.RegisterExcludedHeaders(excludedHeadersArray);
+            }
+
+            var receiverStorage = this.ReceiverDefaults.GetIncomingMessageHeaderStorage();
+            if (receiverStorage.HasValue && receiverStorage.Value != storage.Value)
+            {
+                receiverStorage.Value.RegisterExcludedHeaders(excludedHeadersArray);
+            }
         }
 
         /// <summary>
