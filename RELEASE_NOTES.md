@@ -1,4 +1,8 @@
-﻿## 1.7.10
+﻿## 1.8.0-rc1
+- Changes:
+    + A set of specific incoming message headers can now be excluded when being copied to the outgoing message
+
+## 1.7.10
 - Changes:
   + Round robin selector made thread-safe; empty collection requirement removed;
   + Request default timeout fixture added;
