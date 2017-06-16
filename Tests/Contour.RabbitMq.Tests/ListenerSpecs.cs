@@ -14,6 +14,7 @@ namespace Contour.RabbitMq.Tests
     {
         [TestFixture]
         [Category("Manual")]
+        [Ignore("This specification must be included in the suite only if the bus startup time is made predictable. Currently the WhenReady flag is set before an endpoint has started all listeners")]
         public class given_a_high_parallelism_level: RabbitMqFixture
         {
             [SetUp]
