@@ -850,13 +850,13 @@ namespace Contour.Configurator.Tests
 
         [TestFixture]
         [Category("Integration")]
-        public class when_excluded_headers_configured : RabbitMqFixture
+        public class when_configuring_message_headers : RabbitMqFixture
         {
             /// <summary>
             /// The should_receive.
             /// </summary>
             [Test]
-            public void should_not_copy_them_on_sending()
+            public void should_not_copy_incoming_message_headers_on_send()
             {
                 var producerMessage = "excluded.msg.a";
                 var consumerMessage = "excluded.msg.b";
@@ -868,7 +868,6 @@ namespace Contour.Configurator.Tests
                     {
                         c.SetConnectionString(this.ConnectionString);
                         c.SetExcludedIncomingHeaders(excludedHeaders);
-                        c.UseRabbitMq();
                         c.SetEndpoint("consumer");
                         c.Route(consumerMessage);
                         c.On<ExpandoObject>(producerMessage)
@@ -1002,6 +1001,18 @@ namespace Contour.Configurator.Tests
                             e => e.OrderBy(_ => _)
                                      .SequenceEqual(headers.OrderBy(_ => _)))), 
                     Times.Once);
+            }
+
+            [Test]
+            public void should_set_message_header_storage()
+            {
+                var configuration = new BusConfiguration();
+                var storage = new MessageHeaderStorage(Enumerable.Empty<string>());
+                configuration.UseIncomingMessageHeaderStorage(storage);
+
+                var endpointStorage = configuration.EndpointOptions.GetIncomingMessageHeaderStorage();
+                endpointStorage.HasValue.Should().BeTrue();
+                endpointStorage.Value.Should().Be(storage);
             }
         }
 

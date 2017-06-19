@@ -127,7 +127,7 @@ namespace Contour.Configurator
                 throw new ArgumentNullException("cfg", "Файл конфигурации не может быть null");
             }
 
-            EndpointElement endpointConfig = this.GetEndPointByName(endpointName);
+            var endpointConfig = this.GetEndPointByName(endpointName);
 
             IConnectionStringProvider connectionStringProvider = null;
             if (!string.IsNullOrEmpty(endpointConfig.ConnectionStringProvider))

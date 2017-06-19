@@ -1,3 +1,5 @@
+﻿using Contour.Sending;
+
 namespace Contour.Configuration
 {
     using Helpers;
@@ -40,6 +42,11 @@ namespace Contour.Configuration
         public int? FailoverAttempts { protected get; set; }
 
         /// <summary>
+        /// Хранилище входящих сообщений.
+        /// </summary>
+        public Maybe<IIncomingMessageHeaderStorage> IncomingMessageHeaderStorage { protected get; set; }
+
+        /// <summary>
         /// Gets the connection string.
         /// </summary>
         /// <returns>
@@ -68,6 +75,15 @@ namespace Contour.Configuration
         public int? GetFailoverAttempts()
         {
             return this.Pick<EndpointOptions, int>(o => o.FailoverAttempts);
+        }
+
+        /// <summary>
+        /// Возвращает хранилище заголовков входящего сообщения.
+        /// </summary>
+        /// <returns>Хранилище заголовка входящего сообщения.</returns>
+        public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
+        {
+            return this.Pick<EndpointOptions, IIncomingMessageHeaderStorage>((o) => o.IncomingMessageHeaderStorage);
         }
 
         /// <summary>

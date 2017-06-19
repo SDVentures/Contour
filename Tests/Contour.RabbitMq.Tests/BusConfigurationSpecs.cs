@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 
 using FluentAssertions;
@@ -16,7 +17,8 @@ namespace Contour.RabbitMq.Tests
     /// The bus configuration specs.
     /// </summary>
     // ReSharper disable InconsistentNaming
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification =
+        "Reviewed. Suppression is OK here.")]
     public class BusConfigurationSpecs
     {
         /// <summary>
@@ -53,7 +55,10 @@ namespace Contour.RabbitMq.Tests
             public void should_throw_on_validation()
             {
                 IBus bus = null;
-                Action busInitializationAction = () => { bus = new BusFactory().Create(cfg => cfg.Route("something")); };
+                Action busInitializationAction = () =>
+                {
+                    bus = new BusFactory().Create(cfg => cfg.Route("something"));
+                };
 
                 busInitializationAction.ShouldThrow<BusConfigurationException>();
                 if (bus != null)
@@ -79,10 +84,10 @@ namespace Contour.RabbitMq.Tests
                 IBus bus = this.StartBus(
                     "Test",
                     cfg =>
-                        {
-                            cfg.On<BooMessage>("boo").ReactWith(m => { });
-                            cfg.Route("foo").WithConfirmation();
-                        });
+                    {
+                        cfg.On<BooMessage>("boo").ReactWith(m => { });
+                        cfg.Route("foo").WithConfirmation();
+                    });
 
                 bus.CanHandle("boo").Should().BeTrue();
                 bus.CanRoute("foo").Should().BeTrue();
@@ -108,16 +113,16 @@ namespace Contour.RabbitMq.Tests
                 IBus bus = this.ConfigureBus(
                     "Test",
                     cfg =>
-                        {
-                            cfg.On<BooMessage>("boo")
-                                .ReactWith(m => { })
-                                .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))))
-                                .RequiresAccept();
-                            cfg.On<FooMessage>("foo")
-                                .ReactWith(m => { })
-                                .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))));
-                        });
-                
+                    {
+                        cfg.On<BooMessage>("boo")
+                            .ReactWith(m => { })
+                            .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))))
+                            .RequiresAccept();
+                        cfg.On<FooMessage>("foo")
+                            .ReactWith(m => { })
+                            .WithEndpoint(seb => seb.ListenTo(seb.Topology.Declare(Queue.Named("some.queue"))));
+                    });
+
                 bus.Invoking(b => b.Start()).ShouldThrow<BusConfigurationException>();
             }
         }
@@ -139,20 +144,20 @@ namespace Contour.RabbitMq.Tests
 
                 IBus bus = this.StartBus(
                     "producer",
-                        cfg => cfg.Route("boo")
-                                .ConfiguredWith(
-                                    b =>
-                                    {
-                                        Exchange e = b.Topology.Declare(Exchange.Named("boo").Fanout);
-                                        Queue q = b.Topology.Declare(Queue.Named("boo").WithTtl(ttl));
-                                        b.Topology.Bind(e, q);
-                                        return e;
-                                    }));
+                    cfg => cfg.Route("boo")
+                        .ConfiguredWith(
+                            b =>
+                            {
+                                Exchange e = b.Topology.Declare(Exchange.Named("boo").Fanout);
+                                Queue q = b.Topology.Declare(Queue.Named("boo").WithTtl(ttl));
+                                b.Topology.Bind(e, q);
+                                return e;
+                            }));
 
                 bus.Emit("boo", new { });
                 Thread.Sleep(TimeSpan.FromMilliseconds(ttl.TotalMilliseconds * 2));
 
-                var emptyMessages = this.Broker.GetMessages(this.VhostName, "boo", int.MaxValue, false);
+                var emptyMessages = this.Broker.GetMessages(this.VhostName, "boo", Int32.MaxValue, false);
 
                 Assert.IsEmpty(emptyMessages, "Должно быть удалено сообщение.");
             }
@@ -183,7 +188,7 @@ namespace Contour.RabbitMq.Tests
 
                 Thread.Sleep(TimeSpan.FromMilliseconds(ttl.TotalMilliseconds / 2));
 
-                var notEmptyMessages = this.Broker.GetMessages(this.VhostName, "boo2", int.MaxValue, false);
+                var notEmptyMessages = this.Broker.GetMessages(this.VhostName, "boo2", Int32.MaxValue, false);
 
                 Assert.IsNotEmpty(notEmptyMessages, "Сообщения должны быть в очереди.");
             }
@@ -204,9 +209,30 @@ namespace Contour.RabbitMq.Tests
             public void should_throw()
             {
                 var factory = new BusFactory();
-                
+
                 factory.Invoking(b => b.Create(cfg => cfg.Route(MessageLabel.Empty)))
                     .ShouldThrow<BusConfigurationException>();
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_message_header_storage
+        {
+            [Test]
+            public void should_set_message_header_storage_for_incoming_and_outgoing_messages_by_default()
+            {
+                var configuration = new BusConfiguration();
+                var storage = new MessageHeaderStorage(Enumerable.Empty<string>());
+                configuration.UseIncomingMessageHeaderStorage(storage);
+
+                var senderStorage = configuration.SenderDefaults.GetIncomingMessageHeaderStorage();
+                senderStorage.HasValue.Should().BeTrue();
+                senderStorage.Value.Should().Be(storage);
+
+                var receiverStorage = configuration.ReceiverDefaults.GetIncomingMessageHeaderStorage();
+                receiverStorage.HasValue.Should().BeTrue();
+                receiverStorage.Value.Should().Be(storage);
             }
         }
     }

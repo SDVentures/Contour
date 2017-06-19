@@ -303,5 +303,11 @@ namespace Contour.Configuration
         /// </summary>
         /// <param name="excludedHeaders">Excluded headers</param>
         void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders);
+
+        /// <summary>
+        /// Sets the bus message headers storage
+        /// </summary>
+        /// <param name="storage"></param>
+        void UseIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage);
     }
 }
