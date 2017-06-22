@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Contour.Configurator;
 
 namespace Contour.Configuration
 {
@@ -309,5 +310,11 @@ namespace Contour.Configuration
         /// </summary>
         /// <param name="storage"></param>
         void UseIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage);
+
+        /// <summary>
+        /// Sets the bus connection string provider
+        /// </summary>
+        /// <param name="provider"></param>
+        void UseConnectionStringProvider(IConnectionStringProvider provider);
     }
 }

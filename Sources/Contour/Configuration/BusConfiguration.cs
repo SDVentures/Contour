@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using Common.Logging;
 using Contour.Caching;
+using Contour.Configurator;
 using Contour.Filters;
 using Contour.Helpers;
 using Contour.Receiving;
@@ -231,7 +232,7 @@ namespace Contour.Configuration
         /// </returns>
         public IReceiverConfigurator<T> On<T>(MessageLabel label) where T : class
         {
-            return On(label).As<T>();
+            return this.On(label).As<T>();
         }
 
         /// <summary>
@@ -279,6 +280,9 @@ namespace Contour.Configuration
             {
                 throw new ArgumentException($"Receiver for label [{label}] is already registered", nameof(label));
             }
+
+            var provider = this.ReceiverDefaults.GetConnectionStringProvider();
+            this.ReceiverDefaults.ConnectionString = provider?.GetConnectionString(label) ?? this.ReceiverDefaults.GetConnectionString();
 
             var configuration = new ReceiverConfiguration(label, this.ReceiverDefaults);
             this.receiverConfigurations.Add(configuration);
@@ -395,6 +399,9 @@ namespace Contour.Configuration
             {
                 throw new ArgumentException($"Sender for label [{label}] already registered.", nameof(label));
             }
+
+            var provider = this.SenderDefaults.GetConnectionStringProvider();
+            this.SenderDefaults.ConnectionString = provider?.GetConnectionString(label) ?? this.SenderDefaults.GetConnectionString();
 
             var configuration = new SenderConfiguration(label, this.SenderDefaults, this.ReceiverDefaults);
             this.senderConfigurations.Add(configuration);
@@ -569,6 +576,11 @@ namespace Contour.Configuration
         public void UseIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage)
         {
             this.EndpointOptions.IncomingMessageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(storage);
+        }
+
+        public void UseConnectionStringProvider(IConnectionStringProvider provider)
+        {
+            this.EndpointOptions.ConnectionStringProvider = provider;
         }
 
         /// <summary>

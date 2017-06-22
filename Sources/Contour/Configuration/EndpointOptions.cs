@@ -1,4 +1,4 @@
-﻿using Contour.Sending;
+﻿using Contour.Configurator;
 
 namespace Contour.Configuration
 {
@@ -37,6 +37,11 @@ namespace Contour.Configuration
         public Maybe<string> ConnectionString { protected get; set; }
 
         /// <summary>
+        /// Gets or sets the connection string provider.
+        /// </summary>
+        public IConnectionStringProvider ConnectionStringProvider { protected get; set; }
+
+        /// <summary>
         /// Gets or sets the number of attempts to take when failing over
         /// </summary>
         public int? FailoverAttempts { protected get; set; }
@@ -55,6 +60,15 @@ namespace Contour.Configuration
         public Maybe<string> GetConnectionString()
         {
             return this.Pick<EndpointOptions, string>(o => o.ConnectionString);
+        }
+
+        /// <summary>
+        /// Returns the endpoint connection string provider.
+        /// </summary>
+        /// <returns></returns>
+        public IConnectionStringProvider GetConnectionStringProvider()
+        {
+            return this.Pick<EndpointOptions, IConnectionStringProvider>(o => o.ConnectionStringProvider);
         }
 
         /// <summary>

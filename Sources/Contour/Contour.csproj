@@ -265,7 +265,7 @@
     <Compile Include="BusFactory.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="IEndpoint.cs" />
-    <Compile Include="Transport\RabbitMQ\BusConsumerConfigurationEx.cs" />
+    <Compile Include="Transport\RabbitMQ\BusReceiverConfigurationEx.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IMessageLabelHandler.cs" />
     <Compile Include="Receiving\Consumers\LambdaConsumerOf.cs" />

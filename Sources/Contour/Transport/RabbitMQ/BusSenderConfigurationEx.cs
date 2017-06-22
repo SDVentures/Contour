@@ -24,6 +24,13 @@ namespace Contour.Transport.RabbitMQ
             var senderConfiguration = (SenderConfiguration)builder;
             var rabbitSenderOptions = (RabbitSenderOptions)senderConfiguration.Options;
 
+            // The connection string should not be overridden if the connection string provider is present and it does not return nulls
+            var provider = rabbitSenderOptions.GetConnectionStringProvider();
+            if (!string.IsNullOrEmpty(provider?.GetConnectionString(senderConfiguration.Label)))
+            {
+                return builder;
+            }
+
             // Need to set the callback sender's connection string to use the same connection string both in sender and receiver in request-response scenario
             senderConfiguration.WithCallbackConnectionString(connectionString);
             rabbitSenderOptions.ConnectionString = connectionString;

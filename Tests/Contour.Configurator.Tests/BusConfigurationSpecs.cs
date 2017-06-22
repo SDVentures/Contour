@@ -1228,7 +1228,7 @@ namespace Contour.Configurator.Tests
                 const string name = "name";
                 const string provider = "provider";
                 string Config = $@"<endpoints>
-                                       <endpoint name=""{name}"" connectionString="""" connectionStringProvider=""{provider}"" />
+                                       <endpoint name=""{name}"" connectionStringProvider=""{provider}"" />
                                    </endpoints>";
 
                 var resolverMock = new Mock<IDependencyResolver>();
@@ -1251,7 +1251,7 @@ namespace Contour.Configurator.Tests
             {
                 const string name = "name";
                 string Config = $@"<endpoints>
-                                       <endpoint name=""{name}"" connectionString="""" />
+                                       <endpoint name=""{name}"" />
                                    </endpoints>";
 
                 var resolverMock = new Mock<IDependencyResolver>();
@@ -1304,7 +1304,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <outgoing>
                                 <route key=""a"" label=""{Label}"" />
@@ -1344,7 +1343,6 @@ namespace Contour.Configurator.Tests
             public void should_override_connection_string_to_outgoing_label_from_provider_if_present()
             {
                 const string Name = "name";
-                const string SomeString = "some string";
                 const string AnotherString = "another string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1352,7 +1350,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <outgoing>
                                 <route key=""a"" label=""{Label}"" connectionString=""outgoing connection string"" />
@@ -1381,7 +1378,6 @@ namespace Contour.Configurator.Tests
                 busConfiguration.UseRabbitMq();
 
                 var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
-
                 var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
 
                 var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
@@ -1392,7 +1388,6 @@ namespace Contour.Configurator.Tests
             public void should_use_connection_string_from_outgoing_label_if_provider_returns_null()
             {
                 const string Name = "name";
-                const string EndpointString = "endpoint string";
                 const string LabelString = "outgoing connection string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1400,7 +1395,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{EndpointString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <outgoing>
                                 <route key=""a"" label=""{Label}"" connectionString=""{LabelString}"" />
@@ -1449,7 +1443,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <incoming>
                                 <on key=""a"" label=""{Label}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
@@ -1489,7 +1482,6 @@ namespace Contour.Configurator.Tests
             public void should_override_connection_string_on_incoming_label_from_provider_if_present()
             {
                 const string Name = "name";
-                const string SomeString = "some string";
                 const string AnotherString = "another string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1497,7 +1489,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <incoming>
                                 <on key=""a"" label=""{Label}"" connectionString=""incoming connection string"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
@@ -1537,7 +1528,6 @@ namespace Contour.Configurator.Tests
             public void should_use_connection_string_from_incoming_label_if_provider_returns_null()
             {
                 const string Name = "name";
-                const string EndpointString = "endpoint string";
                 const string LabelString = "incoming connection string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1545,7 +1535,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{EndpointString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <incoming>
                                 <on key=""a"" label=""{Label}"" connectionString=""{LabelString}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
@@ -1580,7 +1569,6 @@ namespace Contour.Configurator.Tests
                 var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
                 receiverOptions.GetConnectionString().Value.Should().Be(LabelString, "Should use a connection string from the outgoing label.");
             }
-
         }
 
 

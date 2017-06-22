@@ -6,9 +6,11 @@ using System.Threading;
 using FluentAssertions;
 
 using Contour.Configuration;
+using Contour.Configurator;
 using Contour.Testing.Transport.RabbitMq;
+using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Topology;
-
+using Moq;
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
@@ -233,6 +235,182 @@ namespace Contour.RabbitMq.Tests
                 var receiverStorage = configuration.ReceiverDefaults.GetIncomingMessageHeaderStorage();
                 receiverStorage.HasValue.Should().BeTrue();
                 receiverStorage.Value.Should().Be(storage);
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_connection_string_provider
+        {
+            [Test]
+            public void should_set_connection_string_provider_if_present()
+            {
+                var providerMock = new Mock<IConnectionStringProvider>();
+
+                var configuration = new BusConfiguration();
+                configuration.UseConnectionStringProvider(providerMock.Object);
+
+                var provider = configuration.EndpointOptions.GetConnectionStringProvider();
+                provider.Should().Be(providerMock.Object);
+            }
+
+            [Test]
+            public void should_not_load_connection_string_provider_if_not_present()
+            {
+                var configuration = new BusConfiguration();
+                configuration.EndpointOptions.GetConnectionStringProvider().Should().BeNull();
+            }
+
+            [Test]
+            public void should_use_endpoint_connection_string_even_if_provider_is_present()
+            {
+                const string StringValue = "string";
+                var providerMock = new Mock<IConnectionStringProvider>();
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.SetConnectionString(StringValue);
+                configurator.UseConnectionStringProvider(providerMock.Object);
+
+                var expected = configuration.EndpointOptions.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(StringValue);
+            }
+
+            [Test]
+            public void should_set_connection_string_to_outgoing_label_from_provider_if_present()
+            {
+                const string StringValue = "string";
+                var providerMock = new Mock<IConnectionStringProvider>();
+                providerMock.Setup(p => p.GetConnectionString(It.IsAny<MessageLabel>())).Returns(StringValue);
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.UseConnectionStringProvider(providerMock.Object);
+                configurator.Route(MessageLabel.Any);
+
+                configuration.SenderConfigurations.Should().HaveCount(1);
+                var senderConfiguration = configuration.SenderConfigurations.First();
+
+                var expected = senderConfiguration.Options.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(StringValue);
+            }
+
+            [Test]
+            public void should_override_connection_string_to_outgoing_label_from_provider_if_present()
+            {
+                const string StringValue = "string";
+                const string OutgoingStringValue = "outgoing-string";
+
+                var providerMock = new Mock<IConnectionStringProvider>();
+                providerMock.Setup(p => p.GetConnectionString(It.IsAny<MessageLabel>())).Returns(StringValue);
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.UseConnectionStringProvider(providerMock.Object);
+                configurator.UseRabbitMq();
+                configurator.Route(MessageLabel.Any).WithConnectionString(OutgoingStringValue);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => Equals(sc.Label, MessageLabel.Any));
+
+                var expected = senderConfiguration.Options.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(StringValue);
+            }
+
+            [Test]
+            public void should_use_connection_string_from_outgoing_label_if_provider_returns_null()
+            {
+                const string StringNullValue = null;
+                const string OutgoingStringValue = "outgoing-string";
+
+                var providerMock = new Mock<IConnectionStringProvider>();
+                providerMock.Setup(p => p.GetConnectionString(It.IsAny<MessageLabel>())).Returns(StringNullValue);
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.UseConnectionStringProvider(providerMock.Object);
+                configurator.UseRabbitMq();
+                configurator.Route(MessageLabel.Any).WithConnectionString(OutgoingStringValue);
+
+                var senderConfiguration = configuration.SenderConfigurations.First(sc => Equals(sc.Label, MessageLabel.Any));
+
+                var expected = senderConfiguration.Options.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(OutgoingStringValue);
+            }
+
+            [Test]
+            public void should_set_connection_string_on_incoming_label_from_provider_if_present()
+            {
+                const string StringValue = "string";
+
+                var providerMock = new Mock<IConnectionStringProvider>();
+                providerMock.Setup(p => p.GetConnectionString(It.IsAny<MessageLabel>())).Returns(StringValue);
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.UseConnectionStringProvider(providerMock.Object);
+                configurator.UseRabbitMq();
+                configurator.On<BooMessage>(MessageLabel.Any);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => Equals(sc.Label, MessageLabel.Any));
+
+                var expected = receiverConfiguration.Options.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(StringValue);
+            }
+
+            [Test]
+            public void should_override_connection_string_on_incoming_label_from_provider_if_present()
+            {
+                const string StringValue = "string";
+                const string IncomingStringValue = "outgoing-string";
+
+                var providerMock = new Mock<IConnectionStringProvider>();
+                providerMock.Setup(p => p.GetConnectionString(It.IsAny<MessageLabel>())).Returns(StringValue);
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.UseConnectionStringProvider(providerMock.Object);
+                configurator.UseRabbitMq();
+                configurator.On<BooMessage>(MessageLabel.Any).WithConnectionString(IncomingStringValue);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => Equals(sc.Label, MessageLabel.Any));
+
+                var expected = receiverConfiguration.Options.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(StringValue);
+            }
+
+            [Test]
+            public void should_use_connection_string_from_incoming_label_if_provider_returns_null()
+            {
+                const string StringNullValue = null;
+                const string IncomingStringValue = "outgoing-string";
+
+                var providerMock = new Mock<IConnectionStringProvider>();
+                providerMock.Setup(p => p.GetConnectionString(It.IsAny<MessageLabel>())).Returns(StringNullValue);
+
+                var configuration = new BusConfiguration();
+                var configurator = (IBusConfigurator)configuration;
+
+                configurator.UseConnectionStringProvider(providerMock.Object);
+                configurator.UseRabbitMq();
+                configurator.On<BooMessage>(MessageLabel.Any).WithConnectionString(IncomingStringValue);
+
+                var receiverConfiguration = configuration.ReceiverConfigurations.First(sc => Equals(sc.Label, MessageLabel.Any));
+
+                var expected = receiverConfiguration.Options.GetConnectionString();
+                expected.HasValue.Should().BeTrue();
+                expected.Value.Should().Be(IncomingStringValue);
             }
         }
     }
