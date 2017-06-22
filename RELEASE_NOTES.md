@@ -1,4 +1,9 @@
-﻿## 1.8.0-rc1
+﻿## 1.8.0-rc2
+- Changes:
+    + Connection string provider can now be configured in code
+    + Endpoint connection string in now optional
+
+## 1.8.0-rc1
 - Changes:
     + A set of specific incoming message headers can now be excluded when being copied to the outgoing message
 
