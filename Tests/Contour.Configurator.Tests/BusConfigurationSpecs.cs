@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Contour.Configuration;
 using Contour.Helpers;
+using Contour.Serialization;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
 
@@ -1198,6 +1199,29 @@ namespace Contour.Configurator.Tests
         [Category("Unit")]
         public class when_configuring_endpoint_with_connection_string
         {
+            [Test]
+            public void should_not_throw_on_validate_if_not_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" />
+                                   </endpoints>";
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                busConfigurator.BuildBusUsing(bc => new Mock<IBus>().Object);
+                busConfigurator.UsePayloadConverter(new Mock<IPayloadConverter>().Object);
+                busConfigurator.Route("label");
+
+                Action validate = () => configuration.Validate();
+                validate.ShouldNotThrow("Connection string may not be specified");
+            }
+
             [Test]
             public void should_set_connection_string_if_present()
             {

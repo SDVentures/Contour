@@ -611,13 +611,7 @@ namespace Contour.Configuration
             {
                 throw new BusConfigurationException("Bus factory is not set.");
             }
-
-            if (string.IsNullOrEmpty(this.ConnectionString))
-            {
-                throw new BusConfigurationException(@"Не задана строка подключения к шине. Строку подключения можно задать явно при создании IBus 
-												или в конфигурационном файле приложения в секции /configuration/connectionStrings/add[@address='service-bus']");
-            }
-
+            
             if (this.Endpoint == null)
             {
                 throw new BusConfigurationException("Не задано название компонента (Endpoint).");

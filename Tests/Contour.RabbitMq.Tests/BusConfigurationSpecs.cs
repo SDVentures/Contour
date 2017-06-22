@@ -7,6 +7,7 @@ using FluentAssertions;
 
 using Contour.Configuration;
 using Contour.Configurator;
+using Contour.Serialization;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Topology;
@@ -235,6 +236,25 @@ namespace Contour.RabbitMq.Tests
                 var receiverStorage = configuration.ReceiverDefaults.GetIncomingMessageHeaderStorage();
                 receiverStorage.HasValue.Should().BeTrue();
                 receiverStorage.Value.Should().Be(storage);
+            }
+        }
+
+        [TestFixture]
+        [Category("Unit")]
+        public class when_configuring_endpoint_with_connection_string
+        {
+            [Test]
+            public void should_not_throw_on_validate_if_not_present()
+            {
+                var configuration = new BusConfiguration();
+
+                configuration.SetEndpoint("endpoint");
+                configuration.BuildBusUsing(bc => new Mock<IBus>().Object);
+                configuration.UsePayloadConverter(new Mock<IPayloadConverter>().Object);
+                configuration.Route("label");
+
+                Action validate = () => configuration.Validate();
+                validate.ShouldNotThrow("Connection string may not be specified");
             }
         }
 
