@@ -493,14 +493,14 @@
             }
 
             [Test]
-            public void should_throw_if_not_set()
+            public void should_not_throw_if_not_set()
             {
                 const string config = @"<endpoints>
                                             <endpoint name=""Tester"" />
                                         </endpoints>";
 
                 Action readingConfig = () => new XmlEndpointsSection(config);
-                readingConfig.ShouldThrow<ConfigurationErrorsException>();
+                readingConfig.ShouldNotThrow<ConfigurationErrorsException>();
             }
         }
 

@@ -282,7 +282,12 @@ namespace Contour.Configuration
             }
 
             var provider = this.ReceiverDefaults.GetConnectionStringProvider();
-            this.ReceiverDefaults.ConnectionString = provider?.GetConnectionString(label) ?? this.ReceiverDefaults.GetConnectionString();
+            var connectionString = provider?.GetConnectionString(label);
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                this.ReceiverDefaults.ConnectionString = connectionString;
+            }
 
             var configuration = new ReceiverConfiguration(label, this.ReceiverDefaults);
             this.receiverConfigurations.Add(configuration);
@@ -401,7 +406,12 @@ namespace Contour.Configuration
             }
 
             var provider = this.SenderDefaults.GetConnectionStringProvider();
-            this.SenderDefaults.ConnectionString = provider?.GetConnectionString(label) ?? this.SenderDefaults.GetConnectionString();
+            var connectionString = provider?.GetConnectionString(label);
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                this.SenderDefaults.ConnectionString = connectionString;
+            }
 
             var configuration = new SenderConfiguration(label, this.SenderDefaults, this.ReceiverDefaults);
             this.senderConfigurations.Add(configuration);
