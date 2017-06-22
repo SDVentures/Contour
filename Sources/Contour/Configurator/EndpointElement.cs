@@ -50,7 +50,7 @@ namespace Contour.Configurator
         /// <summary>
         /// Gets or sets the connection string.
         /// </summary>
-        [ConfigurationProperty("connectionString", IsRequired = true)]
+        [ConfigurationProperty("connectionString", IsRequired = false)]
         public string ConnectionString
         {
             get

@@ -8,15 +8,14 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using Contour.Helpers;
+using Contour.Receiving;
 
 namespace Contour.Transport.RabbitMQ
 {
-    using Contour.Receiving;
-
     /// <summary>
-    /// The bus consumer configuration ex.
+    /// Rabbit receiver configuration extensions
     /// </summary>
-    public static class BusConsumerConfigurationEx
+    public static class BusReceiverConfigurationEx
     {
         /// <summary>
         /// The with qo s.
@@ -63,7 +62,8 @@ namespace Contour.Transport.RabbitMQ
         /// <returns>
         /// The <see cref="IReceiverConfigurator"/>.
         /// </returns>
-        public static IReceiverConfigurator<T> WithQoS<T>(this IReceiverConfigurator<T> builder, QoSParams qosParams) where T : class
+        public static IReceiverConfigurator<T> WithQoS<T>(this IReceiverConfigurator<T> builder, QoSParams qosParams)
+            where T : class
         {
             ReceiverConfiguration configuration = ((TypedReceiverConfigurationDecorator<T>)builder).Configuration;
 
@@ -89,7 +89,8 @@ namespace Contour.Transport.RabbitMQ
         /// <returns>
         /// The <see cref="IReceiverConfigurator"/>.
         /// </returns>
-        public static IReceiverConfigurator<T> WithQoS<T>(this IReceiverConfigurator<T> builder, ushort prefetchCount, uint prefetchSize) where T : class
+        public static IReceiverConfigurator<T> WithQoS<T>(this IReceiverConfigurator<T> builder, ushort prefetchCount,
+            uint prefetchSize) where T : class
         {
             return builder.WithQoS(new QoSParams(prefetchCount, prefetchSize));
         }
@@ -109,7 +110,17 @@ namespace Contour.Transport.RabbitMQ
         public static IReceiverConfigurator WithConnectionString(this IReceiverConfigurator builder,
             string connectionString)
         {
-            ((RabbitReceiverOptions)((ReceiverConfiguration)builder).Options).ConnectionString = connectionString;
+            var receiverConfiguration = (ReceiverConfiguration)builder;
+            var rabbitReceiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
+
+            // The connection string should not be overridden if the connection string provider is present and it does not return nulls
+            var provider = rabbitReceiverOptions.GetConnectionStringProvider();
+            if (!string.IsNullOrEmpty(provider?.GetConnectionString(receiverConfiguration.Label)))
+            {
+                return builder;
+            }
+
+            rabbitReceiverOptions.ConnectionString = connectionString;
             return builder;
         }
 
@@ -130,7 +141,7 @@ namespace Contour.Transport.RabbitMQ
         public static IReceiverConfigurator<T> WithConnectionString<T>(this IReceiverConfigurator<T> builder,
             string connectionString) where T : class
         {
-            var configuration = ((TypedReceiverConfigurationDecorator<T>) builder).Configuration;
+            var configuration = ((TypedReceiverConfigurationDecorator<T>)builder).Configuration;
             WithConnectionString(configuration, connectionString);
 
             return builder;
@@ -174,7 +185,8 @@ namespace Contour.Transport.RabbitMQ
         /// <returns>
         /// The <see cref="IReceiverConfigurator"/>.
         /// </returns>
-        public static IReceiverConfigurator<T> ReuseConnection<T>(this IReceiverConfigurator<T> builder, bool reuse = true) where T : class
+        public static IReceiverConfigurator<T> ReuseConnection<T>(this IReceiverConfigurator<T> builder,
+            bool reuse = true) where T : class
         {
             var configuration = ((TypedReceiverConfigurationDecorator<T>)builder).Configuration;
             ReuseConnection(configuration, reuse);

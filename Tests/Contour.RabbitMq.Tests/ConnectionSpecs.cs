@@ -182,7 +182,6 @@ namespace Contour.RabbitMq.Tests
                     cfg =>
                         {
                             cfg.SetConnectionString("amqp://10.10.10.10/integration");
-
                             cfg.Route("some.label"); // just to pass validation
                         });
 

@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using Common.Logging;
 using Contour.Caching;
+using Contour.Configurator;
 using Contour.Filters;
 using Contour.Helpers;
 using Contour.Receiving;
@@ -231,7 +232,7 @@ namespace Contour.Configuration
         /// </returns>
         public IReceiverConfigurator<T> On<T>(MessageLabel label) where T : class
         {
-            return On(label).As<T>();
+            return this.On(label).As<T>();
         }
 
         /// <summary>
@@ -278,6 +279,14 @@ namespace Contour.Configuration
             if (this.HasRegisteredConsumerFor(label))
             {
                 throw new ArgumentException($"Receiver for label [{label}] is already registered", nameof(label));
+            }
+
+            var provider = this.ReceiverDefaults.GetConnectionStringProvider();
+            var connectionString = provider?.GetConnectionString(label);
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                this.ReceiverDefaults.ConnectionString = connectionString;
             }
 
             var configuration = new ReceiverConfiguration(label, this.ReceiverDefaults);
@@ -394,6 +403,14 @@ namespace Contour.Configuration
             if (this.HasRegisteredProducerFor(label))
             {
                 throw new ArgumentException($"Sender for label [{label}] already registered.", nameof(label));
+            }
+
+            var provider = this.SenderDefaults.GetConnectionStringProvider();
+            var connectionString = provider?.GetConnectionString(label);
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                this.SenderDefaults.ConnectionString = connectionString;
             }
 
             var configuration = new SenderConfiguration(label, this.SenderDefaults, this.ReceiverDefaults);
@@ -571,6 +588,11 @@ namespace Contour.Configuration
             this.EndpointOptions.IncomingMessageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(storage);
         }
 
+        public void UseConnectionStringProvider(IConnectionStringProvider provider)
+        {
+            this.EndpointOptions.ConnectionStringProvider = provider;
+        }
+
         /// <summary>
         /// The validate.
         /// </summary>
@@ -589,13 +611,7 @@ namespace Contour.Configuration
             {
                 throw new BusConfigurationException("Bus factory is not set.");
             }
-
-            if (string.IsNullOrEmpty(this.ConnectionString))
-            {
-                throw new BusConfigurationException(@"Не задана строка подключения к шине. Строку подключения можно задать явно при создании IBus 
-												или в конфигурационном файле приложения в секции /configuration/connectionStrings/add[@address='service-bus']");
-            }
-
+            
             if (this.Endpoint == null)
             {
                 throw new BusConfigurationException("Не задано название компонента (Endpoint).");
