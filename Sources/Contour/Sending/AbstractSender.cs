@@ -275,6 +275,7 @@ namespace Contour.Sending
 
             Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
             Headers.ApplyOriginalMessageId(outputHeaders);
+            Headers.ApplyMessageId(outputHeaders);
 
             Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
             Headers.ApplyPersistently(outputHeaders, persist);

@@ -237,6 +237,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             headers[Contour.Headers.ReplyRoute] = this.ReplyRoute;
             Contour.Headers.ApplyBreadcrumbs(headers, this.busContext.Endpoint.Address);
             Contour.Headers.ApplyOriginalMessageId(headers);
+            Contour.Headers.ApplyMessageId(headers);
 
             return this.busContext.Emit(label, payload, headers);
         }

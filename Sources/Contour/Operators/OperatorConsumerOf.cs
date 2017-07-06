@@ -37,6 +37,7 @@ namespace Contour.Operators
                             var headers = new Dictionary<string, object>(m.Headers);
                             Headers.ApplyBreadcrumbs(headers, context.Bus.Endpoint.Address);
                             Headers.ApplyOriginalMessageId(headers);
+                            Headers.ApplyMessageId(headers);
                             context.Bus.Emit(m.Label, m.Payload, headers);
                         });
 
