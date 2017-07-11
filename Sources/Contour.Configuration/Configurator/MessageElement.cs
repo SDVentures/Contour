@@ -5,7 +5,7 @@ namespace Contour.Configuration.Configurator
     /// <summary>
     /// The message element.
     /// </summary>
-    internal class MessageElement : ConfigurationElement
+    internal class MessageElement : ExtensibleConfigurationElement
     {
         /// <summary>
         /// Gets the key.

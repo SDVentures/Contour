@@ -38,7 +38,6 @@ namespace Contour.RabbitMq.Tests
                     "producer",
                     cfg =>
                         {
-                            cfg.EnableCaching();
                             cfg.Route("dummy.request").WithDefaultCallbackEndpoint();
                         });
                 this.StartBus(
