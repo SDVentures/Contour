@@ -64,6 +64,11 @@ namespace Contour
         public static readonly string OriginalMessageId = "x-original-message-id";
 
         /// <summary>
+        /// Идентификатор сообщения.
+        /// </summary>
+        public static readonly string MessageId = "x-message-id";
+
+        /// <summary>
         /// Максимальное количество сообщений в очереди.
         /// </summary>
         public static readonly string QueueMaxLength = "x-max-length";
@@ -147,6 +152,18 @@ namespace Contour
             {
                 headers[OriginalMessageId] = Guid.NewGuid().ToString("n");
             }
+
+            return headers;
+        }
+
+        /// <summary>
+        /// Применяет к коллекции заголовков установку заголовка <c>MessageId</c>.
+        /// </summary>
+        /// <param name="headers">Исходная коллекция заголовков, которая подвергается изменениям.</param>
+        /// <returns>Исходная колллекция заголовков с изменениями.</returns>
+        public static IDictionary<string, object> ApplyMessageId(IDictionary<string, object> headers)
+        {
+            headers[MessageId] = Guid.NewGuid().ToString("n");
 
             return headers;
         }
