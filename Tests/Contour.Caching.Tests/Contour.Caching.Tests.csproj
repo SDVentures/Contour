@@ -61,7 +61,7 @@
     <Compile Include="TestImplementations\TestResponse.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sources\Contour.Caching\Contour.Caching.csproj">
