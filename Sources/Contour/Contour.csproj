@@ -90,6 +90,7 @@
     <Compile Include="Transport\RabbitMQ\BusSenderConfigurationEx.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\DefaultProducerSelectorBuilder.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\ListenerRegisteredEventArgs.cs" />
+    <Compile Include="Transport\RabbitMQ\Internal\RabbitCallbackReceiver.cs" />
     <Compile Include="Transport\RabbitMQ\Internal\RoundRobinSelector.cs" />
     <Compile Include="Transport\RabbitMQ\IProducerSelector.cs" />
     <Compile Include="Transport\RabbitMQ\IProducerSelectorBuilder.cs" />

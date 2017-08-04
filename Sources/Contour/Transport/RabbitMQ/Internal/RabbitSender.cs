@@ -8,6 +8,7 @@ using Common.Logging;
 using Contour.Configuration;
 using Contour.Filters;
 using Contour.Helpers.CodeContracts;
+using Contour.Receiving;
 using Contour.Sending;
 using Contour.Transport.RabbitMQ.Topology;
 
@@ -237,12 +238,12 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 if (this.Configuration.RequiresCallback)
                 {
-                    var callbackConfiguration = this.Configuration.CallbackConfiguration;
+                    var callbackConfiguration = this.CreateCallbackReceiverConfiguration(url);
 
                     this.logger.Trace(
                         $"A sender of [{this.Configuration.Label}] requires a callback configuration; registering a receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}]");
 
-                    var receiver = this.bus.RegisterReceiver(this.Configuration.CallbackConfiguration);
+                    var receiver = this.bus.RegisterReceiver(callbackConfiguration);
 
                     this.logger.Trace(
                         $"A new callback receiver of [{callbackConfiguration.Label}] with connection string [{callbackConfiguration.Options.GetConnectionString()}] has been successfully registered, getting one of its listeners with URL=[{producer.BrokerUrl}]...");
@@ -268,6 +269,23 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(
                     $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been added to the sender");
             }
+        }
+
+
+        /// <summary>
+        /// Overrides the callback configuration connection string with <paramref name="url"/>
+        /// since the callback configuration may contain a list of connection strings for sharding support.
+        /// </summary>
+        /// <param name="url">The connection string URL</param>
+        /// <returns>The reply receiver configuration</returns>
+        private ReceiverConfiguration CreateCallbackReceiverConfiguration(string url)
+        {
+            var callbackConfiguration = new ReceiverConfiguration(
+                MessageLabel.Any,
+                this.Configuration.CallbackConfiguration.Options);
+
+            callbackConfiguration.WithConnectionString(url);
+            return callbackConfiguration;
         }
     }
 }

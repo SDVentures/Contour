@@ -1,4 +1,10 @@
-﻿## 1.6.0
+﻿## 1.6.2
+ - Fixed callback listener initialization and enlistment.
+
+## 1.6.1
+ - Fixed race conditions.
+
+## 1.6.0
  - Enables label sharding support (according to feature definition in https://github.com/SDVentures/Contour/issues/27):
    - an endpoint should be able to connect to several broker nodes (with different connection strings) simultaneously;
    - an endpoint should receive messages from all broker nodes (connection strings) specified in the configuration element;

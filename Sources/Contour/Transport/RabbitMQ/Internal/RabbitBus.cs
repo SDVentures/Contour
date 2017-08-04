@@ -115,13 +115,24 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>
         /// The <see cref="RabbitReceiver"/>.
         /// </returns>
-        public RabbitReceiver RegisterReceiver(IReceiverConfiguration configuration)
+        public RabbitReceiver RegisterReceiver(IReceiverConfiguration configuration, bool isCallback = false)
         {
             this.logger.Trace(
                 $"Registering a new receiver of [{configuration.Label}] with connection string [{configuration.Options.GetConnectionString()}]");
 
-            var receiver = new RabbitReceiver(this, configuration, this.connectionPool);
-            receiver.ListenerRegistered += this.OnListenerRegistered;
+            RabbitReceiver receiver;
+            if (isCallback)
+            {
+                receiver = new RabbitCallbackReceiver(this, configuration, this.connectionPool);
+
+                // No need to subscribe to listener-created event as it will not be fired by the callback receiver. A callback listener is not checked with listeners in other receivers for compatibility.
+            }
+            else
+            {
+                receiver = new RabbitReceiver(this, configuration, this.connectionPool);
+                receiver.ListenerRegistered += this.OnListenerRegistered;
+            }
+
             this.ComponentTracker.Register(receiver);
 
             this.logger.Trace(
