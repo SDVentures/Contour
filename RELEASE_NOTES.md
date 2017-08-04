@@ -1,4 +1,8 @@
-﻿## 1.8.0-rc2
+﻿## 1.8.0-rc3
+- Changes:
+    + Removed circuit breaker from FaultTolerantProducer
+
+## 1.8.0-rc2
 - Changes:
     + Connection string provider can now be configured in code
     + Endpoint connection string in now optional

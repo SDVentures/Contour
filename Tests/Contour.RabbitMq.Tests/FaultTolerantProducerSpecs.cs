@@ -99,35 +99,6 @@ namespace Contour.RabbitMq.Tests
         }
 
         [Test]
-        public void should_increase_retry_delay_no_greater_then_max_delay_on_producer_failure()
-        {
-            const int RetryDelay = 5;
-            const int Attempts = 3;
-            const int ResetDelay = 10;
-
-            var producerMock = new Mock<IProducer>();
-            producerMock
-                .Setup(p => p.Publish(It.IsAny<IMessage>()))
-                .Throws(new Exception("Publish error"));
-
-            var hash = producerMock.Object.GetHashCode();
-            var selector = new Mock<IProducerSelector>();
-            selector.Setup(s => s.Next()).Returns(() => producerMock.Object);
-            
-            var producer = new FaultTolerantProducer(selector.Object, Attempts, RetryDelay, ResetDelay);
-
-            var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
-            var exchange = new MessageExchange(message);
-
-            Assert.Throws<FailoverException>(() => producer.Send(exchange));
-            var delays = producer.Delays.ToList();
-
-            delays.Should().HaveCount(1);
-            delays.Should().Contain(kv => kv.Key == hash);
-            delays.First().Value.Should().BeGreaterThan(0).And.BeLessOrEqualTo(RetryDelay);
-        }
-
-        [Test]
         public void should_delay_sending_on_producer_failure()
         {
             const int RetryDelay = 5;
@@ -172,68 +143,6 @@ namespace Contour.RabbitMq.Tests
                     });
 
             action.ExecutionTimeOf(a => a()).ShouldNotExceed(TimeSpan.FromSeconds(overall + 1));
-        }
-
-        [Test]
-        public void should_reset_retry_delay_on_producer_success()
-        {
-            const int RetryDelay = 5;
-            const int Attempts = 3;
-            const int ResetDelay = 0;
-
-            var tcs = new TaskCompletionSource<bool>();
-            tcs.SetResult(true);
-
-            var producerMock = new Mock<IProducer>();
-            producerMock
-                .Setup(p => p.Publish(It.IsAny<IMessage>()))
-                .Returns(tcs.Task);
-
-            var hash = producerMock.Object.GetHashCode();
-            var selector = new Mock<IProducerSelector>();
-            selector.Setup(s => s.Next()).Returns(() => producerMock.Object);
-
-            var producer = new FaultTolerantProducer(selector.Object, Attempts, RetryDelay, ResetDelay);
-
-            var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
-            var exchange = new MessageExchange(message);
-
-            Assert.DoesNotThrow(() => producer.Send(exchange));
-            var delays = producer.Delays.ToList();
-
-            delays.Should().HaveCount(1);
-            delays.Should().Contain(kv => kv.Key == hash);
-            delays.First().Value.Should().Be(0);
-        }
-
-        [Test]
-        public void should_reset_retry_delay_after_inactivity_period()
-        {
-            const int RetryDelay = 1;
-            const int Attempts = 1;
-            const int InactivityResetDelay = 3;
-
-            var tcs = new TaskCompletionSource<bool>();
-            tcs.SetResult(true);
-
-            var producerMock = new Mock<IProducer>();
-            producerMock
-                .Setup(p => p.Publish(It.IsAny<IMessage>()))
-                .Returns(tcs.Task);
-
-            var selector = new Mock<IProducerSelector>();
-            selector.Setup(s => s.Next()).Returns(() => producerMock.Object);
-
-            var producer = new FaultTolerantProducer(selector.Object, Attempts, RetryDelay, InactivityResetDelay);
-
-            var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
-            var exchange = new MessageExchange(message);
-
-            Assert.DoesNotThrow(() => producer.Send(exchange));
-            Thread.Sleep(TimeSpan.FromSeconds(InactivityResetDelay + 1));
-
-            var delays = producer.Delays;
-            delays.Should().BeEmpty();
         }
     }
 }
