@@ -88,6 +88,10 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Sources\Contour.Caching\Contour.Caching.csproj">
+      <Project>{E2A5421E-60F3-4BAF-96BF-1612C17948B5}</Project>
+      <Name>Contour.Caching</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sources\Contour.Configuration\Contour.Configuration.csproj">
       <Project>{58943a4e-b4a1-4e2c-95f3-b24f784c5451}</Project>
       <Name>Contour.Configuration</Name>

@@ -49,7 +49,7 @@
     <Compile Include="CachingContext.cs" />
     <Compile Include="CachingFilterDecorator.cs" />
     <Compile Include="CachingConsumerOf.cs" />
-    <Compile Include="ConfigHelper.cs" />
+    <Compile Include="CacheConfigProvider.cs" />
     <Compile Include="IHasher.cs" />
     <Compile Include="Sha256Hasher.cs" />
     <Compile Include="MemoryCache.cs" />

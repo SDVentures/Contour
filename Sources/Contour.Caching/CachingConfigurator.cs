@@ -6,17 +6,17 @@
 
     public class CachingConfigurator : IConfigurator
     {
-        private readonly ConfigHelper configHelper;
+        private readonly CacheConfigProvider cacheConfigProvider;
         
-        public CachingConfigurator(ConfigHelper configHelper)
+        public CachingConfigurator(CacheConfigProvider cacheConfigProvider)
         {
-            this.configHelper = configHelper;
+            this.cacheConfigProvider = cacheConfigProvider;
         }
 
         /// <inheritdoc />
         public IBusConfigurator Configure(string endpointName, IBusConfigurator currentConfiguration)
         {
-            var outgoingConfiguration = this.configHelper.GetOutgoingCacheConfig(endpointName);
+            var outgoingConfiguration = this.cacheConfigProvider.GetOutgoingCacheConfig(endpointName);
 
             var cachingFilter = new CachingFilterDecorator(outgoingConfiguration);
 

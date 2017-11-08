@@ -16,7 +16,7 @@ namespace Contour.Configuration.Configurator
     /// <summary>
     /// The lambda dependency resolver.
     /// </summary>
-    public class LambdaDependencyResolver : IDependencyResolver
+    internal class LambdaDependencyResolver : IDependencyResolver
     {
         /// <summary>
         /// The _resolver.

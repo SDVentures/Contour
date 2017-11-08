@@ -9,7 +9,7 @@
 
     using Contour.Configuration.Configurator;
 
-    public class ConfigHelper
+    public class CacheConfigProvider
     {
         private const string ServiceBusSectionName = "serviceBus/endpoints";
 
@@ -27,7 +27,7 @@
 
         private readonly EndpointsSection endpointsConfig;
 
-        public ConfigHelper(IDependencyResolver dependencyResolver)
+        public CacheConfigProvider(IDependencyResolver dependencyResolver)
         {
             this.dependencyResolver = dependencyResolver;
             this.endpointsConfig = (EndpointsSection)ConfigurationManager.GetSection(ServiceBusSectionName);
