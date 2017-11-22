@@ -220,6 +220,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                     routeResolver,
                     this.Configuration.Options.IsConfirmationRequired());
 
+                producer.MetricsCollector = this.bus.Configuration.MetricsCollector;
+
                 if (this.Configuration.RequiresCallback)
                 {
                     var callbackConfiguration = this.CreateCallbackReceiverConfiguration(url);

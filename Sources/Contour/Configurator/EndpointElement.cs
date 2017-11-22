@@ -193,5 +193,8 @@ namespace Contour.Configurator
                 return excluded.Split(',', ';');
             }
         }
+
+        [ConfigurationProperty("metrics")]
+        public MetricsConfigurationElement Metrics => (MetricsConfigurationElement)base["metrics"];
     }
 }

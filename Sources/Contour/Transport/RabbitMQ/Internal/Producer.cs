@@ -91,6 +91,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         private IRouteResolver RouteResolver { get; }
 
+        public IMetricsCollector MetricsCollector { get; set; }
+
         /// <summary>
         /// Освобождает занятые ресурсы.
         /// </summary>
@@ -118,6 +120,13 @@ namespace Contour.Transport.RabbitMQ.Internal
                     var nativeRoute = (RabbitRoute)this.RouteResolver.Resolve(this.endpoint, message.Label);
                     this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
                     Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p => ExtractProperties(ref p, message.Headers);
+
+                    var tags = new[]
+               {
+                               "publishEndpoint:" + this.endpoint.Address,
+                               "publishLabel:" + message.Label
+                           };
+                    this.MetricsCollector?.Increment("contour.rmq.outgoing.count", 1D, tags);
 
                     var confirmation = this.confirmationTracker.Track();
                     this.Channel.Publish(nativeRoute, message, propsVisitor);

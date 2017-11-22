@@ -168,6 +168,8 @@ namespace Contour.Configuration
             }
         }
 
+        public IMetricsCollector MetricsCollector { get; private set; } = new LoggingMetricsCollector();
+
         /// <summary>
         /// The build bus using.
         /// </summary>
@@ -633,6 +635,14 @@ namespace Contour.Configuration
             }
 
             Logger.Trace(m => m("Конец метода валидации конфигурации"));
+        }
+
+        public void CollectMetrics(IMetricsCollector metricsCollector)
+        {
+            if (metricsCollector != null)
+            {
+                this.MetricsCollector = metricsCollector;
+            }
         }
 
         /// <summary>

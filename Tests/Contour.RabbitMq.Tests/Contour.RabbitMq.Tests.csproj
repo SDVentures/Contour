@@ -59,6 +59,7 @@
     <Compile Include="ListenerSpecs.cs" />
     <Compile Include="MessageFlowShardingSpecs.cs" />
     <Compile Include="MessageHeaderSpecs.cs" />
+    <Compile Include="MetricCollectingSpecs.cs" />
     <Compile Include="OperatorsSpecs.cs" />
     <Compile Include="MessageHandlingSpecs.cs" />
     <Compile Include="MessageAttributeSpecs.cs" />

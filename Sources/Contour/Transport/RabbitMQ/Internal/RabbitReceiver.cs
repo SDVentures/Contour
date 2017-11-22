@@ -305,6 +305,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.receiverOptions,
                     this.bus.Configuration.ValidatorRegistry);
 
+                newListener.MetricsCollector = this.bus.Configuration.MetricsCollector;
+
                 return newListener;
             }
         }
