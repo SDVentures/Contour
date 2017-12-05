@@ -63,7 +63,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         
         private readonly ConcurrentBag<RabbitChannel> channels = new ConcurrentBag<RabbitChannel>();
 
-        private readonly ConcurrentDictionary<string, string[]> labelMetricTags = new ConcurrentDictionary<string, string[]>();
+        private readonly ConcurrentDictionary<string, string[]> exchangeMetricTags = new ConcurrentDictionary<string, string[]>();
 
         private readonly string[] responseMetricTags;
 
@@ -323,13 +323,12 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
             }
 
-            var tags = delivery.IsResponse ? this.responseMetricTags : this.labelMetricTags.GetOrAdd(
-                delivery.Label.ToString(), 
-                l => new[]
+            var tags = delivery.IsResponse ? this.responseMetricTags : this.exchangeMetricTags.GetOrAdd(
+                delivery.Args.Exchange, 
+                e => new[]
                         {
                             "deliveryEndpoint:" + this.busContext.Endpoint.Address,
-                            "deliveryLabel:" + l,
-                            "deliveryExchange:" + delivery.Args.Exchange
+                            "deliveryExchange:" + e
                         });
 
             this.MetricsCollector?.Increment("contour.rmq.consuming.count", 1D, tags);
