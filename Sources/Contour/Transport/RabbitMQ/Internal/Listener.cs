@@ -62,6 +62,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly IRabbitConnection connection;
         
         private readonly ConcurrentBag<RabbitChannel> channels = new ConcurrentBag<RabbitChannel>();
+
+        private readonly ConcurrentDictionary<string, string[]> labelMetricTags = new ConcurrentDictionary<string, string[]>();
+
+        private readonly string[] responseMetricTags;
+
         private CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
@@ -108,6 +113,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
 
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl}, {this.GetHashCode()})");
+
+            this.responseMetricTags = new[] { "deliveryEndpoint:" + this.busContext.Endpoint.Address };
         }
 
         public event EventHandler<ListenerStoppedEventArgs> Stopped = (sender, args) => { };
@@ -316,18 +323,15 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
             }
 
-            var endpoint = this.busContext.Endpoint.Address;
-            var tags = delivery.IsResponse
-                           ? new[]
-                                 {
-                                     "deliveryEndpoint:" + endpoint
-                                 }
-                           : new[]
-                                 {
-                                     "deliveryEndpoint:" + endpoint,
-                                     "deliveryLabel:" + delivery.Label,
-                                     "deliveryExchange:" + delivery.Args.Exchange
-                                 };
+            var tags = delivery.IsResponse ? this.responseMetricTags : this.labelMetricTags.GetOrAdd(
+                delivery.Label.ToString(), 
+                l => new[]
+                        {
+                            "deliveryEndpoint:" + this.busContext.Endpoint.Address,
+                            "deliveryLabel:" + l,
+                            "deliveryExchange:" + delivery.Args.Exchange
+                        });
+
             this.MetricsCollector?.Increment("contour.rmq.consuming.count", 1D, tags);
             Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -654,14 +658,14 @@ namespace Contour.Transport.RabbitMQ.Internal
             /// </summary>
             private readonly Func<IDelivery, IMessage> responseBuilderFunc;
 
-            private readonly string endpointName;
-
             /// <summary>
             /// Секундомер для замера длительности ожидания ответа.
             /// </summary>
             private readonly Stopwatch completionStopwatch;
 
             private readonly IMetricsCollector metricsCollector;
+
+            private readonly string[] metricsTags;
 
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="Expectation"/>.
@@ -672,13 +676,18 @@ namespace Contour.Transport.RabbitMQ.Internal
             /// <param name="timeoutTicket">
             /// Квиток об учете времени ожидания ответа.
             /// </param>
+            /// <param name="metricsCollector">Metrics collector</param>
             /// <param name="endpointName">Endpoint name</param>
             public Expectation(Func<IDelivery, IMessage> responseBuilderFunc, long? timeoutTicket, IMetricsCollector metricsCollector, string endpointName = null)
             {
                 this.responseBuilderFunc = responseBuilderFunc;
-                this.endpointName = endpointName;
                 this.TimeoutTicket = timeoutTicket;
                 this.metricsCollector = metricsCollector;
+
+                if (!string.IsNullOrEmpty(endpointName))
+                {
+                    this.metricsTags = new[] { "endpoint:" + endpointName };
+                }
 
                 this.completionSource = new TaskCompletionSource<IMessage>();
                 this.completionStopwatch = Stopwatch.StartNew();
@@ -720,10 +729,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                 {
                     this.completionStopwatch.Stop();
 
-                    if (!string.IsNullOrEmpty(this.endpointName))
+                    if (this.metricsTags != null)
                     {
-                        var tags = new[] { "endpoint:" + this.endpointName };
-                        this.metricsCollector?.Histogram("contour.rmq.requestreply.duration", this.completionStopwatch.ElapsedMilliseconds, 1D, tags);
+                        this.metricsCollector?.Histogram("contour.rmq.requestreply.duration", this.completionStopwatch.ElapsedMilliseconds, 1D, this.metricsTags);
                     }
 
                     IMessage response = this.responseBuilderFunc(delivery);

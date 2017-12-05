@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +22,9 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly IEndpoint endpoint;
         private readonly IRabbitConnection connection;
         private readonly ReaderWriterLockSlim slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        private readonly ConcurrentDictionary<string, string[]> labelMetricTags = new ConcurrentDictionary<string, string[]>();
+
         private CancellationTokenSource cancellationTokenSource;
         private IPublishConfirmationTracker confirmationTracker = new DummyPublishConfirmationTracker();
 
@@ -121,11 +123,14 @@ namespace Contour.Transport.RabbitMQ.Internal
                     this.logger.Trace(m => m("Emitting message [{0}] through [{1}].", message.Label, nativeRoute));
                     Func<IBasicProperties, IDictionary<string, object>> propsVisitor = p => ExtractProperties(ref p, message.Headers);
 
-                    var tags = new[]
-               {
-                               "publishEndpoint:" + this.endpoint.Address,
-                               "publishLabel:" + message.Label
-                           };
+                    var tags = this.labelMetricTags.GetOrAdd(
+                        message.Label.ToString(), 
+                        l => 
+                            new[]
+                                {
+                                    "publishEndpoint:" + this.endpoint.Address,
+                                    "publishLabel:" + l
+                                });
                     this.MetricsCollector?.Increment("contour.rmq.outgoing.count", 1D, tags);
 
                     var confirmation = this.confirmationTracker.Track();

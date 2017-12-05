@@ -359,7 +359,7 @@ namespace Contour.Configurator
             {
                 try
                 {
-                    var metricsCollector = this.ResolveMetricsCollector(collectorType);
+                    var metricsCollector = (IMetricsCollector)this.dependencyResolver.Resolve(collectorType, typeof(IMetricsCollector));
                     cfg.CollectMetrics(metricsCollector);
                 }
                 catch (Exception e)
@@ -373,21 +373,6 @@ namespace Contour.Configurator
             }
 
             return cfg;
-        }
-
-        private IMetricsCollector ResolveMetricsCollector(string collectorType)
-        {
-            var metricsCollectorType = Type.GetType(collectorType, false);
-            IMetricsCollector metricsCollector;
-            if (metricsCollectorType != null)
-            {
-                metricsCollector = (IMetricsCollector)Activator.CreateInstance(metricsCollectorType);
-            }
-            else
-            {
-                metricsCollector = (IMetricsCollector)this.dependencyResolver.Resolve(collectorType, typeof(IMetricsCollector));
-            }
-            return metricsCollector;
         }
 
         /// <summary>
