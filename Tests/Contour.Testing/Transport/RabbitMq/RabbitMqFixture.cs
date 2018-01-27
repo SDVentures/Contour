@@ -35,7 +35,7 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <summary>
         /// Gets the management connection.
         /// </summary>
-        protected string ManagementConnection { get; private set; } = "http://rabbitmq-test:15672/";
+        protected string ManagementConnection { get; private set; } = "http://localhost:15672/";
 
         /// <summary>
         /// Gets or sets the connection string.
@@ -75,7 +75,7 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <summary>
         /// Gets the broker URL.
         /// </summary>
-        protected string Url { get; private set; } = "amqp://rabbitmq-test:5672/";
+        protected string Url { get; private set; } = "amqp://localhost:5672/";
 
         /// <summary>
         /// Настраивает окружение перед работой теста.

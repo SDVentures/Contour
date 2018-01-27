@@ -35,6 +35,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusConfigurationEx.cs" />
@@ -42,7 +44,6 @@
     <Compile Include="BusSenderConfigurationEx.cs" />
     <Compile Include="Configuration\BusConfiguratorExtension.cs" />
     <Compile Include="Configurator\AppConfigConfigurator.cs" />
-    <Compile Include="Configurator\CachingElement.cs" />
     <Compile Include="Configurator\CallbackEndpointElement.cs" />
     <Compile Include="Configurator\DigestCollection.cs" />
     <Compile Include="Configurator\DigestElement.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="Configurator\EndpointCollection.cs" />
     <Compile Include="Configurator\EndpointElement.cs" />
     <Compile Include="Configurator\EndpointsSection.cs" />
+    <Compile Include="Configurator\ExtensibleConfigurationElement.cs" />
     <Compile Include="Configurator\IConfiguration.cs" />
     <Compile Include="Configurator\IConfigurator.cs" />
     <Compile Include="Configurator\IConnectionStringProvider.cs" />

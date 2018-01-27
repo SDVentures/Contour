@@ -6,7 +6,6 @@ using System.Linq;
 
 using Common.Logging;
 
-using Contour.Caching;
 using Contour.Filters;
 using Contour.Helpers;
 using Contour.Receiving;
@@ -92,6 +91,7 @@ namespace Contour.Configuration
             }
         }
 
+        public IDictionary<Type, IMessageExchangeFilterDecorator> FilterDecorators { get; } = new Dictionary<Type, IMessageExchangeFilterDecorator>();
         /// <summary>
         /// Gets the lifecycle handler.
         /// </summary>
@@ -177,19 +177,6 @@ namespace Contour.Configuration
             this.BusFactoryFunc = busFactoryFunc;
 
             return this;
-        }
-
-        /// <summary>
-        /// The enable caching.
-        /// </summary>
-        public void EnableCaching()
-        {
-            this.RegisterFilter(
-                new CacheMessageExchangeFilter(
-                    new MemoryCacheProvider(),
-                    new HashCalculator(
-                        // if caching is to be enabled before a payload converter is configured then an null reference exception might be thrown. To avoid it hash calculator loads converters lazily.
-                        new Lazy<IPayloadConverter>(() => this.Converters.First()))));
         }
 
         /// <summary>
@@ -342,6 +329,10 @@ namespace Contour.Configuration
             this.filters.Add(filter);
         }
 
+        public void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator) where T : IMessageExchangeFilter
+        {
+            this.FilterDecorators[typeof(T)] = decorator;
+        }
         /// <summary>
         /// The register validator.
         /// </summary>
