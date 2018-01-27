@@ -316,5 +316,7 @@ namespace Contour.Configuration
         /// </summary>
         /// <param name="provider"></param>
         void UseConnectionStringProvider(IConnectionStringProvider provider);
+
+        void CollectMetrics(IMetricsCollector metricsCollector);
     }
 }

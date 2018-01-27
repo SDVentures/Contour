@@ -5,6 +5,8 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 
+using Common.Logging;
+
 using Contour.Configuration;
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
@@ -22,6 +24,8 @@ namespace Contour.Configurator
     /// </summary>
     public class AppConfigConfigurator : IConfigurator
     {
+        private static readonly ILog Log = LogManager.GetLogger<AppConfigConfigurator>();
+
         /// <summary>
         /// The service bus section name.
         /// </summary>
@@ -348,6 +352,24 @@ namespace Contour.Configurator
 
                     configurator.WhenVerifiedBy(validator);
                 }
+            }
+
+            var collectorType = endpointConfig.Metrics?.Collector;
+            if (!string.IsNullOrEmpty(collectorType))
+            {
+                try
+                {
+                    var metricsCollector = (IMetricsCollector)this.dependencyResolver.Resolve(collectorType, typeof(IMetricsCollector));
+                    cfg.CollectMetrics(metricsCollector);
+                }
+                catch (Exception e)
+                {
+                    Log.Warn(m => m("Could not load metric collector '{0}'", collectorType), e);
+                }
+            }
+            else
+            {
+                Log.Trace(m => m("Metric collector is not specified"));
             }
 
             return cfg;

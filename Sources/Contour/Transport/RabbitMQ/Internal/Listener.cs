@@ -1,5 +1,4 @@
-﻿using Contour.Transport.RabbitMQ.Topology;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -63,6 +62,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly IRabbitConnection connection;
         
         private readonly ConcurrentBag<RabbitChannel> channels = new ConcurrentBag<RabbitChannel>();
+
+        private readonly ConcurrentDictionary<string, string[]> exchangeMetricTags = new ConcurrentDictionary<string, string[]>();
+
+        private readonly string[] responseMetricTags;
+
         private CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
@@ -109,6 +113,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.messageHeaderStorage = this.ReceiverOptions.GetIncomingMessageHeaderStorage().Value;
 
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.BrokerUrl}, {this.GetHashCode()})");
+
+            this.responseMetricTags = new[] { "deliveryEndpoint:" + this.busContext.Endpoint.Address };
         }
 
         public event EventHandler<ListenerStoppedEventArgs> Stopped = (sender, args) => { };
@@ -145,6 +151,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Denotes if a listener should dispose itself if any channel related errors have occurred
         /// </summary>
         public bool StopOnChannelShutdown { get; set; }
+
+        public IMetricsCollector MetricsCollector { get; set; }
 
         /// <summary>
         /// Создает входящее сообщение.
@@ -315,6 +323,15 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", Headers.GetString(delivery.Headers, Headers.Breadcrumbs)));
             }
 
+            var tags = delivery.IsResponse ? this.responseMetricTags : this.exchangeMetricTags.GetOrAdd(
+                delivery.Args.Exchange, 
+                e => new[]
+                        {
+                            "deliveryEndpoint:" + this.busContext.Endpoint.Address,
+                            "deliveryExchange:" + e
+                        });
+
+            this.MetricsCollector?.Increment("contour.rmq.consuming.count", 1D, tags);
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             try
@@ -328,15 +345,20 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 if (!processed)
                 {
+                    this.MetricsCollector?.Increment("contour.rmq.unhandleddelivery.count", 1D, tags);
                     this.OnUnhandled(delivery);
                 }
             }
             catch (Exception ex)
             {
+                this.MetricsCollector?.Increment("contour.rmq.faileddelivery.count", 1D, tags);
                 this.OnFailure(delivery, ex);
             }
 
             stopwatch.Stop();
+            this.MetricsCollector?.Increment("contour.rmq.consumed.count", 1D, tags);
+            this.MetricsCollector?.Decrement("contour.rmq.consuming.count", 1D, tags);
+            this.MetricsCollector?.Histogram("contour.rmq.consuming.duration", stopwatch.ElapsedMilliseconds, 1D, tags);
             this.logger.Trace(m => m("Message labeled [{0}] processed in {1} ms.", delivery.Label, stopwatch.ElapsedMilliseconds));
         }
 
@@ -462,7 +484,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     });
             }
 
-            return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
+            return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket, this.MetricsCollector, this.busContext.Endpoint.Address);
         }
         
         private CancellableQueueingConsumer InitializeConsumer(CancellationToken token, out RabbitChannel channel)
@@ -640,6 +662,10 @@ namespace Contour.Transport.RabbitMQ.Internal
             /// </summary>
             private readonly Stopwatch completionStopwatch;
 
+            private readonly IMetricsCollector metricsCollector;
+
+            private readonly string[] metricsTags;
+
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="Expectation"/>.
             /// </summary>
@@ -649,10 +675,18 @@ namespace Contour.Transport.RabbitMQ.Internal
             /// <param name="timeoutTicket">
             /// Квиток об учете времени ожидания ответа.
             /// </param>
-            public Expectation(Func<IDelivery, IMessage> responseBuilderFunc, long? timeoutTicket)
+            /// <param name="metricsCollector">Metrics collector</param>
+            /// <param name="endpointName">Endpoint name</param>
+            public Expectation(Func<IDelivery, IMessage> responseBuilderFunc, long? timeoutTicket, IMetricsCollector metricsCollector, string endpointName = null)
             {
                 this.responseBuilderFunc = responseBuilderFunc;
                 this.TimeoutTicket = timeoutTicket;
+                this.metricsCollector = metricsCollector;
+
+                if (!string.IsNullOrEmpty(endpointName))
+                {
+                    this.metricsTags = new[] { "endpoint:" + endpointName };
+                }
 
                 this.completionSource = new TaskCompletionSource<IMessage>();
                 this.completionStopwatch = Stopwatch.StartNew();
@@ -693,6 +727,12 @@ namespace Contour.Transport.RabbitMQ.Internal
                 try
                 {
                     this.completionStopwatch.Stop();
+
+                    if (this.metricsTags != null)
+                    {
+                        this.metricsCollector?.Histogram("contour.rmq.requestreply.duration", this.completionStopwatch.ElapsedMilliseconds, 1D, this.metricsTags);
+                    }
+
                     IMessage response = this.responseBuilderFunc(delivery);
                     this.completionSource.TrySetResult(response);
                 }

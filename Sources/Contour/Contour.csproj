@@ -52,11 +52,14 @@
     <Compile Include="Configuration\BusConfiguratorExtension.cs" />
     <Compile Include="Configuration\BusConnectionException.cs" />
     <Compile Include="Configuration\BusOptions.cs" />
+    <Compile Include="Configuration\LoggingMetricsCollector.cs" />
     <Compile Include="Configurator\CachingElement.cs" />
     <Compile Include="Caching\CacheMessageExchangeFilter.cs" />
     <Compile Include="Configurator\DynamicElement.cs" />
     <Compile Include="Configurator\IConnectionStringProvider.cs" />
+    <Compile Include="Configurator\MetricsConfigurationElement.cs" />
     <Compile Include="Configurator\QosElement.cs" />
+    <Compile Include="IMetricsCollector.cs" />
     <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\SendingExchangeFilter.cs" />
