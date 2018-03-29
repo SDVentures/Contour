@@ -1,10 +1,13 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using FluentAssertions;
 
 using Contour.Caching;
+using Contour.Filters;
 using Contour.Helpers;
+using Contour.Serialization;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;
@@ -38,8 +41,11 @@ namespace Contour.RabbitMq.Tests
                     "producer",
                     cfg =>
                         {
-                            cfg.EnableCaching();
                             cfg.Route("dummy.request").WithDefaultCallbackEndpoint();
+                            var cachingConfig = new Dictionary<string, CacheConfiguration>();
+                            cachingConfig["dummy.request"] = new CacheConfiguration(true, 5.Seconds(), new MemoryCache(new Sha256Hasher(new JsonNetPayloadConverter())));
+                            var cachingFilterDecorator = new CachingFilterDecorator(cachingConfig);
+                            cfg.RegisterDecoratorOf<SendingExchangeFilter>(cachingFilterDecorator);
                         });
                 this.StartBus(
                     "consumer",

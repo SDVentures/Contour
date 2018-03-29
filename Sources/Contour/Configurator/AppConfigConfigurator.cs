@@ -151,11 +151,7 @@ namespace Contour.Configurator
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
             {
                 cfg.HandleLifecycleWith(this.ResolveLifecycleHandler(endpointConfig.LifecycleHandler));
-            }
 
-            if (endpointConfig.Caching != null && endpointConfig.Caching.Enabled)
-            {
-                cfg.EnableCaching();
             }
 
             if (endpointConfig.ParallelismLevel.HasValue)

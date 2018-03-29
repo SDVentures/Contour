@@ -1,14 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MessageExchangeFilterInvoker.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The message exchange filter invoker.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Filters
+﻿namespace Contour.Filters
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -18,16 +10,12 @@ namespace Contour.Filters
     /// </summary>
     public class MessageExchangeFilterInvoker
     {
-        #region Fields
-
         /// <summary>
         /// The _filter enumerator.
         /// </summary>
         private readonly IEnumerator<IMessageExchangeFilter> filterEnumerator;
 
-        #endregion
-
-        #region Constructors and Destructors
+        private readonly IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
@@ -36,23 +24,26 @@ namespace Contour.Filters
         /// The filters.
         /// </param>
         public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters)
+            : this(filters, null)
+        {
+        }
+
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="MessageExchangeFilterInvoker"/>.
+        /// </summary>
+        /// <param name="filters">The filters.</param>
+        /// <param name="filterDecorators">The filter decorators.</param>
+        public MessageExchangeFilterInvoker(IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
         {
             this.filterEnumerator = filters.Reverse().
                 GetEnumerator();
+            this.filterDecorators = filterDecorators ?? new Dictionary<Type, IMessageExchangeFilterDecorator>();
         }
-
-        #endregion
-
-        #region Public Properties
 
         /// <summary>
         /// Gets or sets the inner.
         /// </summary>
         public IMessageExchangeFilter Inner { get; set; }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The continue.
@@ -70,7 +61,14 @@ namespace Contour.Filters
                 return Filter.Result(exchange);
             }
 
-            return this.filterEnumerator.Current.Process(exchange, this);
+            var currentFilter = this.filterEnumerator.Current;
+            var currentFilterType = currentFilter.GetType();
+            if (this.filterDecorators.ContainsKey(currentFilterType))
+            {
+                return this.filterDecorators[currentFilterType].Process(currentFilter, exchange, this);
+            }
+
+            return currentFilter.Process(exchange, this);
         }
 
         /// <summary>
@@ -86,7 +84,5 @@ namespace Contour.Filters
         {
             return this.Continue(exchange);
         }
-
-        #endregion
     }
 }

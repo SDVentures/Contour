@@ -42,8 +42,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="filters">
         /// Фильтры сообщений.
         /// </param>
-        public RabbitSender(RabbitBus bus, ISenderConfiguration configuration, IConnectionPool<IRabbitConnection> connectionPool, IEnumerable<IMessageExchangeFilter> filters)
-            : base(bus.Endpoint, configuration, filters)
+        public RabbitSender(RabbitBus bus, ISenderConfiguration configuration, IConnectionPool<IRabbitConnection> connectionPool, IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators = null)
+            : base(bus.Endpoint, configuration, filters, filterDecorators)
         {
             this.bus = bus;
             this.connectionPool = connectionPool;
