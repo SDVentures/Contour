@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+
+using Contour.Caching;
 using Contour.Configuration;
 using Contour.Helpers;
 using Contour.Serialization;
@@ -203,6 +205,43 @@ namespace Contour.Configurator.Tests
         }
 
         /// <summary>
+        /// The concrete handler of.
+        /// </summary>
+        /// <typeparam name="T">
+        /// </typeparam>
+        public class EchoConcreteHandlerOf<T> : IConsumerOf<T>
+            where T : class
+        {
+            /// <summary>
+            /// The _received.
+            /// </summary>
+            private readonly ManualResetEvent _received = new ManualResetEvent(false);
+
+            /// <summary>
+            /// Gets the received.
+            /// </summary>
+            public ManualResetEvent Received
+            {
+                get
+                {
+                    return this._received;
+                }
+            }
+
+            /// <summary>
+            /// The handle.
+            /// </summary>
+            /// <param name="context">
+            /// The context.
+            /// </param>
+            public void Handle(IConsumingContext<T> context)
+            {
+                context.Reply(context.Message.Payload);
+                this._received.Set();
+            }
+        }
+
+        /// <summary>
         /// The concrete transformer of.
         /// </summary>
         /// <typeparam name="T">
@@ -247,6 +286,26 @@ namespace Contour.Configurator.Tests
                     LessThan(100);
             }
         }
+
+        internal class DictionaryCache : ICache
+        {
+            private readonly IDictionary<string, object> innerCache = new Dictionary<string, object>();
+
+            private readonly Sha256Hasher hasher = new Sha256Hasher(new JsonNetPayloadConverter());
+
+            public bool ContainsKey(IMessage key)
+            {
+                return this.innerCache.ContainsKey(this.hasher.GetHash(key));
+            }
+
+            public object this[IMessage key] => this.innerCache[this.hasher.GetHash(key)];
+
+            public void Set(IMessage key, object value, TimeSpan ttl)
+            {
+                this.innerCache[this.hasher.GetHash(key)] = value;
+            }
+        }
+
 
         /// <summary>
         /// The when_configuring_endpoint_with_lifecycle_handler.
@@ -2290,6 +2349,313 @@ namespace Contour.Configurator.Tests
 
                 var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
                 senderOptions.GetReuseConnection().Value.Should().Be(true, "Connection reuse should be set to default");
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_declaring_outgoing_caching : RabbitMqFixture
+        {
+            [Test]
+            public void consumer_should_be_called_once_when_caching_request()
+            {
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"">
+                                        <caching enabled=""true"" ttl=""00:01:00"" provider=""dictionary"" />
+                                        <callbackEndpoint default=""true"" />
+                                    </route>
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new EchoConcreteHandlerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+
+                kernel.Bind<ICache>()
+                    .ToConstant(new DictionaryCache())
+                    .InSingletonScope()
+                    .Named("dictionary");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(producerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                    });
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeTrue();
+
+                handler.Received.Reset();
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
+            }
+
+            [Test]
+            public void consumer_should_be_called_once_when_caching_endpoint()
+            {
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <caching enabled=""true"" ttl=""00:01:00"" provider=""dictionary"" />
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"">
+                                        <callbackEndpoint default=""true"" />
+                                    </route>
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new EchoConcreteHandlerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+
+                kernel.Bind<ICache>()
+                    .ToConstant(new DictionaryCache())
+                    .InSingletonScope()
+                    .Named("dictionary");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(producerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                    });
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeTrue();
+
+                handler.Received.Reset();
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_declaring_incoming_caching : RabbitMqFixture
+        {
+            [Test]
+            public void consumer_should_be_called_once_when_caching_handler()
+            {
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"">
+                                        <callbackEndpoint default=""true"" />
+                                    </route>
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"">
+                                        <caching enabled=""true"" ttl=""00:01:00"" provider=""dictionary"" />
+                                    </on>
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new EchoConcreteHandlerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+
+                kernel.Bind<ICache>()
+                    .ToConstant(new DictionaryCache())
+                    .InSingletonScope()
+                    .Named("dictionary");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(producerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                    });
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeTrue();
+
+                handler.Received.Reset();
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
+            }
+
+            [Test]
+            public void consumer_should_be_called_once_when_caching_endpoint()
+            {
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"">
+                                        <callbackEndpoint default=""true"" />
+                                    </route>
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>                            
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <caching enabled=""true"" ttl=""00:01:00"" provider=""dictionary"" />
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new EchoConcreteHandlerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+
+                kernel.Bind<ICache>()
+                    .ToConstant(new DictionaryCache())
+                    .InSingletonScope()
+                    .Named("dictionary");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(producerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                    });
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeTrue();
+
+                handler.Received.Reset();
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
             }
         }
     }

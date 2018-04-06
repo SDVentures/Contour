@@ -1,4 +1,5 @@
 ﻿using Contour.Configurator;
+using Contour.Serialization;
 
 namespace Contour.Caching
 {
@@ -9,7 +10,7 @@ namespace Contour.Caching
     using System.Linq;
     using System.Xml.Linq;
 
-    public class CacheConfigProvider
+    internal class CacheConfigProvider
     {
         private const string ServiceBusSectionName = "serviceBus/endpoints";
 
@@ -23,14 +24,22 @@ namespace Contour.Caching
 
         private const string TtlPropertyName = "ttl";
 
+        private static readonly ICache DefaultCache = new MemoryCache(new Sha256Hasher(new JsonNetPayloadConverter()));
+
         private readonly IDependencyResolver dependencyResolver;
 
         private readonly EndpointsSection endpointsConfig;
 
         public CacheConfigProvider(IDependencyResolver dependencyResolver)
+            :this(dependencyResolver, (EndpointsSection)ConfigurationManager.GetSection(ServiceBusSectionName))
         {
             this.dependencyResolver = dependencyResolver;
-            this.endpointsConfig = (EndpointsSection)ConfigurationManager.GetSection(ServiceBusSectionName);
+        }
+
+        public CacheConfigProvider(IDependencyResolver dependencyResolver, EndpointsSection endpointsConfig)
+        {
+            this.dependencyResolver = dependencyResolver;
+            this.endpointsConfig = endpointsConfig;
         }
 
         public IEnumerable<string> EndpointNames => this.endpointsConfig.Endpoints.OfType<EndpointElement>().Select(e => e.Name);
@@ -44,7 +53,7 @@ namespace Contour.Caching
         public IDictionary<string, CacheConfiguration> GetIncomingCacheConfig(string endpointName)
         {
             var endpoint = this.endpointsConfig.Endpoints[endpointName];
-            return this.GetConfigFromMessageElements(endpoint, endpoint.Incoming, o => ((IncomingElement)o).React);
+            return this.GetConfigFromMessageElements(endpoint, endpoint.Incoming, o => ((IncomingElement)o).Label);
         }
 
         private IDictionary<string, CacheConfiguration> GetConfigFromMessageElements(EndpointElement endpoint, IEnumerable configElementsCollection, Func<MessageElement, string> keySelector)
@@ -89,7 +98,7 @@ namespace Contour.Caching
                 }
 
                 cacheName = properties.ContainsKey(ProviderPropertyName) ? properties[ProviderPropertyName] : null;
-                ttl = ParseHelper.GetParsedValue<TimeSpan>(properties, TtlPropertyName, TimeSpan.TryParse);
+                ttl = ParseHelper.GetParsedValue<TimeSpan?>(properties, TtlPropertyName, ParseHelper.TryParseNullableTimeSpan);
             }
 
             return new CacheConfiguration(cacheEnabled, ttl, this.GetCache(string.IsNullOrEmpty(cacheName) ? DefaultCacheName : cacheName));
@@ -97,11 +106,16 @@ namespace Contour.Caching
 
         private CacheConfiguration GetDefault()
         {
-            return new CacheConfiguration(false, TimeSpan.Zero, this.GetCache(DefaultCacheName));
+            return new CacheConfiguration(false, null, this.GetCache(DefaultCacheName));
         }
 
         private ICache GetCache(string name)
         {
+            if (name == DefaultCacheName)
+            {
+                return DefaultCache;
+            }
+
             return (ICache)this.dependencyResolver.Resolve(name, typeof(ICache));
         }
     }

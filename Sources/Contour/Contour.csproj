@@ -66,6 +66,7 @@
     <Compile Include="Configurator\DynamicElement.cs" />
     <Compile Include="Configurator\ExtensibleConfigurationElement.cs" />
     <Compile Include="Configurator\IConnectionStringProvider.cs" />
+    <Compile Include="Configurator\IMessageConfiguration.cs" />
     <Compile Include="Configurator\MetricsConfigurationElement.cs" />
     <Compile Include="Configurator\QosElement.cs" />
     <Compile Include="Filters\IMessageExchangeFilterDecorator.cs" />

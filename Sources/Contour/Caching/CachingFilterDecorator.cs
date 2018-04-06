@@ -10,6 +10,14 @@ namespace Contour.Caching
     {
         private readonly IDictionary<string, CacheConfiguration> cacheConfiguration;
 
+        private readonly IMetricsCollector metricsCollector;
+
+        public CachingFilterDecorator(IDictionary<string, CacheConfiguration> cacheConfiguration, IMetricsCollector metricsCollector)
+        {
+            this.cacheConfiguration = cacheConfiguration;
+            this.metricsCollector = metricsCollector;
+        }
+
         public CachingFilterDecorator(IDictionary<string, CacheConfiguration> cacheConfiguration)
         {
             this.cacheConfiguration = cacheConfiguration;
@@ -19,7 +27,7 @@ namespace Contour.Caching
         {
             if (!exchange.IsIncompleteRequest)
             {
-                return invoker.Continue(exchange);
+                return filter.Process(exchange, invoker);
             }
 
             var messageLabel = exchange.Out.Label.Name;
@@ -27,15 +35,21 @@ namespace Contour.Caching
             CacheConfiguration config;
             if (!this.cacheConfiguration.TryGetValue(messageLabel, out config))
             {
+                this.CollectMetrics(messageLabel, false);
                 return filter.Process(exchange, invoker);
             }
 
-            if (!(config.Enabled ?? false) || config.Ttl == null)
+            if (!(config.Enabled ?? false))
             {
+                this.CollectMetrics(messageLabel, false);
                 return filter.Process(exchange, invoker);
             }
 
-            if (config.Cache.ContainsKey(exchange.Out))
+            var cached = config.Cache.ContainsKey(exchange.Out);
+
+            this.CollectMetrics(messageLabel, cached);
+
+            if (cached)
             {
                 exchange.In = new Message(MessageLabel.Empty, config.Cache[exchange.Out]);
                 return Filter.Result(exchange);
@@ -73,10 +87,24 @@ namespace Contour.Caching
             if (!string.IsNullOrEmpty(expiresHeader))
             {
                 var expiration = Expires.Parse(expiresHeader);
-                return expiration?.Period;
+                if (expiration != null)
+                {
+                    if (expiration.Period != null)
+                    {
+                        return expiration.Period;
+                    }
+
+                    var now = DateTimeOffset.Now;
+                    if (expiration.Date != null && expiration.Date.Value > now)
+                    {
+                        return expiration.Date.Value - now;
+                    }
+                }
             }
 
             return null;
         }
+
+        private void CollectMetrics(string label, bool hit) => this.metricsCollector?.Increment("contour.outgoing.cache_usage.count", 1d, new[] { "cache:" + (hit ? "hit" : "miss"), "publishLabel:" + label });
     }
 }

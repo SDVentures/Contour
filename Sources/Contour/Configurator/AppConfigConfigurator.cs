@@ -7,6 +7,7 @@ using System.Reflection;
 
 using Common.Logging;
 
+using Contour.Caching;
 using Contour.Configuration;
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
@@ -40,6 +41,8 @@ namespace Contour.Configurator
         /// The _endpoints config.
         /// </summary>
         private readonly EndpointsSection endpointsConfig;
+
+        private readonly IEnumerable<IConfigurator> childConfigurators;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
@@ -84,6 +87,12 @@ namespace Contour.Configurator
         {
             this.endpointsConfig = endpointsConfig;
             this.dependencyResolver = dependencyResolver;
+
+            var configurators = new List<IConfigurator>();
+
+            configurators.Add(new CachingConfigurator(new CacheConfigProvider(this.dependencyResolver, this.endpointsConfig)));
+
+            this.childConfigurators = configurators;
         }
 
         /// <summary>
@@ -336,7 +345,7 @@ namespace Contour.Configurator
                     messageType = ResolveType(incomingElement.Type);
                 }
 
-                var consumerFactory = this.BuildConsumerFactory(incomingElement.React, messageType);
+                var consumerFactory = this.BuildConsumerFactory(incomingElement, messageType, endpointName);
 
                 object consumer = BuildConsumer(consumerFactory, messageType, incomingElement.Lifestyle);
 
@@ -366,6 +375,11 @@ namespace Contour.Configurator
             else
             {
                 Log.Trace(m => m("Metric collector is not specified"));
+            }
+
+            foreach (var configurator in this.childConfigurators)
+            {
+                configurator.Configure(endpointName, cfg);
             }
 
             return cfg;
@@ -415,6 +429,9 @@ namespace Contour.Configurator
 
             return new RequestConfiguration(reqDeclaration.Timeout, reqDeclaration.Persist, reqDeclaration.Ttl);
         }
+
+        /// <inheritdoc />
+        public object DecorateConsumer(object consumer, Type messageType, IMessageConfiguration messageConfig, string endpointName) => consumer;
 
         /// <summary>
         /// The build consumer.
@@ -516,18 +533,19 @@ namespace Contour.Configurator
         /// <summary>
         /// The build consumer factory.
         /// </summary>
-        /// <param name="name">
+        /// <param name="element">
         /// The name.
         /// </param>
         /// <param name="messageType">
         /// The message type.
         /// </param>
+        /// <param name="endpointName"></param>
         /// <returns>
         /// The <see cref="Func{TResult}"/>.
         /// </returns>
-        private Func<object> BuildConsumerFactory(string name, Type messageType)
+        private Func<object> BuildConsumerFactory(IncomingElement element, Type messageType, string endpointName)
         {
-            return () => this.ResolveConsumer(name, messageType);
+            return () => this.ResolveConsumer(element, messageType, endpointName);
         }
 
         /// <summary>
@@ -556,18 +574,26 @@ namespace Contour.Configurator
         /// <summary>
         /// The resolve consumer.
         /// </summary>
-        /// <param name="name">
+        /// <param name="element">
         /// The name.
         /// </param>
         /// <param name="messageType">
         /// The message type.
         /// </param>
+        /// <param name="endpointName"></param>
         /// <returns>
         /// The <see cref="object"/>.
         /// </returns>
-        private object ResolveConsumer(string name, Type messageType)
+        private object ResolveConsumer(IncomingElement element, Type messageType, string endpointName)
         {
-            return this.dependencyResolver.Resolve(name, typeof(IConsumerOf<>).MakeGenericType(messageType));
+            var consumer = this.dependencyResolver.Resolve(element.React, typeof(IConsumerOf<>).MakeGenericType(messageType));
+
+            foreach (var configurator in this.childConfigurators)
+            {
+                consumer = configurator.DecorateConsumer(consumer, messageType, element, endpointName);
+            }
+
+            return consumer;
         }
 
         private IConnectionStringProvider GetConnectionStringProvider(string name)

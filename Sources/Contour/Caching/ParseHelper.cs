@@ -1,4 +1,6 @@
-﻿namespace Contour.Caching
+﻿using System;
+
+namespace Contour.Caching
 {
     using System.Collections.Generic;
 
@@ -10,6 +12,19 @@
         {
             T parsed;
             return dictionary.ContainsKey(key) && parser(dictionary[key], out parsed) ? parsed : defaultValue;
+        }
+
+        public static bool TryParseNullableTimeSpan(string input, out TimeSpan? parsed)
+        {
+            TimeSpan timespan;
+            if (TimeSpan.TryParse(input, out timespan))
+            {
+                parsed = timespan;
+                return true;
+            }
+
+            parsed = null;
+            return false;
         }
     }
 }
