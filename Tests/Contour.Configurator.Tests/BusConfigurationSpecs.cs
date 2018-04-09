@@ -205,7 +205,7 @@ namespace Contour.Configurator.Tests
         }
 
         /// <summary>
-        /// The concrete handler of.
+        /// The echo concrete handler of.
         /// </summary>
         /// <typeparam name="T">
         /// </typeparam>
@@ -237,6 +237,43 @@ namespace Contour.Configurator.Tests
             public void Handle(IConsumingContext<T> context)
             {
                 context.Reply(context.Message.Payload);
+                this._received.Set();
+            }
+        }
+
+        /// <summary>
+        /// The caching echo concrete handler of.
+        /// </summary>
+        /// <typeparam name="T">
+        /// </typeparam>
+        public class CachingEchoConcreteHandlerOf<T> : IConsumerOf<T>
+            where T : class
+        {
+            /// <summary>
+            /// The _received.
+            /// </summary>
+            private readonly ManualResetEvent _received = new ManualResetEvent(false);
+
+            /// <summary>
+            /// Gets the received.
+            /// </summary>
+            public ManualResetEvent Received
+            {
+                get
+                {
+                    return this._received;
+                }
+            }
+
+            /// <summary>
+            /// The handle.
+            /// </summary>
+            /// <param name="context">
+            /// The context.
+            /// </param>
+            public void Handle(IConsumingContext<T> context)
+            {
+                context.Reply(context.Message.Payload, Expires.In(TimeSpan.FromMinutes(1)));
                 this._received.Set();
             }
         }
@@ -2431,12 +2468,86 @@ namespace Contour.Configurator.Tests
             }
 
             [Test]
+            public void consumer_should_be_called_once_when_caching_request_by_response_header()
+            {
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"">
+                                        <caching enabled=""true"" ttl=""00:01:00"" provider=""dictionary"" />
+                                        <callbackEndpoint default=""true"" />
+                                    </route>
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new EchoConcreteHandlerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+
+                kernel.Bind<ICache>()
+                    .ToConstant(new DictionaryCache())
+                    .InSingletonScope()
+                    .Named("dictionary");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(producerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                    });
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeTrue();
+
+                handler.Received.Reset();
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
+            }
+
+            [Test]
             public void consumer_should_be_called_once_when_caching_endpoint()
             {
                 string producerConfig = string.Format(
                     @"<endpoints>
                             <endpoint name=""producer"" connectionString=""{0}{1}"">
-                                <caching enabled=""true"" ttl=""00:01:00"" provider=""dictionary"" />
+                                <caching enabled=""true"" provider=""dictionary"" />
                                 <outgoing>
                                     <route key=""a"" label=""msg.a"">
                                         <callbackEndpoint default=""true"" />
@@ -2458,7 +2569,81 @@ namespace Contour.Configurator.Tests
                         this.Url,
                         this.VhostName);
 
-                var handler = new EchoConcreteHandlerOf<BooMessage>();
+                var handler = new CachingEchoConcreteHandlerOf<BooMessage>();
+
+                IKernel kernel = new StandardKernel();
+                kernel.Bind<IConsumerOf<BooMessage>>()
+                    .ToConstant(handler)
+                    .InSingletonScope()
+                    .Named("BooHandler");
+
+                kernel.Bind<ICache>()
+                    .ToConstant(new DictionaryCache())
+                    .InSingletonScope()
+                    .Named("dictionary");
+
+                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+
+                this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                IBus producer = this.StartBus(
+                    "producer",
+                    cfg =>
+                    {
+                        var section = new XmlEndpointsSection(producerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
+                    });
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeTrue();
+
+                handler.Received.Reset();
+
+                producer.Request<object, object>("msg.a", new { Num = 13 }, r => { });
+
+                handler.Received.WaitOne(3.Seconds())
+                    .Should()
+                    .BeFalse();
+            }
+
+            [Test]
+            public void consumer_should_be_called_once_when_caching_endpoint_by_response_header()
+            {
+                string producerConfig = string.Format(
+                    @"<endpoints>
+                            <endpoint name=""producer"" connectionString=""{0}{1}"">
+                                <caching enabled=""true"" provider=""dictionary"" />
+                                <outgoing>
+                                    <route key=""a"" label=""msg.a"">
+                                        <callbackEndpoint default=""true"" />
+                                    </route>
+                                </outgoing>
+                            </endpoint>
+                        </endpoints>",
+                    this.Url,
+                    this.VhostName);
+
+                string consumerConfig = string.Format(
+                        @"<endpoints>
+                            <endpoint name=""consumer"" connectionString=""{0}{1}"">
+                                <incoming>
+                                    <on key=""a"" label=""msg.a"" react=""BooHandler"" type=""BooMessage"" />
+                                </incoming>
+                            </endpoint>
+                        </endpoints>",
+                        this.Url,
+                        this.VhostName);
+
+                var handler = new CachingEchoConcreteHandlerOf<BooMessage>();
 
                 IKernel kernel = new StandardKernel();
                 kernel.Bind<IConsumerOf<BooMessage>>()
