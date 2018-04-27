@@ -5,7 +5,7 @@
     /// <summary>
     /// The message element.
     /// </summary>
-    internal class MessageElement : ConfigurationElement
+    internal class MessageElement : ExtensibleConfigurationElement, IMessageConfiguration
     {
         #region Public Properties
 

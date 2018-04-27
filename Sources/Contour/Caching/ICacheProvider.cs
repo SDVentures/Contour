@@ -7,6 +7,7 @@
     /// <summary>
     /// The CacheProvider interface.
     /// </summary>
+    [Obsolete("Use ICache")]
     public interface ICacheProvider
     {
         #region Public Methods and Operators

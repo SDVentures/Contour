@@ -7,6 +7,7 @@ namespace Contour.Helpers
     /// <summary>
     /// Рассчитывает значение хеш-функции для содержимого.
     /// </summary>
+    [Obsolete("Use Contour.Caching.IHasher implementations")]
     public class Hasher
     {
         /// <summary>

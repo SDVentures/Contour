@@ -162,6 +162,12 @@ namespace Contour.Configuration
         void RegisterFilter(IMessageExchangeFilter filter);
 
         /// <summary>
+        /// Adds decorator for message exchange filter of type <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T">Filter type</typeparam>
+        /// <param name="decorator">Decorator instance</param>
+        void RegisterDecoratorOf<T>(IMessageExchangeFilterDecorator decorator) where T : IMessageExchangeFilter;
+
         /// Регистрирует конкретный валидатор тела сообщения.
         /// </summary>
         /// <param name="validator">

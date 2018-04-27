@@ -1,4 +1,6 @@
-﻿namespace Contour.Configurator
+﻿using System;
+
+namespace Contour.Configurator
 {
     using Contour.Configuration;
 
@@ -44,5 +46,15 @@
         /// The <see cref="IRequestConfiguration"/>.
         /// </returns>
         IRequestConfiguration GetRequestConfig(string endpointName, string key);
+
+        /// <summary>
+        /// Decorates consumer instance and returns decorated
+        /// </summary>
+        /// <param name="consumer">Consumer instance</param>
+        /// <param name="messageType">Consumed message type</param>
+        /// <param name="messageConfig">Consumed message configuration</param>
+        /// <param name="endpointName">Endpoint name</param>
+        /// <returns>Decorated consumer instance </returns>
+        object DecorateConsumer(object consumer, Type messageType, IMessageConfiguration messageConfig, string endpointName);
     }
 }

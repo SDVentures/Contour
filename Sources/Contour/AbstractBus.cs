@@ -1,4 +1,6 @@
-﻿namespace Contour
+﻿using System.Diagnostics;
+
+namespace Contour
 {
     using System;
     using System.Collections.Generic;
@@ -557,8 +559,8 @@
         {
             this.EnsureIsReady();
 
-            return this.GetSenderFor(label)
-                    .Request<TResponse>(label, payload, options ?? new RequestOptions());
+            var sender = this.GetSenderFor(label);
+            return this.CollectRequestMetric(sender, sender.Request<TResponse>(label, payload, options ?? new RequestOptions()));
         }
 
         /// <summary>
@@ -574,8 +576,8 @@
         {
             this.EnsureIsReady();
 
-            return this.GetSenderFor(label)
-                    .Request<TResponse>(label, payload, headers ?? new Dictionary<string, object>());
+            var sender = this.GetSenderFor(label);
+            return this.CollectRequestMetric(sender, sender.Request<TResponse>(label, payload, headers ?? new Dictionary<string, object>()));
         }
 
         /// <summary>
@@ -702,6 +704,19 @@
             {
                 throw new BusNotReadyException();
             }
+        }
+
+        private Task<T> CollectRequestMetric<T>(ISender sender, Task<T> request)
+        {
+            var sw = Stopwatch.StartNew();
+
+            request.ContinueWith(
+                r =>
+                    {
+                        this.Configuration.MetricsCollector?.Histogram("contour.requestreply.duration", sw.ElapsedMilliseconds, 1d, new[] { "endpoint:" + this.Endpoint.Address, "publishLabel:" + sender.Configuration.Label.ToString() });
+                    });
+
+            return request;
         }
     }
 }

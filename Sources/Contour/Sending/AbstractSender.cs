@@ -33,6 +33,7 @@ namespace Contour.Sending
         /// </summary>
         private readonly string breadCrumbsTail;
 
+        private readonly IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators;
         // TODO: refactor, don't copy filters
 
         /// <summary>
@@ -58,6 +59,11 @@ namespace Contour.Sending
                 .ToList();
 
             this.Configuration = configuration;
+        }
+        protected AbstractSender(IEndpoint endpoint, ISenderConfiguration configuration, IEnumerable<IMessageExchangeFilter> filters, IDictionary<Type, IMessageExchangeFilterDecorator> filterDecorators)
+            : this(endpoint, configuration, filters)
+        {
+            this.filterDecorators = filterDecorators;
         }
 
         /// <summary>
@@ -99,7 +105,7 @@ namespace Contour.Sending
             var message = new Message(this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
-            var invoker = new MessageExchangeFilterInvoker(this.filters);
+            var invoker = this.GetMessageExchangeFilterInvoker();
 
             return invoker.Process(exchange)
                 .ContinueWith(
@@ -194,7 +200,7 @@ namespace Contour.Sending
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
-            var invoker = new MessageExchangeFilterInvoker(this.filters);
+            var invoker = this.GetMessageExchangeFilterInvoker();
 
             return invoker.Process(exchange)
                 .ContinueWith(
@@ -248,6 +254,10 @@ namespace Contour.Sending
         /// <returns>Задача выполнения фильтра.</returns>
         protected abstract Task<MessageExchange> InternalSend(MessageExchange exchange);
 
+        private MessageExchangeFilterInvoker GetMessageExchangeFilterInvoker()
+        {
+            return this.filterDecorators != null ? new MessageExchangeFilterInvoker(this.filters, this.filterDecorators) : new MessageExchangeFilterInvoker(this.filters);
+        }
         /// <summary>
         /// Обрабатывает сообщение с помощью зарегистрированных фильтров.
         /// </summary>
@@ -256,7 +266,7 @@ namespace Contour.Sending
         private Task ProcessFilter(IMessage message)
         {
             var exchange = new MessageExchange(message, null);
-            var invoker = new MessageExchangeFilterInvoker(this.filters);
+            var invoker = this.GetMessageExchangeFilterInvoker();
 
             return invoker.Process(exchange);
         }

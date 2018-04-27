@@ -9,6 +9,7 @@
     /// <summary>
     /// The memory cache provider.
     /// </summary>
+    [Obsolete("Use Contour.Caching.MemoryCache")]
     public class MemoryCacheProvider : ICacheProvider
     {
         #region Constants
@@ -25,7 +26,7 @@
         /// <summary>
         /// The _cache.
         /// </summary>
-        private readonly MemoryCache _cache;
+        private readonly System.Runtime.Caching.MemoryCache _cache;
 
         #endregion
 
@@ -37,7 +38,7 @@
         /// <param name="cache">
         /// The cache.
         /// </param>
-        public MemoryCacheProvider(MemoryCache cache)
+        public MemoryCacheProvider(System.Runtime.Caching.MemoryCache cache)
         {
             this._cache = cache;
         }
@@ -46,7 +47,7 @@
         /// Инициализирует новый экземпляр класса <see cref="MemoryCacheProvider"/>.
         /// </summary>
         public MemoryCacheProvider()
-            : this(MemoryCache.Default)
+            : this(System.Runtime.Caching.MemoryCache.Default)
         {
         }
 

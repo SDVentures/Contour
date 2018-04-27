@@ -93,5 +93,10 @@ namespace Contour.Sending
         /// <param name="options">Заголовки сообщения.</param>
         /// <returns>Задача выполнения отправки сообщения.</returns>
         Task Send(MessageLabel label, object payload, PublishingOptions options);
+
+        /// <summary>
+        /// Конфигурация отправителя.
+        /// </summary>
+        ISenderConfiguration Configuration { get; }
     }
 }

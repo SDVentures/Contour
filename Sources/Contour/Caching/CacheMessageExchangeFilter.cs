@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Contour.Filters;
 using Contour.Helpers;
@@ -8,6 +9,7 @@ namespace Contour.Caching
     /// <summary>
     /// Фильтр, который кеширует ответные сообщения.
     /// </summary>
+    [Obsolete("Use CachingFilterDecorator")]
     public class CacheMessageExchangeFilter : IMessageExchangeFilter
     {
         /// <summary>
