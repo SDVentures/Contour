@@ -1,7 +1,6 @@
 namespace Contour.Caching
 {
     using System;
-    using System.Diagnostics;
     using System.Security.Cryptography;
 
     using Contour.Serialization;

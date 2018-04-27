@@ -1,15 +1,15 @@
-﻿using Contour.Configurator;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Xml.Linq;
+
+using Contour.Caching;
 using Contour.Serialization;
 
-namespace Contour.Caching
+namespace Contour.Configurator
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Linq;
-    using System.Xml.Linq;
-
     internal class CacheConfigProvider
     {
         private const string ServiceBusSectionName = "serviceBus/endpoints";

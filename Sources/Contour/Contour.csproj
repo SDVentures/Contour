@@ -45,24 +45,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusNotReadyException.cs" />
-    <Compile Include="Caching\CacheConfigProvider.cs" />
     <Compile Include="Caching\CacheConfiguration.cs" />
+    <Compile Include="Caching\CacheMessageExchangeFilter.cs" />
     <Compile Include="Caching\CachingConfigurator.cs" />
     <Compile Include="Caching\CachingConsumerOf.cs" />
     <Compile Include="Caching\CachingContext.cs" />
     <Compile Include="Caching\CachingFilterDecorator.cs" />
     <Compile Include="Caching\Expires.cs" />
     <Compile Include="Caching\ICache.cs" />
+    <Compile Include="Caching\ICacheProvider.cs" />
     <Compile Include="Caching\IHasher.cs" />
     <Compile Include="Caching\MemoryCache.cs" />
+    <Compile Include="Caching\MemoryCacheProvider.cs" />
     <Compile Include="Caching\ParseHelper.cs" />
     <Compile Include="Caching\Sha256Hasher.cs" />
-    <Compile Include="Caching\ThreadSafeCache.cs" />
     <Compile Include="Configuration\BusComponentTracker.cs" />
     <Compile Include="Configuration\BusConfiguratorExtension.cs" />
     <Compile Include="Configuration\BusConnectionException.cs" />
     <Compile Include="Configuration\BusOptions.cs" />
     <Compile Include="Configuration\LoggingMetricsCollector.cs" />
+    <Compile Include="Configurator\CacheConfigProvider.cs" />
     <Compile Include="Configurator\DynamicElement.cs" />
     <Compile Include="Configurator\ExtensibleConfigurationElement.cs" />
     <Compile Include="Configurator\IConnectionStringProvider.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Configurator\MetricsConfigurationElement.cs" />
     <Compile Include="Configurator\QosElement.cs" />
     <Compile Include="Filters\IMessageExchangeFilterDecorator.cs" />
+    <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="IMetricsCollector.cs" />
     <Compile Include="Properties\CustomAssemblyInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
@@ -308,9 +311,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Caching\Contour.Caching.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

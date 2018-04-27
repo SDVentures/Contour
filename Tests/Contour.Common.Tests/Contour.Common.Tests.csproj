@@ -50,6 +50,7 @@
     <Compile Include="FaultExceptionSpecs.cs" />
     <Compile Include="MaybeSpecs.cs" />
     <Compile Include="MemoryCacheFixture.cs" />
+    <Compile Include="MemoryCacheSpecs.cs" />
     <Compile Include="MessageHeaderStorageSpecs.cs" />
     <Compile Include="NameGeneratorSpecs.cs" />
     <Compile Include="OperatorConsumerOfSpecs.cs" />
