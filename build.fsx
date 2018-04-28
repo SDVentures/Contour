@@ -29,6 +29,7 @@ let tests =
 let isAppVeyorBuild = environVar "APPVEYOR" <> null
 let appVeyorBuildNumber = environVar "APPVEYOR_BUILD_NUMBER"
 let appVeyorRepoCommit = environVar "APPVEYOR_REPO_COMMIT"
+let nugetPublishUrl = "https://api.nuget.org/v3/index.json"
 
 
 Target "CleanUp" (fun _ ->
@@ -91,6 +92,7 @@ Target "Deploy" (fun () ->
             Version = release.NugetVersion
             ReleaseNotes = toLines release.Notes
             Tags = tags
+            PublishUrl = nugetPublishUrl
             OutputPath = buildDir
             ToolPath = "./packages/NuGet.CommandLine/tools/Nuget.exe"
             AccessKey = getBuildParamOrDefault "nugetkey" ""
