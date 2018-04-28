@@ -1,4 +1,12 @@
-﻿## 1.8.0-rc3
+﻿## 1.8.0
+- Changes:
+    + Added consuming and publising instrumentation
+    + Added incoming requests caching feature
+    + Enhanced caching XML configuration
+- Fixes:
+    + Cache key collisions (https://github.com/SDVentures/Contour/issues/100)
+
+## 1.8.0-rc3
 - Changes:
     + Removed circuit breaker from FaultTolerantProducer
 
