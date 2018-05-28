@@ -105,6 +105,6 @@ namespace Contour.Caching
             return null;
         }
 
-        private void CollectMetrics(string label, bool hit) => this.metricsCollector?.Increment("contour.outgoing.cache_usage.count", 1d, new[] { "cache:" + (hit ? "hit" : "miss"), "publishLabel:" + label });
+        private void CollectMetrics(string label, bool hit) => this.metricsCollector?.Increment("contour.outgoing.cache_usage.count", 1d, new[] { "cache:" + (hit ? "hit" : "miss"), "label:" + label });
     }
 }
