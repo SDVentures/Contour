@@ -1,4 +1,8 @@
-﻿## 1.8.0
+﻿## 1.8.1
+- Changes:
+    + narrowed metric tags list
+
+## 1.8.0
 - Changes:
     + Added consuming and publising instrumentation
     + Added incoming requests caching feature
