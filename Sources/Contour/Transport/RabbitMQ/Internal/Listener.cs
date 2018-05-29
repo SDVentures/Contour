@@ -244,7 +244,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                     consumer.Handle(context);
 
-                    this.MetricsCollector?.Histogram("contour.rmq.consuming.duration", sw.ElapsedMilliseconds, 1D, new[] { "deliveryEndpoint:" + this.busContext.Endpoint.Address, "deliveryExchange:" + label.ToString() });
+                    this.MetricsCollector?.Histogram("contour.rmq.consuming.duration", sw.ElapsedMilliseconds, 1D, new[] { "endpoint:" + this.busContext.Endpoint.Address, "label:" + label.ToString() });
                 };
 
             this.consumers[label] = consumingAction;
@@ -331,8 +331,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                 delivery.Args.Exchange, 
                 e => new[]
                         {
-                            "deliveryEndpoint:" + this.busContext.Endpoint.Address,
-                            "deliveryExchange:" + e
+                            "endpoint:" + this.busContext.Endpoint.Address,
+                            "label:" + e
                         });
 
             this.MetricsCollector?.Increment("contour.rmq.consuming.count", 1D, tags);

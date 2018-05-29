@@ -1,13 +1,10 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using Common.Logging;
 
 using Contour.Receiving;
 using Contour.Testing.Transport.RabbitMq;
-using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Topology;
 
 using FluentAssertions;
@@ -56,7 +53,7 @@ namespace Contour.RabbitMq.Tests
 
                                        return new SubscriptionEndpoint(q, e);
                                    });
-                            cfg.CollectMetrics(new TagsCheckingCollector("producer", null, null, "producer", "dummy.request"));
+                            cfg.CollectMetrics(new TagsCheckingCollector("producer", "dummy.request"));
                         });
 
                 this.StartBus(
@@ -70,7 +67,7 @@ namespace Contour.RabbitMq.Tests
                                        message = ctx.Message;
                                        ctx.Reply(new DummyResponse(m.Num * 2));
                                    });
-                            cfg.CollectMetrics(new TagsCheckingCollector("consumer", "dummy.request", "dummy.request", null, null));
+                            cfg.CollectMetrics(new TagsCheckingCollector("consumer", "dummy.request"));
                         });
 
                 Task response = producer.RequestAsync<DummyRequest, DummyResponse>("dummy.request", new DummyRequest(13));
@@ -86,21 +83,16 @@ namespace Contour.RabbitMq.Tests
 
         private class TagsCheckingCollector : IMetricsCollector
         {
-            private readonly string deliveryEndpoint;
-            private readonly string deliveryLabel;
-            private readonly string deliveryExchange;
-            private readonly string publishEndpoint;
-            private readonly string publishLabel;
-
-            public TagsCheckingCollector(string deliveryEndpoint, string deliveryLabel, string deliveryExchange, string publishEndpoint, string publishLabel)
-            {
-                this.deliveryEndpoint = deliveryEndpoint;
-                this.deliveryLabel = deliveryLabel;
-                this.deliveryExchange = deliveryExchange;
-                this.publishEndpoint = publishEndpoint;
-                this.publishLabel = publishLabel;
-            }
+            private readonly string endpoint;
             
+            private readonly string label;
+
+            public TagsCheckingCollector(string endpoint, string label)
+            {
+                this.endpoint = endpoint;
+                this.label = label;
+            }
+
             public void Increment(string metricName, double sampleRate = 1, string[] tags = null)
             {
                 this.EnsureTags(tags);
@@ -127,11 +119,8 @@ namespace Contour.RabbitMq.Tests
 
                 foreach (var tag in tags)
                 {
-                    AssertEquality(tag, nameof(this.deliveryEndpoint), this.deliveryEndpoint);
-                    AssertEquality(tag, nameof(this.deliveryLabel), this.deliveryLabel);
-                    AssertEquality(tag, nameof(this.deliveryExchange), this.deliveryExchange);
-                    AssertEquality(tag, nameof(this.publishEndpoint), this.publishEndpoint);
-                    AssertEquality(tag, nameof(this.publishLabel), this.publishLabel);
+                    AssertEquality(tag, nameof(this.endpoint), this.endpoint);
+                    AssertEquality(tag, nameof(this.label), this.label);
                 }
             }
 

@@ -713,7 +713,7 @@ namespace Contour
             request.ContinueWith(
                 r =>
                     {
-                        this.Configuration.MetricsCollector?.Histogram("contour.requestreply.duration", sw.ElapsedMilliseconds, 1d, new[] { "endpoint:" + this.Endpoint.Address, "publishLabel:" + sender.Configuration.Label.ToString() });
+                        this.Configuration.MetricsCollector?.Histogram("contour.requestreply.duration", sw.ElapsedMilliseconds, 1d, new[] { "endpoint:" + this.Endpoint.Address, "label:" + sender.Configuration.Label.ToString() });
                     });
 
             return request;

@@ -128,8 +128,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                         l => 
                             new[]
                                 {
-                                    "publishEndpoint:" + this.endpoint.Address,
-                                    "publishLabel:" + l
+                                    "endpoint:" + this.endpoint.Address,
+                                    "label:" + l
                                 });
                     this.MetricsCollector?.Increment("contour.rmq.outgoing.count", 1D, tags);
 
