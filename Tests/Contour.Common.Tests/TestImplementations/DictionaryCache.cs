@@ -17,7 +17,19 @@ namespace Contour.Common.Tests.TestImplementations
             return this.innerCache.ContainsKey(this.hasher.GetHash(key));
         }
 
-        public object this[IMessage key] => this.innerCache[this.hasher.GetHash(key)];
+        public object this[IMessage key]
+        {
+            get
+            {
+                var hash = this.hasher.GetHash(key);
+                if (this.innerCache.ContainsKey(hash))
+                {
+                    return this.innerCache[hash];
+                }
+
+                return null;
+            }
+        }
 
         public void Set(IMessage key, object value, TimeSpan ttl)
         {
