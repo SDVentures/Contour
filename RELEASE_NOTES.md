@@ -1,4 +1,8 @@
-﻿## 1.8.1
+﻿## 1.8.2
+- Fixed
+    + Cached value check bug
+
+## 1.8.1
 - Changes:
     + narrowed metric tags list
 
