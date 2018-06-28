@@ -39,13 +39,14 @@ namespace Contour.Caching
                 return;
             }
 
-            var cached = this.cacheConfiguration.Cache.ContainsKey(message);
+            var cachedValue = this.cacheConfiguration.Cache[message];
+            var cached = cachedValue != null;
 
             this.CollectMetrics(message.Label.ToString(), cached);
 
             if (cached)
             {
-                context.Reply(this.cacheConfiguration.Cache[message]);
+                context.Reply(cachedValue);
                 return;
             }
 

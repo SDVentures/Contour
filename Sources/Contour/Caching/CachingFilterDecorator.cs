@@ -45,13 +45,14 @@ namespace Contour.Caching
                 return filter.Process(exchange, invoker);
             }
 
-            var cached = config.Cache.ContainsKey(exchange.Out);
+            var cachedValue = config.Cache[exchange.Out];
+            var cached = cachedValue != null;
 
             this.CollectMetrics(messageLabel, cached);
 
             if (cached)
             {
-                exchange.In = new Message(MessageLabel.Empty, config.Cache[exchange.Out]);
+                exchange.In = new Message(MessageLabel.Empty, cachedValue);
                 return Filter.Result(exchange);
             }
 
