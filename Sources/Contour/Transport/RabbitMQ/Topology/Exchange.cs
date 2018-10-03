@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+
 namespace Contour.Transport.RabbitMQ.Topology
 {
     using Contour.Sending;
@@ -19,6 +21,8 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public class Exchange : ITopologyEntity, IRouteResolver
     {
+        private readonly IDictionary<string, object> arguments;
+
         #region Constructors and Destructors
 
         /// <summary>
@@ -33,6 +37,7 @@ namespace Contour.Transport.RabbitMQ.Topology
             this.Type = ExchangeType.Direct;
             this.Durable = false;
             this.AutoDelete = false;
+            this.arguments = new Dictionary<string, object>();
         }
 
         #endregion
@@ -58,6 +63,8 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// Gets the type.
         /// </summary>
         public string Type { get; internal set; }
+
+        public IDictionary<string, object> Arguments => this.arguments;
 
         #endregion
 

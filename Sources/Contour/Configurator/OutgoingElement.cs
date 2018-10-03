@@ -69,6 +69,18 @@
         }
 
         /// <summary>
+        /// Gets the ttl.
+        /// </summary>
+        [ConfigurationProperty("delay")]
+        public TimeSpan? Delay
+        {
+            get
+            {
+                return (TimeSpan?)base["delay"];
+            }
+        }
+
+        /// <summary>
         /// Gets the connection string
         /// </summary>
         [ConfigurationProperty("connectionString", IsRequired = false)]

@@ -185,12 +185,11 @@ namespace Contour.Configurator
                     if (endpointConfig.Dynamic.Outgoing.Value)
                     {
                         cfg.Route(MessageLabel.Any)
-                            .ConfiguredWith(builder => new LambdaRouteResolver(
+                            .ConfiguredWith(
+                                builder => new LambdaRouteResolver(
                                     (endpoint, label) =>
                                         {
-                                            builder.Topology.Declare(
-                                                Exchange.Named(label.Name)
-                                                    .Durable.Fanout);
+                                            builder.Topology.Declare(Exchange.Named(label.Name).Durable.Fanout);
                                             return new RabbitRoute(label.Name);
                                         }));
                     }
@@ -246,6 +245,11 @@ namespace Contour.Configurator
                 if (outgoingElement.Timeout.HasValue)
                 {
                     configurator.WithRequestTimeout(outgoingElement.Timeout);
+                }
+
+                if (outgoingElement.Delay.HasValue)
+                {
+                    configurator.WithDelay(outgoingElement.Delay.Value);
                 }
 
                 // Connection string

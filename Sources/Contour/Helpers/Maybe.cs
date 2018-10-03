@@ -18,7 +18,7 @@ namespace Contour.Helpers
     /// </typeparam>
     [Serializable]
     [Obsolete]
-    public sealed class Maybe<T>
+    public sealed class Maybe<T> : Maybe
     {
         #region Static Fields
 
@@ -34,7 +34,7 @@ namespace Contour.Helpers
         /// <summary>
         /// The value.
         /// </summary>
-        private readonly T value;
+        //private readonly T value;
 
         #endregion
 
@@ -46,9 +46,8 @@ namespace Contour.Helpers
         /// <param name="value">
         /// The value.
         /// </param>
-        public Maybe(T value)
+        public Maybe(T value) : base(value)
         {
-            this.value = value;
         }
 
         #endregion
@@ -58,13 +57,7 @@ namespace Contour.Helpers
         /// <summary>
         /// Gets a value indicating whether has value.
         /// </summary>
-        public bool HasValue
-        {
-            get
-            {
-                return !Equals(this.value, default(T));
-            }
-        }
+        public override bool HasValue => !Equals(this.value, default(T));
 
         /// <summary>
         /// Gets the value.
@@ -74,7 +67,7 @@ namespace Contour.Helpers
             get
             {
                 this.AssertNotNullValue();
-                return this.value;
+                return (T)this.value;
             }
         }
 
@@ -142,7 +135,7 @@ namespace Contour.Helpers
         /// </summary>
         /// <exception cref="InvalidOperationException">
         /// </exception>
-        private void AssertNotNullValue()
+        protected override void AssertNotNullValue()
         {
             if (!this.HasValue)
             {
@@ -151,5 +144,34 @@ namespace Contour.Helpers
         }
 
         #endregion
+    }
+
+    public class Maybe
+    {
+        protected readonly object value;
+
+        public Maybe(object value)
+        {
+            this.value = value;
+        }
+
+        public virtual bool HasValue => !Equals(this.value, null);
+
+        public object Value
+        {
+            get
+            {
+                this.AssertNotNullValue();
+                return this.value;
+            }
+        }
+
+        protected virtual void AssertNotNullValue()
+        {
+            if (!this.HasValue)
+            {
+                throw new InvalidOperationException($"Maybe of object must have value.");
+            }
+        }
     }
 }

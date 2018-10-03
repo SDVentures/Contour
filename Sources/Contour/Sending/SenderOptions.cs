@@ -51,6 +51,8 @@ namespace Contour.Sending
         /// </summary>
         public Maybe<TimeSpan?> Ttl { protected get; set; }
 
+        public Maybe<TimeSpan?> Delay { protected get; set; }
+
         /// <summary>
         /// Создает новые настройки отправителя, которые наследуют существующие.
         /// </summary>
@@ -87,6 +89,11 @@ namespace Contour.Sending
         public Maybe<TimeSpan?> GetTtl()
         {
             return this.Pick<SenderOptions, TimeSpan?>((o) => o.Ttl);
+        }
+
+        public Maybe<TimeSpan?> GetDelay()
+        {
+            return this.Pick<SenderOptions, TimeSpan?>(o => o.Delay);
         }
 
         /// <summary>

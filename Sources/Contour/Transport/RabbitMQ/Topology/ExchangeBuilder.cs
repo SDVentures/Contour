@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ExchangeBuilder.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The exchange builder.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Contour.Transport.RabbitMQ.Topology
+﻿namespace Contour.Transport.RabbitMQ.Topology
 {
     using global::RabbitMQ.Client;
 
@@ -16,13 +7,17 @@ namespace Contour.Transport.RabbitMQ.Topology
     /// </summary>
     public class ExchangeBuilder
     {
+        private const string DelayedExchangeType = "x-delayed-message";
+
+        private const string DelayedExchangeSubtypeArgumentName = "x-delayed-type";
+
         #region Constructors and Destructors
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ExchangeBuilder"/>.
+        /// Initializes a new instance of the <see cref="ExchangeBuilder"/> class. 
         /// </summary>
         /// <param name="name">
-        /// The name.
+        /// The name of the exchange.
         /// </param>
         internal ExchangeBuilder(string name)
         {
@@ -89,6 +84,36 @@ namespace Contour.Transport.RabbitMQ.Topology
             get
             {
                 this.Instance.Type = ExchangeType.Topic;
+                return this;
+            }
+        }
+
+        public ExchangeBuilder DelayedDirect
+        {
+            get
+            {
+                this.Instance.Type = DelayedExchangeType;
+                this.Instance.Arguments[DelayedExchangeSubtypeArgumentName] = ExchangeType.Direct;
+                return this;
+            }
+        }
+
+        public ExchangeBuilder DelayedFanout
+        {
+            get
+            {
+                this.Instance.Type = DelayedExchangeType;
+                this.Instance.Arguments[DelayedExchangeSubtypeArgumentName] = ExchangeType.Fanout;
+                return this;
+            }
+        }
+
+        public ExchangeBuilder DelayedTopic
+        {
+            get
+            {
+                this.Instance.Type = DelayedExchangeType;
+                this.Instance.Arguments[DelayedExchangeSubtypeArgumentName] = ExchangeType.Topic;
                 return this;
             }
         }

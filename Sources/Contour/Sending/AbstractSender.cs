@@ -291,6 +291,9 @@ namespace Contour.Sending
             Maybe<TimeSpan?> ttl = BusOptions.Pick(options.Ttl, this.Configuration.Options.GetTtl());
             Headers.ApplyTtl(outputHeaders, ttl);
 
+            Maybe<TimeSpan?> delay = BusOptions.Pick(options.Delay, this.Configuration.Options.GetDelay());
+            Headers.ApplyDelay(outputHeaders, delay);
+
             return outputHeaders;
         }
 

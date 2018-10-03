@@ -35,9 +35,18 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             string label = builder.Sender.Label.Name;
 
-            Exchange exchange = builder.Topology.Declare(
-                Exchange.Named(label).
-                    Durable.Fanout);
+            ExchangeBuilder exchangeBuilder = Exchange.Named(label).Durable;
+
+            if (builder.Sender.Options.GetDelay().HasValue)
+            {
+                exchangeBuilder = exchangeBuilder.DelayedFanout;
+            }
+            else
+            {
+                exchangeBuilder = exchangeBuilder.Fanout;
+            }
+
+            Exchange exchange = builder.Topology.Declare(exchangeBuilder);
 
             return new StaticRouteResolver(exchange);
         }
@@ -57,12 +66,9 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             string queueName = builder.Endpoint.Address + "." + label;
 
-            Queue queue = builder.Topology.Declare(
-                Queue.Named(queueName).
-                    Durable);
-            Exchange exchange = builder.Topology.Declare(
-                Exchange.Named(label).
-                    Durable.Fanout);
+            Queue queue = builder.Topology.Declare(Queue.Named(queueName).Durable);
+
+            Exchange exchange = builder.Topology.Declare(Exchange.Named(label).Durable.Fanout);
 
             builder.Topology.Bind(exchange, queue);
 
