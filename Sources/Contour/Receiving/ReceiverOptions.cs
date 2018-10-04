@@ -63,7 +63,7 @@ namespace Contour.Receiving
         /// </summary>
         public Maybe<IUnhandledDeliveryStrategy> UnhandledDeliveryStrategy { protected get; set; }
 
-        public Maybe<bool> Delayed { protected get; set; }
+        public bool Delayed { protected get; set; }
 
         /// <summary>
         /// Создает новый экземпляр настроек как копию существующего.
@@ -153,7 +153,11 @@ namespace Contour.Receiving
             return this.Pick<ReceiverOptions, int>((o) => o.FaultQueueLimit);
         }
 
-        public Maybe<bool> IsDelayed()
+        /// <summary>
+        /// Returns true if receiver is able to receive delayed messages.
+        /// </summary>
+        /// <returns>true if receiver is able to receive delayed messages.</returns>
+        public bool IsDelayed()
         {
             return this.Delayed;
         }

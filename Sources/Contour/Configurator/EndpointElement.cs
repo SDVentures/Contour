@@ -184,5 +184,11 @@ namespace Contour.Configurator
 
         [ConfigurationProperty("metrics")]
         public MetricsConfigurationElement Metrics => (MetricsConfigurationElement)base["metrics"];
+
+        /// <summary>
+        /// Gets an option shows is all senders and receivers of the endpoint are able to send and receive delayed messages.
+        /// </summary>
+        [ConfigurationProperty("delayed")]
+        public bool Delayed => (bool)base["delayed"];
     }
 }

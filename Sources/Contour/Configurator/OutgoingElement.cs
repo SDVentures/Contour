@@ -69,7 +69,7 @@
         }
 
         /// <summary>
-        /// Gets the ttl.
+        /// Gets the delay.
         /// </summary>
         [ConfigurationProperty("delay")]
         public TimeSpan? Delay

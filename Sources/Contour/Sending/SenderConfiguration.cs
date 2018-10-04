@@ -187,7 +187,8 @@ namespace Contour.Sending
 
         public ISenderConfiguration WithDelay(TimeSpan delay)
         {
-            this.Options.Delay = delay;
+            this.Options.Delayed = true;
+            this.Options.Delay = (long)delay.TotalMilliseconds;
 
             return this;
         }

@@ -143,7 +143,9 @@ namespace Contour.Helpers
 
         public Maybe(object value)
         {
-            this.value = value;
+            var maybe = value as Maybe;
+
+            this.value = maybe != null && maybe.HasValue ? maybe.value : value;
         }
 
         public virtual bool HasValue => !Equals(this.value, null);

@@ -305,7 +305,7 @@ namespace Contour.Sending
 
                 if (maybeValue.HasValue)
                 {
-                    outgoingHeaders.Add(key, maybeValue.Value);
+                    outgoingHeaders[key] = maybeValue.Value;
                 }
             }
 

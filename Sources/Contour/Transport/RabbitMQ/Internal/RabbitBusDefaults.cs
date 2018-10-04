@@ -39,9 +39,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             ExchangeBuilder exchangeBuilder = Exchange.Named(label).Durable;
 
-            Maybe<TimeSpan?> delay = builder.Sender.Options.GetDelay();
-
-            exchangeBuilder = delay.HasValue && delay.Value != TimeSpan.Zero
+            exchangeBuilder = builder.Sender.Options.IsDelayed()
                                   ? exchangeBuilder.DelayedFanout 
                                   : exchangeBuilder.Fanout;
 

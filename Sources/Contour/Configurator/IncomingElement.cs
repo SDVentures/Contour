@@ -101,6 +101,6 @@
         }
 
         [ConfigurationProperty("delayed")]
-        public bool? Delayed => (bool?)base["delayed"];
+        public bool Delayed => (bool)base["delayed"];
     }
 }

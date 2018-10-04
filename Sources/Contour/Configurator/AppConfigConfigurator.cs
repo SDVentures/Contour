@@ -160,7 +160,6 @@ namespace Contour.Configurator
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
             {
                 cfg.HandleLifecycleWith(this.ResolveLifecycleHandler(endpointConfig.LifecycleHandler));
-
             }
 
             if (endpointConfig.ParallelismLevel.HasValue)
@@ -247,9 +246,9 @@ namespace Contour.Configurator
                     configurator.WithRequestTimeout(outgoingElement.Timeout);
                 }
 
-                if (outgoingElement.Delay.HasValue)
+                if (endpointConfig.Delayed || outgoingElement.Delay.HasValue)
                 {
-                    configurator.WithDelay(outgoingElement.Delay.Value);
+                    configurator.WithDelay(outgoingElement.Delay ?? TimeSpan.Zero);
                 }
 
                 // Connection string
@@ -258,6 +257,7 @@ namespace Contour.Configurator
                 {
                     connectionString = outgoingElement.ConnectionString;
                 }
+
                 connectionString = connectionStringProvider?.GetConnectionString(outgoingElement.Label.ToMessageLabel()) ?? connectionString;
 
 
@@ -326,7 +326,7 @@ namespace Contour.Configurator
                     configurator.RequiresAccept();
                 }
 
-                if (incomingElement.Delayed.HasValue && incomingElement.Delayed.Value)
+                if (incomingElement.Delayed)
                 {
                     configurator.Delayed();
                 }
