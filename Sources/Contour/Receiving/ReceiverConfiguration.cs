@@ -204,5 +204,12 @@ namespace Contour.Receiving
 
             return this;
         }
+
+        public IReceiverConfigurator Delayed()
+        {
+            this.Options.Delayed = true;
+
+            return this;
+        }
     }
 }

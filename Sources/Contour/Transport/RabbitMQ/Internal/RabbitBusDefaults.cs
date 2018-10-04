@@ -1,4 +1,6 @@
 ﻿using System;
+
+using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
 using Contour.Transport.RabbitMQ.Topology;
@@ -37,14 +39,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             ExchangeBuilder exchangeBuilder = Exchange.Named(label).Durable;
 
-            if (builder.Sender.Options.GetDelay().HasValue)
-            {
-                exchangeBuilder = exchangeBuilder.DelayedFanout;
-            }
-            else
-            {
-                exchangeBuilder = exchangeBuilder.Fanout;
-            }
+            Maybe<TimeSpan?> delay = builder.Sender.Options.GetDelay();
+
+            exchangeBuilder = delay.HasValue && delay.Value != TimeSpan.Zero
+                                  ? exchangeBuilder.DelayedFanout 
+                                  : exchangeBuilder.Fanout;
 
             Exchange exchange = builder.Topology.Declare(exchangeBuilder);
 
@@ -68,7 +67,13 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             Queue queue = builder.Topology.Declare(Queue.Named(queueName).Durable);
 
-            Exchange exchange = builder.Topology.Declare(Exchange.Named(label).Durable.Fanout);
+            ExchangeBuilder exchangeBuilder = Exchange.Named(label).Durable;
+
+            exchangeBuilder = builder.Receiver.Options.IsDelayed()
+                                  ? exchangeBuilder.DelayedFanout
+                                  : exchangeBuilder.Fanout;
+
+            Exchange exchange = builder.Topology.Declare(exchangeBuilder);
 
             builder.Topology.Bind(exchange, queue);
 

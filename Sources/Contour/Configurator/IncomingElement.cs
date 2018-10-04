@@ -99,5 +99,8 @@
         {
             get { return (bool?) base["reuseConnection"]; }
         }
+
+        [ConfigurationProperty("delayed")]
+        public bool? Delayed => (bool?)base["delayed"];
     }
 }

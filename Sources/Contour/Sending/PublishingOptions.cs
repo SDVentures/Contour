@@ -1,20 +1,10 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PublishingOptions.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The publishing options.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
+﻿using System;
 using System.Collections.Generic;
+
+using Contour.Helpers;
 
 namespace Contour.Sending
 {
-    using System;
-
-    using Contour.Helpers;
-
     /// <summary>
     /// The publishing options.
     /// </summary>
@@ -74,21 +64,35 @@ namespace Contour.Sending
 
         #endregion
 
+        /// <summary>
+        /// Sets an option with custom name.
+        /// </summary>
+        /// <typeparam name="T">Option value type.</typeparam>
+        /// <param name="name">Name of the option.</param>
+        /// <param name="value">Option value.</param>
         public void SetOption<T>(string name, T value)
         {
             this.innerOptions[name] = (Maybe<T>)value;
         }
 
-        public IDictionary<string, Maybe> GetAll()
+        /// <summary>
+        /// Gets an option value by name.
+        /// </summary>
+        /// <typeparam name="T">Option value type.</typeparam>
+        /// <param name="name">Option name.</param>
+        /// <returns>Maybe option value.</returns>
+        public Maybe<T> GetOption<T>(string name)
         {
-            return this.innerOptions;
+            return this.innerOptions.ContainsKey(Headers.Persist) ? (Maybe<T>)this.innerOptions[name] : Maybe<T>.Empty;
         }
 
-        private Maybe<T> GetOption<T>(string name)
+        /// <summary>
+        /// Returns all options as a dictionary, where keys are names.
+        /// </summary>
+        /// <returns>Options dictionary, where keys are names.</returns>
+        public virtual IDictionary<string, Maybe> GetAll()
         {
-            return this.innerOptions.ContainsKey(Headers.Persist)
-                ? (Maybe<T>)this.innerOptions[name]
-                : Maybe<T>.Empty;
+            return this.innerOptions;
         }
     }
 }

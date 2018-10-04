@@ -7,10 +7,10 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+
 namespace Contour.Helpers
 {
-    using System;
-
     /// <summary>
     /// The maybe.
     /// </summary>
@@ -26,15 +26,6 @@ namespace Contour.Helpers
         /// The empty.
         /// </summary>
         public static readonly Maybe<T> Empty = new Maybe<T>(default(T));
-
-        #endregion
-
-        #region Fields
-
-        /// <summary>
-        /// The value.
-        /// </summary>
-        //private readonly T value;
 
         #endregion
 

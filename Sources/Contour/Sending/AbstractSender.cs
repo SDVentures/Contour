@@ -279,22 +279,37 @@ namespace Contour.Sending
         private IDictionary<string, object> ApplyOptions(PublishingOptions options)
         {
             var storage = this.Configuration.Options.GetIncomingMessageHeaderStorage().Value;
-            var inputHeaders = storage.Load() ?? new Dictionary<string, object>();
-            var outputHeaders = new Dictionary<string, object>(inputHeaders);
 
-            Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
-            Headers.ApplyOriginalMessageId(outputHeaders);
+            var incomingHeaders = storage.Load() ?? new Dictionary<string, object>();
+            var outgoingHeaders = new Dictionary<string, object>(incomingHeaders);
 
-            Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
-            Headers.ApplyPersistently(outputHeaders, persist);
+            Headers.ApplyBreadcrumbs(outgoingHeaders, this.endpoint.Address);
+            Headers.ApplyOriginalMessageId(outgoingHeaders);
 
-            Maybe<TimeSpan?> ttl = BusOptions.Pick(options.Ttl, this.Configuration.Options.GetTtl());
-            Headers.ApplyTtl(outputHeaders, ttl);
+            var defaultOptionsMap = new Dictionary<string, Func<Maybe>>
+                                        {
+                                            { Headers.Persist, () => this.Configuration.Options.IsPersistently() },
+                                            { Headers.Ttl, () => this.Configuration.Options.GetTtl() },
+                                            { Headers.Delay, () => this.Configuration.Options.GetDelay() }
+                                        };
 
-            Maybe<TimeSpan?> delay = BusOptions.Pick(options.Delay, this.Configuration.Options.GetDelay());
-            Headers.ApplyDelay(outputHeaders, delay);
+            var publishingOptionsDict = options.GetAll();
 
-            return outputHeaders;
+            var keys = defaultOptionsMap.Keys.Union(publishingOptionsDict.Keys).Distinct();
+
+            foreach (var key in keys)
+            {
+                var maybeValue = publishingOptionsDict.ContainsKey(key)
+                                     ? publishingOptionsDict[key]
+                                     : defaultOptionsMap[key].Invoke();
+
+                if (maybeValue.HasValue)
+                {
+                    outgoingHeaders.Add(key, maybeValue.Value);
+                }
+            }
+
+            return outgoingHeaders;
         }
 
         /// <summary>
