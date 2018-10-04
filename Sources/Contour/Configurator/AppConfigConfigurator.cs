@@ -326,6 +326,11 @@ namespace Contour.Configurator
                     configurator.RequiresAccept();
                 }
 
+                if (incomingElement.Delayed.HasValue && incomingElement.Delayed.Value)
+                {
+                    configurator.Delayed();
+                }
+
                 // Connection string
                 var connectionString = endpointConfig.ConnectionString;
                 if (!string.IsNullOrEmpty(incomingElement.ConnectionString))

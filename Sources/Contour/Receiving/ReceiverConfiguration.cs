@@ -205,6 +205,7 @@ namespace Contour.Receiving
             return this;
         }
 
+        /// <inheritdoc />
         public IReceiverConfigurator Delayed()
         {
             this.Options.Delayed = true;
