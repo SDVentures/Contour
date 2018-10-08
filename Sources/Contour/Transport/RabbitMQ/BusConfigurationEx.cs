@@ -57,8 +57,10 @@ namespace Contour.Transport.RabbitMQ
                                          Headers.QueueMessageTtl,
                                          Headers.ReplyRoute,
                                          Headers.Timeout,
-                                         Headers.Ttl
+                                         Headers.Ttl,
+                                         Headers.Delay
                                      };
+
             var messageHeaderStorage = new MessageHeaderStorage(blockedHeaders);
             c.UseIncomingMessageHeaderStorage(messageHeaderStorage);
 
