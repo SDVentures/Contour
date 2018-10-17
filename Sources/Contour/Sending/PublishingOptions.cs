@@ -49,16 +49,27 @@ namespace Contour.Sending
         /// <summary>
         /// Gets or sets the ttl.
         /// </summary>
-        public Maybe<TimeSpan?> Delay
+        public Maybe<TimeSpan> Delay
         {
             get
             {
-                return this.GetOption<TimeSpan?>(Headers.Delay);
+                var longValue = this.GetOption<long>(Headers.Delay);
+
+                return longValue.HasValue 
+                           ? TimeSpan.FromMilliseconds(longValue.Value)
+                           : Maybe<TimeSpan>.Empty;
             }
 
             set
             {
-                this.SetOption(Headers.Delay, value);
+                if (!value.HasValue)
+                {
+                    return;
+                }
+
+                var mseconds = (long)value.Value.TotalMilliseconds;
+
+                this.SetOption(Headers.Delay, (Maybe<long>)mseconds);
             }
         }
 
@@ -70,9 +81,9 @@ namespace Contour.Sending
         /// <typeparam name="T">Option value type.</typeparam>
         /// <param name="name">Name of the option.</param>
         /// <param name="value">Option value.</param>
-        public void SetOption<T>(string name, T value)
+        public void SetOption<T>(string name, T value) where T : Maybe
         {
-            this.innerOptions[name] = (Maybe<T>)value;
+            this.innerOptions[name] = value;
         }
 
         /// <summary>
@@ -83,7 +94,9 @@ namespace Contour.Sending
         /// <returns>Maybe option value.</returns>
         public Maybe<T> GetOption<T>(string name)
         {
-            return this.innerOptions.ContainsKey(Headers.Persist) ? (Maybe<T>)this.innerOptions[name] : Maybe<T>.Empty;
+            return this.innerOptions.ContainsKey(name) 
+                       ? (Maybe<T>)this.innerOptions[name] 
+                       : Maybe<T>.Empty;
         }
 
         /// <summary>

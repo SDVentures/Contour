@@ -20,16 +20,10 @@ namespace Contour.Helpers
     [Obsolete]
     public sealed class Maybe<T> : Maybe
     {
-        #region Static Fields
-
         /// <summary>
         /// The empty.
         /// </summary>
         public static readonly Maybe<T> Empty = new Maybe<T>(default(T));
-
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Maybe{T}"/>.
@@ -41,10 +35,6 @@ namespace Contour.Helpers
         {
         }
 
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
         /// Gets a value indicating whether has value.
         /// </summary>
@@ -53,7 +43,7 @@ namespace Contour.Helpers
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public T Value
+        public new T Value
         {
             get
             {
@@ -61,10 +51,6 @@ namespace Contour.Helpers
                 return (T)this.value;
             }
         }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The op_ explicit.
@@ -117,10 +103,6 @@ namespace Contour.Helpers
             return this.HasValue ? this.value.ToString() : string.Format("Empty Maybe of {0}.", typeof(T));
         }
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The assert not null value.
         /// </summary>
@@ -133,8 +115,6 @@ namespace Contour.Helpers
                 throw new InvalidOperationException(string.Format("Maybe of {0} must have value.", typeof(T)));
             }
         }
-
-        #endregion
     }
 
     public class Maybe
@@ -145,7 +125,19 @@ namespace Contour.Helpers
         {
             var maybe = value as Maybe;
 
-            this.value = maybe != null && maybe.HasValue ? maybe.value : value;
+            if (maybe == null)
+            {
+                this.value = value;
+                return;
+            }
+
+            if (!maybe.HasValue)
+            {
+                this.value = null;
+                return;
+            }
+
+            this.value = maybe.Value;
         }
 
         public virtual bool HasValue => !Equals(this.value, null);

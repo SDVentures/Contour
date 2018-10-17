@@ -246,7 +246,7 @@ namespace Contour.Configurator
                     configurator.WithRequestTimeout(outgoingElement.Timeout);
                 }
 
-                if (endpointConfig.Delayed || outgoingElement.Delay.HasValue)
+                if (outgoingElement.Delayed || outgoingElement.Delay.HasValue || endpointConfig.Delayed)
                 {
                     configurator.WithDelay(outgoingElement.Delay ?? TimeSpan.Zero);
                 }
