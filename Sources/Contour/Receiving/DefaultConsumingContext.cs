@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Contour.Caching;
 
 namespace Contour.Receiving
 {

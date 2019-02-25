@@ -1,6 +1,4 @@
-﻿using Contour.Caching;
-
-namespace Contour.Receiving
+﻿namespace Contour.Receiving
 {
     /// <summary>
     /// Контекст обработки полученного сообщения.

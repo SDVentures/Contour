@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Contour.Transport.RabbitMQ.Internal
@@ -17,6 +16,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>
         /// The <see cref="IProducerSelector"/>.
         /// </returns>
-        IProducerSelector Build(ConcurrentQueue<IProducer> items = null);
+        IProducerSelector Build(IEnumerable<IProducer> items);
     }
 }

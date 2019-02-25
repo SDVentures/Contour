@@ -1,20 +1,17 @@
-﻿namespace Contour.Configuration
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Common.Logging;
+using Contour.Configurator;
+using Contour.Filters;
+using Contour.Helpers;
+using Contour.Receiving;
+using Contour.Sending;
+using Contour.Serialization;
+using Contour.Validation;
+
+namespace Contour.Configuration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Linq;
-
-    using Common.Logging;
-
-    using Contour.Caching;
-    using Contour.Filters;
-    using Contour.Helpers;
-    using Contour.Receiving;
-    using Contour.Sending;
-    using Contour.Serialization;
-    using Contour.Validation;
-
     /// <summary>
     /// The bus configuration.
     /// </summary>
@@ -186,14 +183,6 @@
         }
 
         /// <summary>
-        /// The enable caching.
-        /// </summary>
-        public void EnableCaching()
-        {
-            this.RegisterFilter(new CacheMessageExchangeFilter(new MemoryCacheProvider()));
-        }
-
-        /// <summary>
         /// The handle lifecycle with.
         /// </summary>
         /// <param name="lifecycleHandler">
@@ -233,7 +222,7 @@
         /// </returns>
         public IReceiverConfigurator<T> On<T>(MessageLabel label) where T : class
         {
-            return On(label).As<T>();
+            return this.On(label).As<T>();
         }
 
         /// <summary>
@@ -280,6 +269,14 @@
             if (this.HasRegisteredConsumerFor(label))
             {
                 throw new ArgumentException($"Receiver for label [{label}] is already registered", nameof(label));
+            }
+
+            var provider = this.ReceiverDefaults.GetConnectionStringProvider();
+            var connectionString = provider?.GetConnectionString(label);
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                this.ReceiverDefaults.ConnectionString = connectionString;
             }
 
             var configuration = new ReceiverConfiguration(label, this.ReceiverDefaults);
@@ -398,6 +395,14 @@
                 throw new ArgumentException($"Sender for label [{label}] already registered.", nameof(label));
             }
 
+            var provider = this.SenderDefaults.GetConnectionStringProvider();
+            var connectionString = provider?.GetConnectionString(label);
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                this.SenderDefaults.ConnectionString = connectionString;
+            }
+
             var configuration = new SenderConfiguration(label, this.SenderDefaults, this.ReceiverDefaults);
             this.senderConfigurations.Add(configuration);
             return configuration;
@@ -443,19 +448,6 @@
             Logger.Trace("Setting connection reuse");
             this.EndpointOptions.ReuseConnection = reuse;
             Logger.Debug("Connection reuse is set");
-        }
-
-        /// <summary>
-        /// The set connection string name.
-        /// </summary>
-        /// <param name="connectionStringName">
-        /// The connection string name.
-        /// </param>
-        public void SetConnectionStringName(string connectionStringName)
-        {
-            string connectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
-
-            this.SetConnectionString(connectionString);
         }
 
         /// <summary>
@@ -557,6 +549,27 @@
             this.DefaultSubscriptionEndpointBuilder = endpointBuilder;
         }
 
+        /// <inheritdoc />
+        public void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders)
+        {
+            var headers = excludedHeaders ?? Enumerable.Empty<string>();
+            var storage = this.EndpointOptions.GetIncomingMessageHeaderStorage();
+            if (storage.HasValue)
+            {
+                storage.Value.RegisterExcludedHeaders(headers);
+            }
+        }
+
+        public void UseIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage)
+        {
+            this.EndpointOptions.IncomingMessageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(storage);
+        }
+
+        public void UseConnectionStringProvider(IConnectionStringProvider provider)
+        {
+            this.EndpointOptions.ConnectionStringProvider = provider;
+        }
+
         /// <summary>
         /// The validate.
         /// </summary>
@@ -575,13 +588,7 @@
             {
                 throw new BusConfigurationException("Bus factory is not set.");
             }
-
-            if (string.IsNullOrEmpty(this.ConnectionString))
-            {
-                throw new BusConfigurationException(@"Не задана строка подключения к шине. Строку подключения можно задать явно при создании IBus 
-												или в конфигурационном файле приложения в секции /configuration/connectionStrings/add[@address='service-bus']");
-            }
-
+            
             if (this.Endpoint == null)
             {
                 throw new BusConfigurationException("Не задано название компонента (Endpoint).");

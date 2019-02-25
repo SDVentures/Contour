@@ -45,7 +45,7 @@
             /// The should_use_threads_while_waiting.
             /// </summary>
             [Test]
-            [Explicit("Unstable, just for fun")]
+            [Ignore("Unstable, just for fun")]
             public void should_use_threads_while_waiting()
             {
                 int initialThreadCount = GetThreadsCount();

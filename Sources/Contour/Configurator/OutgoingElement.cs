@@ -1,4 +1,6 @@
-﻿namespace Contour.Configurator
+﻿using Contour.Configurator.Configuration;
+
+namespace Contour.Configurator
 {
     using System;
     using System.Configuration;
@@ -6,7 +8,7 @@
     /// <summary>
     /// The outgoing element.
     /// </summary>
-    internal class OutgoingElement : MessageElement
+    internal class OutgoingElement : MessageElement, IOutgoing
     {
         /// <summary>
         /// Gets the callback endpoint.
@@ -85,5 +87,7 @@
         {
             get { return (bool?)base["reuseConnection"]; }
         }
+
+        ICallbackEndpoint IOutgoing.CallbackEndpoint => this.CallbackEndpoint;
     }
 }

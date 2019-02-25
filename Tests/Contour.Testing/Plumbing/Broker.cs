@@ -60,12 +60,11 @@ namespace Contour.Testing.Plumbing
         /// <returns>Список сообщений из очереди.</returns>
         public List<Message> GetMessages(string vhostName, string queueName, int count, bool requeue, string encoding = "auto")
         {
+            var ackmode = requeue ? "ack_requeue_true" : "ack_requeue_false";
             var options = new
                               {
-                                  vhost = vhostName,
-                                  name = queueName,
                                   count,
-                                  requeue,
+                                  ackmode,
                                   encoding
                               };
             var client = this.CreateClient();

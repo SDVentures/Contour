@@ -42,7 +42,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.connectionFactory = new ConnectionFactory
             {
-                Uri = this.ConnectionString,
+                Uri = new Uri(this.ConnectionString),
+                AutomaticRecoveryEnabled = false,
                 ClientProperties = clientProperties,
                 RequestedConnectionTimeout = ConnectionTimeout
             };
@@ -251,7 +252,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.Disposed?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnConnectionShutdown(INativeConnection conn, ShutdownEventArgs eventArgs)
+        private void OnConnectionShutdown(object sender, ShutdownEventArgs eventArgs)
         {
             Task.Factory.StartNew(
                 () =>
@@ -260,7 +261,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                     lock (this.syncRoot)
                     {
-                        conn.ConnectionShutdown -= this.OnConnectionShutdown;
+                        ((INativeConnection)sender).ConnectionShutdown -= this.OnConnectionShutdown;
                     }
 
                     this.OnClosed();

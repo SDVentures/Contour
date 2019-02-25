@@ -190,8 +190,7 @@ namespace Contour.Sending
                 headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
             }
 
-            Logger.Trace(
-                $"Requesting with label [{label}], payload [{payload}] and correlationId = [{headers[Headers.CorrelationId]}]");
+            Logger.Trace($"Requesting: label=[{label}], correlationId=[{headers[Headers.CorrelationId]}]");
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));

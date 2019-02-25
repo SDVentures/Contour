@@ -12,6 +12,7 @@ using Contour.Testing.Transport.RabbitMq;
 using NUnit.Framework;
 
 using System.Diagnostics.CodeAnalysis;
+using FluentAssertions.Extensions;
 
 namespace Contour.RabbitMq.Tests
 {

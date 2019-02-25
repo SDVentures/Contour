@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using Contour.Configurator.Configuration;
+
 namespace Contour.Configurator
 {
     using System.Configuration;
@@ -14,7 +16,7 @@ namespace Contour.Configurator
     /// <summary>
     /// The validator element.
     /// </summary>
-    internal class ValidatorElement : ConfigurationElement
+    internal class ValidatorElement : ConfigurationElement, IValidator
     {
         #region Public Properties
 

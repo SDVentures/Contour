@@ -56,7 +56,9 @@ Additionally, we can pass component name of [IBusLifecycleHandler](https://githu
 It may be helpful, if your component needs to know when service bus was started or stopped.
 
 Every message, that failed to be processed, is added to the fault queue. Fault queue has the same name as the endpoint with additional '.Fault' postfix.
+
 **faultQueueTtl** attribute controls TTL of fault messages in such queues.
+
 **faultQueueLimit** attribute limits maximum number of messages. If number of fault messages reaches this limit, old messages will be substituted.
 
 ```xml
@@ -69,6 +71,17 @@ Every message, that failed to be processed, is added to the fault queue. Fault q
 </serviceBus>
 ```
 Default value for TTL - 21 days, for maximum size of the fault queue - no limits.
+
+**excludedHeaders** attribute specifies the list of incoming message headers to be excluded from copying to outgoing messages (that are send as a result of processing incoming message). Contour specific headers copying is covered in details in section [Contour message headers](#contour-message-headers)
+```xml
+<serviceBus>
+    <endpoints>
+        <endpoint name="point1" connectionString="amqp://localhost:5672/" excludedHeaders="x-excluded-header,another-excluded-header">
+            <!-- ... -->
+        </endpoint>
+    </endpoints>
+</serviceBus>
+```
 
 ### Declaration of incoming messages
 
@@ -112,21 +125,6 @@ Also you can set a value of 'group' parameter to 'true'. This would mean that yo
 </endpoint>
 ```
 
-### Caching
-
-Tag 'caching' controls the caching of incoming Request/Reply messages
-
-You can enable caching by setting attribute to ‘enabled’. At the requested side response is cached by the key, which is generated on the basis of the request body. Caching time is defined by the responder when calling 'Reply' method.
-
-'Publisher/Subscriber' requests are not cached.
-
-```xml
-<endpoint name="point1" connectionString="amqp://localhost:5672/">
-    <caching enabled="true"/>
-    <!-- ... -->
-</endpoint>
-```
-
 ### Configuring parallel consuming
 
 Endpoint provides ability to setup the necessary number of handler threads, processing incoming messages, in '**parallelismLevel**' attribute. Messages are distributed between the handlers by the Round-Robin principle.
@@ -137,6 +135,8 @@ Endpoint provides ability to setup the necessary number of handler threads, proc
 </endpoints>
 ```
 By default, one handler for incoming messages is used.
+
+The '**parallelismLevel**' property can also be specified at the incoming element level. This will override the endpoint configuration.
 
 ### Configuring QoS
 
@@ -150,6 +150,8 @@ Endpoint also provides ability to setup a certain number of incoming messages by
 </endpoints>
 ```
 By default, uses the value of 50 messages, which will be read by one access. We strongly recommend starting with 1 message, increasing the number of messages after performance testing.
+
+The '**qos**' property can also be specified at the incoming element level. This will override the endpoint configuration.
 
 ### Declaration of outgoing messages
 
@@ -186,6 +188,88 @@ Dynamic routing can be useful in cases, when you don’t have enough information
 <endpoints>
     <endpoint name="point1" connectionString="amqp://localhost:5672/">
         <dynamic outgoing="true" />
+    </endpoint>
+</endpoints>
+```
+
+### Scaling and fault tolerance (RabbitMQ)
+
+An endpoint can be configured to use a list of connection strings (URLs) delimited by comma to provide fault tolerance and scaling capabilities. The number of hosts in the connectionString property is not restricted:
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://host-1:5672,amqp://host-2:5672,amqp://host-3:5672">
+        
+    </endpoint>
+</endpoints>
+```
+
+Since incoming (and outgoing) connection strings can override the endpoint setting, this also applies to the fault tolerant configuration:
+
+```xml
+<endpoints>
+    <endpoint name="point1">
+        <incoming>
+            <on connectionString="amqp://host-1:5672,amqp://host-2:5672,amqp://host-3:5672"/>
+        </incoming>
+    </endpoint>
+</endpoints>
+```
+
+In both cases the endpoint will listen for incoming messages at each URL which can be useful when message load is split among a number of brokers.
+
+If an endpoint is configured to send messages a specific algorithm will be used to select a URL for each particular message being sent. This capability enables load distrubution and can be utilized in outgoing flow sharding scenarios.
+
+*Only Round Robin algorithm is implemented in this version.*
+
+Sending operations can fail if a certain broker specifed in the connection string becomes unavailable or unstable for some reason. To mitigate this condition an endpoint will apply a retry algorithm with delays: when a failure occurres an endpoint incrementally updates a delay set for the failed broker and switches to another one. Next time this broker is chosen a new delay will be in effect.
+
+The broker delays are stored for a certain period of time after which all delays are reset.
+
+*The following defaults apply: the maximum delay value is limited by 30 seconds; 7 attempts will be made to fulfill the send operation; delays are reset after 120 seconds of sender inactivity.*
+
+### Connection string provider
+
+Specifying URLs in connection strings can be cumbersome when one has a huge broker fleet. To simplify the endpoint configuration a connection string provider can be specified:
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionStringProvider="providerName" />
+</endpoints>"
+```
+
+An implementing type of the IConnectionStringProvider will be resolved using the name in the '**connectionStringProvider**' property. *See the Applying configuration section for details on dependency resolution.*
+
+Each time a connection string is requested by the endpoint it will be fetched from the provider. One can have a couple of providers for testing and production purposes which include service discovery scenario.
+
+### Connection string reuse
+
+When a connection string is split into a number of URLs a connection may be created for each of them. To minimize the number of connections created by the endpoint a reuse behavior can be switched on:
+
+```xml
+<endpoints>
+    <endpoint name="name" connectionString="amqp://localhost:5672" reuseConnection="true"/>
+</endpoints>
+```
+
+The '**reuseConnection**' property can also be specified at the incoming and outgoing elements level. This will override the endpoint configuration:
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://localhost:5672" >
+        <incoming>
+            <on reuseConnection="true"/>
+        </incoming>
+    </endpoint>
+</endpoints>
+```
+
+```xml
+<endpoints>
+    <endpoint name="point1" connectionString="amqp://localhost:5672" >
+        <outgoing>
+            <route reuseConnection="false"/>
+        </outgoing>
     </endpoint>
 </endpoints>
 ```
@@ -269,6 +353,8 @@ IBus bus2 = new BusFactory().Create(
 List of used headers is represented in table below.
 
 For message tracking in chain of  application components interaction through service bus several incoming messages headers are copied in the outgoing messages.
+
+All incoming headers not mentioned in the table below are copied to outgoing messages, except for the headers listed in endpoint section attribute **excludedHeaders** see [Endpoints declaration](#endpoints-declaration).
 
 Header field name | Description | Copying
 ----------------- | ----------- |--------

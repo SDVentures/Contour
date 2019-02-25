@@ -5,10 +5,7 @@
 
     using FluentAssertions;
 
-    using FluentValidation;
-
     using Contour.Validation;
-    using Contour.Validation.Fluent;
 
     using Moq;
 
@@ -25,8 +22,6 @@
         /// </summary>
         public class Boo
         {
-            #region Public Properties
-
             /// <summary>
             /// Gets or sets the num.
             /// </summary>
@@ -36,69 +31,52 @@
             /// Gets or sets the str.
             /// </summary>
             public string Str { get; set; }
-
-            #endregion
         }
 
         /// <summary>
         /// The boo validator.
         /// </summary>
-        public class BooValidator : FluentPayloadValidatorOf<Boo>
+        public class BooValidator : IMessageValidatorOf<Boo>
         {
-            #region Constructors and Destructors
-
             /// <summary>
             /// Инициализирует новый экземпляр класса <see cref="BooValidator"/>.
             /// </summary>
             public BooValidator()
             {
-                this.RuleFor(x => x.Num).
-                    GreaterThan(10);
-                this.RuleFor(x => x.Str).
-                    NotEmpty();
             }
 
-            #endregion
-        }
-
-        /// <summary>
-        /// The dynamic validator.
-        /// </summary>
-        public class DynamicValidator : FluentPayloadValidatorOf<dynamic>
-        {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="DynamicValidator"/>.
-            /// </summary>
-            public DynamicValidator()
+            public ValidationResult Validate(Message<Boo> message)
             {
-                this.RuleFor(x => x).
-                    Must(x => x.Num > 10).
-                    WithName("Num");
+                return Validate(message.Payload);
             }
 
-            #endregion
-        }
-
-        /// <summary>
-        /// The expando validator.
-        /// </summary>
-        public class ExpandoValidator : FluentPayloadValidatorOf<ExpandoObject>
-        {
-            #region Constructors and Destructors
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="ExpandoValidator"/>.
-            /// </summary>
-            public ExpandoValidator()
+            public ValidationResult Validate(IMessage message)
             {
-                this.RuleFor(x => (dynamic)x).
-                    Must(x => x.Num > 10).
-                    WithName("Num");
+                if (message.Payload is Boo)
+                {
+                    return Validate((Boo)message.Payload);
+                }
+                else
+                {
+                    return new ValidationResult(new BrokenRule("should be type Boo"));
+                }
             }
 
-            #endregion
+            private ValidationResult Validate(Boo boo)
+            {
+                if (boo.Num <= 10)
+                {
+                    return new ValidationResult(new BrokenRule("should be greater than 10"));
+                }
+                else if (string.IsNullOrEmpty(boo.Str))
+                {
+                    return new ValidationResult(new BrokenRule("Str"));
+                }
+                else
+                {
+                    return ValidationResult.Valid;
+                }
+            }
         }
 
         /// <summary>
@@ -123,7 +101,7 @@
                 var payload = new Boo { Num = 3, Str = "this" };
 
                 registry.Invoking(r => r.Validate(new Message<Boo>("label".ToMessageLabel(), payload))).
-                    ShouldThrow<MessageValidationException>();
+                    Should().Throw<MessageValidationException>();
             }
 
             #endregion
@@ -157,7 +135,7 @@
                 var payload = new Boo { Num = 3, Str = "this" };
 
                 registry.Invoking(r => r.Validate(new Message<Boo>("label".ToMessageLabel(), payload))).
-                    ShouldNotThrow();
+                    Should().NotThrow();
 
                 stubValidator.Verify(v => v.Validate(It.IsAny<IMessage>()), Times.Once);
             }
@@ -183,7 +161,7 @@
                 var validationResult = new ValidationResult(new[] { new BrokenRule("Something is broken") });
 
                 validationResult.Invoking(r => r.ThrowIfBroken()).
-                    ShouldThrow<MessageValidationException>();
+                    Should().Throw<MessageValidationException>();
             }
 
             #endregion
@@ -206,7 +184,7 @@
             {
                 ValidationResult validationResult = ValidationResult.Valid;
                 validationResult.Invoking(r => r.ThrowIfBroken()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
             }
 
             #endregion
@@ -266,77 +244,6 @@
 
                 ValidationResult result = validator.Validate(new Message<Boo>("label".ToMessageLabel(), payload));
 
-                result.IsValid.Should().
-                    BeTrue();
-            }
-
-            #endregion
-        }
-
-        /// <summary>
-        /// The when_validating_message_using_dynamic_validator.
-        /// </summary>
-        [TestFixture]
-        [Category("Unit")]
-        public class when_validating_message_using_dynamic_validator
-        {
-            #region Public Methods and Operators
-
-            /// <summary>
-            /// The should_validate.
-            /// </summary>
-            [Test]
-            public void should_validate()
-            {
-                var validator = new DynamicValidator();
-
-                var payload = new { Num = 3, Str = "this" };
-                ValidationResult result = validator.Validate(new Message<dynamic>("label".ToMessageLabel(), payload));
-                result.IsValid.Should().
-                    BeFalse();
-                result.BrokenRules.Single().
-                    Description.Should().
-                    Contain("Num");
-
-                payload = new { Num = 13, Str = "this" };
-                result = validator.Validate(new Message<dynamic>("label".ToMessageLabel(), payload));
-                result.IsValid.Should().
-                    BeTrue();
-            }
-
-            #endregion
-        }
-
-        /// <summary>
-        /// The when_validating_message_using_expando_validator.
-        /// </summary>
-        [TestFixture]
-        [Category("Unit")]
-        public class when_validating_message_using_expando_validator
-        {
-            #region Public Methods and Operators
-
-            /// <summary>
-            /// The should_validate.
-            /// </summary>
-            [Test]
-            public void should_validate()
-            {
-                dynamic payload = new ExpandoObject();
-                payload.Num = 3;
-                payload.Str = "this";
-
-                var validator = new ExpandoValidator();
-
-                ValidationResult result = validator.Validate(new Message<ExpandoObject>("label".ToMessageLabel(), payload));
-                result.IsValid.Should().
-                    BeFalse();
-                result.BrokenRules.Single().
-                    Description.Should().
-                    Contain("Num");
-
-                payload.Num = 13;
-                result = validator.Validate(new Message<ExpandoObject>("label".ToMessageLabel(), payload));
                 result.IsValid.Should().
                     BeTrue();
             }

@@ -9,6 +9,7 @@ using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
+using FluentAssertions.Extensions;
 
 namespace Contour.RabbitMq.Tests
 {

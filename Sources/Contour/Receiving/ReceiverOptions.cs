@@ -64,11 +64,6 @@ namespace Contour.Receiving
         public Maybe<IUnhandledDeliveryStrategy> UnhandledDeliveryStrategy { protected get; set; }
 
         /// <summary>
-        /// Хранилище заголовков входящего сообщения.
-        /// </summary>
-        public Maybe<IIncomingMessageHeaderStorage> IncomingMessageHeaderStorage { protected get; set; }
-
-        /// <summary>
         /// Создает новый экземпляр настроек как копию существующего.
         /// </summary>
         /// <returns>
@@ -132,15 +127,6 @@ namespace Contour.Receiving
         public Maybe<bool> IsAcceptRequired()
         {
             return this.Pick<ReceiverOptions, bool>((o) => o.AcceptIsRequired);
-        }
-
-        /// <summary>
-        /// Возвращает хранилище заголовков входящего сообщения.
-        /// </summary>
-        /// <returns>Хранилище заголовков входящего сообщения.</returns>
-        public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
-        {
-            return this.Pick<ReceiverOptions, IIncomingMessageHeaderStorage>((o) => o.IncomingMessageHeaderStorage);
         }
 
         /// <summary>

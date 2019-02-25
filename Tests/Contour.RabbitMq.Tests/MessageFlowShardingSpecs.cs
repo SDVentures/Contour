@@ -7,6 +7,7 @@ using Contour.Testing.Plumbing;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 // ReSharper disable InconsistentNaming
 
@@ -41,7 +42,7 @@ namespace Contour.RabbitMq.Tests
                 const int Count = 4;
                 const int Multiplier = 3;
 
-                var urls = this.InitializeHosts(Count).ToArray();
+                var urls = this.InitializeHosts(this.GetHostNames(Count)).ToArray();
                 var producers = new List<IBus>();
 
                 for (var i = 0; i < Count; i++)
@@ -94,7 +95,7 @@ namespace Contour.RabbitMq.Tests
                 const int Count = 4;
                 const int Multiplier = 3;
 
-                var urls = this.InitializeHosts(Count).ToArray();
+                var urls = this.InitializeHosts(this.GetHostNames(Count)).ToArray();
                 var producers = new List<IBus>();
 
                 for (var i = 0; i < Count; i++)
@@ -163,8 +164,8 @@ namespace Contour.RabbitMq.Tests
             {
                 const int Count = 4;
                 var tasks = Enumerable.Range(0, Count).Select(i => new Task<bool>(() => true)).ToArray();
-                var urls = this.InitializeHosts(Count).ToArray();
-                
+                var urls = this.InitializeHosts(this.GetHostNames(Count)).ToArray();
+
                 var producerConnectionString = string.Join(",", urls);
                 
                 this.ConnectionString = producerConnectionString;
@@ -227,7 +228,7 @@ namespace Contour.RabbitMq.Tests
             {
                 const int Count = 4;
                 var tasks = Enumerable.Range(0, Count).Select(i => new Task<bool>(() => true)).ToArray();
-                var urls = this.InitializeHosts(Count).ToArray();
+                var urls = this.InitializeHosts(this.GetHostNames(Count)).ToArray();
 
                 var producerConnectionString = string.Join(",", urls);
 
@@ -277,7 +278,8 @@ namespace Contour.RabbitMq.Tests
             public void bus_sender_should_create_temporary_queue_for_each_url()
             {
                 const int Count = 4;
-                var urls = this.InitializeHosts(Count).ToArray();
+                var hostNames = this.GetHostNames(Count).ToArray();
+                var urls = this.InitializeHosts(hostNames);
 
                 var producerConnectionString = string.Join(",", urls);
 
@@ -293,11 +295,10 @@ namespace Contour.RabbitMq.Tests
                     });
                 producer.WhenReady.WaitOne();
 
-                foreach (var url in urls)
+                foreach (var hostName in hostNames)
                 {
-                    var vhostName = this.GetVhost(url);
-                    var queues = this.Broker.GetQueues(vhostName).Where(q => !q.Name.ToLower().Contains("fault")).ToList();
-                    queues.Count.Should().Be(1, $"sender should create only one queue at {url}");
+                    var queues = this.Broker.GetQueues(hostName).Where(q => !q.Name.ToLower().Contains("fault")).ToList();
+                    queues.Count.Should().Be(1, $"sender should create only one queue at {hostName}");
                 }
             }
         }

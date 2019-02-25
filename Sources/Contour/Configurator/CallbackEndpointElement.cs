@@ -1,11 +1,13 @@
-﻿namespace Contour.Configurator
+﻿using Contour.Configurator.Configuration;
+
+namespace Contour.Configurator
 {
     using System.Configuration;
 
     /// <summary>
     /// The callback endpoint element.
     /// </summary>
-    internal class CallbackEndpointElement : ConfigurationElement
+    internal class CallbackEndpointElement : ConfigurationElement, ICallbackEndpoint
     {
         #region Public Properties
 

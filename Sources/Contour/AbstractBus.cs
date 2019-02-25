@@ -29,7 +29,7 @@
         /// <summary>
         /// Журнал шины сообщений.
         /// </summary>
-        private readonly ILog logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog logger = LogManager.GetLogger<AbstractBus>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractBus"/> class.

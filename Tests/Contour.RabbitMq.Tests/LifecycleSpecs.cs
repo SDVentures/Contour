@@ -4,7 +4,7 @@ using System.Threading;
 using Contour.Testing.Transport.RabbitMq;
 
 using FluentAssertions;
-
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
@@ -77,7 +77,7 @@ namespace Contour.RabbitMq.Tests
                 IBus bus = this.ConfigureBus("Test", cfg => cfg.Route("some.label"));
 
                 bus.Invoking(b => b.Shutdown()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
 
                 bus.WhenReady.WaitOne(0).
                     Should().
@@ -109,7 +109,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Start();
 
                 bus.Invoking(b => b.Shutdown()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
                 bus.WhenReady.WaitOne(0).
                     Should().
                     BeFalse();
@@ -140,7 +140,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Start(false);
 
                 bus.Invoking(b => b.Shutdown()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
                 bus.WhenReady.WaitOne(0).
                     Should().
                     BeFalse();
@@ -172,7 +172,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Stop();
 
                 bus.Invoking(b => b.Shutdown()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
                 bus.WhenReady.WaitOne(0).
                     Should().
                     BeFalse();
@@ -180,7 +180,7 @@ namespace Contour.RabbitMq.Tests
                     BeFalse();
 
                 bus.Invoking(b => b.Emit("some.label", new { })).
-                    ShouldThrow<BusNotReadyException>();
+                    Should().Throw<BusNotReadyException>();
             }
 
             #endregion
@@ -207,7 +207,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Shutdown();
                 
                 bus.Invoking(b => b.Start()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
                 bus.WhenReady.WaitOne(0).
                     Should().
                     BeTrue();
@@ -215,7 +215,7 @@ namespace Contour.RabbitMq.Tests
                     BeTrue();
 
                 bus.Invoking(b => b.Emit("some.label", new { })).
-                    ShouldNotThrow();
+                    Should().NotThrow();
             }
 
             #endregion
@@ -242,7 +242,7 @@ namespace Contour.RabbitMq.Tests
                 bus.Stop();
 
                 bus.Invoking(b => b.Start()).
-                    ShouldNotThrow();
+                    Should().NotThrow();
                 bus.WhenReady.WaitOne(0).
                     Should().
                     BeTrue();
@@ -250,7 +250,7 @@ namespace Contour.RabbitMq.Tests
                     BeTrue();
 
                 bus.Invoking(b => b.Emit("some.label", new { })).
-                    ShouldNotThrow();
+                    Should().NotThrow();
             }
 
             #endregion

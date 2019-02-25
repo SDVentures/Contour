@@ -28,6 +28,16 @@ namespace Contour.Transport.RabbitMQ
         }
 
         /// <summary>
+        /// Gets or sets the maximum time in seconds to wait before making the next attempt to send a message
+        /// </summary>
+        public int? MaxRetryDelay { protected get; set; }
+
+        /// <summary>
+        /// Gets or sets the time in seconds to wait before the retry delays will be reset due to inactivity
+        /// </summary>
+        public int? InactivityResetDelay { protected get; set; }
+
+        /// <summary>
         /// Treats and returns a connection string as a sequence of RabbitMQ broker URLs
         /// </summary>
         public RabbitConnectionString RabbitConnectionString => new RabbitConnectionString(this.GetConnectionString().Value);
@@ -44,6 +54,24 @@ namespace Contour.Transport.RabbitMQ
         public IProducerSelectorBuilder GetProducerSelectorBuilder()
         {
             return this.Pick<RabbitSenderOptions, IProducerSelectorBuilder>((o) => o.ProducerSelectorBuilder);
+        }
+
+        /// <summary>
+        /// Gets the time in seconds to wait before making the next attempt to send a message
+        /// </summary>
+        /// <returns>Retry delay in seconds</returns>
+        public int? GetMaxRetryDelay()
+        {
+            return this.Pick<RabbitSenderOptions, int>(o => o.MaxRetryDelay);
+        }
+
+        /// <summary>
+        /// Gets the time in seconds to wait before the retry delays will be reset due to inactivity
+        /// </summary>
+        /// <returns>Inactivity reset delay in seconds</returns>
+        public int? GetInactivityResetDelay()
+        {
+            return this.Pick<RabbitSenderOptions, int>(o => o.InactivityResetDelay);
         }
 
         /// <summary>

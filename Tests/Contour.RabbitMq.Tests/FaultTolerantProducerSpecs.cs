@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Internal;
 using FluentAssertions;
@@ -15,6 +17,17 @@ namespace Contour.RabbitMq.Tests
      Category("Unit")]
     public class FaultTolerantProducerSpecs
     {
+        [Test]
+        public void should_prohibit_operations_if_disposed()
+        {
+            var selector = new Mock<IProducerSelector>();
+            var producer = new FaultTolerantProducer(selector.Object, 0, 0, 0);
+            producer.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(
+                () => producer.Send(new MessageExchange(new Message(MessageLabel.Empty, null))));
+        }
+
         [Test]
         public void should_iterate_producers_on_send_failures()
         {
@@ -33,14 +46,14 @@ namespace Contour.RabbitMq.Tests
             });
 
             var selector = new RoundRobinSelector(new ConcurrentQueue<IProducer>(producers));
-            var producer = new FaultTolerantProducer(selector, Count);
+            var producer = new FaultTolerantProducer(selector, Count, 0, 0);
 
             var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
             var exchange = new MessageExchange(message);
 
             try
             {
-                producer.Try(exchange);
+                producer.Send(exchange);
                 Assert.Fail();
             }
             catch (FailoverException fex)
@@ -67,14 +80,14 @@ namespace Contour.RabbitMq.Tests
             });
 
             var selector = new RoundRobinSelector(new ConcurrentQueue<IProducer>(producers));
-            var producer = new FaultTolerantProducer(selector, Count);
+            var producer = new FaultTolerantProducer(selector, Count, 0, 0);
 
             var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
             var exchange = new MessageExchange(message);
 
             try
             {
-                producer.Try(exchange);
+                producer.Send(exchange);
                 Assert.Fail();
             }
             catch (FailoverException fex)
@@ -83,6 +96,53 @@ namespace Contour.RabbitMq.Tests
                 var errors = (AggregateException)fex.InnerException;
                 errors.InnerExceptions.Count.Should().Be(Count);
             }
+        }
+
+        [Test]
+        public void should_delay_sending_on_producer_failure()
+        {
+            const int RetryDelay = 5;
+            const int Attempts = 3;
+            const int ResetDelay = 0;
+
+            var producerMock = new Mock<IProducer>();
+            producerMock
+                .Setup(p => p.Publish(It.IsAny<IMessage>()))
+                .Throws(new Exception("Publish error"));
+
+            var selector = new Mock<IProducerSelector>();
+            selector.Setup(s => s.Next()).Returns(() => producerMock.Object);
+
+            var producer = new FaultTolerantProducer(selector.Object, Attempts, RetryDelay, ResetDelay);
+
+            var message = new Message<DummyRequest>(MessageLabel.Any, new DummyRequest(1));
+            var exchange = new MessageExchange(message);
+
+            var action = new Action(() =>
+            {
+                try
+                {
+                    producer.Send(exchange);
+                }
+                catch
+                {
+                    // ignored
+                }
+            });
+
+            var overall = 0;
+            Enumerable
+                .Range(0, Attempts - 1)
+                .Aggregate(
+                    0,
+                    (prev, cur) =>
+                    {
+                        var time = Math.Min(2 * (prev + 1), RetryDelay);
+                        overall += time;
+                        return time;
+                    });
+
+            action.ExecutionTimeOf(a => a()).Should().BeLessThan(TimeSpan.FromSeconds(overall + 1));
         }
     }
 }

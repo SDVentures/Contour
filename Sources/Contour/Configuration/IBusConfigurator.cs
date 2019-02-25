@@ -1,4 +1,7 @@
-﻿namespace Contour.Configuration
+﻿using System.Collections.Generic;
+using Contour.Configurator;
+
+namespace Contour.Configuration
 {
     using System;
 
@@ -13,11 +16,6 @@
     /// </summary>
     public interface IBusConfigurator
     {
-        /// <summary>
-        /// The enable caching.
-        /// </summary>
-        void EnableCaching();
-
         /// <summary>
         /// Устанавливает обработчик жизненного цикла конечной точки.
         /// </summary>
@@ -228,14 +226,6 @@
         void ReuseConnection(bool reuse = true);
 
         /// <summary>
-        /// Устанавливает строку соединения по имени из конфигурационного файла.
-        /// </summary>
-        /// <param name="connectionStringName">
-        /// Имя строки соединения.
-        /// </param>
-        void SetConnectionStringName(string connectionStringName);
-
-        /// <summary>
         /// Устанавливает адрес конечной точки приложения.
         /// </summary>
         /// <param name="address">
@@ -294,5 +284,24 @@
         /// <param name="endpointBuilder">
         /// </param>
         void UseSubscriptionEndpointBuilder(Func<ISubscriptionEndpointBuilder, ISubscriptionEndpoint> endpointBuilder);
+
+
+        /// <summary>
+        /// Sets excluded incoming message headers
+        /// </summary>
+        /// <param name="excludedHeaders">Excluded headers</param>
+        void SetExcludedIncomingHeaders(IEnumerable<string> excludedHeaders);
+
+        /// <summary>
+        /// Sets the bus message headers storage
+        /// </summary>
+        /// <param name="storage"></param>
+        void UseIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage);
+
+        /// <summary>
+        /// Sets the bus connection string provider
+        /// </summary>
+        /// <param name="provider"></param>
+        void UseConnectionStringProvider(IConnectionStringProvider provider);
     }
 }

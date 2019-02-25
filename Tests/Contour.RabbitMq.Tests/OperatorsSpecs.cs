@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using Contour.Operators;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;
+using FluentAssertions.Extensions;
 
 namespace Contour.RabbitMq.Tests
 {
@@ -53,59 +53,6 @@ namespace Contour.RabbitMq.Tests
                     .BeTrue();
                 result.Should()
                     .Be(26);
-            }
-        }
-
-        /// <summary>
-        /// Когда используется фильтрация <c>JsonPath</c>.
-        /// </summary>
-        [TestFixture]
-        [Category("Integration")]
-        public class WhenFilteringUsingJsonpathExpression : RabbitMqFixture
-        {
-            /// <summary>
-            /// Тогда должен фильтровать сообщения.
-            /// </summary>
-            [Test]
-            public void ShouldFilter()
-            {
-                int result = 0;
-                CountdownEvent countdown = new CountdownEvent(2);
-
-                IBus producer = this.StartBus(
-                    "producer", 
-                    cfg => cfg.Route("booz"));
-                this.StartBus(
-                    "consumer", 
-                    cfg => cfg.On<Booz>("booz")
-                               .ReactWith(
-                                   new PipelineConsumerOf<Booz>(
-                               new JsonPathFilter(@"Items[?(@.Num > 12)]"), 
-                               new Enricher(
-                               message =>
-                                   {
-                                       Interlocked.Add(ref result, ((Booz)message.Payload).Items[0].Num);
-                                       countdown.Signal();
-                                   }))));
-
-                producer.Emit("booz", new Booz { Items = new[] { new BooMessage(11) } });
-                producer.Emit("booz", new Booz { Items = new[] { new BooMessage(12) } });
-                producer.Emit("booz", new Booz { Items = new[] { new BooMessage(13) } });
-                producer.Emit("booz", new Booz { Items = new[] { new BooMessage(14) } });
-
-                countdown.Wait(3.Seconds())
-                    .Should()
-                    .BeTrue();
-                result.Should()
-                    .Be(13 + 14);
-            }
-
-            private class Booz
-            {
-                /// <summary>
-                /// Список сообщений.
-                /// </summary>
-                public IList<BooMessage> Items { get; set; }
             }
         }
 

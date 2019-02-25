@@ -18,5 +18,11 @@ namespace Contour
         /// </summary>
         /// <returns>Заголовки входящего сообщения.</returns>
         IDictionary<string, object> Load();
+
+        /// <summary>
+        /// Registers header names to be excluded on storing
+        /// </summary>
+        /// <param name="headers">Header names</param>
+        void RegisterExcludedHeaders(IEnumerable<string> headers);
     }
 }

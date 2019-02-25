@@ -1,0 +1,4 @@
+type project
+licenseUrl https://github.com/mzabolotko/Contour/blob/master/LICENSE.md
+include-pdbs true
+authors Mikhail Zabolotko

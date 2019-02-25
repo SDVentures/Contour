@@ -1,6 +1,5 @@
 ﻿using System;
 using Contour.Configuration;
-using Contour.Serialization;
 
 namespace Contour.Testing.Plumbing
 {

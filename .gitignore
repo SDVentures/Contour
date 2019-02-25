@@ -1,5 +1,7 @@
 *.suo
 .fake/
+.axoCover/
+.vs/
 bin/
 obj/
 paket-files/
@@ -7,10 +9,11 @@ Sources/Contour/**/AssemblyInfo.cs
 nuget/*.nupkg
 packages/*
 build/*
+temp/
+build.fsx.lock
 TestResults.xml
 *.sln.DotSettings.user
 *.userprefs
 *.bak
-.paket/paket.exe
 StyleCop.Cache
 *.csproj.user

@@ -11,6 +11,7 @@ using RabbitMQ.Client.Exceptions;
 
 namespace Contour.RabbitMq.Tests
 {
+    using FluentAssertions.Extensions;
     using Moq;
     using Transport.RabbitMQ;
 
@@ -82,6 +83,7 @@ namespace Contour.RabbitMq.Tests
                     });
 
                 bus.Start();
+                Thread.Sleep(5000);
                 var cons = this.Broker.GetConnections();
 
                 Assert.IsTrue(cons.Count() == 1);
@@ -111,6 +113,7 @@ namespace Contour.RabbitMq.Tests
                     });
 
                 bus.Start();
+                Thread.Sleep(5000);
                 var cons = this.Broker.GetConnections();
                 
                 // One connection is used by default by fault message producers
@@ -131,6 +134,7 @@ namespace Contour.RabbitMq.Tests
                    });
 
                 bus.Start();
+                Thread.Sleep(5000);
                 var cons = this.Broker.GetConnections();
 
                 Assert.IsTrue(cons.Count() == 1);
@@ -157,6 +161,7 @@ namespace Contour.RabbitMq.Tests
                     });
 
                 bus.Start();
+                Thread.Sleep(5000);
                 var cons = this.Broker.GetConnections();
 
                 // One connection is used by default by fault message producers
@@ -182,7 +187,6 @@ namespace Contour.RabbitMq.Tests
                     cfg =>
                         {
                             cfg.SetConnectionString("amqp://10.10.10.10/integration");
-
                             cfg.Route("some.label"); // just to pass validation
                         });
 
@@ -238,7 +242,7 @@ namespace Contour.RabbitMq.Tests
             {
                 IBus bus = this.ConfigureBus("Test", cfg => cfg.Route("some.label"));
 
-                bus.Invoking(b => b.Emit("some.label", new BooMessage(666))).ShouldThrow<BusNotReadyException>();
+                bus.Invoking(b => b.Emit("some.label", new BooMessage(666))).Should().Throw<BusNotReadyException>();
             }
         }
 

@@ -15,6 +15,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 using NUnit.Framework;
+using FluentAssertions.Extensions;
+
 namespace Contour.RabbitMq.Tests
 {
     // ReSharper disable InconsistentNaming
@@ -36,7 +38,7 @@ namespace Contour.RabbitMq.Tests
             /// The should_deserialize_message_to_valid_clr_object.
             /// </summary>
             [Test]
-            [Explicit("A broken experiment.")]
+            [Ignore("A broken experiment.")]
             public void should_deserialize_message_to_valid_clr_object()
             {
                 int result = 0;
@@ -93,7 +95,7 @@ namespace Contour.RabbitMq.Tests
                 /// The delimiter.
                 /// </param>
                 public LowerCaseDelimitedPropertyNamesContractResovler(char delimiter)
-                    : base(true)
+                    : base()
                 {
                     this._delimiter = delimiter;
                 }

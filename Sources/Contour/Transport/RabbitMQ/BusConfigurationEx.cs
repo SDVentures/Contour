@@ -47,6 +47,8 @@ namespace Contour.Transport.RabbitMQ
                 return busConfigurator;
             }
 
+            c.BuildBusUsing(bc => new RabbitBus(c));
+
             var blockedHeaders = new List<string>
                                      {
                                          Headers.Expires,
@@ -57,21 +59,21 @@ namespace Contour.Transport.RabbitMQ
                                          Headers.Timeout,
                                          Headers.Ttl
                                      };
-            var messageHeaderStorage = new Maybe<IIncomingMessageHeaderStorage>(new MessageHeaderStorage(blockedHeaders));
-
-            c.BuildBusUsing(bc => new RabbitBus(c));
+            var messageHeaderStorage = new MessageHeaderStorage(blockedHeaders);
+            c.UseIncomingMessageHeaderStorage(messageHeaderStorage);
 
             c.SenderDefaults = new RabbitSenderOptions(c.EndpointOptions)
             {
                 ConfirmationIsRequired = false,
                 Persistently = false,
-                RequestTimeout = default(TimeSpan?),
+                RequestTimeout = TimeSpan.FromSeconds(30),
                 Ttl = default(TimeSpan?),
                 RouteResolverBuilder = RabbitBusDefaults.RouteResolverBuilder,
-                IncomingMessageHeaderStorage = messageHeaderStorage,
                 ReuseConnection = true,
                 ProducerSelectorBuilder = RabbitBusDefaults.ProducerSelectorBuilder,
-                FailoverAttempts = 7
+                FailoverAttempts = 7,
+                MaxRetryDelay = 30,
+                InactivityResetDelay = 120
             };
 
             c.ReceiverDefaults = new RabbitReceiverOptions(c.EndpointOptions)
@@ -80,7 +82,6 @@ namespace Contour.Transport.RabbitMQ
                 ParallelismLevel = 1,
                 EndpointBuilder = RabbitBusDefaults.SubscriptionEndpointBuilder,
                 QoS = new QoSParams(50, 0),
-                IncomingMessageHeaderStorage = messageHeaderStorage,
                 ReuseConnection = true
             };
 

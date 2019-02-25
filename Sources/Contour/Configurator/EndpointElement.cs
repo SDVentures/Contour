@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Contour.Configurator
 {
     using System.Configuration;
+    using Contour.Configurator.Configuration;
 
     /// <summary>
     /// The endpoint element.
     /// </summary>
-    internal class EndpointElement : ConfigurationElement
+    internal class EndpointElement : ConfigurationElement, IEndpoint
     {
         /// <summary>
         /// Gets the caching.
@@ -48,7 +51,7 @@ namespace Contour.Configurator
         /// <summary>
         /// Gets or sets the connection string.
         /// </summary>
-        [ConfigurationProperty("connectionString", IsRequired = true)]
+        [ConfigurationProperty("connectionString", IsRequired = false)]
         public string ConnectionString
         {
             get
@@ -97,7 +100,6 @@ namespace Contour.Configurator
                 return (TimeSpan?)this["faultQueueTtl"];
             }
         }
-
 
         [ConfigurationProperty("faultQueueLimit", IsRequired = false)]
         public int? FaultQueueLimit {
@@ -175,5 +177,35 @@ namespace Contour.Configurator
             }
         }
 
+        [ConfigurationProperty("excludedHeaders")]
+        public string ExcludedHeadersString => (string)base["excludedHeaders"];
+
+        public IEnumerable<string> ExcludedHeaders
+        {
+            get
+            {
+                var excluded = this.ExcludedHeadersString;
+                if (string.IsNullOrWhiteSpace(excluded))
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                return excluded.Split(',', ';');
+            }
+        }
+
+        ICaching IEndpoint.Caching => this.Caching;
+
+        IQos IEndpoint.Qos => this.Qos;
+
+        IDynamic IEndpoint.Dynamic => this.Dynamic;
+
+        IIncoming[] IEndpoint.Incoming => this.Incoming.Cast<IIncoming>().ToArray();
+
+        IOutgoing[] IEndpoint.Outgoing => this.Outgoing.Cast<IOutgoing>().ToArray();
+
+        IValidator[] IEndpoint.Validators => this.Validators.Cast<IValidator>().ToArray();
+
+        string[] IEndpoint.ExcludedHeaders => this.ExcludedHeaders.ToArray();
     }
 }

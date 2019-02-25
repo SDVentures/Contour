@@ -52,11 +52,6 @@ namespace Contour.Sending
         public Maybe<TimeSpan?> Ttl { protected get; set; }
 
         /// <summary>
-        /// Хранилище входящих сообщений.
-        /// </summary>
-        public Maybe<IIncomingMessageHeaderStorage> IncomingMessageHeaderStorage { protected get; set; }
-
-        /// <summary>
         /// Создает новые настройки отправителя, которые наследуют существующие.
         /// </summary>
         /// <returns>Новые настройки отправителя, наследующие существующие настройки.</returns>
@@ -110,15 +105,6 @@ namespace Contour.Sending
         public Maybe<bool> IsPersistently()
         {
             return this.Pick<SenderOptions, bool>((o) => o.Persistently);
-        }
-
-        /// <summary>
-        /// Возвращает хранилище заголовков входящего сообщения.
-        /// </summary>
-        /// <returns>Хранилище заголовка входящего сообщения.</returns>
-        public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
-        {
-            return this.Pick<SenderOptions, IIncomingMessageHeaderStorage>((o) => o.IncomingMessageHeaderStorage);
         }
     }
 }

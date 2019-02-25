@@ -1,17 +1,14 @@
-﻿namespace Contour.Configuration
+﻿using System.Collections.Generic;
+using Contour.Filters;
+using Contour.Serialization;
+
+namespace Contour.Configuration
 {
-    using System.Collections.Generic;
-
-    using Contour.Filters;
-    using Contour.Serialization;
-
     /// <summary>
     ///   Конфигурация клиента шины.
     /// </summary>
     public interface IBusConfiguration
     {
-        #region Public Properties
-
         /// <summary>
         ///   Строка подключения к транспорту (брокеру).
         /// </summary>
@@ -31,7 +28,5 @@
         ///   Сериализатор сообщений.
         /// </summary>
         IPayloadConverter Serializer { get; }
-
-        #endregion
     }
 }

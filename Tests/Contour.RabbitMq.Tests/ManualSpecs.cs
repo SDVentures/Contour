@@ -4,6 +4,7 @@ using System.Threading;
 
 using Contour.Testing.Transport.RabbitMq;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests

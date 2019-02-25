@@ -139,11 +139,11 @@
             var arguments = new Dictionary<string, object>();
             if (queue.Ttl.HasValue)
             {
-                arguments.Add(Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
+                arguments.Add(Contour.Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
             }
             if (queue.Limit.HasValue)
             {
-                arguments.Add(Headers.QueueMaxLength, (int)queue.Limit);
+                arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
             }
 
 
@@ -395,7 +395,7 @@
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 
-        private void OnModelShutdown(IModel model, ShutdownEventArgs args)
+        private void OnModelShutdown(object sender, ShutdownEventArgs args)
         {
             this.logger.Trace($"Channel is closed due to '{args.ReplyText}'");
             this.Shutdown(this, args);

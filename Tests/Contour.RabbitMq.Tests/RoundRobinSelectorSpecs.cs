@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Contour.Transport.RabbitMQ.Internal;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using Moq;
 using NUnit.Framework;
 // ReSharper disable InconsistentNaming
@@ -14,19 +19,12 @@ namespace Contour.RabbitMq.Tests
     public class RoundRobinSelectorSpecs
     {
         [TestFixture]
-        public class when_declaring_round_robin_selector
+        public class given_a_round_robin_selector
         {
             [Test]
             public void should_use_not_null_collection()
             {
                 Assert.Throws<ArgumentNullException>(() => new RoundRobinSelector(null));
-            }
-
-            [Test]
-            public void should_use_not_empty_collection()
-            {
-                Assert.Throws<ArgumentOutOfRangeException>(
-                    () => new RoundRobinSelector(new ConcurrentQueue<IProducer>(Enumerable.Empty<IProducer>())));
             }
 
             [Test]
@@ -80,6 +78,92 @@ namespace Contour.RabbitMq.Tests
 
                     index.Should().Be(i % (Count + 1));
                 }
+            }
+
+            [Test]
+            public void should_raise_error_if_all_producers_have_been_removed()
+            {
+                const int Count = 3;
+
+                var producers = Enumerable.Range(0, Count).Select(i => new Mock<IProducer>().Object);
+
+                var queue = new ConcurrentQueue<IProducer>(producers);
+                var selector = new RoundRobinSelector(queue);
+
+                IProducer p;
+                while (queue.TryDequeue(out p))
+                {
+                }
+
+                for (var i = 0; i < Count; i++)
+                {
+                    selector.Next();
+                }
+                
+                Assert.Throws<Exception>(() => { selector.Next(); });
+            }
+
+            [Test]
+            public void should_be_thread_safe()
+            {
+                const int ProducerCount = 1;
+                const int MaxDelay = 5;
+                const int ThreadCount = 200;
+                var tcs = new TaskCompletionSource<bool>();
+                var result = true;
+                
+                var producers = Enumerable.Range(0, ProducerCount).Select(i => new Mock<IProducer>().Object);
+                var queue = new ConcurrentQueueWithDelays<IProducer>(producers, MaxDelay);
+                var selector = new RoundRobinSelector(queue);
+
+                var accessors = Enumerable.Range(0, ThreadCount).Select(i => new Thread(() =>
+                {
+                    while (true)
+                    {
+                        try
+                        {
+                            var producer = selector.Next();
+                            producer.Should().NotBeNull();
+
+                            Debug.WriteLine("Accessor succeeded");
+                        }
+                        catch(Exception ex)
+                        {
+                            result = false;
+                            tcs.SetResult(false);
+                            Debug.WriteLine($"Accessor failed: {ex.Message}");
+                        }
+                    }
+                }));
+
+                accessors.All(t =>
+                {
+                    t.Start();
+                    return true;
+                }).Should().BeTrue();
+
+                var task = tcs.Task;
+                task.Wait(1.Minutes()).Should().BeFalse();
+
+                result.Should().BeTrue();
+            }
+        }
+
+        private class ConcurrentQueueWithDelays<T> : ConcurrentQueue<T>, IEnumerable<T>
+        {
+            private readonly Random delayStream;
+            private readonly int maxDelay;
+
+            public ConcurrentQueueWithDelays(IEnumerable<T> collection, int maxDelay) : base(collection)
+            {
+                this.maxDelay = maxDelay;
+                this.delayStream = new Random();
+            }
+            
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(this.delayStream.Next(this.maxDelay)));
+                return base.GetEnumerator();
             }
         }
     }

@@ -1,32 +1,17 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AbstractPayloadConverter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The abstract payload converter.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
+﻿using System;
 
 namespace Contour.Serialization
 {
-    using System;
-
     // TODO: not used yet, should use some Payload container
     /// <summary>
     /// The abstract payload converter.
     /// </summary>
     public abstract class AbstractPayloadConverter : IPayloadConverter
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the content type.
         /// </summary>
         public abstract string ContentType { get; }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The from object.
@@ -68,7 +53,5 @@ namespace Contour.Serialization
 
             return null;
         }
-
-        #endregion
     }
 }

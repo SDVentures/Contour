@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
+using System.Threading;
 
 namespace Contour
 {
     internal sealed class MessageHeaderStorage : IIncomingMessageHeaderStorage
     {
+        private static readonly AsyncLocal<Dictionary<string, object>> storage = new AsyncLocal<Dictionary<string, object>>();
+
         private readonly HashSet<string> blackHeaderSet;
 
         private readonly string storageKey = "Contour.MessageHeaderStorage";
@@ -24,7 +26,7 @@ namespace Contour
             var refindedHeaders = headers
                 .Where(p => !this.blackHeaderSet.Contains(p.Key))
                 .ToDictionary(p => p.Key, p => p.Value);
-            CallContext.LogicalSetData(this.storageKey, refindedHeaders);
+            storage.Value = refindedHeaders;
         }
 
         /// <summary>
@@ -33,7 +35,16 @@ namespace Contour
         /// <returns>Заголовки входящего сообщения.</returns>
         public IDictionary<string, object> Load()
         {
-            return (IDictionary<string, object>)CallContext.LogicalGetData(this.storageKey);
+            return storage.Value;
+        }
+
+        /// <summary>
+        /// Registers header names to be excluded on storing
+        /// </summary>
+        /// <param name="headers">Header names</param>
+        public void RegisterExcludedHeaders(IEnumerable<string> headers)
+        {
+            this.blackHeaderSet.UnionWith(headers);
         }
     }
 }

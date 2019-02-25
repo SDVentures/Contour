@@ -36,7 +36,7 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <summary>
         /// Gets the management connection.
         /// </summary>
-        protected string ManagementConnection { get; private set; } = "http://rabbitmq-test:15672/";
+        protected string ManagementConnection { get; private set; } = "http://localhost:15672/";
 
         /// <summary>
         /// Gets or sets the connection string.
@@ -76,7 +76,7 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <summary>
         /// Gets the broker URL.
         /// </summary>
-        protected string Url { get; private set; } = "amqp://rabbitmq-test:5672/";
+        protected string Url { get; private set; } = "amqp://localhost:5672/";
 
         /// <summary>
         /// Настраивает окружение перед работой теста.
@@ -180,31 +180,27 @@ namespace Contour.Testing.Transport.RabbitMq
         /// <summary>
         /// Initializes a list of virtual hosts
         /// </summary>
-        /// <param name="count"></param>
         /// <returns></returns>
-        protected IEnumerable<string> InitializeHosts(int count)
+        protected IEnumerable<string> InitializeHosts(IEnumerable<string> hostNames)
         {
             var list = new List<string>();
 
-            for (var i = 0; i < count; i++)
+            foreach (var name in hostNames)
             {
-                var vhost = "test" + Guid.NewGuid().ToString("n") + $"_{i}";
+                this.Broker.CreateHost(name);
+                this.Broker.CreateUser(name, this.TestUserName, this.TestUserPassword);
+                this.Broker.SetPermissions(name, this.TestUserName);
 
-                this.Broker.CreateHost(vhost);
-                this.Broker.CreateUser(vhost, this.TestUserName, this.TestUserPassword);
-                this.Broker.SetPermissions(vhost, this.TestUserName);
-
-                var url = $"{this.Url}{vhost}";
+                var url = $"{this.Url}{name}";
                 list.Add(url);
             }
 
             return list;
         }
 
-        protected string GetVhost(string connectionString)
+        protected IEnumerable<string> GetHostNames(int count)
         {
-            var uri = new Uri(connectionString);
-            return uri.LocalPath;
+            return Enumerable.Range(0, count).Select(i => "test" + Guid.NewGuid().ToString("n") + $"_{i}");
         }
 
         /// <summary>

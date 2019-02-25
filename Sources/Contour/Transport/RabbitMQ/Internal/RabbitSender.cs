@@ -19,15 +19,13 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitSender : AbstractSender
     {
-        private const int AttemptsDefault = 1;
-        private readonly TimeSpan timeoutDefault = TimeSpan.FromSeconds(30);
-        
         private readonly ILog logger;
         private readonly RabbitBus bus;
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
         private readonly ConcurrentQueue<IProducer> producers = new ConcurrentQueue<IProducer>();
         private readonly RabbitSenderOptions senderOptions;
         private IProducerSelector producerSelector;
+        private IFaultTolerantProducer faultTolerantProducer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitSender"/> class. 
@@ -102,6 +100,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("Stopping sender of [{0}]", this.Configuration.Label));
 
             this.StopProducers();
+            this.faultTolerantProducer.Dispose();
+
             this.IsStarted = false;
         }
 
@@ -112,10 +112,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>Задача ожидания отправки сообщения.</returns>
         protected override Task<MessageExchange> InternalSend(MessageExchange exchange)
         {
-            var attempts = this.senderOptions.GetFailoverAttempts() ?? AttemptsDefault;
-            
-            var wrapper = new FaultTolerantProducer(this.producerSelector, attempts);
-            return wrapper.Try(exchange);
+            return this.faultTolerantProducer.Send(exchange);
         }
 
         /// <summary>
@@ -129,7 +126,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             foreach (var producer in this.producers)
             {
                 producer.Start();
-                this.logger.Trace($"Producer of [{this.Configuration.Label}] started successfully");
             }
         }
 
@@ -137,7 +133,14 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.BuildProducers();
             var builder = this.senderOptions.GetProducerSelectorBuilder();
+
             this.producerSelector = builder.Build(this.producers);
+            
+            var sendAttempts = this.senderOptions.GetFailoverAttempts() ?? 1;
+            var maxRetryDelay = this.senderOptions.GetMaxRetryDelay().GetValueOrDefault();
+            var resetDelay = this.senderOptions.GetInactivityResetDelay().GetValueOrDefault();
+
+            this.faultTolerantProducer = new FaultTolerantProducer(this.producerSelector, sendAttempts, maxRetryDelay, resetDelay);
         }
 
         /// <summary>
@@ -180,11 +183,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private IProducer EnlistProducer(string url)
         {
-            this.logger.Trace($">>> Enlisting a new producer of [{this.Configuration.Label}] at URL=[{url}]...");
+            this.logger.Trace($"Enlisting a new producer of [{this.Configuration.Label}] at URL=[{url}]...");
             var producer = this.BuildProducer(url);
 
             this.producers.Enqueue(producer);
-            this.logger.Trace($"<<< A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been enlisted");
+            this.logger.Trace($"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has been enlisted");
 
             return producer;
         }
@@ -242,15 +245,15 @@ namespace Contour.Transport.RabbitMQ.Internal
                     listener.StopOnChannelShutdown = true;
                     producer.UseCallbackListener(listener);
 
-                    producer.StopOnChannelShutdown = true;
-                    producer.Stopped += (sender, args) =>
-                    {
-                        this.OnProducerStopped(url, sender, args);
-                    };
-
                     this.logger.Trace(
                         $"A producer of [{producer.Label}] at URL=[{producer.BrokerUrl}] has registered a callback listener successfully");
                 }
+
+                producer.StopOnChannelShutdown = true;
+                producer.Stopped += (sender, args) =>
+                {
+                    this.OnProducerStopped(url, sender, args);
+                };
 
                 return producer;
             }
@@ -263,7 +266,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return;
             }
 
-            this.logger.Warn($"Producer [{sender.GetHashCode()}] with response callback has been stopped and will be reenlisted");
+            this.logger.Warn($"Producer [{sender.GetHashCode()}] has been stopped and will be reenlisted");
 
             while (true)
             {

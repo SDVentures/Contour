@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Contour.Configuration;
 using Contour.Helpers;
+using Contour.Serialization;
 using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ;
 
@@ -13,20 +14,18 @@ namespace Contour.Configurator.Tests
     using System.Threading;
 
     using FluentAssertions;
-
-    using FluentValidation;
-
     using Contour.Operators;
     using Contour.Receiving;
     using Contour.Receiving.Consumers;
     using Contour.Validation;
-    using Contour.Validation.Fluent;
 
     using Moq;
 
-    using Ninject;
+    //using Ninject;
 
     using NUnit.Framework;
+    using Contour.Testing;
+    using FluentAssertions.Extensions;
 
     /// <summary>
     /// The bus configuration specs.
@@ -51,14 +50,35 @@ namespace Contour.Configurator.Tests
         /// <summary>
         /// The boo payload validator.
         /// </summary>
-        public class BooPayloadValidator : FluentPayloadValidatorOf<BooMessage>
+        public class BooPayloadValidator : IMessageValidatorOf<BooMessage>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="BooPayloadValidator"/>.
-            /// </summary>
-            public BooPayloadValidator()
+            public ValidationResult Validate(Message<BooMessage> message)
             {
-                this.RuleFor(x => x.Num).GreaterThan(100);
+                return Validate(message.Payload);
+            }
+
+            public ValidationResult Validate(IMessage message)
+            {
+                if (message.Payload is BooMessage)
+                {
+                    return Validate((BooMessage)message.Payload);
+                }
+                else
+                {
+                    return new ValidationResult(new BrokenRule("should be BooMessage"));
+                }
+            }
+
+            private ValidationResult Validate(BooMessage booMessage)
+            {
+                if (booMessage.Num > 100)
+                {
+                    return ValidationResult.Valid;
+                }
+                else
+                {
+                    return new ValidationResult(new BrokenRule("should be greater than 100"));
+                }
             }
         }
 
@@ -235,16 +255,63 @@ namespace Contour.Configurator.Tests
         /// <summary>
         /// The foo payload validator.
         /// </summary>
-        public class FooPayloadValidator : FluentPayloadValidatorOf<FooMessage>
+        public class FooPayloadValidator : IMessageValidatorOf<FooMessage>
         {
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="FooPayloadValidator"/>.
-            /// </summary>
-            public FooPayloadValidator()
+            public ValidationResult Validate(Message<FooMessage> message)
             {
-                this.RuleFor(x => x.Num).
-                    LessThan(100);
+                return Validate(message.Payload);
             }
+
+            public ValidationResult Validate(IMessage message)
+            {
+                if (message.Payload is FooMessage)
+                {
+                    return Validate((FooMessage)message.Payload);
+                }
+                else
+                {
+                    return new ValidationResult(new BrokenRule("should be BooMessage"));
+                }
+            }
+
+            private ValidationResult Validate(FooMessage booMessage)
+            {
+                if (booMessage.Num < 100)
+                {
+                    return ValidationResult.Valid;
+                }
+                else
+                {
+                    return new ValidationResult(new BrokenRule("should be less than 100"));
+                }
+            }
+        }
+
+        internal class ServiceLocator
+        {
+            private readonly Dictionary<Type, Dictionary<string, Func<ServiceLocator, object>>> creators = new Dictionary<Type, Dictionary<string, Func<ServiceLocator, object>>>();
+
+            public void Add(Type type, string name, Func<ServiceLocator, object> creator)
+            {
+                if (!this.creators.ContainsKey(type))
+                {
+                    this.creators[type] = new Dictionary<string, Func<ServiceLocator, object>>();
+                }
+                this.creators[type][name] = creator;
+            }
+
+            public object Get(Type type, string name)
+            {
+                if (this.creators.ContainsKey(type))
+                {
+                    if (this.creators[type].ContainsKey(name))
+                    {
+                        return this.creators[type][name](this);
+                    }
+                }
+                return null;
+            }
+
         }
 
         /// <summary>
@@ -273,12 +340,13 @@ namespace Contour.Configurator.Tests
 
                 var handler = new Mock<IBusLifecycleHandler>();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IBusLifecycleHandler>().
-                    ToConstant(handler.Object).
-                    Named("ProducerHandler");
+                var serviceLocator = new ServiceLocator();
+                serviceLocator.Add(
+                        typeof(IBusLifecycleHandler),
+                        "ProducerHandler",
+                        sc => handler.Object);
 
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 IBus producer = this.StartBus(
                     "producer", 
@@ -340,27 +408,31 @@ namespace Contour.Configurator.Tests
                 BusDependentHandler.Reset();
                 BusDependentTransformer.Reset();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IConsumerOf<BooMessage>>().
-                    To<BusDependentHandler>().
-                    InTransientScope().
-                    Named("BooHandler");
-
-                kernel.Bind<IMessageOperator>().To<BusDependentTransformer>();
-
-                kernel.Bind<IConsumerOf<BooMessage>>().To<OperatorConsumerOf<BooMessage>>()
-                    .InTransientScope()
-                    .Named("BooTransformer");
-
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                var serviceLocator = new ServiceLocator();
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 IBus consumer = this.StartBus(
-                    "consumer", 
+                    "consumer",
                     cfg =>
-                        {
-                            var section = new XmlEndpointsSection(consumerConfig);
-                            new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
-                        });
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                serviceLocator.Add(
+                    typeof(IConsumerOf<BooMessage>),
+                    "BooHandler",
+                    sc => new BusDependentHandler((IBus)sc.Get(typeof(IBus), "consumer")));
+
+                serviceLocator.Add(
+                    typeof(IMessageOperator),
+                    "IMessageOperator",
+                    sc => new BusDependentTransformer((IBus)sc.Get(typeof(IBus), "consumer")));
+
+                serviceLocator.Add(
+                    typeof(IConsumerOf<BooMessage>),
+                    "BooTransformer",
+                    sc => new OperatorConsumerOf<BooMessage>((IMessageOperator) sc.Get(typeof(IMessageOperator), "IMessageOperator")));
 
                 IBus producer = this.StartBus(
                     "producer", 
@@ -369,8 +441,6 @@ namespace Contour.Configurator.Tests
                             var section = new XmlEndpointsSection(producerConfig);
                             new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
                         });
-
-                kernel.Bind<IBus>().ToConstant(consumer);
 
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
@@ -383,11 +453,8 @@ namespace Contour.Configurator.Tests
                 producer.Emit("msg.b", new { Num = 13 });
                 producer.Emit("msg.b", new { Num = 13 });
 
-                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).
-                    Should().
-                    BeTrue();
-                BusDependentTransformer.BuildCount.Should().
-                    Be(3);
+                BusDependentTransformer.WaitEvent.Wait(5.Seconds()).Should().BeTrue();
+                BusDependentTransformer.BuildCount.Should().Be(3);
             }
         }
 
@@ -431,26 +498,36 @@ namespace Contour.Configurator.Tests
                 BusDependentHandler.Reset();
                 BusDependentTransformer.Reset();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IConsumerOf<BooMessage>>().
-                    To<BusDependentHandler>().
-                    InTransientScope().
-                    Named("BooHandler");
-                kernel.Bind<IMessageOperator>().To<BusDependentTransformer>();
-
-                kernel.Bind<IConsumerOf<BooMessage>>().To<OperatorConsumerOf<BooMessage>>()
-                    .InTransientScope()
-                    .Named("BooTransformer");
-
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                var serviceLocator = new ServiceLocator();
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 IBus consumer = this.StartBus(
-                    "consumer", 
+                    "consumer",
                     cfg =>
-                        {
-                            var section = new XmlEndpointsSection(consumerConfig);
-                            new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
-                        });
+                    {
+                        var section = new XmlEndpointsSection(consumerConfig);
+                        new AppConfigConfigurator(section, dependencyResolver).Configure("consumer", cfg);
+                    });
+
+                serviceLocator.Add(
+                        typeof(IBus),
+                        "consumer",
+                        sc => consumer);
+
+                serviceLocator.Add(
+                    typeof(IConsumerOf<BooMessage>),
+                    "BooHandler",
+                    sc => new BusDependentHandler((IBus)sc.Get(typeof(IBus), "consumer")));
+
+                serviceLocator.Add(
+                    typeof(IMessageOperator),
+                    "IMessageOperator",
+                    sc => new BusDependentTransformer((IBus)sc.Get(typeof(IBus), "consumer")));
+
+                serviceLocator.Add(
+                    typeof(IConsumerOf<BooMessage>),
+                    "BooTransformer",
+                    sc => new OperatorConsumerOf<BooMessage>((IMessageOperator)sc.Get(typeof(IMessageOperator), "IMessageOperator")));
 
                 IBus producer = this.StartBus(
                     "producer", 
@@ -459,9 +536,6 @@ namespace Contour.Configurator.Tests
                             var section = new XmlEndpointsSection(producerConfig);
                             new AppConfigConfigurator(section, dependencyResolver).Configure("producer", cfg);
                         });
-
-                kernel.Bind<IBus>().
-                    ToConstant(consumer);
 
                 producer.Emit("msg.a", new { Num = 13 });
                 producer.Emit("msg.a", new { Num = 13 });
@@ -522,12 +596,12 @@ namespace Contour.Configurator.Tests
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IConsumerOf<BooMessage>>().
-                    ToConstant(handler).
-                    Named("BooHandler");
+                var serviceLocator = new ServiceLocator();
 
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                
+                serviceLocator.Add(typeof(IConsumerOf<BooMessage>), "BooHandler", sc => handler);
+
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -587,12 +661,11 @@ namespace Contour.Configurator.Tests
 
                 var handler = new ConcreteHandlerOf<ExpandoObject>();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IConsumerOf<ExpandoObject>>().
-                    ToConstant(handler).
-                    Named("DynamicHandler");
+                var serviceLocator = new ServiceLocator();
 
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                serviceLocator.Add(typeof(IConsumerOf<ExpandoObject>), "DynamicHandler", sc => handler);
+
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -660,25 +733,21 @@ namespace Contour.Configurator.Tests
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IConsumerOf<BooMessage>>()
-                    .ToConstant(handler)
-                    .InSingletonScope()
-                    .Named("BooHandler");
-                kernel.Bind<IMessageValidator>()
-                    .To<BooPayloadValidator>()
-                    .InSingletonScope();
-                kernel.Bind<IMessageValidator>()
-                    .To<FooPayloadValidator>()
-                    .InSingletonScope();
+                var serviceLocator = new ServiceLocator();
+                
+                serviceLocator.Add(typeof(IConsumerOf<BooMessage>), "BooHandler", sc => handler);
+                serviceLocator.Add(typeof(IMessageValidator), "BooMessageValidator", sc => new BooPayloadValidator());
+                serviceLocator.Add(typeof(IMessageValidator), "FooMessageValidator", sc => new FooPayloadValidator());
+                serviceLocator.Add(
+                    typeof(MessageValidatorGroup), 
+                    "ValidatorGroup", 
+                    sc => new MessageValidatorGroup(
+                        new List<IMessageValidator> {
+                            (IMessageValidator)sc.Get(typeof(IMessageValidator), "BooMessageValidator"),
+                            (IMessageValidator)sc.Get(typeof(IMessageValidator), "FooMessageValidator")
+                        }));
 
-                kernel.Bind<MessageValidatorGroup>()
-                    .ToSelf()
-                    .InSingletonScope()
-                    .Named("ValidatorGroup")
-                    .WithConstructorArgument("validators", ctx => ctx.Kernel.GetAll<IMessageValidator>());
-
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -741,17 +810,11 @@ namespace Contour.Configurator.Tests
 
                 var handler = new ConcreteHandlerOf<BooMessage>();
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IConsumerOf<BooMessage>>()
-                    .ToConstant(handler)
-                    .InSingletonScope()
-                    .Named("BooHandler");
-                kernel.Bind<IMessageValidatorOf<BooMessage>>()
-                    .To<BooPayloadValidator>()
-                    .InSingletonScope()
-                    .Named("BooValidator");
+                var serviceLocator = new ServiceLocator();
+                serviceLocator.Add(typeof(IConsumerOf<BooMessage>), "BooHandler", sc => handler);
+                serviceLocator.Add(typeof(IMessageValidatorOf<BooMessage>), "BooValidator", sc => new BooPayloadValidator());
 
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                DependencyResolverFunc dependencyResolver = (name, type) => serviceLocator.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -813,16 +876,12 @@ namespace Contour.Configurator.Tests
                         this.VhostName);
 
                 var handler = new ConcreteTransformerOf<BooMessage>();
+                var serviceLocator = new ServiceLocator();
+                serviceLocator.Add(typeof(IConsumerOf<BooMessage>),
+                    "BooTransformer", 
+                    sc => new OperatorConsumerOf<BooMessage>(handler));
 
-                IKernel kernel = new StandardKernel();
-                kernel.Bind<IMessageOperator>().ToConstant(handler);
-
-                kernel.Bind<IConsumerOf<BooMessage>>().To<OperatorConsumerOf<BooMessage>>()
-                    .InTransientScope()
-                    .Named("BooTransformer");
-
-
-                DependencyResolverFunc dependencyResolver = (name, type) => kernel.Get(type, name);
+                object dependencyResolver(string name, Type type) => serviceLocator.Get(type, name);
 
                 this.StartBus(
                     "consumer", 
@@ -842,9 +901,76 @@ namespace Contour.Configurator.Tests
 
                 producer.Emit("msg.a", new { Num = 13 });
 
-                handler.Received.WaitOne(5.Seconds())
-                    .Should()
-                    .BeTrue();
+                handler.Received.WaitOne(5.Seconds()).Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        [Category("Integration")]
+        public class when_configuring_message_headers : RabbitMqFixture
+        {
+            /// <summary>
+            /// The should_receive.
+            /// </summary>
+            [Test]
+            public void should_not_copy_incoming_message_headers_on_send()
+            {
+                var producerMessage = "excluded.msg.a";
+                var consumerMessage = "excluded.msg.b";
+
+                var excludedHeaders = new[] { "bad-header", "x-bad-header" };
+
+                var bus = new BusFactory().Create(
+                    c =>
+                    {
+                        c.UsePayloadConverter(new JsonNetPayloadConverter());
+                        c.SetConnectionString(this.ConnectionString);
+                        c.SetExcludedIncomingHeaders(excludedHeaders);
+                        c.SetEndpoint("consumer");
+                        c.Route(consumerMessage);
+                        c.On<ExpandoObject>(producerMessage)
+                            .ReactWith((m, ctx) => ctx.Bus.Emit(consumerMessage, m));
+                    });
+                bus.WhenReady.WaitOne(5.Seconds());
+
+
+                IBus producer = this.ConfigureBus("producer", cfg => cfg.Route(MessageLabel.From(producerMessage)));
+                producer.Start();
+                producer.WhenReady.WaitOne(5.Seconds());
+                
+                var handler = new ManualResetEventSlim();
+                IDictionary<string, object> headers = null;
+
+                IBus trap = this.ConfigureBus(
+                    "trap",
+                    cfg => cfg.On<ExpandoObject>(consumerMessage)
+                               .ReactWith(
+                                   (eo, ctx) =>
+                                       {
+                                           headers = ctx.Message.Headers;
+                                           handler.Set();
+                                       }));
+                trap.Start();
+                trap.WhenReady.WaitOne(10.Seconds());
+
+                producer.Emit(
+                    MessageLabel.From(producerMessage),
+                    new
+                        {
+                            Num = 13
+                        },
+                    new Dictionary<string, object>
+                        {
+                            ["bad-header"] = "bad-header",
+                            ["x-bad-header"] = "x-bad-header",
+                            ["good-header"] = "good-header"
+                        }).Wait(5.Seconds());
+
+                Assert.IsTrue(handler.Wait(5.Seconds()));
+                Assert.IsNotNull(headers);
+                Assert.IsFalse(headers.ContainsKey("bad-header"));
+                Assert.IsFalse(headers.ContainsKey("x-bad-header"));
+                Assert.IsTrue(headers.ContainsKey("good-header"));
             }
         }
 
@@ -900,7 +1026,11 @@ namespace Contour.Configurator.Tests
                 var section = new XmlEndpointsSection(ProducerConfig);
                 var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
 
-                using (var bus = new BusFactory().Create(cfg => sut.Configure("producer", cfg), false))
+                using (var bus = new BusFactory().Create(cfg => 
+                {
+                    cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                    sut.Configure("producer", cfg);
+                }, false))
                 {
                     RabbitReceiverOptions rabbitReceiverOptions = ((BusConfiguration)bus.Configuration).ReceiverDefaults as RabbitReceiverOptions;
                     Assert.IsNotNull(rabbitReceiverOptions, "Долны быть установлены настройки получателя.");
@@ -908,7 +1038,43 @@ namespace Contour.Configurator.Tests
                     Assert.IsTrue(qosMaybe.HasValue, "QoS должен быть установлен.");
                     Assert.AreEqual(50, qosMaybe.Value.PrefetchCount, "Должно быть установлено количество потоков.");
                 }
+            }
 
+            [Test]
+            public void should_set_excluded_headers()
+            {
+                var headers = new[] { "bad-header", "banned-header" };
+                string ProducerConfig =
+                        $@"<endpoints>
+                            <endpoint name=""producer"" connectionString=""amqp://localhost/integration"" excludedHeaders=""{string.Join(",", headers)}"">
+                            </endpoint>
+                        </endpoints>";
+
+                Mock<IDependencyResolver> dependencyResoverMock = new Mock<IDependencyResolver>();
+                var busConfiguratorMoq = new Mock<IBusConfigurator>();
+
+                var section = new XmlEndpointsSection(ProducerConfig);
+                var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
+                sut.Configure("producer", busConfiguratorMoq.Object);
+                
+                busConfiguratorMoq.Verify(
+                    bcf => bcf.SetExcludedIncomingHeaders(
+                        It.Is<IEnumerable<string>>(
+                            e => e.OrderBy(_ => _)
+                                     .SequenceEqual(headers.OrderBy(_ => _)))), 
+                    Times.Once);
+            }
+
+            [Test]
+            public void should_set_message_header_storage()
+            {
+                var configuration = new BusConfiguration();
+                var storage = new MessageHeaderStorage(Enumerable.Empty<string>());
+                configuration.UseIncomingMessageHeaderStorage(storage);
+
+                var endpointStorage = configuration.EndpointOptions.GetIncomingMessageHeaderStorage();
+                endpointStorage.HasValue.Should().BeTrue();
+                endpointStorage.Value.Should().Be(storage);
             }
         }
 
@@ -1083,7 +1249,11 @@ namespace Contour.Configurator.Tests
                 var section = new XmlEndpointsSection(ProducerConfig);
                 var sut = new AppConfigConfigurator(section, dependencyResoverMock.Object);
 
-                using (var bus = new BusFactory().Create(cfg => sut.Configure("producer", cfg), false))
+                using (var bus = new BusFactory().Create(cfg =>
+                {
+                    cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                    sut.Configure("producer", cfg);
+                }, false))
                 {
                     Assert.IsTrue(bus.CanRoute(MessageLabel.Any), "Должна быть включена динамическая маршрутизация.");
                 }
@@ -1094,6 +1264,29 @@ namespace Contour.Configurator.Tests
         [Category("Unit")]
         public class when_configuring_endpoint_with_connection_string
         {
+            [Test]
+            public void should_not_throw_on_validate_if_not_present()
+            {
+                const string name = "name";
+                string Config = $@"<endpoints>
+                                       <endpoint name=""{name}"" />
+                                   </endpoints>";
+
+                var resolverMock = new Mock<IDependencyResolver>();
+                var busConfigurator = new BusConfiguration();
+
+                var section = new XmlEndpointsSection(Config);
+                var configurator = new AppConfigConfigurator(section, resolverMock.Object);
+                var configuration = (BusConfiguration)configurator.Configure(name, busConfigurator);
+
+                busConfigurator.BuildBusUsing(bc => new Mock<IBus>().Object);
+                busConfigurator.UsePayloadConverter(new Mock<IPayloadConverter>().Object);
+                busConfigurator.Route("label");
+
+                Action validate = () => configuration.Validate();
+                validate.Should().NotThrow("Connection string may not be specified");
+            }
+
             [Test]
             public void should_set_connection_string_if_present()
             {
@@ -1124,7 +1317,7 @@ namespace Contour.Configurator.Tests
                 const string name = "name";
                 const string provider = "provider";
                 string Config = $@"<endpoints>
-                                       <endpoint name=""{name}"" connectionString="""" connectionStringProvider=""{provider}"" />
+                                       <endpoint name=""{name}"" connectionStringProvider=""{provider}"" />
                                    </endpoints>";
 
                 var resolverMock = new Mock<IDependencyResolver>();
@@ -1147,7 +1340,7 @@ namespace Contour.Configurator.Tests
             {
                 const string name = "name";
                 string Config = $@"<endpoints>
-                                       <endpoint name=""{name}"" connectionString="""" />
+                                       <endpoint name=""{name}"" />
                                    </endpoints>";
 
                 var resolverMock = new Mock<IDependencyResolver>();
@@ -1200,7 +1393,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <outgoing>
                                 <route key=""a"" label=""{Label}"" />
@@ -1240,7 +1432,6 @@ namespace Contour.Configurator.Tests
             public void should_override_connection_string_to_outgoing_label_from_provider_if_present()
             {
                 const string Name = "name";
-                const string SomeString = "some string";
                 const string AnotherString = "another string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1248,7 +1439,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <outgoing>
                                 <route key=""a"" label=""{Label}"" connectionString=""outgoing connection string"" />
@@ -1277,7 +1467,6 @@ namespace Contour.Configurator.Tests
                 busConfiguration.UseRabbitMq();
 
                 var configuration = (BusConfiguration)configurator.Configure(Name, busConfiguration);
-
                 var senderConfiguration = configuration.SenderConfigurations.First(sc => sc.Label.Equals(MessageLabel.From(Label)));
 
                 var senderOptions = (RabbitSenderOptions)senderConfiguration.Options;
@@ -1288,7 +1477,6 @@ namespace Contour.Configurator.Tests
             public void should_use_connection_string_from_outgoing_label_if_provider_returns_null()
             {
                 const string Name = "name";
-                const string EndpointString = "endpoint string";
                 const string LabelString = "outgoing connection string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1296,7 +1484,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{EndpointString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <outgoing>
                                 <route key=""a"" label=""{Label}"" connectionString=""{LabelString}"" />
@@ -1345,7 +1532,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <incoming>
                                 <on key=""a"" label=""{Label}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
@@ -1385,7 +1571,6 @@ namespace Contour.Configurator.Tests
             public void should_override_connection_string_on_incoming_label_from_provider_if_present()
             {
                 const string Name = "name";
-                const string SomeString = "some string";
                 const string AnotherString = "another string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1393,7 +1578,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{SomeString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <incoming>
                                 <on key=""a"" label=""{Label}"" connectionString=""incoming connection string"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
@@ -1433,7 +1617,6 @@ namespace Contour.Configurator.Tests
             public void should_use_connection_string_from_incoming_label_if_provider_returns_null()
             {
                 const string Name = "name";
-                const string EndpointString = "endpoint string";
                 const string LabelString = "incoming connection string";
                 const string Provider = "provider";
                 const string Label = "msg.a";
@@ -1441,7 +1624,6 @@ namespace Contour.Configurator.Tests
                     $@"<endpoints>
                         <endpoint 
                             name=""{Name}"" 
-                            connectionString=""{EndpointString}"" 
                             connectionStringProvider=""{Provider}"" >
                             <incoming>
                                 <on key=""a"" label=""{Label}"" connectionString=""{LabelString}"" react=""BooHandler"" type=""BooMessage"" lifestyle=""Delegated"" />
@@ -1476,7 +1658,6 @@ namespace Contour.Configurator.Tests
                 var receiverOptions = (RabbitReceiverOptions)receiverConfiguration.Options;
                 receiverOptions.GetConnectionString().Value.Should().Be(LabelString, "Should use a connection string from the outgoing label.");
             }
-
         }
 
 
@@ -2177,6 +2358,4 @@ namespace Contour.Configurator.Tests
             }
         }
     }
-
-    // ReSharper restore InconsistentNaming
 }

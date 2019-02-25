@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 using FluentAssertions;
@@ -13,10 +15,12 @@ using Contour.Transport.RabbitMQ;
 using Contour.Transport.RabbitMQ.Topology;
 
 using NUnit.Framework;
+using RabbitMQ.Client;
 
 namespace Contour.RabbitMq.Tests
 {
     using Configuration;
+    using FluentAssertions.Extensions;
 
     /// <summary>
     /// The basic publishing specs.
@@ -30,6 +34,7 @@ namespace Contour.RabbitMq.Tests
         /// </summary>
         [TestFixture]
         [Category("Integration")]
+        [Ignore("This requirement is removed until the following is implemented: receiver configuration and topology should be evaluated before receiver start; this will let the bus check what labels should be listened on by each listener")]
         public class when_consuming_messages_of_different_labels_on_same_queue : RabbitMqFixture
         {
             /// <summary>
@@ -83,6 +88,8 @@ namespace Contour.RabbitMq.Tests
                                         })
                                 .WithEndpoint(subscriptionBuilder);
                         });
+
+                consumer.WhenReady.WaitOne(10.Seconds()).Should().BeTrue();
 
                 producer.Emit("boo.request", new BooMessage(13));
                 
@@ -187,7 +194,7 @@ namespace Contour.RabbitMq.Tests
                 IBus producer = this.StartBus("producer", cfg => cfg.Route(MessageLabel.Any));
 
                 producer.Invoking(p => p.Emit(MessageLabel.Any, new BooMessage(13)))
-                    .ShouldThrow<InvalidOperationException>();
+                    .Should().Throw<InvalidOperationException>();
             }
         }
 
@@ -207,7 +214,7 @@ namespace Contour.RabbitMq.Tests
                 IBus producer = this.StartBus("producer", cfg => cfg.Route(MessageLabel.Any));
 
                 producer.Invoking(p => p.Emit("dummy.request", new BooMessage(13)))
-                    .ShouldNotThrow();
+                    .Should().NotThrow();
             }
 
             /// <summary>

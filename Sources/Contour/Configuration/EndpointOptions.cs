@@ -1,3 +1,5 @@
+﻿using Contour.Configurator;
+
 namespace Contour.Configuration
 {
     using Helpers;
@@ -7,7 +9,6 @@ namespace Contour.Configuration
     /// </summary>
     public class EndpointOptions : BusOptions
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="EndpointOptions"/> class.
         /// </summary>
@@ -36,9 +37,19 @@ namespace Contour.Configuration
         public Maybe<string> ConnectionString { protected get; set; }
 
         /// <summary>
+        /// Gets or sets the connection string provider.
+        /// </summary>
+        public IConnectionStringProvider ConnectionStringProvider { protected get; set; }
+
+        /// <summary>
         /// Gets or sets the number of attempts to take when failing over
         /// </summary>
         public int? FailoverAttempts { protected get; set; }
+
+        /// <summary>
+        /// Хранилище входящих сообщений.
+        /// </summary>
+        public Maybe<IIncomingMessageHeaderStorage> IncomingMessageHeaderStorage { protected get; set; }
 
         /// <summary>
         /// Gets the connection string.
@@ -49,6 +60,15 @@ namespace Contour.Configuration
         public Maybe<string> GetConnectionString()
         {
             return this.Pick<EndpointOptions, string>(o => o.ConnectionString);
+        }
+
+        /// <summary>
+        /// Returns the endpoint connection string provider.
+        /// </summary>
+        /// <returns></returns>
+        public IConnectionStringProvider GetConnectionStringProvider()
+        {
+            return this.Pick<EndpointOptions, IConnectionStringProvider>(o => o.ConnectionStringProvider);
         }
 
         /// <summary>
@@ -69,6 +89,15 @@ namespace Contour.Configuration
         public int? GetFailoverAttempts()
         {
             return this.Pick<EndpointOptions, int>(o => o.FailoverAttempts);
+        }
+
+        /// <summary>
+        /// Возвращает хранилище заголовков входящего сообщения.
+        /// </summary>
+        /// <returns>Хранилище заголовка входящего сообщения.</returns>
+        public Maybe<IIncomingMessageHeaderStorage> GetIncomingMessageHeaderStorage()
+        {
+            return this.Pick<EndpointOptions, IIncomingMessageHeaderStorage>((o) => o.IncomingMessageHeaderStorage);
         }
 
         /// <summary>

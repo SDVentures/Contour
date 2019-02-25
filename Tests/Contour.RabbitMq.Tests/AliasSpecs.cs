@@ -7,6 +7,7 @@ using Contour.Configuration;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;
+using FluentAssertions.Extensions;
 
 namespace Contour.RabbitMq.Tests
 {
@@ -124,7 +125,7 @@ namespace Contour.RabbitMq.Tests
                     cfg => cfg.Route("boo.message").WithAlias("msg"));
 
                 producer.Invoking(p => p.Emit(":msgz", new BooMessage(13)))
-                    .ShouldThrow<BusConfigurationException>();
+                    .Should().Throw<BusConfigurationException>();
             }
         }
     }

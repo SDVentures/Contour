@@ -10,6 +10,7 @@ using Contour.Testing.Transport.RabbitMq;
 using Contour.Transport.RabbitMQ.Internal;
 using Contour.Transport.RabbitMQ.Topology;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace Contour.RabbitMq.Tests
@@ -105,7 +106,9 @@ namespace Contour.RabbitMq.Tests
                 });
             
             task.Wait(5.Seconds());
+            Thread.Sleep(10000);
             source.Cancel();
+            Thread.Sleep(50000);
 
             Assert.Throws<AggregateException>(() => task.Wait(5.Seconds()));
         }

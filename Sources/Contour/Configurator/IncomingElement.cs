@@ -1,11 +1,13 @@
-﻿namespace Contour.Configurator
+﻿using Contour.Configurator.Configuration;
+
+namespace Contour.Configurator
 {
     using System.Configuration;
 
     /// <summary>
     /// The incoming element.
     /// </summary>
-    internal class IncomingElement : MessageElement
+    internal class IncomingElement : MessageElement, IIncoming
     {
         /// <summary>
         /// Gets the lifestyle.
@@ -99,5 +101,7 @@
         {
             get { return (bool?) base["reuseConnection"]; }
         }
+
+        IQos IIncoming.Qos => this.Qos;
     }
 }

@@ -1,11 +1,13 @@
-﻿namespace Contour.Configurator
+﻿using Contour.Configurator.Configuration;
+
+namespace Contour.Configurator
 {
     using System.Configuration;
 
     /// <summary>
     /// Элемент конфигурации задающий политику кеширования.
     /// </summary>
-    internal class CachingElement : ConfigurationElement
+    internal class CachingElement : ConfigurationElement, ICaching
     {
         /// <summary>
         /// Признак включения или отключения кеширования.
@@ -18,5 +20,7 @@
                 return (bool)(base["enabled"]);
             }
         }
+
+        bool ICaching.Enabled => this.Enabled;
     }
 }

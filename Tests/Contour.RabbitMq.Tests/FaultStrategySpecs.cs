@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml;
 
 using Contour.Configurator;
+using Contour.Testing;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;
@@ -37,7 +38,11 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg =>
+                {
+                    cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                    sut.Configure("producer", cfg);
+                }, true));
                 bus.WhenReady.WaitOne();
 
 
@@ -62,7 +67,11 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg =>
+                {
+                    cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                    sut.Configure("producer", cfg);
+                }, true));
                 bus.WhenReady.WaitOne();
 
 
@@ -88,7 +97,11 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => 
+                    {
+                        cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                        sut.Configure("producer", cfg);
+                    }, true));
                 bus.WhenReady.WaitOne();
 
 
@@ -113,7 +126,11 @@ namespace Contour.RabbitMq.Tests
                 var section = new XmlEndpointsSection(producerConfig);
                 var sut = new AppConfigConfigurator(section, (name, type) => null);
 
-                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg => sut.Configure("producer", cfg), true));
+                IBus bus = this.CreateBus(() => new BusFactory().Create(cfg =>
+                    {
+                        cfg.UsePayloadConverter(new JsonNetPayloadConverter());
+                        sut.Configure("producer", cfg);
+                    }, true));
                 bus.WhenReady.WaitOne();
 
 

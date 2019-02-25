@@ -20,7 +20,6 @@ namespace Contour
             var c = new BusConfiguration();
 
             c.UseRabbitMq();
-            c.UsePayloadConverter(new JsonNetPayloadConverter());
             return c;
         }
     }

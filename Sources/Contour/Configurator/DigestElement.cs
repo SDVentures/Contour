@@ -1,11 +1,13 @@
-﻿namespace Contour.Configurator
+﻿using Contour.Configurator.Configuration;
+
+namespace Contour.Configurator
 {
     using System.Configuration;
 
     /// <summary>
     /// The digest element.
     /// </summary>
-    public class DigestElement : ConfigurationElement
+    public class DigestElement : ConfigurationElement, IDigest
     {
         #region Public Properties
 

@@ -1,8 +1,7 @@
 ﻿Common.Logging
-FluentAssertions
-FluentValidation
-Moq
-Newtonsoft.Json
-Ninject
-NUnit
 RabbitMQ.Client
+
+Newtonsoft.Json
+FluentAssertions
+Moq
+NUnit

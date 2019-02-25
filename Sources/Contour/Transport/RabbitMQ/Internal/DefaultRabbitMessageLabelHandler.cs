@@ -48,7 +48,7 @@
                 props.Headers = new Dictionary<string, object>();
             }
 
-            props.Headers[Headers.MessageLabel] = label.Name;
+            props.Headers[Contour.Headers.MessageLabel] = label.Name;
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
             }
 
             object binaryLabel;
-            if (!args.BasicProperties.Headers.TryGetValue(Headers.MessageLabel, out binaryLabel))
+            if (!args.BasicProperties.Headers.TryGetValue(Contour.Headers.MessageLabel, out binaryLabel))
             {
                 return MessageLabel.Empty;
             }

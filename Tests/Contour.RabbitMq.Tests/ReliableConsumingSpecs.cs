@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +13,8 @@ using Contour.Receiving;
 using Contour.Testing.Transport.RabbitMq;
 
 using NUnit.Framework;
+using RabbitMQ.Client;
+using FluentAssertions.Extensions;
 
 namespace Contour.RabbitMq.Tests
 {
@@ -285,6 +289,57 @@ namespace Contour.RabbitMq.Tests
 
                 producer.Emit(Label2, new DummyRequest(0));
                 tcs2.Task.Wait(1.Minutes()).Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        public class when_consuming_without_label : RabbitMqFixture
+        {
+            /// <summary>
+            /// The default message routing suggests that there should be exactly one queue bound to the exchange and only one consumer attached to a queue.
+            /// This fixture will ensure that a message without a label will be handled correctly in the only consumer attached.
+            /// </summary>
+            [Test]
+            public void should_take_consumer_by_exchange()
+            {
+                const string Label1 = "command.handle.this-1";
+                const string Label2 = "command.handle.this-2";
+
+                var tcs1 = new TaskCompletionSource<bool>();
+                var tcs2 = new TaskCompletionSource<bool>();
+
+                var bus = this.StartBus(
+                    "consumer",
+                    cfg =>
+                    {
+                        cfg.On(Label1).ReactWith<FooMessage>(
+                        (m, ctx) =>
+                        {
+                            tcs1.SetResult(true);
+                        });
+
+                        cfg.On(Label2).ReactWith<FooMessage>(
+                        (m, ctx) =>
+                        {
+                            tcs2.SetResult(true);
+                        });
+                    });
+
+                bus.WhenReady.WaitOne(1.Minutes()).Should().BeTrue();
+
+                var factory = new ConnectionFactory() { Uri = new Uri(this.ConnectionString) };
+                var connection = factory.CreateConnection();
+                var publishModel = connection.CreateModel();
+
+                var content = Encoding.Default.GetBytes("{}");
+                var properties = publishModel.CreateBasicProperties();
+                properties.Headers = new Dictionary<string, object>();
+
+                publishModel.BasicPublish(Label2, string.Empty, properties, content);
+                tcs2.Task.Wait(1.Minutes()).Should().BeTrue();
+
+                publishModel.BasicPublish(Label1, string.Empty, properties, content);
+                tcs1.Task.Wait(1.Minutes()).Should().BeTrue();
             }
         }
     }

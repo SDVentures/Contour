@@ -1,11 +1,15 @@
-﻿namespace Contour.Configurator
+﻿using System.Linq;
+
+using Contour.Configurator.Configuration;
+
+namespace Contour.Configurator
 {
     using System.Configuration;
 
     /// <summary>
     /// The endpoints section.
     /// </summary>
-    internal class EndpointsSection : ConfigurationSection
+    internal class EndpointsSection : ConfigurationSection, IBusConfigurationSection
     {
         /// <summary>
         /// The _current.
@@ -15,7 +19,7 @@
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="EndpointsSection"/>.
         /// </summary>
-        protected EndpointsSection()
+        public EndpointsSection()
         {
         }
 
@@ -41,5 +45,7 @@
                 return (EndpointCollection)(base[string.Empty]);
             }
         }
+
+        Configuration.IEndpoint[] IBusConfigurationSection.Endpoints => this.Endpoints.Cast<EndpointElement>().ToArray();
     }
 }

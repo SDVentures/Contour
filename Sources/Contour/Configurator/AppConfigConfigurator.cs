@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 
 using Contour.Configuration;
+using Contour.Configurator.Configuration;
 using Contour.Receiving;
 using Contour.Receiving.Consumers;
 using Contour.Sending;
@@ -35,7 +36,7 @@ namespace Contour.Configurator
         /// <summary>
         /// The _endpoints config.
         /// </summary>
-        private readonly EndpointsSection endpointsConfig;
+        private readonly IDictionary<string, Configuration.IEndpoint> endpointsConfig;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="AppConfigConfigurator"/>.
@@ -73,13 +74,12 @@ namespace Contour.Configurator
         /// <param name="endpointsConfig">
         /// The endpoints config.
         /// </param>
-        /// <param name="dependencyResolver">
-        /// The dependency resolver.
+        /// <param name="dependencyResolverFunc">
+        /// The dependency resolver func.
         /// </param>
-        internal AppConfigConfigurator(EndpointsSection endpointsConfig, IDependencyResolver dependencyResolver)
+        public AppConfigConfigurator(IBusConfigurationSection endpointsConfig, DependencyResolverFunc dependencyResolverFunc)
+            : this(endpointsConfig, new LambdaDependencyResolver(dependencyResolverFunc))
         {
-            this.endpointsConfig = endpointsConfig;
-            this.dependencyResolver = dependencyResolver;
         }
 
         /// <summary>
@@ -88,25 +88,19 @@ namespace Contour.Configurator
         /// <param name="endpointsConfig">
         /// The endpoints config.
         /// </param>
-        /// <param name="dependencyResolverFunc">
-        /// The dependency resolver func.
+        /// <param name="dependencyResolver">
+        /// The dependency resolver.
         /// </param>
-        internal AppConfigConfigurator(EndpointsSection endpointsConfig, DependencyResolverFunc dependencyResolverFunc)
-            : this(endpointsConfig, new LambdaDependencyResolver(dependencyResolverFunc))
+        internal AppConfigConfigurator(IBusConfigurationSection endpointsConfig, IDependencyResolver dependencyResolver)
         {
+            this.endpointsConfig = endpointsConfig.Endpoints.ToDictionary(e => e.Name);
+            this.dependencyResolver = dependencyResolver;
         }
 
         /// <summary>
         ///   Имена точек подключения к шине.
         /// </summary>
-        public IEnumerable<string> Endpoints
-        {
-            get
-            {
-                return this.endpointsConfig.Endpoints.OfType<EndpointElement>()
-                    .Select(e => e.Name);
-            }
-        }
+        public IEnumerable<string> Endpoints => this.endpointsConfig.Keys;
 
         /// <summary>
         /// Конфигурирует клиента шины сообщений.
@@ -127,7 +121,7 @@ namespace Contour.Configurator
                 throw new ArgumentNullException("cfg", "Файл конфигурации не может быть null");
             }
 
-            EndpointElement endpointConfig = this.GetEndPointByName(endpointName);
+            var endpointConfig = this.GetEndPointByName(endpointName);
 
             IConnectionStringProvider connectionStringProvider = null;
             if (!string.IsNullOrEmpty(endpointConfig.ConnectionStringProvider))
@@ -136,8 +130,8 @@ namespace Contour.Configurator
             }
 
             cfg.SetEndpoint(endpointConfig.Name);
-
             cfg.SetConnectionString(endpointConfig.ConnectionString);
+            cfg.SetExcludedIncomingHeaders(endpointConfig.ExcludedHeaders);
 
             if (endpointConfig.ReuseConnection.HasValue)
             {
@@ -147,11 +141,6 @@ namespace Contour.Configurator
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
             {
                 cfg.HandleLifecycleWith(this.ResolveLifecycleHandler(endpointConfig.LifecycleHandler));
-            }
-
-            if (endpointConfig.Caching != null && endpointConfig.Caching.Enabled)
-            {
-                cfg.EnableCaching();
             }
 
             if (endpointConfig.ParallelismLevel.HasValue)
@@ -196,7 +185,7 @@ namespace Contour.Configurator
                 }
             }
 
-            foreach (ValidatorElement validator in endpointConfig.Validators)
+            foreach (IValidator validator in endpointConfig.Validators)
             {
                 if (validator.Group)
                 {
@@ -210,7 +199,7 @@ namespace Contour.Configurator
                 }
             }
 
-            foreach (OutgoingElement outgoingElement in endpointConfig.Outgoing)
+            foreach (IOutgoing outgoingElement in endpointConfig.Outgoing)
             {
                 var configurator = cfg.Route(outgoingElement.Label).WithAlias(outgoingElement.Key);
 
@@ -257,7 +246,7 @@ namespace Contour.Configurator
                 }
             }
 
-            foreach (IncomingElement incomingElement in endpointConfig.Incoming)
+            foreach (IIncoming incomingElement in endpointConfig.Incoming)
             {
                 var configurator = cfg.On(incomingElement.Label).WithAlias(incomingElement.Key);
 
@@ -367,9 +356,10 @@ namespace Contour.Configurator
         /// </returns>
         public string GetEvent(string endpointName, string key)
         {
-            EndpointElement endpoint = this.GetEndPointByName(endpointName);
-            IEnumerable<MessageElement> messages = endpoint.Outgoing.Cast<MessageElement>().
-                Concat(endpoint.Incoming.Cast<MessageElement>());
+            Configuration.IEndpoint endpoint = this.GetEndPointByName(endpointName);
+            IEnumerable<Configuration.IMessage> messages = endpoint.Outgoing
+                .Cast<Configuration.IMessage>()
+                .Concat(endpoint.Incoming);
 
             // NOTE: Если такого не будет, упадет соответствующий эксэпшн.
             return messages.First(x => x.Key == key).
@@ -390,10 +380,11 @@ namespace Contour.Configurator
         /// </returns>
         public IRequestConfiguration GetRequestConfig(string endpointName, string key)
         {
-            EndpointElement endpoint = this.GetEndPointByName(endpointName);
+            Configuration.IEndpoint endpoint = this.GetEndPointByName(endpointName);
 
-            OutgoingElement reqDeclaration = endpoint.Outgoing.Cast<OutgoingElement>().
-                First(x => x.Key == key);
+            IOutgoing reqDeclaration = endpoint
+                .Outgoing
+                .First(x => x.Key == key);
 
             return new RequestConfiguration(reqDeclaration.Timeout, reqDeclaration.Persist, reqDeclaration.Ttl);
         }
@@ -523,9 +514,9 @@ namespace Contour.Configurator
         /// </returns>
         /// <exception cref="ArgumentException">
         /// </exception>
-        private EndpointElement GetEndPointByName(string endpointName)
+        private Configuration.IEndpoint GetEndPointByName(string endpointName)
         {
-            EndpointElement endpoint = this.endpointsConfig.Endpoints[endpointName];
+            Configuration.IEndpoint endpoint = this.endpointsConfig[endpointName];
 
             if (endpoint == null)
             {

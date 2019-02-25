@@ -8,6 +8,7 @@
     using Contour.Filters;
 
     using NUnit.Framework;
+    using FluentAssertions.Extensions;
 
     /// <summary>
     /// The message exchange filter specs.
