@@ -1,4 +1,7 @@
-﻿## 2.0.1-core5
+﻿## 2.1.0-core0
+    Added opportunity to extract last publish operation connection string for diagnostic reason
+
+## 2.0.1-core5
     Now AppConfigConfigurator is able to accept external configuration.
 
 ## 2.0.1-core4
