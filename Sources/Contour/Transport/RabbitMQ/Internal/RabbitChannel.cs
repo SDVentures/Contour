@@ -262,7 +262,7 @@
 
             this.busContext.MessageLabelHandler.Inject(props, message.Label);
 
-            MetricProps.Store(MetricProps.Names.LastPublishAttemptConnectionString, this.connectionString);
+            DiagnosticProps.Store(DiagnosticProps.Names.LastPublishAttemptConnectionString, this.connectionString);
 
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
         }

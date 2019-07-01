@@ -3,11 +3,11 @@ using System.Threading;
 
 namespace Contour
 {
-    public static class MetricProps
+    public static class DiagnosticProps
     {
         private static readonly AsyncLocal<Dictionary<string, string>> Storage = new AsyncLocal<Dictionary<string, string>>();
 
-        public static void Store(string name, string value)
+        internal static void Store(string name, string value)
         {
             Storage.Value[name] = value;
         }
