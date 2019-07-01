@@ -17,6 +17,9 @@
     {
         private readonly object sync = new object();
         private readonly IBusContext busContext;
+
+        private readonly string connectionString;
+
         private readonly ILog logger;
 
         /// <summary>
@@ -25,11 +28,13 @@
         /// <param name="connectionId">A connection identifier to which this channel belongs</param>
         /// <param name="model">A native transport channel</param>
         /// <param name="busContext">A bus context</param>
-        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext)
+        /// <param name="connectionString">Used connection string</param>
+        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext, string connectionString)
         {
             this.ConnectionId = connectionId;
             this.Model = model;
             this.busContext = busContext;
+            this.connectionString = connectionString;
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.ConnectionId}, {this.GetHashCode()})");
 
             this.Model.ModelShutdown += this.OnModelShutdown;
@@ -47,7 +52,7 @@
         /// Is fired on channel shutdown.
         /// </summary>
         public event Action<IChannel, ShutdownEventArgs> Shutdown = (channel, args) => { };
-        
+
         /// <summary>
         /// Gets the native.
         /// </summary>
@@ -256,6 +261,9 @@
             headers.ForEach(i => props.Headers.Add(i));
 
             this.busContext.MessageLabelHandler.Inject(props, message.Label);
+
+            MetricProps.Store(MetricProps.Names.LastPublishAttemptConnectionString, this.connectionString);
+
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
         }
 

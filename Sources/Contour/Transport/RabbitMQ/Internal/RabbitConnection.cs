@@ -24,7 +24,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly IBusContext busContext;
         private readonly ConnectionFactory connectionFactory;
         private INativeConnection connection;
-        
+
         public RabbitConnection(IEndpoint endpoint, string connectionString, IBusContext busContext)
         {
             this.Id = Guid.NewGuid();
@@ -70,7 +70,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 }
 
                 this.logger.Info($"Connecting to RabbitMQ using [{this.ConnectionString}]");
-            
+
                 var retryCount = 0;
                 while (true)
                 {
@@ -122,7 +122,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 try
                 {
                     var model = this.connection.CreateModel();
-                    var channel = new RabbitChannel(this.Id, model, this.busContext);
+                    var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString);
                     return channel;
                 }
                 catch (Exception ex)
@@ -145,11 +145,11 @@ namespace Contour.Transport.RabbitMQ.Internal
                     {
                         this.Open(token);
                     }
-                
+
                     try
                     {
                         var model = this.connection.CreateModel();
-                        var channel = new RabbitChannel(this.Id, model, this.busContext);
+                        var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString);
                         return channel;
                     }
                     catch (Exception ex)
@@ -198,7 +198,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 catch (Exception ex)
                 {
                     this.logger.Error(
-                        $"[{this.endpoint}]: failed to abort the underlying connection due to: {ex.Message}", 
+                        $"[{this.endpoint}]: failed to abort the underlying connection due to: {ex.Message}",
                         ex);
                     throw;
                 }
