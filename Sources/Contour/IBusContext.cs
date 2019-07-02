@@ -189,5 +189,12 @@ namespace Contour
         Task<TResponse> RequestAsync<TRequest, TResponse>(MessageLabel label, TRequest request, IDictionary<string, object> headers)
             where TRequest : class
             where TResponse : class;
+
+        /// <summary>
+        /// Получает label на основе алиаса
+        /// </summary>
+        /// <param name="alias">алиас сообщения</param>
+        /// <returns>label сообщения</returns>
+        MessageLabel Resolve(string alias);
     }
 }

@@ -240,6 +240,18 @@
         }
 
         /// <summary>
+        /// Получает label на основе алиаса
+        /// </summary>
+        /// <param name="alias">алиас сообщения</param>
+        /// <returns>label сообщения</returns>
+        public MessageLabel Resolve(string alias)
+        {
+            var label = MessageLabel.From(alias);
+
+            return this.configuration.SenderConfigurations.FirstOrDefault(pc => pc.Label.Equals(label) || (pc.Alias != null && pc.Alias.Equals(label.Name)))?.Label;
+        }
+
+        /// <summary>
         /// Уничтожает шину сообщений.
         /// </summary>
         public virtual void Dispose()

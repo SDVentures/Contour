@@ -1,4 +1,7 @@
-﻿## 2.1.0-core2
+﻿## 2.1.0-core3
+    Added opportunity to get message label by alias for diagnostic reason
+
+## 2.1.0-core2
     Added diagnostic information about connection connectionString when consuming messages
 
 ## 2.1.0-core1

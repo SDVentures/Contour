@@ -154,7 +154,7 @@ namespace Contour.Configuration
         /// Gets the serializer.
         /// </summary>
         public IPayloadConverter Serializer { get; private set; }
-
+        
         /// <summary>
         /// Gets the validator registry.
         /// </summary>
@@ -588,7 +588,7 @@ namespace Contour.Configuration
             {
                 throw new BusConfigurationException("Bus factory is not set.");
             }
-            
+
             if (this.Endpoint == null)
             {
                 throw new BusConfigurationException("Не задано название компонента (Endpoint).");
