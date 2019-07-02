@@ -17,3 +17,4 @@ TestResults.xml
 *.bak
 StyleCop.Cache
 *.csproj.user
+/Sources/Contour/Properties/launchSettings.json

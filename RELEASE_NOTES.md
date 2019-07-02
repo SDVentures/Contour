@@ -1,4 +1,7 @@
-﻿## 2.1.0-core1
+﻿## 2.1.0-core2
+    Added diagnostic information about connection connectionString when consuming messages
+
+## 2.1.0-core1
     Changed accessibility level for diagnostic storage
 
 ## 2.1.0-core0

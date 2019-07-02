@@ -18,8 +18,6 @@
         private readonly object sync = new object();
         private readonly IBusContext busContext;
 
-        private readonly string connectionString;
-
         private readonly ILog logger;
 
         /// <summary>
@@ -34,11 +32,16 @@
             this.ConnectionId = connectionId;
             this.Model = model;
             this.busContext = busContext;
-            this.connectionString = connectionString;
+            this.ConnectionString = connectionString;
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.ConnectionId}, {this.GetHashCode()})");
 
             this.Model.ModelShutdown += this.OnModelShutdown;
         }
+
+        /// <summary>
+        /// Строка подключения
+        /// </summary>
+        internal string ConnectionString { get; }
 
         public Guid ConnectionId { get; }
 
@@ -262,7 +265,7 @@
 
             this.busContext.MessageLabelHandler.Inject(props, message.Label);
 
-            DiagnosticProps.Store(DiagnosticProps.Names.LastPublishAttemptConnectionString, this.connectionString);
+            DiagnosticProps.Store(DiagnosticProps.Names.LastPublishAttemptConnectionString, this.ConnectionString);
 
             this.SafeNativeInvoke(n => n.BasicPublish(nativeRoute.Exchange, nativeRoute.RoutingKey, false, props, body));
         }

@@ -61,7 +61,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly MessageValidatorRegistry validatorRegistry;
         private readonly IBusContext busContext;
         private readonly IRabbitConnection connection;
-        
+
         private readonly ConcurrentBag<RabbitChannel> channels = new ConcurrentBag<RabbitChannel>();
         private CancellationTokenSource cancellationTokenSource;
 
@@ -99,7 +99,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             this.busContext = busContext;
             this.connection = connection;
-            
+
             this.endpoint = endpoint;
             this.validatorRegistry = validatorRegistry;
 
@@ -120,7 +120,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Входящее сообщение.
         /// </param>
         internal delegate void ConsumingAction(RabbitDelivery delivery);
-        
+
         /// <summary>
         /// Метки сообщений, которые может обработать слушатель.
         /// </summary>
@@ -303,6 +303,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </param>
         private void Deliver(RabbitDelivery delivery)
         {
+            DiagnosticProps.Store(DiagnosticProps.Names.ConsumerConnectionString, delivery.Channel.ConnectionString);
+
             this.logger.Trace(m => m("Received delivery labeled [{0}] from exchange [{1}] with consumer [{2}].", delivery.Label, delivery.Args.Exchange, delivery.Args.ConsumerTag));
 
             if (delivery.Headers.ContainsKey(Headers.OriginalMessageId))
@@ -464,14 +466,14 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             return new Expectation(d => this.BuildResponse(d, expectedResponseType), timeoutTicket);
         }
-        
+
         private CancellableQueueingConsumer InitializeConsumer(CancellationToken token, out RabbitChannel channel)
         {
             // Opening a new channel may lead to a new connection creation
             channel = this.connection.OpenChannel(token);
             channel.Shutdown += this.OnChannelShutdown;
             this.channels.Add(channel);
-            
+
             if (this.ReceiverOptions.GetQoS().HasValue)
             {
                 channel.SetQos(
