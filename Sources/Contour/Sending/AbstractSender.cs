@@ -16,7 +16,7 @@ namespace Contour.Sending
     /// </summary>
     internal abstract class AbstractSender : ISender
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(AbstractSender));
 
         /// <summary>
         /// Фильтры обработки сообщений.
@@ -272,7 +272,7 @@ namespace Contour.Sending
             var inputHeaders = storage.Load() ?? new Dictionary<string, object>();
             var outputHeaders = new Dictionary<string, object>(inputHeaders);
 
-            Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address);
+            Headers.ApplyBreadcrumbs(outputHeaders, this.endpoint.Address, options.BreadcrumbsPrefix);
             Headers.ApplyOriginalMessageId(outputHeaders);
 
             Maybe<bool> persist = BusOptions.Pick(options.Persistently, this.Configuration.Options.IsPersistently());
@@ -280,6 +280,7 @@ namespace Contour.Sending
 
             Maybe<TimeSpan?> ttl = BusOptions.Pick(options.Ttl, this.Configuration.Options.GetTtl());
             Headers.ApplyTtl(outputHeaders, ttl);
+            Headers.ApplyAdditionalHeaders(outputHeaders, options.AdditionalHeaders);
 
             return outputHeaders;
         }
