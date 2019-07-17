@@ -1,4 +1,7 @@
-﻿## 2.1.0-core3
+﻿## 2.1.0-core4
+    Added opportunity to add custom headers by publishing options for diagnostic reason
+
+## 2.1.0-core3
     Added opportunity to get message label by alias for diagnostic reason
 
 ## 2.1.0-core2
