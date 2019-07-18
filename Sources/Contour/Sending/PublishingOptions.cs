@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+
 namespace Contour.Sending
 {
     using System;
@@ -29,6 +31,16 @@ namespace Contour.Sending
         /// Gets or sets the ttl.
         /// </summary>
         public Maybe<TimeSpan?> Ttl { get; set; }
+
+        /// <summary>
+        /// Дополнительные заголовки
+        /// </summary>
+        public Dictionary<string, object> AdditionalHeaders { get; set; }
+
+        /// <summary>
+        /// Префикс заголовка x-breadcrumbs
+        /// </summary>
+        public string BreadcrumbsPrefix { get; set; }
 
         #endregion
     }

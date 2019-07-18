@@ -1,4 +1,9 @@
-﻿## 1.8.2
+﻿## 1.8.3-diagnostic
+- Changes
+    + Added opportunity to add custom headers by publishing options for diagnostic reason
+
+
+## 1.8.2
 - Fixed
     + Cached value check bug
 

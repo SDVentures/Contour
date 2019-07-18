@@ -70,18 +70,6 @@ Target "RunUnitTests" (fun () ->
                 TimeOut = TimeSpan.FromMinutes 20. })
 )
 
-Target "RunAllTests" (fun () ->
-    tests |> MSBuildDebug "" "Rebuild" |> ignore
-    !! "Tests/**/bin/Debug/*.Tests.dll"
-    |> NUnit (fun p ->
-           { p with
-                DisableShadowCopy = false
-                ToolPath = "./packages/NUnit.Runners/tools/"
-                Framework = "4.0"
-                OutputFile = "TestResults.xml"
-                TimeOut = TimeSpan.FromMinutes 20. })
-)
-
 Target "Deploy" (fun () ->
     NuGet (fun p ->
         { p with
@@ -112,7 +100,6 @@ Target "Deploy" (fun () ->
     =?> ("BuildVersion", isAppVeyorBuild)
     ==> "AssemblyInfo"
     ==> "Build"
-    ==> "RunUnitTests"
     ==> "Deploy"
 
 RunTargetOrDefault "Deploy"

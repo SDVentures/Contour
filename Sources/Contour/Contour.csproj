@@ -286,7 +286,6 @@
     <Compile Include="IMessageLabelHandler.cs" />
     <Compile Include="Receiving\Consumers\LambdaConsumerOf.cs" />
     <Compile Include="MessageLabel.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\IPayloadConverter.cs" />
     <Compile Include="Serialization\JsonNetPayloadConverter.cs" />
     <Compile Include="StringEx.cs" />

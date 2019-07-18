@@ -121,19 +121,20 @@ namespace Contour
         /// </summary>
         /// <param name="headers">Исходная коллекция заголовков, которая подвергается изменениям.</param>
         /// <param name="endpoint">Имя конечной точки записываемой в заголовок.</param>
+        /// <param name="prefix">Внешний префикс, который вставляется при первичной инициализации Breadcrumbs</param>
         /// <returns>Исходная колллекция заголовков с изменениями.</returns>
-        public static IDictionary<string, object> ApplyBreadcrumbs(IDictionary<string, object> headers, string endpoint)
+        public static IDictionary<string, object> ApplyBreadcrumbs(IDictionary<string, object> headers, string endpoint, string prefix = null)
         {
             if (!headers.ContainsKey(Breadcrumbs))
             {
-                headers[Breadcrumbs] = endpoint;
+                headers[Breadcrumbs] = string.IsNullOrEmpty(prefix) ? endpoint : $"{prefix};{endpoint}";
             }
             else
             {
                 headers[Breadcrumbs] = GetString(headers, Breadcrumbs) + ";" + endpoint;
             }
 
-            return headers;            
+            return headers;
         }
 
         /// <summary>
@@ -178,6 +179,30 @@ namespace Contour
             if (ttl != null && ttl.HasValue)
             {
                 headers[Ttl] = ttl.Value;
+            }
+
+            return headers;
+        }
+
+        /// <summary>
+        /// Применяет к коллекции заголовков установку заголовка <c>Ttl</c>.
+        /// </summary>
+        /// <param name="headers">Исходная коллекция заголовков, которая подвергается изменениям.</param>
+        /// <param name="additionalHeaders">Дополнительная коллекция заголовков, которые надо смерджить с исходной коллекцией</param>
+        /// <returns>Исходная колллекция заголовков с изменениями.</returns>
+        public static IDictionary<string, object> ApplyAdditionalHeaders(IDictionary<string, object> headers, IDictionary<string, object> additionalHeaders)
+        {
+            if (additionalHeaders == null || additionalHeaders.Count == 0)
+            {
+                return headers;
+            }
+
+            foreach (var header in additionalHeaders)
+            {
+                if (!headers.ContainsKey(header.Key))
+                {
+                    headers.Add(header);
+                }
             }
 
             return headers;
