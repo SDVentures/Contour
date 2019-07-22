@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Contour
 {
     public static class DiagnosticProps
     {
-        private static readonly AsyncLocal<Dictionary<string, string>> Storage = new AsyncLocal<Dictionary<string, string>>();
+        private static readonly AsyncLocal<ConcurrentDictionary<string, string>> Storage = new AsyncLocal<ConcurrentDictionary<string, string>>();
 
         internal static void Store(string name, string value)
         {
             if (Storage.Value == null)
             {
-                Storage.Value = new Dictionary<string, string>();
+                Storage.Value = new ConcurrentDictionary<string, string>();
             }
 
             Storage.Value[name] = value;

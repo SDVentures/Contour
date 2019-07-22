@@ -1,4 +1,7 @@
-﻿## 2.1.0-core4
+﻿## 2.1.0-core5
+	Replaced Dictionary with ConcurrentDictionry because AsyncLocal value can be called concurrently
+
+## 2.1.0-core4
     Added opportunity to add custom headers by publishing options for diagnostic reason
 
 ## 2.1.0-core3
