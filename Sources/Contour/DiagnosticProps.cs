@@ -33,6 +33,10 @@ namespace Contour
             public static readonly string LastPublishAttemptConnectionString = "LastPublishAttemptConnectionString";
 
             public static readonly string ConsumerConnectionString = "ConsumerConnectionString";
+
+            public static readonly string Breadcrumbs = "Breadcrumbs";
+
+            public static readonly string OriginalMessageId = "OriginalMessageId";
         }
     }
 }

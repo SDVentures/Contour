@@ -1,4 +1,7 @@
-﻿## 2.1.0-core5
+﻿## 2.1.0-core7
+	Added breadcrumbs and originalMessageId to diagnostic props
+
+## 2.1.0-core5
 	Replaced Dictionary with ConcurrentDictionry because AsyncLocal value can be called concurrently
 
 ## 2.1.0-core4
