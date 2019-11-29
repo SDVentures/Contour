@@ -1,4 +1,12 @@
-﻿## 1.8.2
+﻿## 1.8.3-delayed-1
+- Changes:
+    + Added Delayed Message Plugin support
+
+## 1.8.3-delayed
+- Changes:
+    + Added Delayed Message Plugin support
+
+## 1.8.2
 - Fixed
     + Cached value check bug
 

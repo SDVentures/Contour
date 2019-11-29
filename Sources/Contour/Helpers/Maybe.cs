@@ -7,10 +7,10 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+
 namespace Contour.Helpers
 {
-    using System;
-
     /// <summary>
     /// The maybe.
     /// </summary>
@@ -18,27 +18,12 @@ namespace Contour.Helpers
     /// </typeparam>
     [Serializable]
     [Obsolete]
-    public sealed class Maybe<T>
+    public sealed class Maybe<T> : Maybe
     {
-        #region Static Fields
-
         /// <summary>
         /// The empty.
         /// </summary>
         public static readonly Maybe<T> Empty = new Maybe<T>(default(T));
-
-        #endregion
-
-        #region Fields
-
-        /// <summary>
-        /// The value.
-        /// </summary>
-        private readonly T value;
-
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Maybe{T}"/>.
@@ -46,41 +31,26 @@ namespace Contour.Helpers
         /// <param name="value">
         /// The value.
         /// </param>
-        public Maybe(T value)
+        public Maybe(T value) : base(value)
         {
-            this.value = value;
         }
-
-        #endregion
-
-        #region Public Properties
 
         /// <summary>
         /// Gets a value indicating whether has value.
         /// </summary>
-        public bool HasValue
-        {
-            get
-            {
-                return !Equals(this.value, default(T));
-            }
-        }
+        public override bool HasValue => !Equals(this.value, default(T));
 
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public T Value
+        public new T Value
         {
             get
             {
                 this.AssertNotNullValue();
-                return this.value;
+                return (T)this.value;
             }
         }
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The op_ explicit.
@@ -133,23 +103,60 @@ namespace Contour.Helpers
             return this.HasValue ? this.value.ToString() : string.Format("Empty Maybe of {0}.", typeof(T));
         }
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The assert not null value.
         /// </summary>
         /// <exception cref="InvalidOperationException">
         /// </exception>
-        private void AssertNotNullValue()
+        protected override void AssertNotNullValue()
         {
             if (!this.HasValue)
             {
                 throw new InvalidOperationException(string.Format("Maybe of {0} must have value.", typeof(T)));
             }
         }
+    }
 
-        #endregion
+    public class Maybe
+    {
+        protected readonly object value;
+
+        public Maybe(object value)
+        {
+            var maybe = value as Maybe;
+
+            if (maybe == null)
+            {
+                this.value = value;
+                return;
+            }
+
+            if (!maybe.HasValue)
+            {
+                this.value = null;
+                return;
+            }
+
+            this.value = maybe.Value;
+        }
+
+        public virtual bool HasValue => !Equals(this.value, null);
+
+        public object Value
+        {
+            get
+            {
+                this.AssertNotNullValue();
+                return this.value;
+            }
+        }
+
+        protected virtual void AssertNotNullValue()
+        {
+            if (!this.HasValue)
+            {
+                throw new InvalidOperationException($"Maybe of object must have value.");
+            }
+        }
     }
 }

@@ -69,6 +69,30 @@
         }
 
         /// <summary>
+        /// Gets the delayed.
+        /// </summary>
+        [ConfigurationProperty("delayed", DefaultValue = false)]
+        public bool Delayed
+        {
+            get
+            {
+                return (bool)base["delayed"];
+            }
+        }
+
+        /// <summary>
+        /// Gets the delay.
+        /// </summary>
+        [ConfigurationProperty("delay")]
+        public TimeSpan? Delay
+        {
+            get
+            {
+                return (TimeSpan?)base["delay"];
+            }
+        }
+
+        /// <summary>
         /// Gets the connection string
         /// </summary>
         [ConfigurationProperty("connectionString", IsRequired = false)]

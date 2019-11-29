@@ -76,6 +76,13 @@ namespace Contour.Sending
         ISenderConfigurator WithTtl(TimeSpan ttl);
 
         /// <summary>
+        /// Sets an option shows sender is able to send delayed messages.
+        /// </summary>
+        /// <param name="delay">The size of the delay.</param>
+        /// <returns>Sender configurator.</returns>
+        ISenderConfiguration WithDelay(TimeSpan delay);
+
+        /// <summary>
         /// Устанавливает хранилище заголовков входящего сообщения.
         /// </summary>
         /// <param name="storage">Хранилище заголовков входящего сообщения.</param>

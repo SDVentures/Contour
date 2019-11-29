@@ -48,6 +48,8 @@ namespace Contour
         /// </summary>
         public static readonly string Ttl = "x-ttl";
 
+        public static readonly string Delay = "x-delay";
+
         /// <summary>
         /// Время жизни сообщений в очереди.
         /// </summary>
@@ -133,7 +135,7 @@ namespace Contour
                 headers[Breadcrumbs] = GetString(headers, Breadcrumbs) + ";" + endpoint;
             }
 
-            return headers;            
+            return headers;
         }
 
         /// <summary>
@@ -178,6 +180,22 @@ namespace Contour
             if (ttl != null && ttl.HasValue)
             {
                 headers[Ttl] = ttl.Value;
+            }
+
+            return headers;
+        }
+
+        /// <summary>
+        /// Применяет к коллекции заголовков установку заголовка <c>Delay</c>.
+        /// </summary>
+        /// <param name="headers">Исходная коллекция заголовков, которая подвергается изменениям.</param>
+        /// <param name="delay">Настройки задержки сообщения.</param>
+        /// <returns>Исходная колллекция заголовков с изменениями.</returns>
+        public static IDictionary<string, object> ApplyDelay(IDictionary<string, object> headers, Maybe<TimeSpan?> delay)
+        {
+            if (delay != null && delay.HasValue)
+            {
+                headers[Delay] = delay.Value;
             }
 
             return headers;

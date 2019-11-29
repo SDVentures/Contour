@@ -52,6 +52,16 @@ namespace Contour.Sending
         public Maybe<TimeSpan?> Ttl { protected get; set; }
 
         /// <summary>
+        /// Gets ot sets the default interval of messages delay.
+        /// </summary>
+        public long Delay { protected get; set; }
+
+        /// <summary>
+        /// If true, sender is able to send messages with delay.
+        /// </summary>
+        public bool Delayed { protected get; set; }
+
+        /// <summary>
         /// Создает новые настройки отправителя, которые наследуют существующие.
         /// </summary>
         /// <returns>Новые настройки отправителя, наследующие существующие настройки.</returns>
@@ -87,6 +97,24 @@ namespace Contour.Sending
         public Maybe<TimeSpan?> GetTtl()
         {
             return this.Pick<SenderOptions, TimeSpan?>((o) => o.Ttl);
+        }
+
+        /// <summary>
+        /// Returns the size of the delay.
+        /// </summary>
+        /// <returns>Size of the delay.</returns>
+        public Maybe<long> GetDelay()
+        {
+            return new Maybe<long>(this.Delay);
+        }
+
+        /// <summary>
+        /// Returns true if sender is able to send delayed messages.
+        /// </summary>
+        /// <returns>true if sender is able to send delayed messages.</returns>
+        public bool IsDelayed()
+        {
+            return this.Delayed;
         }
 
         /// <summary>

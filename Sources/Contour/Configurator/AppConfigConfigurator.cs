@@ -160,7 +160,6 @@ namespace Contour.Configurator
             if (!string.IsNullOrWhiteSpace(endpointConfig.LifecycleHandler))
             {
                 cfg.HandleLifecycleWith(this.ResolveLifecycleHandler(endpointConfig.LifecycleHandler));
-
             }
 
             if (endpointConfig.ParallelismLevel.HasValue)
@@ -185,12 +184,11 @@ namespace Contour.Configurator
                     if (endpointConfig.Dynamic.Outgoing.Value)
                     {
                         cfg.Route(MessageLabel.Any)
-                            .ConfiguredWith(builder => new LambdaRouteResolver(
+                            .ConfiguredWith(
+                                builder => new LambdaRouteResolver(
                                     (endpoint, label) =>
                                         {
-                                            builder.Topology.Declare(
-                                                Exchange.Named(label.Name)
-                                                    .Durable.Fanout);
+                                            builder.Topology.Declare(Exchange.Named(label.Name).Durable.Fanout);
                                             return new RabbitRoute(label.Name);
                                         }));
                     }
@@ -248,12 +246,18 @@ namespace Contour.Configurator
                     configurator.WithRequestTimeout(outgoingElement.Timeout);
                 }
 
+                if (outgoingElement.Delayed || outgoingElement.Delay.HasValue || endpointConfig.Delayed)
+                {
+                    configurator.WithDelay(outgoingElement.Delay ?? TimeSpan.Zero);
+                }
+
                 // Connection string
                 var connectionString = endpointConfig.ConnectionString;
                 if (!string.IsNullOrEmpty(outgoingElement.ConnectionString))
                 {
                     connectionString = outgoingElement.ConnectionString;
                 }
+
                 connectionString = connectionStringProvider?.GetConnectionString(outgoingElement.Label.ToMessageLabel()) ?? connectionString;
 
 
@@ -320,6 +324,11 @@ namespace Contour.Configurator
                 if (incomingElement.RequiresAccept)
                 {
                     configurator.RequiresAccept();
+                }
+
+                if (incomingElement.Delayed)
+                {
+                    configurator.Delayed();
                 }
 
                 // Connection string

@@ -95,6 +95,12 @@ namespace Contour.Receiving
         /// <param name="storage">Хранилище заголовков входящего сообщения.</param>
         /// <returns>Конфигуратор получателя с установленным хранилищем заголовков.</returns>
         IReceiverConfigurator WithIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage);
+
+        /// <summary>
+        /// Устанавливает ограничение на подключение только к отправителям, поддерживающим задержку доставки сообщений.
+        /// </summary>
+        /// <returns>Конфигуратор получателя.</returns>
+        IReceiverConfigurator Delayed();
     }
 
     /// <summary>

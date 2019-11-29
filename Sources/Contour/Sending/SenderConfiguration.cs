@@ -185,6 +185,14 @@ namespace Contour.Sending
             return this;
         }
 
+        public ISenderConfiguration WithDelay(TimeSpan delay)
+        {
+            this.Options.Delayed = true;
+            this.Options.Delay = (long)delay.TotalMilliseconds;
+
+            return this;
+        }
+
         /// <summary>
         /// Устанавливает хранилище заголовков входящего сообщения.
         /// </summary>

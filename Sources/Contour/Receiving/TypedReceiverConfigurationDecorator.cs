@@ -300,5 +300,13 @@ namespace Contour.Receiving
 
             return this;
         }
+
+        /// <inheritdoc />
+        public IReceiverConfigurator Delayed()
+        {
+            this.configuration.Delayed();
+
+            return this;
+        }
     }
 }
