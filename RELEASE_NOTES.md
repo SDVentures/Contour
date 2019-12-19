@@ -1,4 +1,7 @@
-﻿## 2.1.0-core7
+﻿## 2.1.0-core8
+	Fixed CanRoute for dynamic outgoing
+
+## 2.1.0-core7
 	Added breadcrumbs and originalMessageId to diagnostic props
 
 ## 2.1.0-core5
