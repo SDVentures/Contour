@@ -236,7 +236,7 @@
         /// <returns><c>true</c> - если шина сообщения умеет строить маршрут для указанной метки сообщений.</returns>
         public bool CanRoute(MessageLabel label)
         {
-            return this.configuration.SenderConfigurations.Any(pc => pc.Label.Equals(label) || (pc.Alias != null && pc.Alias.Equals(label.Name)));
+            return this.configuration.SenderConfigurations.Any(pc => pc.Label.Equals(label) || pc.Alias != null && pc.Alias.Equals(label.Name) || pc.Label.IsAny);
         }
 
         /// <summary>
