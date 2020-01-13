@@ -1,4 +1,7 @@
-﻿## 2.1.0-core8
+﻿## 2.1.0-core9
+	Optimized performance for dynamic routing
+
+## 2.1.0-core8
 	Fixed CanRoute for dynamic outgoing
 
 ## 2.1.0-core7
