@@ -164,15 +164,7 @@ namespace Contour.Configurator
                 {
                     if (endpointConfig.Dynamic.Outgoing.Value)
                     {
-                        cfg.Route(MessageLabel.Any)
-                            .ConfiguredWith(builder => new LambdaRouteResolver(
-                                    (endpoint, label) =>
-                                        {
-                                            builder.Topology.Declare(
-                                                Exchange.Named(label.Name)
-                                                    .Durable.Fanout);
-                                            return new RabbitRoute(label.Name);
-                                        }));
+                        cfg.Route(MessageLabel.Any).ConfiguredWith(builder => new DynamicRouteResolver(builder));
                     }
                 }
             }
