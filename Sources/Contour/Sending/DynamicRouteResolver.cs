@@ -14,7 +14,7 @@ namespace Contour.Sending
     {
         private readonly IRouteResolverBuilder routeResolverBuilder;
 
-        private readonly ImmutableHashSet<string> createdExchangesCache;
+        private ImmutableHashSet<string> createdExchangesCache;
 
         private readonly object sync = new object();
 
@@ -40,7 +40,7 @@ namespace Contour.Sending
 
                 this.routeResolverBuilder.Topology.Declare(Exchange.Named(label.Name).Durable.Fanout);
 
-                this.createdExchangesCache.Add(label.Name);
+                this.createdExchangesCache = this.createdExchangesCache.Add(label.Name);
 
                 return new RabbitRoute(label.Name);
             }
