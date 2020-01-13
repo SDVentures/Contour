@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
 
@@ -13,25 +14,25 @@ namespace Contour.Sending
     {
         private readonly IRouteResolverBuilder routeResolverBuilder;
 
-        private readonly HashSet<string> createdExchangesCache = new HashSet<string>();
+        private readonly ImmutableHashSet<string> createdExchangesCache;
 
-        private readonly ReaderWriterLockSlim slimLock = new ReaderWriterLockSlim();
+        private readonly object sync = new object();
 
         public DynamicRouteResolver(IRouteResolverBuilder routeResolverBuilder)
         {
             this.routeResolverBuilder = routeResolverBuilder;
+            this.createdExchangesCache = ImmutableHashSet.Create<string>();
         }
 
         public IRoute Resolve(IEndpoint endpoint, MessageLabel label)
         {
-            try
+            if (this.createdExchangesCache.Contains(label.Name))
             {
-                if (this.createdExchangesCache.Contains(label.Name))
-                {
-                    return new RabbitRoute(label.Name);
-                }
+                return new RabbitRoute(label.Name);
+            }
 
-                this.slimLock.EnterWriteLock();
+            lock (this.sync)
+            {
                 if (this.createdExchangesCache.Contains(label.Name))
                 {
                     return new RabbitRoute(label.Name);
@@ -42,13 +43,6 @@ namespace Contour.Sending
                 this.createdExchangesCache.Add(label.Name);
 
                 return new RabbitRoute(label.Name);
-            }
-            finally
-            {
-                if (this.slimLock.IsWriteLockHeld)
-                {
-                    this.slimLock.ExitWriteLock();
-                }
             }
         }
     }
