@@ -114,18 +114,6 @@
         }
 
         /// <summary>
-        /// The build queuing consumer.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="QueueingBasicConsumer"/>.
-        /// </returns>
-        public QueueingBasicConsumer BuildQueueingConsumer()
-        {
-            var consumer = new QueueingBasicConsumer(this.Model);
-            return consumer;
-        }
-
-        /// <summary>
         /// The declare.
         /// </summary>
         /// <param name="exchange">
@@ -402,7 +390,7 @@
         /// </returns>
         public IMessage UnpackAs(Type type, RabbitDelivery delivery)
         {
-            var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
+            var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body.ToArray(), type);
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 

@@ -32,7 +32,7 @@
         /// The exception.
         /// </param>
         public RabbitFaultMessage(RabbitDelivery delivery, Exception exception)
-            : base(new Message(delivery.Label, delivery.Headers, TextBasedContentTypes.Contains(delivery.Args.BasicProperties.ContentType) ? (object)Encoding.UTF8.GetString(delivery.Args.Body) : delivery.Args.Body), DateTimeEx.FromUnixTimestamp(delivery.Args.BasicProperties.Timestamp.UnixTime), delivery.Args.BasicProperties.ContentType, exception)
+            : base(new Message(delivery.Label, delivery.Headers, TextBasedContentTypes.Contains(delivery.Args.BasicProperties.ContentType) ? (object)Encoding.UTF8.GetString(delivery.Args.Body.ToArray()) : delivery.Args.Body.ToArray()), DateTimeEx.FromUnixTimestamp(delivery.Args.BasicProperties.Timestamp.UnixTime), delivery.Args.BasicProperties.ContentType, exception)
         {
             this.Route = new RabbitRoute(delivery.Args.Exchange, delivery.Args.RoutingKey);
         }

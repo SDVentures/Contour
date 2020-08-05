@@ -45,7 +45,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 Uri = new Uri(this.ConnectionString),
                 AutomaticRecoveryEnabled = false,
                 ClientProperties = clientProperties,
-                RequestedConnectionTimeout = ConnectionTimeout
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout)
             };
         }
 
@@ -99,7 +99,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                         if (con != null)
                         {
                             con.ConnectionShutdown -= this.OnConnectionShutdown;
-                            con.Abort(OperationTimeout);
+                            con.Abort(TimeSpan.FromMilliseconds(OperationTimeout));
                         }
 
                         Thread.Sleep(TimeSpan.FromSeconds(secondsToRetry));
@@ -171,10 +171,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                         this.logger.Trace($"[{this.endpoint}]: closing connection.");
                         try
                         {
-                            this.connection.Close(OperationTimeout);
+                            this.connection.Close(TimeSpan.FromMilliseconds(OperationTimeout));
                             if (this.connection.CloseReason != null)
                             {
-                                this.connection.Abort(OperationTimeout);
+                                this.connection.Abort(TimeSpan.FromMilliseconds(OperationTimeout));
                             }
                         }
                         catch (AlreadyClosedException ex)

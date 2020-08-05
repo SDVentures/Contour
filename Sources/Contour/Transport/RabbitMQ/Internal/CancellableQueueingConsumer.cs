@@ -14,6 +14,7 @@
     internal class CancellableQueueingConsumer : DefaultBasicConsumer
     {
         private readonly CancellationToken cancellationToken;
+
         private readonly BlockingCollection<BasicDeliverEventArgs> queue = new BlockingCollection<BasicDeliverEventArgs>();
 
         /// <summary>
@@ -66,11 +67,21 @@
         /// <param name="body">
         /// The body.
         /// </param>
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override void HandleBasicDeliver(string consumerTag,
+            ulong deliveryTag,
+            bool redelivered,
+            string exchange,
+            string routingKey,
+            IBasicProperties properties,
+            ReadOnlyMemory<byte> body)
         {
             try
             {
-                this.queue.Add(new BasicDeliverEventArgs { Exchange = exchange, RoutingKey = routingKey, ConsumerTag = consumerTag, DeliveryTag = deliveryTag, Redelivered = redelivered, BasicProperties = properties, Body = body }, this.cancellationToken);
+                var copiedBody = new Memory<byte>();
+
+                body.CopyTo(copiedBody);
+
+                this.queue.Add(new BasicDeliverEventArgs { Exchange = exchange, RoutingKey = routingKey, ConsumerTag = consumerTag, DeliveryTag = deliveryTag, Redelivered = redelivered, BasicProperties = properties, Body = copiedBody }, this.cancellationToken);
             }
             catch (InvalidOperationException)
             {

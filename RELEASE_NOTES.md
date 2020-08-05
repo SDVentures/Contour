@@ -1,4 +1,7 @@
-﻿## 2.1.0-core9
+﻿## 2.2.0-core1
+	Upgraded RabbitMQ.Client to 6.1.0 for optimization CPU
+
+## 2.1.0-core9
 	Optimized performance for dynamic routing
 
 ## 2.1.0-core8
