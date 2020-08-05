@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -77,11 +79,7 @@
         {
             try
             {
-                var copiedBody = new Memory<byte>();
-
-                body.CopyTo(copiedBody);
-
-                this.queue.Add(new BasicDeliverEventArgs { Exchange = exchange, RoutingKey = routingKey, ConsumerTag = consumerTag, DeliveryTag = deliveryTag, Redelivered = redelivered, BasicProperties = properties, Body = copiedBody }, this.cancellationToken);
+                this.queue.Add(new BasicDeliverEventArgs { Exchange = exchange, RoutingKey = routingKey, ConsumerTag = consumerTag, DeliveryTag = deliveryTag, Redelivered = redelivered, BasicProperties = properties, Body = body.ToArray() }, this.cancellationToken);
             }
             catch (InvalidOperationException)
             {
