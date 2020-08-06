@@ -418,7 +418,7 @@
             }
             catch (Exception ex)
             {
-                this.logger.Error($"Channel action failed due to {ex.Message}", ex);
+                this.logger.Error($"Channel action failed due to {ex.Message}, connection string: [{this.ConnectionString}]", ex);
                 throw;
             }
         }

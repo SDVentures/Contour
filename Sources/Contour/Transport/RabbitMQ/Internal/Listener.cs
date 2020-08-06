@@ -325,11 +325,11 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", breadcrumbs));
             }
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
-                bool processed = this.TryHandleAsResponse(delivery);
+                var processed = this.TryHandleAsResponse(delivery);
 
                 if (!processed)
                 {
@@ -432,8 +432,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             try
             {
-                RabbitChannel channel;
-                var consumer = this.InitializeConsumer(token, out channel);
+                var consumer = this.InitializeConsumer(token, out var channel);
 
                 while (!token.IsCancellationRequested)
                 {
@@ -447,8 +446,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
             catch (Exception ex)
             {
-                this.logger.Error(
-                    $"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has failed due to [{ex.Message}]");
+                this.logger.Error($"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has failed due to [{ex.Message}]");
             }
         }
 
@@ -544,8 +542,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="correlationId">Корреляционный идентификатор, с помощью которого определяется принадлежность ответа определенному запросу.</param>
         private void OnResponseTimeout(string correlationId)
         {
-            Expectation expectation;
-            if (this.expectations.TryRemove(correlationId, out expectation))
+            if (this.expectations.TryRemove(correlationId, out var expectation))
             {
                 expectation.Timeout();
             }
@@ -559,7 +556,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </param>
         private void OnUnhandled(RabbitDelivery delivery)
         {
-            this.logger.Warn(m => m("No handler for message labeled [{0}] on queue [{1}].", delivery.Label, this.endpoint.ListeningSource));
+            this.logger.Warn(m => m("No handler for message labeled [{0}] on queue [{1}]. On connection string: [{2}]", delivery.Label, this.endpoint.ListeningSource, this.BrokerUrl));
 
             this.ReceiverOptions.GetUnhandledDeliveryStrategy()
                 .Value.Handle(new RabbitUnhandledConsumingContext(delivery));
@@ -581,10 +578,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return false;
             }
 
-            string correlationId = delivery.CorrelationId;
+            var correlationId = delivery.CorrelationId;
 
-            Expectation expectation;
-            if (!this.expectations.TryRemove(correlationId, out expectation))
+            if (!this.expectations.TryRemove(correlationId, out var expectation))
             {
                 return false;
             }
@@ -609,8 +605,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         private bool TryHandleAsSubscription(RabbitDelivery delivery)
         {
-            ConsumingAction consumingAction;
-            if (!this.consumers.TryGetValue(delivery.Label, out consumingAction))
+            if (!this.consumers.TryGetValue(delivery.Label, out var consumingAction))
             {
                 this.consumers.TryGetValue(MessageLabel.Any, out consumingAction);
 
