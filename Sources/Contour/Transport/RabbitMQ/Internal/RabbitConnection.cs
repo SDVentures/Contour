@@ -91,10 +91,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     {
                         var secondsToRetry = Math.Min(10, retryCount);
 
-                        this.logger.WarnFormat(
-                            "Unable to connect to RabbitMQ. Retrying in {0} seconds...",
-                            ex,
-                            secondsToRetry);
+                        this.logger.Warn(m => m("Unable to connect to RabbitMQ on connection string: [{1}]. Retrying in {0} seconds...", secondsToRetry, this.ConnectionString), ex);
 
                         if (con != null)
                         {
@@ -154,7 +151,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                     catch (Exception ex)
                     {
-                        this.logger.Error($"Failed to open a new channel due to: {ex.Message}; retrying...", ex);
+                        this.logger.Error($"Failed to open a new channel on connection string: [{this.ConnectionString}] due to: {ex.Message}; retrying...", ex);
                     }
                 }
             }
