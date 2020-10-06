@@ -89,6 +89,13 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                     catch (Exception ex)
                     {
+                        // 10 попыток это 55 секнуд только задержек, плюс само время на коннект
+                        // если не смогли подключиться за это время, то пора пробросить ошибку
+                        if (retryCount > 10)
+                        {
+                            throw;
+                        }
+                        
                         var secondsToRetry = Math.Min(10, retryCount);
 
                         this.logger.Warn(m => m("Unable to connect to RabbitMQ on connection string: [{1}]. Retrying in {0} seconds...", secondsToRetry, this.ConnectionString), ex);
