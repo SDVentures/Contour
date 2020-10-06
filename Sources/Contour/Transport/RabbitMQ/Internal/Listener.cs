@@ -269,7 +269,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                                 TaskScheduler.Default)));
 
                 this.isConsuming = true;
-                this.logger.Trace("Listener started successfully");
+                this.logger.Trace("Listener's workers started successfully");
             }
         }
 
@@ -434,6 +434,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 // если шина так и не стала готова работать, то не смысла начинать слушать сообщения, что бы потом их потерять
                 this.busContext.WhenReady.WaitOne();
+
+                this.logger.Info($"Listner {this} start consuming.");
 
                 while (!token.IsCancellationRequested)
                 {
