@@ -190,6 +190,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                             this.isRestarting.Reset();
                             if (t.IsFaulted)
                             {
+                                this.logger.Error(m => m("Error on restarting bus: {0}", this.Endpoint.Address), t.Exception.InnerException);
                                 throw t.Exception.InnerException;
                             }
                         });
