@@ -432,8 +432,20 @@ namespace Contour.Transport.RabbitMQ.Internal
             {
                 var consumer = this.InitializeConsumer(token, out var channel);
 
+                var waitSecond = 0;
                 // если шина так и не стала готова работать, то не смысла начинать слушать сообщения, что бы потом их потерять
-                this.busContext.WhenReady.WaitOne();
+                while (true)
+                {
+                    if (!this.busContext.WhenReady.WaitOne(60000))
+                    {
+                        waitSecond += 60;
+                        this.logger.Warn(m => m ("Wait when bus [{0}] will be ready already {1} seconds. Continue waiting.", this.busContext.Endpoint.Address, waitSecond));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
 
                 this.logger.Info($"Listner {this} start consuming.");
 
