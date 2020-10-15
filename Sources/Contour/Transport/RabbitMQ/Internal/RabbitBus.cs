@@ -49,6 +49,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public void Panic()
         {
+            
+            // TODO никто не вызывает, может стоит удалить метод
             this.Restart();
         }
 
@@ -189,13 +191,17 @@ namespace Contour.Transport.RabbitMQ.Internal
                         {
                             this.isRestarting.Reset();
                             if (t.IsFaulted)
-                            {
+                            {   
+                                // TODO ошибка тут приводит к тому, что сервис зависает навсегда с неготовой шиной
+                                // если раньше это приводило к потере сообщений, при попытке их обработать, теперь сервис просто ничего делать не будет
+                                this.logger.Error(m => m("Error on restarting bus: {0}", this.Endpoint.Address), t.Exception.InnerException);
                                 throw t.Exception.InnerException;
                             }
                         });
 
             if (waitForReadiness)
             {
+                // TODO почему ждем 5 секунд, если не дождались, то можем получить неготовую шину до перезапуска
                 this.restartTask.Wait(5000);
             }
         }

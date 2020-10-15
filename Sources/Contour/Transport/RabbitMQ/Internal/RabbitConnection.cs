@@ -89,16 +89,16 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                     catch (Exception ex)
                     {
-                        var secondsToRetry = Math.Min(10, retryCount);
-
-                        this.logger.Warn(m => m("Unable to connect to RabbitMQ on connection string: [{1}]. Retrying in {0} seconds...", secondsToRetry, this.ConnectionString), ex);
-
                         if (con != null)
                         {
                             con.ConnectionShutdown -= this.OnConnectionShutdown;
                             con.Abort(TimeSpan.FromMilliseconds(OperationTimeout));
                         }
 
+                        var secondsToRetry = Math.Min(10, retryCount);
+
+                        this.logger.Warn(m => m("Unable to connect to RabbitMQ on connection string: [{1}]. Retrying in {0} seconds...", secondsToRetry, this.ConnectionString), ex);
+                        
                         Thread.Sleep(TimeSpan.FromSeconds(secondsToRetry));
                         retryCount++;
                     }

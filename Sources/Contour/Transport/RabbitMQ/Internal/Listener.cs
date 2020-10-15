@@ -77,6 +77,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private ITicketTimer ticketTimer;
         private ConcurrentBag<Task> workers;
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Listener"/> class. 
         /// </summary>
@@ -188,8 +189,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Task<IMessage> Expect(string correlationId, Type expectedResponseType, TimeSpan? timeout)
         {
-            Expectation expectation;
-            if (this.expectations.TryGetValue(correlationId, out expectation))
+            if (this.expectations.TryGetValue(correlationId, out var expectation))
             {
                 return expectation.Task;
             }
@@ -269,7 +269,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                                 TaskScheduler.Default)));
 
                 this.isConsuming = true;
-                this.logger.Trace("Listener started successfully");
+                this.logger.Trace("Listener's workers started successfully");
             }
         }
 
@@ -364,8 +364,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 this.cancellationTokenSource.Cancel(true);
 
-                Task worker;
-                while (this.workers.TryTake(out worker))
+                while (this.workers.TryTake(out var worker))
                 {
                     try
                     {
@@ -378,8 +377,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                 }
 
-                RabbitChannel channel;
-                while (this.channels.TryTake(out channel))
+                while (this.channels.TryTake(out var channel))
                 {
                     try
                     {
@@ -433,6 +431,23 @@ namespace Contour.Transport.RabbitMQ.Internal
             try
             {
                 var consumer = this.InitializeConsumer(token, out var channel);
+
+                var waitSecond = 0;
+                // если шина так и не стала готова работать, то не смысла начинать слушать сообщения, что бы потом их потерять
+                while (true)
+                {
+                    if (!this.busContext.WhenReady.WaitOne(60000))
+                    {
+                        waitSecond += 60;
+                        this.logger.Warn(m => m ("Wait when bus [{0}] will be ready already {1} seconds. Continue waiting.", this.busContext.Endpoint.Address, waitSecond));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                this.logger.Info($"Listner {this} start consuming.");
 
                 while (!token.IsCancellationRequested)
                 {
