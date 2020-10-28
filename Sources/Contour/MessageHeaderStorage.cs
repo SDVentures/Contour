@@ -10,8 +10,6 @@ namespace Contour
 
         private readonly HashSet<string> blackHeaderSet;
 
-        private readonly string storageKey = "Contour.MessageHeaderStorage";
-
         public MessageHeaderStorage(IEnumerable<string> blackHeaders)
         {
             this.blackHeaderSet = new HashSet<string>(blackHeaders);
@@ -46,5 +44,15 @@ namespace Contour
         {
             this.blackHeaderSet.UnionWith(headers);
         }
+
+        /// <summary>
+        /// Возвращает сохраненные заголовки входящего сообщения.
+        /// </summary>
+        /// <returns>Заголовки входящего сообщения.</returns>
+        public static IDictionary<string, object> LoadStatic()
+        {
+            return storage.Value;
+        }
+
     }
 }

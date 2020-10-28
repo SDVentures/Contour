@@ -1,4 +1,7 @@
-﻿## 2.2.1-core1
+﻿## 2.2.1-core2
+	Added easier access to headers
+
+## 2.2.1-core1
  fix BusNotReady on start
 
 ## 2.2.0-core1

@@ -81,8 +81,7 @@ namespace Contour
         /// <returns>Если заголовок существует, тогда его значение, иначе <c>null</c> или 0.</returns>
         public static T Extract<T>(IDictionary<string, object> headers, string key)
         {
-            object value;
-            if (headers.TryGetValue(key, out value))
+            if (headers.TryGetValue(key, out var value))
             {
                 headers.Remove(key);
                 return (T)value;
@@ -99,21 +98,19 @@ namespace Contour
         /// <returns>Строковое значение заголовка или пустая строка, если заголовка не существует в наборе.</returns>
         public static string GetString(IDictionary<string, object> headers, string key)
         {
-            object value;
-            if (headers.TryGetValue(key, out value))
-            {
-                if (value is string)
-                {
-                    return (string)value;
-                }
+            return GetStringPrivate(headers, key);
+        }
 
-                if (value is byte[])
-                {
-                    return Encoding.UTF8.GetString((byte[])value);
-                }
-            }
+        /// <summary>
+        /// Возвращает заголовки из хранилища заголовков
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string GetString(string key)
+        {
+            var storedHeaders = MessageHeaderStorage.LoadStatic();
 
-            return string.Empty;
+            return GetStringPrivate(storedHeaders, key);
         }
 
         /// <summary>
@@ -206,6 +203,24 @@ namespace Contour
             }
             
             return headers;
+        }
+
+        private static string GetStringPrivate(IDictionary<string, object> headers, string key)
+        {
+            if (headers.TryGetValue(key, out var value))
+            {
+                if (value is string s)
+                {
+                    return s;
+                }
+
+                if (value is byte[] bytes)
+                {
+                    return Encoding.UTF8.GetString(bytes);
+                }
+            }
+
+            return string.Empty;
         }
     }
 }
