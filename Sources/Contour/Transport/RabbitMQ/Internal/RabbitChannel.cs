@@ -316,7 +316,15 @@
         /// </param>
         public void SetQos(QoSParams qos)
         {
-            this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
+            try
+            {
+                this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to set Qos on channel: {0}", this.ToString()), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -336,11 +344,19 @@
         /// </returns>
         public string StartConsuming(IListeningSource listeningSource, bool requireAccept, IBasicConsumer consumer)
         {
-            string consumerTag = string.Empty;
+            try
+            {
+                var consumerTag = string.Empty;
 
-            this.SafeNativeInvoke(n => consumerTag = n.BasicConsume(listeningSource.Address, !requireAccept, consumer));
+                this.SafeNativeInvoke(n => consumerTag = n.BasicConsume(listeningSource.Address, !requireAccept, consumer));
 
-            return consumerTag;
+                return consumerTag;
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed start consuming on channel."), e);
+                throw;
+            }
         }
 
         /// <summary>
