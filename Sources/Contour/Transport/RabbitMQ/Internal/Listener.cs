@@ -436,6 +436,11 @@ namespace Contour.Transport.RabbitMQ.Internal
                 // если шина так и не стала готова работать, то не смысла начинать слушать сообщения, что бы потом их потерять
                 while (true)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
                     if (!this.busContext.WhenReady.WaitOne(60000))
                     {
                         waitSecond += 60;
@@ -457,7 +462,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
             catch (OperationCanceledException)
             {
-                this.logger.Info($"Consume operation of listener has been canceled");
+                this.logger.Info("Consume operation of listener has been canceled");
             }
             catch (Exception ex)
             {
