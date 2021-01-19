@@ -96,7 +96,15 @@
         /// </param>
         public void Bind(Queue queue, Exchange exchange, string routingKey)
         {
-            this.SafeNativeInvoke(n => n.QueueBind(queue.Name, exchange.Name, routingKey));
+            try
+            {
+                this.SafeNativeInvoke(n => n.QueueBind(queue.Name, exchange.Name, routingKey));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to bind queue to exchange [{1}:{2}] on channel: {0}", this.ToString(), exchange.Name, queue.Name), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -121,7 +129,15 @@
         /// </param>
         public void Declare(Exchange exchange)
         {
-            this.SafeNativeInvoke(n => n.ExchangeDeclare(exchange.Name, exchange.Type, exchange.Durable, exchange.AutoDelete, new Dictionary<string, object>()));
+            try
+            {
+                this.SafeNativeInvoke(n => n.ExchangeDeclare(exchange.Name, exchange.Type, exchange.Durable, exchange.AutoDelete, new Dictionary<string, object>()));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to Declare Exchange [{1}] on channel: {0}", this.ToString(), exchange.Name), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -132,18 +148,25 @@
         /// </param>
         public void Declare(Queue queue)
         {
-            var arguments = new Dictionary<string, object>();
-            if (queue.Ttl.HasValue)
+            try
             {
-                arguments.Add(Contour.Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
+                var arguments = new Dictionary<string, object>();
+                if (queue.Ttl.HasValue)
+                {
+                    arguments.Add(Contour.Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
+                }
+                if (queue.Limit.HasValue)
+                {
+                    arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
+                }
+                
+                this.SafeNativeInvoke(n => n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
             }
-            if (queue.Limit.HasValue)
+            catch (Exception e)
             {
-                arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
+                this.logger.Error(m => m("Failed to Declare Queue [{1}] on channel: {0}", this.ToString(), queue.Name), e);
+                throw;
             }
-
-
-            this.SafeNativeInvoke(n => n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
         }
 
         /// <summary>
@@ -154,11 +177,19 @@
         /// </returns>
         public string DeclareDefaultQueue()
         {
-            string queueName = string.Empty;
+            try
+            {
+                var queueName = string.Empty;
 
-            this.SafeNativeInvoke(n => queueName = n.QueueDeclare());
+                this.SafeNativeInvoke(n => queueName = n.QueueDeclare());
 
-            return queueName;
+                return queueName;
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to Declare Default Queue on channel: {0}", this.ToString()), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -198,7 +229,7 @@
         /// </returns>
         public ulong GetNextSeqNo()
         {
-            ulong seqNo = 0UL;
+            var seqNo = 0UL;
             this.SafeNativeInvoke(n => seqNo = n.NextPublishSeqNo);
             return seqNo;
         }
