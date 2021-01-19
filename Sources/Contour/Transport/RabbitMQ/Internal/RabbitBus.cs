@@ -15,14 +15,17 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitBus : AbstractBus, IBusAdvanced
     {
-        private readonly object syncRoot = new object();
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
-        private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
         private readonly ManualResetEvent ready = new ManualResetEvent(false);
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
 
+        /// <summary>
+        /// Шина полностью сконфигурированна и готова слушать входящие и публиковать исходящии, осталось ее только включить
+        /// </summary>
+        private bool isPrepared;
+
         private CancellationTokenSource cancellationTokenSource;
-        private Task restartTask;
+        private Task startTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitBus" /> class.
@@ -34,7 +37,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.cancellationTokenSource = new CancellationTokenSource();
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
-            this.restartTask = completion.Task;
+            this.startTask = completion.Task;
             
             this.connectionPool = new RabbitConnectionPool(this);
         }
@@ -43,16 +46,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Gets the when ready.
         /// </summary>
         public override WaitHandle WhenReady => this.ready;
-
-        /// <summary>
-        /// The panic.
-        /// </summary>
-        public void Panic()
-        {
-            
-            // TODO никто не вызывает, может стоит удалить метод
-            this.Restart();
-        }
 
         /// <summary>
         /// Starts a bus
@@ -66,7 +59,34 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return;
             }
 
-            this.Restart(waitForReadiness);
+            this.logger.Trace(m => m("{0}: Starting...", this.Endpoint));
+
+            var token = this.cancellationTokenSource.Token;
+            this.startTask = Task.Factory.StartNew(this.PrepareTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(_ => this.StartTask(), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            if (t.IsFaulted)
+                            {
+                                // TODO ошибка тут приводит к тому, что сервис зависает навсегда с неготовой шиной
+                                // если раньше это приводило к потере сообщений, при попытке их обработать, теперь сервис просто ничего делать не будет
+                                this.logger.Error(m => m("Error on restarting bus: {0}", this.Endpoint.Address), t.Exception.InnerException);
+                                throw t.Exception.InnerException;
+                            }
+                        });
+
+            if (waitForReadiness)
+            {
+                // TODO почему ждем 5 секунд, если не дождались, то можем получить неготовую шину до перезапуска
+                // данное поведение было заложено до рефакторинга и причина такого поведения не известна
+                this.startTask.Wait(5000);
+            }
+        }
+
+        public override void Prepare()
+        {
+            this.PrepareTask();
         }
 
         public override void Stop()
@@ -74,9 +94,9 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.ResetRestartTask();
 
             var token = this.cancellationTokenSource.Token;
-            this.restartTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            this.startTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-            this.restartTask.Wait(5000);
+            this.startTask.Wait(5000);
         }
 
         /// <summary>
@@ -100,7 +120,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
             // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоянии закрытия)
             // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
-            this.restartTask.Wait();
+            this.startTask.Wait();
 
             this.ComponentTracker.UnregisterAll();
             this.IsShuttingDown = false;
@@ -166,49 +186,28 @@ namespace Contour.Transport.RabbitMQ.Internal
             return sender;
         }
 
-        protected override void Restart(bool waitForReadiness = true)
-        {
-            lock (this.syncRoot)
-            {
-                if (this.isRestarting.WaitOne(0) || this.IsShuttingDown)
-                {
-                    return;
-                }
-
-                this.ready.Reset();
-                this.isRestarting.Set();
-            }
-
-            this.logger.Trace(m => m("{0}: Restarting...", this.Endpoint));
-
-            this.ResetRestartTask();
-
-            var token = this.cancellationTokenSource.Token;
-            this.restartTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(_ => this.StartTask(), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(
-                    t =>
-                        {
-                            this.isRestarting.Reset();
-                            if (t.IsFaulted)
-                            {   
-                                // TODO ошибка тут приводит к тому, что сервис зависает навсегда с неготовой шиной
-                                // если раньше это приводило к потере сообщений, при попытке их обработать, теперь сервис просто ничего делать не будет
-                                this.logger.Error(m => m("Error on restarting bus: {0}", this.Endpoint.Address), t.Exception.InnerException);
-                                throw t.Exception.InnerException;
-                            }
-                        });
-
-            if (waitForReadiness)
-            {
-                // TODO почему ждем 5 секунд, если не дождались, то можем получить неготовую шину до перезапуска
-                this.restartTask.Wait(5000);
-            }
-        }
-
         private void StartTask()
         {
             if (this.IsShuttingDown)
+            {
+                return;
+            }
+
+            this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
+            this.IsStarted = true;
+            this.ready.Set();
+
+            this.OnStarted();
+        }
+
+        private void PrepareTask()
+        {
+            if (this.IsShuttingDown)
+            {
+                return;
+            }
+
+            if (this.isPrepared)
             {
                 return;
             }
@@ -221,11 +220,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("{0}: starting components.", this.Endpoint));
             this.ComponentTracker.StartAll();
 
-            this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
-            this.IsStarted = true;
-            this.ready.Set();
-
-            this.OnStarted();
+            this.isPrepared = true;
         }
 
         private void StopTask()
@@ -248,12 +243,12 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         private void ResetRestartTask()
         {
-            if (!this.restartTask.IsCompleted)
+            if (!this.startTask.IsCompleted)
             {
                 this.cancellationTokenSource.Cancel();
                 try
                 {
-                    this.restartTask.Wait();
+                    this.startTask.Wait();
                 }
                 catch (AggregateException ex)
                 {

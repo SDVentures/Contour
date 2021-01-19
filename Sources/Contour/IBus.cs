@@ -170,6 +170,11 @@ namespace Contour
         /// Необходимо ожидать полной готовности шины.
         /// </param>
         void Start(bool waitForReadiness = true);
+        
+        /// <summary>
+        /// Предварительное конфигурирование клиента шины без его запуска.
+        /// </summary>
+        void Prepare();
 
         /// <summary>
         ///   Остановка клиента шины.

@@ -533,6 +533,12 @@
         /// <param name="waitForReadiness">Если <c>true</c> - тогда необходимо дождаться готовности шины сообщений.</param>
         public abstract void Start(bool waitForReadiness = true);
 
+
+        /// <summary>
+        /// Предварительное конфигурирование клиента шины без его запуска.
+        /// </summary>
+        public abstract void Prepare();
+
         /// <summary>
         /// Останавливает шину сообщений.
         /// </summary>
@@ -677,12 +683,6 @@
 
             this.Stopping(this, null);
         }
-
-        /// <summary>
-        /// Останавливает и заново запускает шину сообщений.
-        /// </summary>
-        /// <param name="waitForReadiness"><c>true</c> - если нужно дождаться готовности шины.</param>
-        protected abstract void Restart(bool waitForReadiness = true);
 
         /// <summary>
         /// Проверяет возможность отправить сообщение с указанной меткой.
