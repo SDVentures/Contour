@@ -91,7 +91,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public override void Stop()
         {
-            this.ResetRestartTask();
+            this.ResetStartTask();
 
             var token = this.cancellationTokenSource.Token;
             this.startTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -241,7 +241,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.OnStopped();
         }
 
-        private void ResetRestartTask()
+        private void ResetStartTask()
         {
             if (!this.startTask.IsCompleted)
             {
