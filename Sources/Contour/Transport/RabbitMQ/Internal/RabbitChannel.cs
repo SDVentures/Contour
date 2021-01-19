@@ -298,17 +298,6 @@
         }
 
         /// <summary>
-        /// The request publish.
-        /// </summary>
-        /// <param name="qos">
-        /// The qos.
-        /// </param>
-        public void RequestPublish(QoSParams qos)
-        {
-            this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
-        }
-
-        /// <summary>
         /// The set qos.
         /// </summary>
         /// <param name="qos">
@@ -356,39 +345,6 @@
             {
                 this.logger.Error(m => m("Failed start consuming on channel."), e);
                 throw;
-            }
-        }
-
-        /// <summary>
-        /// The stop consuming.
-        /// </summary>
-        /// <param name="consumerTag">
-        /// The consumer tag.
-        /// </param>
-        public void StopConsuming(string consumerTag)
-        {
-            this.SafeNativeInvoke(n => n.BasicCancel(consumerTag));
-        }
-
-        /// <summary>
-        /// The try stop consuming.
-        /// </summary>
-        /// <param name="consumerTag">
-        /// The consumer tag.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool TryStopConsuming(string consumerTag)
-        {
-            try
-            {
-                this.Model.BasicCancel(consumerTag);
-                return true;
-            }
-            catch
-            {
-                return false;
             }
         }
 
