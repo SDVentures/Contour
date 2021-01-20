@@ -106,30 +106,6 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
         }
 
-        [Obsolete("Use cancellable version")]
-        public RabbitChannel OpenChannel()
-        {
-            lock (this.syncRoot)
-            {
-                if (this.connection == null || !this.connection.IsOpen)
-                {
-                    throw new InvalidOperationException("RabbitMQ connection is not open.");
-                }
-
-                try
-                {
-                    var model = this.connection.CreateModel();
-                    var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString);
-                    return channel;
-                }
-                catch (Exception ex)
-                {
-                    this.logger.Error($"Failed to open a new channel in connection [{this}] due to: {ex.Message}", ex);
-                    throw;
-                }
-            }
-        }
-
         public RabbitChannel OpenChannel(CancellationToken token)
         {
             lock (this.syncRoot)

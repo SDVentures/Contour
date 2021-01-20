@@ -25,7 +25,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private bool isPrepared;
 
         private CancellationTokenSource cancellationTokenSource;
-        private Task startTask;
+        private Task workTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitBus" /> class.
@@ -37,7 +37,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.cancellationTokenSource = new CancellationTokenSource();
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
-            this.startTask = completion.Task;
+            this.workTask = completion.Task;
             
             this.connectionPool = new RabbitConnectionPool(this);
         }
@@ -62,7 +62,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("{0}: Starting...", this.Endpoint));
 
             var token = this.cancellationTokenSource.Token;
-            this.startTask = Task.Factory.StartNew(this.PrepareTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+            this.workTask = Task.Factory.StartNew(this.PrepareTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(_ => this.StartTask(), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(
                     t =>
@@ -80,7 +80,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             {
                 // TODO почему ждем 5 секунд, если не дождались, то можем получить неготовую шину до перезапуска
                 // данное поведение было заложено до рефакторинга и причина такого поведения не известна
-                this.startTask.Wait(5000);
+                this.workTask.Wait(5000);
             }
         }
 
@@ -91,12 +91,12 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public override void Stop()
         {
-            this.ResetStartTask();
+            this.ResetWorkTask();
 
             var token = this.cancellationTokenSource.Token;
-            this.startTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            this.workTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-            this.startTask.Wait(5000);
+            this.workTask.Wait(5000);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
             // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоянии закрытия)
             // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
-            this.startTask.Wait();
+            this.workTask.Wait();
 
             this.ComponentTracker.UnregisterAll();
             this.IsShuttingDown = false;
@@ -194,9 +194,9 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
-            this.IsStarted = true;
             this.ready.Set();
-
+            this.IsStarted = true;
+            
             this.OnStarted();
         }
 
@@ -241,14 +241,14 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.OnStopped();
         }
 
-        private void ResetStartTask()
+        private void ResetWorkTask()
         {
-            if (!this.startTask.IsCompleted)
+            if (!this.workTask.IsCompleted)
             {
                 this.cancellationTokenSource.Cancel();
                 try
                 {
-                    this.startTask.Wait();
+                    this.workTask.Wait();
                 }
                 catch (AggregateException ex)
                 {
