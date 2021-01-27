@@ -229,7 +229,7 @@
         /// </returns>
         public ulong GetNextSeqNo()
         {
-            var seqNo = 0UL;
+            ulong seqNo = 0UL;
             this.SafeNativeInvoke(n => seqNo = n.NextPublishSeqNo);
             return seqNo;
         }

@@ -50,13 +50,12 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Starts a bus
         /// </summary>
-        /// <param name="waitForReadiness">The wait for readiness.</param>
         /// <exception cref="AggregateException">Any exceptions thrown during the bus start</exception>
-        public override void Start(bool waitForReadiness = true)
+        public override Task Start()
         {
             if (this.IsStarted || this.IsShuttingDown)
             {
-                return;
+                return Task.FromResult(0);
             }
 
             this.logger.Trace(m => m("{0}: Starting...", this.Endpoint));
@@ -75,18 +74,18 @@ namespace Contour.Transport.RabbitMQ.Internal
                                 throw t.Exception.InnerException;
                             }
                         });
-
-            if (waitForReadiness)
-            {
-                // TODO почему ждем 5 секунд, если не дождались, то можем получить неготовую шину до перезапуска
-                // данное поведение было заложено до рефакторинга и причина такого поведения не известна
-                this.workTask.Wait(5000);
-            }
+            
+            return this.workTask;
         }
 
-        public override void Prepare()
+        /// <summary>
+        /// Prepare a bus
+        /// </summary>
+        /// <returns>Task </returns>
+        public override Task Prepare()
         {
-            this.PrepareTask();
+            var token = this.cancellationTokenSource.Token;
+            return Task.Factory.StartNew(this.PrepareTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public override void Stop()

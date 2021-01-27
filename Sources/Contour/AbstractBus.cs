@@ -530,14 +530,13 @@
         /// <summary>
         /// Запускает шину сообщений.
         /// </summary>
-        /// <param name="waitForReadiness">Если <c>true</c> - тогда необходимо дождаться готовности шины сообщений.</param>
-        public abstract void Start(bool waitForReadiness = true);
+        public abstract Task Start();
 
 
         /// <summary>
         /// Предварительное конфигурирование клиента шины без его запуска.
         /// </summary>
-        public abstract void Prepare();
+        public abstract Task Prepare();
 
         /// <summary>
         /// Останавливает шину сообщений.
