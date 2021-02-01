@@ -166,10 +166,14 @@ namespace Contour
         /// <summary>
         /// Конфигурирование и запуск клиента шины.
         /// </summary>
-        /// <param name="waitForReadiness">
-        /// Необходимо ожидать полной готовности шины.
-        /// </param>
-        void Start(bool waitForReadiness = true);
+        /// <returns>Задача cтартующая шину.</returns>
+        Task Start();
+
+        /// <summary>
+        /// Предварительное конфигурирование клиента шины без его запуска.
+        /// </summary>
+        /// <returns>Задача конфигурирующая шину.</returns>
+        Task Prepare();
 
         /// <summary>
         ///   Остановка клиента шины.

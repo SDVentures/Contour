@@ -20,7 +20,7 @@ namespace Contour.Configuration
         /// <summary>
         /// The logger.
         /// </summary>
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger<BusConfiguration>();
 
         /// <summary>
         /// The _filters.
