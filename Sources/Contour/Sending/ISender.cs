@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 using Contour.Configuration;
@@ -84,6 +85,9 @@ namespace Contour.Sending
         /// <param name="headers">Заголовки сообщения.</param>
         /// <returns>Задача выполнения отправки сообщения.</returns>
         Task Send(MessageLabel label, object payload, IDictionary<string, object> headers);
+
+
+        Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string url = null);
 
         /// <summary>
         /// Отправляет одностороннее сообщение.

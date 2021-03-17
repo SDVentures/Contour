@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
 using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
@@ -13,12 +15,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public RoundRobinSelector(IEnumerable<IProducer> items)
         {
-            if (items == null)
-            {
-                throw new ArgumentNullException(nameof(items));
-            }
-
-            this.producers = items;
+            this.producers = items ?? throw new ArgumentNullException(nameof(items));
             this.enumerator = this.producers.GetEnumerator();
         }
 
@@ -27,9 +24,16 @@ namespace Contour.Transport.RabbitMQ.Internal
             return this.NextInternal();
         }
 
-        public IProducer Next(IMessage message)
+        public IProducer PickByBrockerUrl(string url)
         {
-            return this.NextInternal();
+            var result = this.producers.FirstOrDefault(x => x.BrokerUrl == url);
+
+            if (result == null)
+            {
+                throw new ArgumentException($"No one producer for connection string {url}");
+            }
+
+            return result;
         }
 
         private IProducer NextInternal()

@@ -65,12 +65,17 @@ namespace Contour.Filters
         /// </returns>
         public Task<MessageExchange> Continue(MessageExchange exchange)
         {
+            return this.Continue(exchange, null);
+        }
+
+        public Task<MessageExchange> Continue(MessageExchange exchange, string url = null)
+        {
             if (!this.filterEnumerator.MoveNext())
             {
                 return Filter.Result(exchange);
             }
 
-            return this.filterEnumerator.Current.Process(exchange, this);
+            return this.filterEnumerator.Current.Process(exchange, this, url);
         }
 
         /// <summary>
@@ -84,7 +89,12 @@ namespace Contour.Filters
         /// </returns>
         public virtual Task<MessageExchange> Process(MessageExchange exchange)
         {
-            return this.Continue(exchange);
+            return this.Process(exchange, null);
+        }
+
+        public virtual Task<MessageExchange> Process(MessageExchange exchange, string url = null)
+        {
+            return this.Continue(exchange, url);
         }
 
         #endregion

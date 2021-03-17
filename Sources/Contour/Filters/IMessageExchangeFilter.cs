@@ -32,6 +32,9 @@ namespace Contour.Filters
         /// </returns>
         Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker);
 
+
+        Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker, string url = null);
+
         #endregion
     }
 }

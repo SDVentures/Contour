@@ -212,11 +212,24 @@ namespace Contour.Sending
         /// <param name="payload">Тело сообщения.</param>
         /// <param name="headers">Заголовки сообщения.</param>
         /// <returns>Задача выполнения отправки сообщения.</returns>
-        public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers)
+        public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string url = null)
         {
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
-            return this.ProcessFilter(message);
+            return this.ProcessFilter(message, url);
+        }
+
+
+        /// <summary>
+        /// Отправляет одностороннее сообщение.
+        /// </summary>
+        /// <param name="label">Метка отправляемого сообщения.</param>
+        /// <param name="payload">Тело сообщения.</param>
+        /// <param name="headers">Заголовки сообщения.</param>
+        /// <returns>Задача выполнения отправки сообщения.</returns>
+        public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers)
+        {
+            return this.Send(label, payload, headers, null);
         }
 
         /// <summary>
@@ -245,20 +258,21 @@ namespace Contour.Sending
         /// Фильтр обработки сообщения, который отсылает сообщение.
         /// </summary>
         /// <param name="exchange">Отсылаемое сообщение.</param>
+        /// <param name="url">Строка подключения, через которую надо отослать сообщение</param>
         /// <returns>Задача выполнения фильтра.</returns>
-        protected abstract Task<MessageExchange> InternalSend(MessageExchange exchange);
+        protected abstract Task<MessageExchange> InternalSend(MessageExchange exchange, string url = null);
 
         /// <summary>
         /// Обрабатывает сообщение с помощью зарегистрированных фильтров.
         /// </summary>
         /// <param name="message">Обрабатываемое сообщение.</param>
         /// <returns>Задача обработки сообщения с помощью фильтров.</returns>
-        private Task ProcessFilter(IMessage message)
+        private Task ProcessFilter(IMessage message, string url = null)
         {
             var exchange = new MessageExchange(message, null);
             var invoker = new MessageExchangeFilterInvoker(this.filters);
 
-            return invoker.Process(exchange);
+            return invoker.Process(exchange, url);
         }
 
         /// <summary>

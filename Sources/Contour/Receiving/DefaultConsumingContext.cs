@@ -46,13 +46,7 @@ namespace Contour.Receiving
         /// <summary>
         /// Верно, если можно ответить на это сообщение.
         /// </summary>
-        public bool CanReply
-        {
-            get
-            {
-                return this.Delivery.CanReply;
-            }
-        }
+        public bool CanReply => this.Delivery.CanReply;
 
         /// <summary>
         /// Помечает сообщение как обработанное.
