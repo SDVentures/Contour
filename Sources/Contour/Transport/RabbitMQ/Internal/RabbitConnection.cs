@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +34,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.ConnectionString = connectionString;
             this.busContext = busContext;
 
+            this.ConnectionKey = GetConnectionKey(connectionString);
+
             var clientProperties = new Dictionary<string, object>
             {
                 { "Endpoint", this.endpoint.Address },
@@ -58,6 +62,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         public Guid Id { get; }
 
         public string ConnectionString { get; }
+
+        public string ConnectionKey { get; }
 
         public void Open(CancellationToken token)
         {
@@ -122,7 +128,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     try
                     {
                         var model = this.connection.CreateModel();
-                        var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString);
+                        var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString, this.ConnectionKey);
                         return channel;
                     }
                     catch (Exception ex)
@@ -207,7 +213,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public override string ToString()
         {
-            return $"{this.Id} : {this.ConnectionString}";
+            return $"{this.Id} : {this.ConnectionString} : {this.ConnectionKey}";
         }
 
         protected virtual void OnOpened()
@@ -239,6 +245,15 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                     this.OnClosed();
                 });
+        }
+
+        private static string GetConnectionKey(string connectionString)
+        {
+            var uri = new Uri(connectionString, UriKind.Absolute);
+
+            var ip = string.Join(",", Dns.GetHostAddresses(uri.Host).OrderBy(x => x.ToString()));
+
+            return $"{ip}:{uri.Port}:{uri.Segments.Last()}";
         }
     }
 }

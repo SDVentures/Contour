@@ -86,8 +86,15 @@ namespace Contour.Sending
         /// <returns>Задача выполнения отправки сообщения.</returns>
         Task Send(MessageLabel label, object payload, IDictionary<string, object> headers);
 
-
-        Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string url = null);
+        /// <summary>
+        /// Отправляет одностороннее сообщение c определенным connection, если сообщение с таким лейблом нельзя отправить через такой коннекшен, то будет выброшено исключение
+        /// </summary>
+        /// <param name="label">Метка отправляемого сообщения.</param>
+        /// <param name="payload">Тело сообщения.</param>
+        /// <param name="headers">Заголовки сообщения.</param>
+        /// <param name="connectionKey">Идентификатор подключения, по которому нужно отправить сообщение</param>
+        /// <returns>Задача выполнения отправки сообщения.</returns>
+        Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey);
 
         /// <summary>
         /// Отправляет одностороннее сообщение.

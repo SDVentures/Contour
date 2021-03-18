@@ -110,9 +110,9 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         /// <param name="exchange">Информация об отправке.</param>
         /// <returns>Задача ожидания отправки сообщения.</returns>
-        protected override Task<MessageExchange> InternalSend(MessageExchange exchange, string url = null)
+        protected override Task<MessageExchange> InternalSend(MessageExchange exchange, string connectionKey)
         {
-            return this.faultTolerantProducer.Send(exchange, url);
+            return this.faultTolerantProducer.Send(exchange, connectionKey);
         }
 
         /// <summary>

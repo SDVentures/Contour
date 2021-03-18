@@ -24,13 +24,13 @@ namespace Contour.Transport.RabbitMQ.Internal
             return this.NextInternal();
         }
 
-        public IProducer PickByBrockerUrl(string url)
+        public IProducer PickByConnectionKey(string key)
         {
-            var result = this.producers.FirstOrDefault(x => x.BrokerUrl == url);
+            var result = this.producers.FirstOrDefault(x => x.ConnectionKey == key);
 
             if (result == null)
             {
-                throw new ArgumentException($"No one producer for connection string {url}");
+                throw new ArgumentException($"Unable to take the producer for connection key {key}");
             }
 
             return result;

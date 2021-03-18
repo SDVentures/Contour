@@ -179,7 +179,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             Contour.Headers.ApplyBreadcrumbs(headers, this.busContext.Endpoint.Address);
             Contour.Headers.ApplyOriginalMessageId(headers);
 
-            return this.busContext.Emit(label, payload, headers, this.Channel.ConnectionString);
+            return this.busContext.Emit(label, payload, headers, this.Channel.ConnectionKey);
         }
 
         /// <summary>

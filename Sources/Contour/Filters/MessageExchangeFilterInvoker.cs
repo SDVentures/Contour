@@ -68,14 +68,14 @@ namespace Contour.Filters
             return this.Continue(exchange, null);
         }
 
-        public Task<MessageExchange> Continue(MessageExchange exchange, string url = null)
+        public Task<MessageExchange> Continue(MessageExchange exchange, string connectionKey)
         {
             if (!this.filterEnumerator.MoveNext())
             {
                 return Filter.Result(exchange);
             }
 
-            return this.filterEnumerator.Current.Process(exchange, this, url);
+            return this.filterEnumerator.Current.Process(exchange, this, connectionKey);
         }
 
         /// <summary>
@@ -92,11 +92,10 @@ namespace Contour.Filters
             return this.Process(exchange, null);
         }
 
-        public virtual Task<MessageExchange> Process(MessageExchange exchange, string url = null)
+        public virtual Task<MessageExchange> Process(MessageExchange exchange, string connectionKey)
         {
-            return this.Continue(exchange, url);
+            return this.Continue(exchange, connectionKey);
         }
-
         #endregion
     }
 }

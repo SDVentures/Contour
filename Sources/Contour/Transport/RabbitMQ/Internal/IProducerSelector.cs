@@ -14,10 +14,10 @@
         IProducer Next();
 
         /// <summary>
-        /// Возвращает IProducer с конкретной строкой подключения к RMQ
+        /// Возвращает IProducer с конкретным ключем подключения к шине
         /// </summary>
-        /// <param name="url">Строка подключения к RMQ</param>
+        /// <param name="key">ключ подключения</param>
         /// <returns>The selected producer</returns>
-        IProducer PickByBrockerUrl(string url);
+        IProducer PickByConnectionKey(string key);
     }
 }

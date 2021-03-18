@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -16,16 +15,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public FaultTolerantProducer(IProducerSelector selector, int maxAttempts, int maxRetryDelay, int inactivityResetDelay)
         {
-            if (selector == null)
-            {
-                throw new ArgumentNullException(nameof(selector));
-            }
-
-            this.selector = selector;
+            this.selector = selector ?? throw new ArgumentNullException(nameof(selector));
             this.attempts = maxAttempts;
         }
 
-        public Task<MessageExchange> Send(MessageExchange exchange, string  url = null)
+        public Task<MessageExchange> Send(MessageExchange exchange, string connectionKey)
         {
             if (this.disposed)
             {
@@ -40,7 +34,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 try
                 {
-                    var producer = url == null ? this.selector.Next() : this.selector.PickByBrockerUrl(url);
+                    var producer = connectionKey == null ? this.selector.Next() : this.selector.PickByConnectionKey(connectionKey);
                     return this.TrySend(exchange, producer);
                 }
                 catch (Exception ex)

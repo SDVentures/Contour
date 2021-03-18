@@ -315,13 +315,13 @@
            return this.Emit(label, payload, headers, null);
         }
 
-        public Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers, string url = null)
+        public Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey)
         {
             this.EnsureIsReady();
 
             return this
                 .GetSenderFor(label)
-                .Send(label, payload, headers, url);
+                .Send(label, payload, headers, connectionKey);
         }
 
         /// <summary>

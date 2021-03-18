@@ -1,16 +1,7 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMessageExchangeFilter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The MessageExchangeFilter interface.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
+﻿using System.Threading.Tasks;
 
 namespace Contour.Filters
 {
-    using System.Threading.Tasks;
-
     /// <summary>
     /// The MessageExchangeFilter interface.
     /// </summary>
@@ -33,7 +24,7 @@ namespace Contour.Filters
         Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker);
 
 
-        Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker, string url = null);
+        Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker, string connectionKey);
 
         #endregion
     }
