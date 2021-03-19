@@ -247,6 +247,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                 });
         }
 
+
+        // TODO вынести знание о DNS и прочем за пределы контура, вычислять данные вне контура и передавать на старте
         private static string GetConnectionKey(string connectionString)
         {
             var uri = new Uri(connectionString, UriKind.Absolute);
