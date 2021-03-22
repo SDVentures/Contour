@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Concurrent;
+п»їusing System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -16,18 +15,11 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public FaultTolerantProducer(IProducerSelector selector, int maxAttempts, int maxRetryDelay, int inactivityResetDelay)
         {
-            if (selector == null)
-            {
-                throw new ArgumentNullException(nameof(selector));
-            }
-
-            this.selector = selector;
+            this.selector = selector ?? throw new ArgumentNullException(nameof(selector));
             this.attempts = maxAttempts;
         }
 
-        public IEnumerable<KeyValuePair<int, int>> Delays { get; } = new ConcurrentDictionary<int, int>();
-
-        public Task<MessageExchange> Send(MessageExchange exchange)
+        public Task<MessageExchange> Send(MessageExchange exchange, string connectionKey)
         {
             if (this.disposed)
             {
@@ -42,7 +34,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 try
                 {
-                    var producer = this.selector.Next();
+                    var producer = connectionKey == null ? this.selector.Next() : this.selector.PickByConnectionKey(connectionKey);
                     return this.TrySend(exchange, producer);
                 }
                 catch (Exception ex)
@@ -93,7 +85,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Выполняет определяемые приложением задачи, связанные с удалением, высвобождением или сбросом неуправляемых ресурсов.
+        /// Г‚Г»ГЇГ®Г«Г­ГїГҐГІ Г®ГЇГ°ГҐГ¤ГҐГ«ГїГҐГ¬Г»ГҐ ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГҐГ¬ Г§Г Г¤Г Г·ГЁ, Г±ГўГїГ§Г Г­Г­Г»ГҐ Г± ГіГ¤Г Г«ГҐГ­ГЁГҐГ¬, ГўГ»Г±ГўГ®ГЎГ®Г¦Г¤ГҐГ­ГЁГҐГ¬ ГЁГ«ГЁ Г±ГЎГ°Г®Г±Г®Г¬ Г­ГҐГіГЇГ°Г ГўГ«ГїГҐГ¬Г»Гµ Г°ГҐГ±ГіГ°Г±Г®Гў.
         /// </summary>
         public void Dispose()
         {

@@ -112,6 +112,9 @@ namespace Contour
         /// </returns>
         Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers);
 
+
+        Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey = null);
+
         /// <summary>
         /// Выполняет синхронный запрос данных с указанной меткой.
         /// </summary>

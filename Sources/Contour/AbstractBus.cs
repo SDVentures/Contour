@@ -312,11 +312,16 @@
         /// <returns>Задача отправки сообщения.</returns>
         public Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers)
         {
+           return this.Emit(label, payload, headers, null);
+        }
+
+        public Task Emit(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey)
+        {
             this.EnsureIsReady();
 
             return this
                 .GetSenderFor(label)
-                .Send(label, payload, headers);
+                .Send(label, payload, headers, connectionKey);
         }
 
         /// <summary>

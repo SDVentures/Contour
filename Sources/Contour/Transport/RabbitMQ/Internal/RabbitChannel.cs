@@ -27,13 +27,15 @@
         /// <param name="model">A native transport channel</param>
         /// <param name="busContext">A bus context</param>
         /// <param name="connectionString">Used connection string</param>
-        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext, string connectionString)
+        /// <param name="connectionKey">Key by connection string</param>
+        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext, string connectionString, string connectionKey)
         {
             this.ConnectionId = connectionId;
             this.Model = model;
             this.busContext = busContext;
             this.ConnectionString = connectionString;
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.ConnectionId}, {this.GetHashCode()})");
+            this.ConnectionKey = connectionKey;
 
             this.Model.ModelShutdown += this.OnModelShutdown;
         }
@@ -44,6 +46,8 @@
         internal string ConnectionString { get; }
 
         public Guid ConnectionId { get; }
+
+        public string ConnectionKey { get; }
 
         /// <summary>
         /// The failed.

@@ -71,6 +71,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </summary>
         public string BrokerUrl { get; }
 
+        public string ConnectionKey => this.Channel.ConnectionKey;
+
         /// <summary>
         /// Слушатель (получатель) ответных сообщений на запрос.
         /// </summary>

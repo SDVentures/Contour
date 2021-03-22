@@ -70,72 +70,31 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// Канал доставки сообщения.
         /// </summary>
         public RabbitChannel Channel { get; private set; }
-        
-        /// <summary>
-        /// Формат содержимого сообщения.
-        /// </summary>
-        public string ContentType
-        {
-            get
-            {
-                return this.Args.BasicProperties.ContentType;
-            }
-        }
 
         /// <summary>
         /// Идентификатор сообщения.
         /// </summary>
-        public string CorrelationId
-        {
-            get
-            {
-                return this.Args.BasicProperties.CorrelationId;
-            }
-        }
+        public string CorrelationId => this.Args.BasicProperties.CorrelationId;
 
         /// <summary>
         /// Заголовки сообщения.
         /// </summary>
-        public IDictionary<string, object> Headers
-        {
-            get
-            {
-                return this.headers.Value;
-            }
-        }
+        public IDictionary<string, object> Headers => this.headers.Value;
 
         /// <summary>
         /// Маршрут входящего сообщения.
         /// </summary>
-        public RabbitRoute IncomingRoute
-        {
-            get
-            {
-                return new RabbitRoute(this.Args.Exchange, this.Args.RoutingKey);
-            }
-        }
+        public RabbitRoute IncomingRoute => new RabbitRoute(this.Args.Exchange, this.Args.RoutingKey);
 
         /// <summary>
         /// Верно, если сообщение запрос.
         /// </summary>
-        public bool IsRequest
-        {
-            get
-            {
-                return this.CorrelationId != null && this.ReplyRoute != null;
-            }
-        }
+        public bool IsRequest => this.CorrelationId != null && this.ReplyRoute != null;
 
         /// <summary>
         /// Верно, если сообщение ответ.
         /// </summary>
-        public bool IsResponse
-        {
-            get
-            {
-                return this.CorrelationId != null && this.ReplyRoute == null;
-            }
-        }
+        public bool IsResponse => this.CorrelationId != null && this.ReplyRoute == null;
 
         /// <summary>
         /// Метка полученного сообщения.
@@ -145,35 +104,17 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <summary>
         /// Верно, если можно ответить на полученное сообщение.
         /// </summary>
-        public bool CanReply
-        {
-            get
-            {
-                return this.ReplyRoute != null && !string.IsNullOrWhiteSpace(this.CorrelationId);
-            }
-        }
+        public bool CanReply => this.ReplyRoute != null && !string.IsNullOrWhiteSpace(this.CorrelationId);
 
         /// <summary>
         /// Канал доставки сообщения.
         /// </summary>
-        IChannel IDelivery.Channel
-        {
-            get
-            {
-                return this.Channel;
-            }
-        }
+        IChannel IDelivery.Channel => this.Channel;
 
         /// <summary>
         /// Маршрут ответа на доставленное сообщение.
         /// </summary>
-        IRoute IDelivery.ReplyRoute
-        {
-            get
-            {
-                return this.ReplyRoute;
-            }
-        }
+        IRoute IDelivery.ReplyRoute => this.ReplyRoute;
 
         /// <summary>
         /// Маршрут ответа на доставленное сообщение.
@@ -238,7 +179,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             Contour.Headers.ApplyBreadcrumbs(headers, this.busContext.Endpoint.Address);
             Contour.Headers.ApplyOriginalMessageId(headers);
 
-            return this.busContext.Emit(label, payload, headers);
+            // TODO это костыль, как и само использование константы "document.contour.failed", возможно правильно было бы иметь отдельный метод ForwardToFault
+            return this.busContext.Emit(label, payload, headers, label.Name == "document.contour.failed" ? null : this.Channel.ConnectionKey);
         }
 
         /// <summary>
