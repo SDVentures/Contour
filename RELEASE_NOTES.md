@@ -1,4 +1,12 @@
-﻿## 2.2.1-core2
+﻿## 3.0.0-pr2
+	fix fowrard on one pool (need refactoring in next versions)
+
+
+## 3.0.0-pr1
+	fix BusNotReady on start when configuration has more that one endpoints
+
+
+## 2.2.1-core2
 	Added easier access to headers
 
 ## 2.2.1-core1
