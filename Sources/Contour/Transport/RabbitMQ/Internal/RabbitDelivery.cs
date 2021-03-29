@@ -180,7 +180,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             Contour.Headers.ApplyOriginalMessageId(headers);
 
             // TODO это костыль, как и само использование константы "document.contour.failed", возможно правильно было бы иметь отдельный метод ForwardToFault
-            return this.busContext.Emit(label, payload, headers, label.Name == "document.contour.failed" ? null : this.Channel.ConnectionKey);
+            return this.busContext.Emit(label, payload, headers, string.Equals(label.Name, SystemQueues.Fault, StringComparison.OrdinalIgnoreCase) || string.Equals(label.Name, SystemQueues.Unhandled, StringComparison.OrdinalIgnoreCase) ? null : this.Channel.ConnectionKey);
         }
 
         /// <summary>
