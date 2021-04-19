@@ -57,9 +57,23 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             string queueName = builder.Endpoint.Address + "." + label;
 
-            Queue queue = builder.Topology.Declare(
-                Queue.Named(queueName).
-                    Durable);
+            var queueBuilder = Queue
+                .Named(queueName)
+                .Durable;
+
+            var busOptions = (ReceiverOptions)builder.Receiver.Options.Parent;
+
+            if (busOptions.GetQueueLimit().HasValue)
+            {
+                queueBuilder.WithLimit(busOptions.GetQueueLimit().Value);
+            }
+
+            if (busOptions.GetQueueMaxLengthBytes().HasValue)
+            {
+                queueBuilder.WithMaxLengthBytes(busOptions.GetQueueMaxLengthBytes().Value);
+            }
+
+            Queue queue = builder.Topology.Declare(queueBuilder);
             Exchange exchange = builder.Topology.Declare(
                 Exchange.Named(label).
                     Durable.Fanout);

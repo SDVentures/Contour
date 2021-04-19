@@ -69,6 +69,11 @@ namespace Contour
         public static readonly string QueueMaxLength = "x-max-length";
 
         /// <summary>
+        /// Максимальное количество байт, которые занимают сообщения в очереди
+        /// </summary>
+        public static readonly string QueueMaxLengthBytes = "x-max-length-bytes";
+
+        /// <summary>
         /// Получает значение заголовка из сообщения и удаляет его из списка заголовков сообщения.
         /// </summary>
         /// <param name="headers">

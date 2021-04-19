@@ -9,6 +9,7 @@
     using Receiving;
     using Topology;
     using global::RabbitMQ.Client;
+    using System.Diagnostics;
 
     /// <summary>
     /// The rabbit channel.
