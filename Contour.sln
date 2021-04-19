@@ -1,35 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2000
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{164DE6AD-73A5-4F62-85AC-9090D2D720FF}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{42F4CDA7-FF32-45B7-A516-30FC94845340}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{568D0EC3-36F1-40C3-9BBD-871AD5A1924A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.RabbitMq.Tests", "Tests\Contour.RabbitMq.Tests\Contour.RabbitMq.Tests.csproj", "{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.Common.Tests", "Tests\Contour.Common.Tests\Contour.Common.Tests.csproj", "{0A47BD78-3FD2-45A9-A991-F7140CE6357B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.Configurator.Tests", "Tests\Contour.Configurator.Tests\Contour.Configurator.Tests.csproj", "{64CEECA7-25C5-4ADA-A977-CE57846E1472}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contour.Testing", "Tests\Contour.Testing\Contour.Testing.csproj", "{B3F3D491-5C15-4C21-A155-EA34896253A6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1AE4AE50-B6BC-42FC-B102-5B19849877B7}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
-		build.fsx = build.fsx
-		fake.cmd = fake.cmd
-		LICENSE.md = LICENSE.md
-		paket.dependencies = paket.dependencies
-		README.md = README.md
-		RELEASE_NOTES.md = RELEASE_NOTES.md
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contour", "Sources\Contour\Contour.csproj", "{CA81CC00-B276-4DD4-95D9-598485766D8E}"
 EndProject
@@ -41,30 +14,6 @@ Global
 		Release|X64 = Release|X64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20}.Release|X64.ActiveCfg = Release|Any CPU
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B}.Release|X64.ActiveCfg = Release|Any CPU
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472}.Release|X64.ActiveCfg = Release|Any CPU
-		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Debug|X64.ActiveCfg = Debug|Any CPU
-		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B3F3D491-5C15-4C21-A155-EA34896253A6}.Release|X64.ActiveCfg = Release|Any CPU
 		{CA81CC00-B276-4DD4-95D9-598485766D8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA81CC00-B276-4DD4-95D9-598485766D8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA81CC00-B276-4DD4-95D9-598485766D8E}.Debug|X64.ActiveCfg = Debug|Any CPU
@@ -78,10 +27,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E47EE610-DAC2-4A18-B11A-E8CE32B86A20} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
-		{0A47BD78-3FD2-45A9-A991-F7140CE6357B} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
-		{64CEECA7-25C5-4ADA-A977-CE57846E1472} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
-		{B3F3D491-5C15-4C21-A155-EA34896253A6} = {568D0EC3-36F1-40C3-9BBD-871AD5A1924A}
 		{CA81CC00-B276-4DD4-95D9-598485766D8E} = {42F4CDA7-FF32-45B7-A516-30FC94845340}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

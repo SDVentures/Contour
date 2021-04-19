@@ -61,16 +61,16 @@ namespace Contour.Transport.RabbitMQ.Internal
                 .Named(queueName)
                 .Durable;
 
-            var busOptions = (ReceiverOptions)builder.Receiver.Options.Parent;
+            var options = builder.Receiver.Options;
 
-            if (busOptions.GetQueueLimit().HasValue)
+            if (options.GetQueueLimit().HasValue)
             {
-                queueBuilder.WithLimit(busOptions.GetQueueLimit().Value);
+                queueBuilder.WithLimit(options.GetQueueLimit().Value);
             }
 
-            if (busOptions.GetQueueMaxLengthBytes().HasValue)
+            if (options.GetQueueMaxLengthBytes().HasValue)
             {
-                queueBuilder.WithMaxLengthBytes(busOptions.GetQueueMaxLengthBytes().Value);
+                queueBuilder.WithMaxLengthBytes(options.GetQueueMaxLengthBytes().Value);
             }
 
             Queue queue = builder.Topology.Declare(queueBuilder);

@@ -158,6 +158,16 @@ namespace Contour.Configurator
                 cfg.UseFaultQueueLimit(endpointConfig.FaultQueueLimit.Value);
             }
 
+            if (endpointConfig.QueueLimit.HasValue)
+            {
+                cfg.UseQueueLimit(endpointConfig.QueueLimit.Value);
+            }
+
+            if (endpointConfig.QueueMaxLengthBytes.HasValue)
+            {
+                cfg.UseQueueMaxLengthBytes(endpointConfig.QueueMaxLengthBytes.Value);
+            }
+
             if (endpointConfig.Dynamic != null)
             {
                 if (endpointConfig.Dynamic.Outgoing.HasValue)
@@ -287,7 +297,29 @@ namespace Contour.Configurator
                 {
                     configurator.WithParallelismLevel(incomingElement.ParallelismLevel.Value);
                 }
-                
+
+                //Queue limit
+                if (endpointConfig.QueueLimit.HasValue)
+                {
+                    configurator.WithQueueLimit(endpointConfig.QueueLimit.Value);
+                }
+
+                if (incomingElement.QueueLimit.HasValue)
+                {
+                    configurator.WithQueueLimit(incomingElement.QueueLimit.Value);
+                }
+
+                //Queue max length bytes
+                if (endpointConfig.QueueMaxLengthBytes.HasValue)
+                {
+                    configurator.WithQueueMaxLengthBytes(endpointConfig.QueueMaxLengthBytes.Value);
+                }
+
+                if (incomingElement.QueueMaxLengthBytes.HasValue)
+                {
+                    configurator.WithQueueMaxLengthBytes(incomingElement.QueueMaxLengthBytes.Value);
+                }
+
                 // Accept
                 if (incomingElement.RequiresAccept)
                 {

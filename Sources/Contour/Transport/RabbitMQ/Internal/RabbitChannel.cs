@@ -154,7 +154,10 @@
             {
                 arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
             }
-
+            if (queue.MaxLengthBytes.HasValue)
+            {
+                arguments.Add(Contour.Headers.QueueMaxLengthBytes, (int)queue.MaxLengthBytes);
+            }
 
             this.SafeNativeInvoke(n => n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
         }

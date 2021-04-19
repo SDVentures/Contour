@@ -109,6 +109,25 @@ namespace Contour.Configurator
             }
         }
 
+        [ConfigurationProperty("queueLimit", IsRequired = false)]
+        public int? QueueLimit
+        {
+            get
+            {
+                return (int?)this["queueLimit"];
+            }
+        }
+
+        [ConfigurationProperty("queueMaxLengthBytes", IsRequired = false)]
+        public int? QueueMaxLengthBytes
+        {
+            get
+            {
+                return (int?)this["queueMaxLengthBytes"];
+            }
+        }
+
+
         [ConfigurationProperty("connectionStringProvider", IsRequired = false, DefaultValue = null)]
         public string ConnectionStringProvider => (string)this["connectionStringProvider"];
 

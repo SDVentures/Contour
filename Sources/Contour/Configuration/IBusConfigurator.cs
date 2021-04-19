@@ -254,6 +254,18 @@ namespace Contour.Configuration
         void UseFaultQueueLimit(int queueLimit);
 
         /// <summary>
+        /// The message queue length limit.
+        /// </summary>
+        /// <param name="queueLimit">The message queue length limit.</param>
+        void UseQueueLimit(int queueLimit);
+
+        /// <summary>
+        /// The message queue length limit in bytes.
+        /// </summary>
+        /// <param name="bytes">The message queue limit in bytes.</param>
+        void UseQueueMaxLengthBytes(int bytes);
+
+        /// <summary>
         /// Устанаваливает конвертер тела сообщений.
         /// </summary>
         /// <param name="converter">

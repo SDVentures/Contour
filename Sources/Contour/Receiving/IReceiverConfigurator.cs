@@ -95,6 +95,10 @@ namespace Contour.Receiving
         /// <param name="storage">Хранилище заголовков входящего сообщения.</param>
         /// <returns>Конфигуратор получателя с установленным хранилищем заголовков.</returns>
         IReceiverConfigurator WithIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage);
+
+        IReceiverConfigurator WithQueueLimit(int queueLimit);
+        IReceiverConfigurator WithQueueMaxLengthBytes(int maxLengthBytes);
+
     }
 
     /// <summary>
@@ -178,5 +182,8 @@ namespace Contour.Receiving
         /// <param name="storage">Хранилище заголовков входящего сообщения.</param>
         /// <returns>Конфигуратор получателя с установленным хранилищем заголовков.</returns>
         new IReceiverConfigurator WithIncomingMessageHeaderStorage(IIncomingMessageHeaderStorage storage);
+
+        new IReceiverConfigurator WithQueueLimit(int queueLimit);
+        new IReceiverConfigurator WithQueueMaxLengthBytes(int maxLengthBytes);
     }
 }

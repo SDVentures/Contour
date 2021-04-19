@@ -20,6 +20,10 @@ namespace Contour.Configurator.Configuration
 
         int? FaultQueueLimit { get; }
 
+        int? QueueLimit { get; }
+
+        int? QueueMaxLengthBytes { get; }
+
         string ConnectionStringProvider { get; }
 
         IIncoming[] Incoming { get; }

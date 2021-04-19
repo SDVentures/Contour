@@ -102,6 +102,18 @@ namespace Contour.Configurator
             get { return (bool?) base["reuseConnection"]; }
         }
 
+        [ConfigurationProperty("queueLimit", IsRequired = false)]
+        public int? QueueLimit
+        {
+            get { return (int?)base["queueLimit"]; }
+        }
+
+        [ConfigurationProperty("queueMaxLengthBytes", IsRequired = false)]
+        public int? QueueMaxLengthBytes
+        {
+            get { return (int?)base["queueMaxLengthBytes"]; }
+        }
+
         IQos IIncoming.Qos => this.Qos;
     }
 }

@@ -204,5 +204,20 @@ namespace Contour.Receiving
 
             return this;
         }
+
+
+        public IReceiverConfigurator WithQueueLimit(int queueLimit)
+        {
+            this.Options.QueueLimit = queueLimit;
+
+            return this;
+        }
+
+        public IReceiverConfigurator WithQueueMaxLengthBytes(int bytes)
+        {
+            this.Options.QueueMaxLengthBytes = bytes;
+
+            return this;
+        }
     }
 }
