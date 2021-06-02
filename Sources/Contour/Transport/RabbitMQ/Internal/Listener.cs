@@ -120,7 +120,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
-        internal delegate void ConsumingAction(RabbitDelivery delivery);
+        internal delegate Task ConsumingAction(RabbitDelivery delivery);
 
         /// <summary>
         /// Метки сообщений, которые может обработать слушатель.
@@ -232,7 +232,18 @@ namespace Contour.Transport.RabbitMQ.Internal
                         this.validatorRegistry.Validate(context.Message);
                     }
 
-                    consumer.Handle(context);
+                    Task consumingTask;
+                    if (consumer is IAsyncConsumerOf<T>)
+                    {
+                        consumingTask =((IAsyncConsumerOf<T>)consumer).HandleAsync(context);
+                    }
+                    else
+                    {
+                        consumer.Handle(context);
+                        consumingTask = Task.CompletedTask;
+                    }
+
+                    return consumingTask;
                 };
 
             this.consumers[label] = consumingAction;
@@ -301,7 +312,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
-        private void Deliver(RabbitDelivery delivery)
+        private async Task Deliver(RabbitDelivery delivery)
         {
             DiagnosticProps.Store(DiagnosticProps.Names.ConsumerConnectionString, delivery.Channel.ConnectionString);
 
@@ -333,7 +344,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 if (!processed)
                 {
-                    processed = this.TryHandleAsSubscription(delivery);
+                    processed = await this.TryHandleAsSubscription(delivery);
                 }
 
                 if (!processed)
@@ -426,7 +437,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="token">
         /// Сигнальный объект аварийного досрочного завершения обработки.
         /// </param>
-        private void ConsumerTaskMethod(CancellationToken token)
+        private async Task ConsumerTaskMethod(CancellationToken token)
         {
             try
             {
@@ -457,7 +468,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 while (!token.IsCancellationRequested)
                 {
                     var message = consumer.Dequeue();
-                    this.Deliver(this.BuildDeliveryFrom(channel, message));
+                    await this.Deliver(this.BuildDeliveryFrom(channel, message));
                 }
             }
             catch (OperationCanceledException)
@@ -623,7 +634,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>
         /// Если <c>true</c> - входящее сообщение обработано, иначе <c>false</c>.
         /// </returns>
-        private bool TryHandleAsSubscription(RabbitDelivery delivery)
+        private async Task<bool> TryHandleAsSubscription(RabbitDelivery delivery)
         {
             if (!this.consumers.TryGetValue(delivery.Label, out var consumingAction))
             {
@@ -631,6 +642,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 if (consumingAction == null)
                 {
+                    // wtf?
                     consumingAction = this.consumers.Values.FirstOrDefault();
                 }
             }
@@ -638,7 +650,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             if (consumingAction != null)
             {
                 this.messageHeaderStorage.Store(delivery.Headers);
-                consumingAction(delivery);
+                await consumingAction(delivery);
                 return true;
             }
 
