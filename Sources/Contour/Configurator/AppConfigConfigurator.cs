@@ -407,7 +407,7 @@ namespace Contour.Configurator
                 case Lifestyle.Normal:
                     return consumerFactory();
                 case Lifestyle.Lazy:
-                    consumerType = typeof(LazyConsumerOf<>).MakeGenericType(messageType);
+                    consumerType = consumerFactory().GetType() == typeof(IAsyncConsumerOf<>).MakeGenericType(messageType) ? typeof(LazyAsyncConsumerOf<>).MakeGenericType(messageType) : typeof(LazyConsumerOf<>).MakeGenericType(messageType);
                     return Activator.CreateInstance(consumerType, consumerFactory);
                 case Lifestyle.Delegated:
                     consumerType = typeof(FactoryConsumerOf<>).MakeGenericType(messageType);

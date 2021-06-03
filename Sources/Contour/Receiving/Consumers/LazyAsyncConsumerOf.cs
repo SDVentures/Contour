@@ -18,17 +18,10 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class LazyConsumerOf<T> : IConsumerOf<T>
+    public class LazyAsyncConsumerOf<T> : LazyConsumerOf<T>, IAsyncConsumerOf<T>
         where T : class
     {
-        #region Fields
-
-        /// <summary>
-        /// The _handler.
-        /// </summary>
-        protected readonly Lazy<IConsumerOf<T>> _handler;
-
-        #endregion
+      
 
         #region Constructors and Destructors
 
@@ -38,9 +31,9 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyConsumerOf(Func<object> handlerResolver)
+        public LazyAsyncConsumerOf(Func<object> handlerResolver) : base(handlerResolver)
         {
-            this._handler = new Lazy<IConsumerOf<T>>(() => (IConsumerOf<T>)handlerResolver(), true);
+            
         }
 
         /// <summary>
@@ -49,24 +42,26 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyConsumerOf(Func<IConsumerOf<T>> handlerResolver)
+        public LazyAsyncConsumerOf(Func<IConsumerOf<T>> handlerResolver) : base(handlerResolver)
         {
-            this._handler = new Lazy<IConsumerOf<T>>(handlerResolver, true);
+           
         }
 
         #endregion
 
         #region Public Methods and Operators
 
-        /// <summary>
-        /// The handle.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        public void Handle(IConsumingContext<T> context)
+        
+        public async Task HandleAsync(IConsumingContext<T> context)
         {
-            this._handler.Value.Handle(context);
+            if (this._handler.Value is IAsyncConsumerOf<T> of)
+            {
+                await of.HandleAsync(context);
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
 
         #endregion

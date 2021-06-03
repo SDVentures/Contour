@@ -698,13 +698,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             /// <summary>
             /// Задача завершения ожидания.
             /// </summary>
-            public Task<IMessage> Task
-            {
-                get
-                {
-                    return this.completionSource.Task;
-                }
-            }
+            public Task<IMessage> Task => this.completionSource.Task;
 
             /// <summary>
             /// Квиток об учете времени ожидания ответа.
