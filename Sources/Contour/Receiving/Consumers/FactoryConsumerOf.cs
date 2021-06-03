@@ -1,11 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FactoryConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The factory consumer of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
+﻿using System.Threading.Tasks;
 
 namespace Contour.Receiving.Consumers
 {
@@ -16,7 +9,7 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class FactoryConsumerOf<T> : IConsumerOf<T>
+    public class FactoryConsumerOf<T> : IAsyncConsumerOf<T>
         where T : class
     {
         #region Fields
@@ -66,6 +59,18 @@ namespace Contour.Receiving.Consumers
         {
             this._handlerResolver().
                 Handle(context);
+        }
+
+        public async Task HandleAsync(IConsumingContext<T> context)
+        {
+            if (this._handlerResolver() is IAsyncConsumerOf<T> of)
+            {
+                await of.HandleAsync(context);
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
 
         #endregion
