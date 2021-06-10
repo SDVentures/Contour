@@ -200,6 +200,10 @@ namespace Contour
                 {
                     headers.Add(header);
                 }
+                else
+                {
+                    headers[header.Key] = header.Value;
+                }
             }
             
             return headers;
