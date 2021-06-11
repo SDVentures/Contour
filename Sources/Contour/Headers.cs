@@ -69,6 +69,12 @@ namespace Contour
         public static readonly string QueueMaxLength = "x-max-length";
 
         /// <summary>
+        /// Коллекция заголовков, значения которых менять запрещено
+        /// </summary>
+        private static readonly HashSet<string> NotImmutableHeaders =
+            new HashSet<string>(new[] { CorrelationId, OriginalMessageId, MessageLabel, ReplyRoute });
+
+        /// <summary>
         /// Получает значение заголовка из сообщения и удаляет его из списка заголовков сообщения.
         /// </summary>
         /// <param name="headers">
@@ -202,7 +208,10 @@ namespace Contour
                 }
                 else
                 {
-                    headers[header.Key] = header.Value;
+                    if (!NotImmutableHeaders.Contains(header.Key))
+                    {
+                        headers[header.Key] = header.Value;
+                    }
                 }
             }
             
