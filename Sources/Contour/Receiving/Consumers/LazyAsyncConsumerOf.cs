@@ -21,7 +21,7 @@ namespace Contour.Receiving.Consumers
     public class LazyAsyncConsumerOf<T> : LazyConsumerOf<T>, IAsyncConsumerOf<T>
         where T : class
     {
-      
+        protected new readonly Lazy<IAsyncConsumerOf<T>> _handler;
 
         #region Constructors and Destructors
 
@@ -33,7 +33,7 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public LazyAsyncConsumerOf(Func<object> handlerResolver) : base(handlerResolver)
         {
-            
+            this._handler = new Lazy<IAsyncConsumerOf<T>>(() => (IAsyncConsumerOf<T>)handlerResolver(), true);
         }
 
         /// <summary>
@@ -42,9 +42,9 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyAsyncConsumerOf(Func<IConsumerOf<T>> handlerResolver) : base(handlerResolver)
+        public LazyAsyncConsumerOf(Func<IAsyncConsumerOf<T>> handlerResolver) : base(handlerResolver)
         {
-           
+            this._handler = new Lazy<IAsyncConsumerOf<T>>(handlerResolver, true);
         }
 
         #endregion
