@@ -435,6 +435,8 @@ namespace Contour.Configurator
         {
             Type configuratorType = configurator.GetType();
 
+            // TODO это все нужно что бы вызвать IReceiverConfigurator<T> ReactWith<T>(IConsumerOf<T> consumer) where T : class;, зачем?
+            // TODO вместо этой дрочи сделать вызов нужного метода, так как на вход мы принимаем интерфейс
             MethodInfo method = configuratorType.GetMethods().
                 Single(
                     mi => // mi.Name == "ReactWith" && //avoiding binding to method name
