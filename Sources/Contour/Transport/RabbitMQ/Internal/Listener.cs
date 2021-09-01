@@ -339,7 +339,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             var stopwatch = Stopwatch.StartNew();
 
             try
-            {
+            {   
+                // тут не происходит ничего, что можно было бы сделать асинхронно
                 var processed = this.TryHandleAsResponse(delivery);
 
                 if (!processed)
@@ -594,13 +595,13 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         /// <summary>
-        /// Пытается обработать сообщение как запрос.
+        /// Пытается обработать сообщение как ответ.
         /// </summary>
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
         /// <returns>
-        /// Если <c>true</c> - тогда сообщение обработано как запрос, иначе - <c>false</c>.
+        /// Если <c>true</c> - тогда сообщение обработано как ответ, иначе - <c>false</c>.
         /// </returns>
         private bool TryHandleAsResponse(RabbitDelivery delivery)
         {
