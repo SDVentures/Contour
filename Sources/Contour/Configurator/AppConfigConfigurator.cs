@@ -433,7 +433,10 @@ namespace Contour.Configurator
         /// </param>
         private static void RegisterConsumer(IReceiverConfigurator configurator, Type messageType, object consumer)
         {
-            Type configuratorType = configurator.GetType();
+            var configuratorType = configurator.GetType();
+
+            var findMethodType = consumer.GetType()
+                .GetGenericTypeDefinition();
 
             MethodInfo method = configuratorType.GetMethods().
                 Single(
@@ -441,7 +444,7 @@ namespace Contour.Configurator
                     mi.IsGenericMethod && mi.ContainsGenericParameters && mi.GetParameters()
                     .Count() == 1 && mi.GetParameters()
                     .First()
-                    .ParameterType.Name == typeof(IConsumerOf<>).Name);
+                    .ParameterType.Name == findMethodType.Name);
 
             method.MakeGenericMethod(messageType)
                 .Invoke(configurator, new[] { consumer });
@@ -532,6 +535,13 @@ namespace Contour.Configurator
         /// </returns>
         private object ResolveConsumer(string name, Type messageType)
         {
+            var res = this.dependencyResolver.Resolve(name, typeof(IAsyncConsumerOf<>).MakeGenericType(messageType));
+
+            if (res != null)
+            {
+                return res;
+            }
+            
             return this.dependencyResolver.Resolve(name, typeof(IConsumerOf<>).MakeGenericType(messageType));
         }
 

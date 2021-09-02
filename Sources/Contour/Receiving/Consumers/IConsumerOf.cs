@@ -17,7 +17,8 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public interface IConsumerOf<T> : IConsumer
+    [Obsolete]
+    public interface IConsumerOf<T> : IConsumer<T>
         where T : class
     {
         #region Public Methods and Operators
@@ -28,7 +29,6 @@ namespace Contour.Receiving.Consumers
         /// <param name="context">
         /// The context.
         /// </param>
-        [Obsolete]
         void Handle(IConsumingContext<T> context);
 
         #endregion

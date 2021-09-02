@@ -18,10 +18,10 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class LazyAsyncConsumerOf<T> : LazyConsumerOf<T>, IAsyncConsumerOf<T>
+    public class LazyAsyncConsumerOf<T> : IAsyncConsumerOf<T>
         where T : class
     {
-        protected new readonly Lazy<IAsyncConsumerOf<T>> _handler;
+        private readonly Lazy<IAsyncConsumerOf<T>> _handler;
 
         #region Constructors and Destructors
 
@@ -31,7 +31,7 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyAsyncConsumerOf(Func<object> handlerResolver) : base(handlerResolver)
+        public LazyAsyncConsumerOf(Func<object> handlerResolver) 
         {
             this._handler = new Lazy<IAsyncConsumerOf<T>>(() => (IAsyncConsumerOf<T>)handlerResolver(), true);
         }
@@ -42,7 +42,7 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyAsyncConsumerOf(Func<IAsyncConsumerOf<T>> handlerResolver) : base(handlerResolver)
+        public LazyAsyncConsumerOf(Func<IAsyncConsumerOf<T>> handlerResolver)
         {
             this._handler = new Lazy<IAsyncConsumerOf<T>>(handlerResolver, true);
         }
@@ -54,14 +54,7 @@ namespace Contour.Receiving.Consumers
         
         public async Task HandleAsync(IConsumingContext<T> context)
         {
-            if (this._handler.Value is IAsyncConsumerOf<T> of)
-            {
-                await of.HandleAsync(context);
-            }
-            else
-            {
-                throw new Exception();
-            }
+            await this._handler.Value.HandleAsync(context).ConfigureAwait(false);
         }
 
         #endregion

@@ -30,7 +30,7 @@ namespace Contour.Receiving
         /// </param>
         /// <typeparam name="T">
         /// </typeparam>
-        void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer) where T : class;
+        void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer) where T : class;
 
         #endregion
     }

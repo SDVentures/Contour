@@ -141,6 +141,12 @@ namespace Contour.Receiving
             return this.configuration.ReactWith(consumer);
         }
 
+        public IReceiverConfigurator<T1> ReactWith<T1>(IAsyncConsumerOf<T1> consumer)
+            where T1 : class
+        {
+            return this.configuration.ReactWith(consumer);
+        }
+
         /// <summary>
         /// Устанавливает необходимость явного подтверждения успешной обработки сообщения.
         /// </summary>

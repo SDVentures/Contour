@@ -217,7 +217,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <typeparam name="T">
         /// Тип входящего сообщения.
         /// </typeparam>
-        public void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
+        public void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer, IMessageValidator validator) where T : class
         {
             ConsumingAction consumingAction = delivery =>
                 {
@@ -237,10 +237,14 @@ namespace Contour.Transport.RabbitMQ.Internal
                     {
                         consumingTask =((IAsyncConsumerOf<T>)consumer).HandleAsync(context);
                     }
+                    else if (consumer is IConsumerOf<T>)
+                    {
+                        ((IConsumerOf<T>)consumer).Handle(context);
+                        consumingTask = Task.CompletedTask;
+                    }
                     else
                     {
-                        consumer.Handle(context);
-                        consumingTask = Task.CompletedTask;
+                        throw new NotImplementedException();
                     }
 
                     return consumingTask;

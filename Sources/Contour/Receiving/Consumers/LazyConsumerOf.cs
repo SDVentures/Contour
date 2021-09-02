@@ -26,7 +26,7 @@ namespace Contour.Receiving.Consumers
         /// <summary>
         /// The _handler.
         /// </summary>
-        protected readonly Lazy<IConsumerOf<T>> _handler;
+        private readonly Lazy<IConsumerOf<T>> _handler;
 
         #endregion
 

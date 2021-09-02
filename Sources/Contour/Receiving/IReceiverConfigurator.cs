@@ -53,6 +53,9 @@ namespace Contour.Receiving
         /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
         IReceiverConfigurator<T> ReactWith<T>(IConsumerOf<T> consumer) where T : class;
 
+
+        IReceiverConfigurator<T> ReactWith<T>(IAsyncConsumerOf<T> consumer) where T : class;
+
         /// <summary>
         /// Устанавливает необходимость явного подтверждения успешной обработки сообщения.
         /// </summary>

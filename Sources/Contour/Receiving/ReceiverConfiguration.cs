@@ -121,6 +121,13 @@ namespace Contour.Receiving
             return new TypedReceiverConfigurationDecorator<T>(this);
         }
 
+        public IReceiverConfigurator<T> ReactWith<T>(IAsyncConsumerOf<T> consumer) where T : class
+        {
+            this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, consumer);
+
+            return new TypedReceiverConfigurationDecorator<T>(this);
+        }
+
         /// <summary>
         /// Устанавливает необходимость явного подтверждения успешной обработки сообщения.
         /// </summary>
