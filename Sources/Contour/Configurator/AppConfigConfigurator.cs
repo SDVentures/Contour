@@ -407,7 +407,7 @@ namespace Contour.Configurator
                 case Lifestyle.Normal:
                     return consumerFactory();
                 case Lifestyle.Lazy:
-                    consumerType = consumerFactory().GetType() == typeof(IAsyncConsumerOf<>).MakeGenericType(messageType) ? typeof(LazyAsyncConsumerOf<>).MakeGenericType(messageType) : typeof(LazyConsumerOf<>).MakeGenericType(messageType);
+                    consumerType = consumerFactory().GetType().Name == typeof(IAsyncConsumerOf<>).MakeGenericType(messageType).Name ? typeof(LazyAsyncConsumerOf<>).MakeGenericType(messageType) : typeof(LazyConsumerOf<>).MakeGenericType(messageType);
                     return Activator.CreateInstance(consumerType, consumerFactory);
                 case Lifestyle.Delegated:
                     consumerType = typeof(FactoryConsumerOf<>).MakeGenericType(messageType);
@@ -435,16 +435,13 @@ namespace Contour.Configurator
         {
             var configuratorType = configurator.GetType();
 
-            var findMethodType = consumer.GetType()
-                .GetGenericTypeDefinition();
-
             MethodInfo method = configuratorType.GetMethods().
                 Single(
                     mi => // mi.Name == "ReactWith" && //avoiding binding to method name
                     mi.IsGenericMethod && mi.ContainsGenericParameters && mi.GetParameters()
                     .Count() == 1 && mi.GetParameters()
                     .First()
-                    .ParameterType.Name == findMethodType.Name);
+                    .ParameterType.Name == typeof(IConsumer<>).Name);
 
             method.MakeGenericMethod(messageType)
                 .Invoke(configurator, new[] { consumer });
@@ -478,7 +475,7 @@ namespace Contour.Configurator
                 return type;
             }
 
-            throw new ConfigurationErrorsException(string.Format("Unknown type [{0}]", messageType));
+            throw new ConfigurationErrorsException($"Unknown type [{messageType}]");
         }
 
         /// <summary>
@@ -535,14 +532,7 @@ namespace Contour.Configurator
         /// </returns>
         private object ResolveConsumer(string name, Type messageType)
         {
-            var res = this.dependencyResolver.Resolve(name, typeof(IAsyncConsumerOf<>).MakeGenericType(messageType));
-
-            if (res != null)
-            {
-                return res;
-            }
-            
-            return this.dependencyResolver.Resolve(name, typeof(IConsumerOf<>).MakeGenericType(messageType));
+            return this.dependencyResolver.Resolve(name, typeof(IConsumer<>).MakeGenericType(messageType));
         }
 
         private IConnectionStringProvider GetConnectionStringProvider(string name)

@@ -114,14 +114,7 @@ namespace Contour.Receiving
         /// <param name="consumer">Обработчик входящего сообщения.</param>
         /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
         /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T> ReactWith<T>(IConsumerOf<T> consumer) where T : class
-        {
-            this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, consumer);
-
-            return new TypedReceiverConfigurationDecorator<T>(this);
-        }
-
-        public IReceiverConfigurator<T> ReactWith<T>(IAsyncConsumerOf<T> consumer) where T : class
+        public IReceiverConfigurator<T> ReactWith<T>(IConsumer<T> consumer) where T : class
         {
             this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, consumer);
 
