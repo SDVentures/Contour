@@ -58,5 +58,10 @@ namespace Contour.Receiving.Consumers
         }
 
         #endregion
+
+        public void Handle(IConsumingContext<T> context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

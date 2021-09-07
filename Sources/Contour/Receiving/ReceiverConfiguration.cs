@@ -77,28 +77,6 @@ namespace Contour.Receiving
             return this.OnFailed(new LambdaFailedDeliveryStrategy(failedDeliveryHandler));
         }
 
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T> ReactWith<T>(Action<T> handlerAction) where T : class
-        {
-            this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, new LambdaConsumerOf<T>(ctx => handlerAction(ctx.Message.Payload)));
-
-            return new TypedReceiverConfigurationDecorator<T>(this);
-        }
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T> ReactWith<T>(Action<T, IConsumingContext<T>> handlerAction) where T : class
-        {
-            this.ReceiverRegistration = l => l.RegisterConsumer(this.Label, new LambdaConsumerOf<T>(ctx => handlerAction(ctx.Message.Payload, ctx)));
-
-            return new TypedReceiverConfigurationDecorator<T>(this);
-        }
-
         /// <summary>Регистрирует фабрику обработчиков входящего сообщения.</summary>
         /// <param name="consumerFactoryFunc">Фабрика обработчиков входящих сообщений.</param>
         /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>

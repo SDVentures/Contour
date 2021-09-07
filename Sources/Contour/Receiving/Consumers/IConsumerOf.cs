@@ -17,7 +17,6 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    [Obsolete]
     public interface IConsumerOf<T> : IConsumer<T>
         where T : class
     {

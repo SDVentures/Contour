@@ -29,13 +29,7 @@ namespace Contour.Receiving
         /// <summary>
         /// Конфигурация получателя сообщений.
         /// </summary>
-        public ReceiverConfiguration Configuration
-        {
-            get
-            {
-                return this.configuration;
-            }
-        }
+        public ReceiverConfiguration Configuration => this.configuration;
 
         /// <summary>
         /// Возвращает типизированный конфигуратор получателя.
@@ -65,26 +59,6 @@ namespace Contour.Receiving
             return this.configuration.OnFailed(failedDeliveryHandler);
         }
 
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T> ReactWith(Action<T> handlerAction)
-        {
-            this.configuration.ReactWith(handlerAction);
-
-            return this;
-        }
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T> ReactWith(Action<T, IConsumingContext<T>> handlerAction)
-        {
-            this.configuration.ReactWith(handlerAction);
-
-            return this;
-        }
-
         /// <summary>Регистрирует фабрику обработчиков входящего сообщения.</summary>
         /// <param name="consumerFactoryFunc">Фабрика обработчиков входящих сообщений.</param>
         /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
@@ -103,24 +77,6 @@ namespace Contour.Receiving
             this.configuration.ReactWith(consumer);
 
             return this;
-        }
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T1">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T1> ReactWith<T1>(Action<T1> handlerAction) where T1 : class
-        {
-            return this.configuration.ReactWith(handlerAction);
-        }
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T1">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        public IReceiverConfigurator<T1> ReactWith<T1>(Action<T1, IConsumingContext<T1>> handlerAction) where T1 : class
-        {
-            return this.configuration.ReactWith(handlerAction);
         }
 
         /// <summary>Регистрирует фабрику обработчиков входящего сообщения.</summary>

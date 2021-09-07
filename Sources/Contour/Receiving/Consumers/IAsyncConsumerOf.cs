@@ -2,7 +2,7 @@
 
 namespace Contour.Receiving.Consumers
 {
-    public interface IAsyncConsumerOf<T> : IConsumer<T>
+    public interface IAsyncConsumerOf<T> : IConsumerOf<T>
         where T : class
     {
         #region Public Methods and Operators

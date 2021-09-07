@@ -17,7 +17,7 @@ namespace Contour.Receiving.Consumers
         /// <summary>
         /// The _handler resolver.
         /// </summary>
-        private readonly Func<IConsumerOf<T>> _handlerResolver;
+        private readonly Func<IConsumer<T>> _handlerResolver;
 
         #endregion
 
@@ -29,7 +29,7 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public FactoryConsumerOf(Func<IConsumerOf<T>> handlerResolver)
+        public FactoryConsumerOf(Func<IConsumer<T>> handlerResolver)
         {
             this._handlerResolver = handlerResolver;
         }
@@ -42,7 +42,7 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public FactoryConsumerOf(Func<object> handlerResolver)
         {
-            this._handlerResolver = () => (IConsumerOf<T>)handlerResolver();
+            this._handlerResolver = () => (IConsumer<T>)handlerResolver();
         }
 
         #endregion
@@ -57,7 +57,7 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public void Handle(IConsumingContext<T> context)
         {
-            this._handlerResolver().
+            ((IConsumerOf<T>)this._handlerResolver()).
                 Handle(context);
         }
 
