@@ -69,7 +69,7 @@ namespace Contour.Receiving.Consumers
             }
             else
             {
-                throw new Exception();
+                throw new Exception("It is not async consumer");
             }
         }
 

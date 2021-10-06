@@ -57,11 +57,11 @@ namespace Contour.Receiving.Consumers
             await this._handler.Value.HandleAsync(context).ConfigureAwait(false);
         }
 
-        #endregion
-
         public void Handle(IConsumingContext<T> context)
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }
