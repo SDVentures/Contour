@@ -219,36 +219,52 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </typeparam>
         public void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer, IMessageValidator validator) where T : class
         {
-            ConsumingAction consumingAction = delivery =>
-                {
-                    IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
+            ConsumingAction consumingAction;
 
-                    if (validator != null)
+            if (consumer is IAsyncConsumerOf<T>)
+            {
+                consumingAction = delivery =>
                     {
-                        validator.Validate(context.Message).ThrowIfBroken();
-                    }
-                    else
-                    {
-                        this.validatorRegistry.Validate(context.Message);
-                    }
+                        IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
 
-                    Task consumingTask;
-                    if (consumer is IAsyncConsumerOf<T>)
+                        if (validator != null)
+                        {
+                            validator.Validate(context.Message)
+                                .ThrowIfBroken();
+                        }
+                        else
+                        {
+                            this.validatorRegistry.Validate(context.Message);
+                        }
+                        
+                        return ((IAsyncConsumerOf<T>)consumer).HandleAsync(context);
+                    };
+            }
+            else if (consumer is IConsumerOf<T>)
+            {
+                consumingAction = delivery =>
                     {
-                        consumingTask =((IAsyncConsumerOf<T>)consumer).HandleAsync(context);
-                    }
-                    else if (consumer is IConsumerOf<T>)
-                    {
+                        IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
+
+                        if (validator != null) 
+                        {
+                            validator.Validate(context.Message)
+                                .ThrowIfBroken();
+                        }
+                        else
+                        {
+                            this.validatorRegistry.Validate(context.Message);
+                        }
+
                         ((IConsumerOf<T>)consumer).Handle(context);
-                        consumingTask = Task.CompletedTask;
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
 
-                    return consumingTask;
-                };
+                        return Task.CompletedTask;
+                    };
+            }
+            else
+            {
+                throw new ArgumentException("Parameter consumer mast realize  IConsumerOf<T> or IAsyncConsumerOf<T>", nameof(consumer));
+            }
 
             this.consumers[label] = consumingAction;
         }
