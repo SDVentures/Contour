@@ -9,7 +9,7 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class FactoryConsumerOf<T> : IAsyncConsumerOf<T>
+    public class FactoryConsumerOf<T> : IAsyncConsumerOf<T>, IConsumerOf<T>
         where T : class
     {
         #region Fields

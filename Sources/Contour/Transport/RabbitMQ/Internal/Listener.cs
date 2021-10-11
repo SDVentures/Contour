@@ -223,6 +223,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             if (consumer is IAsyncConsumerOf<T>)
             {
+                
                 consumingAction = delivery =>
                     {
                         IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
@@ -266,6 +267,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 throw new ArgumentException("Parameter consumer mast realize  IConsumerOf<T> or IAsyncConsumerOf<T>", nameof(consumer));
             }
 
+
             this.consumers[label] = consumingAction;
         }
 
@@ -293,10 +295,10 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 this.workers = new ConcurrentBag<Task>(Enumerable
                     .Range(0, count)
-                    .Select(
-                        _ =>
-                            Task.Factory.StartNew(
-                                () => this.ConsumerTaskMethod(token), token, TaskCreationOptions.LongRunning,
+                    .Select(async 
+                        _ => await 
+                            Task.Factory.StartNew(async 
+                                () => await this.ConsumerTaskMethod(token), token, TaskCreationOptions.LongRunning,
                                 TaskScheduler.Default)));
 
                 this.isConsuming = true;
