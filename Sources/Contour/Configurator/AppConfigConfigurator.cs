@@ -407,7 +407,7 @@ namespace Contour.Configurator
                 case Lifestyle.Normal:
                     return consumerFactory();
                 case Lifestyle.Lazy:
-                    consumerType = typeof(LazyConsumerOf<>).MakeGenericType(messageType);
+                    consumerType = consumerFactory().GetType().Name == typeof(IAsyncConsumerOf<>).MakeGenericType(messageType).Name ? typeof(LazyAsyncConsumerOf<>).MakeGenericType(messageType) : typeof(LazyConsumerOf<>).MakeGenericType(messageType);
                     return Activator.CreateInstance(consumerType, consumerFactory);
                 case Lifestyle.Delegated:
                     consumerType = typeof(FactoryConsumerOf<>).MakeGenericType(messageType);
@@ -433,7 +433,7 @@ namespace Contour.Configurator
         /// </param>
         private static void RegisterConsumer(IReceiverConfigurator configurator, Type messageType, object consumer)
         {
-            Type configuratorType = configurator.GetType();
+            var configuratorType = configurator.GetType();
 
             MethodInfo method = configuratorType.GetMethods().
                 Single(
@@ -441,7 +441,7 @@ namespace Contour.Configurator
                     mi.IsGenericMethod && mi.ContainsGenericParameters && mi.GetParameters()
                     .Count() == 1 && mi.GetParameters()
                     .First()
-                    .ParameterType.Name == typeof(IConsumerOf<>).Name);
+                    .ParameterType.Name == typeof(IConsumer<>).Name);
 
             method.MakeGenericMethod(messageType)
                 .Invoke(configurator, new[] { consumer });
@@ -475,7 +475,7 @@ namespace Contour.Configurator
                 return type;
             }
 
-            throw new ConfigurationErrorsException(string.Format("Unknown type [{0}]", messageType));
+            throw new ConfigurationErrorsException($"Unknown type [{messageType}]");
         }
 
         /// <summary>
@@ -532,7 +532,7 @@ namespace Contour.Configurator
         /// </returns>
         private object ResolveConsumer(string name, Type messageType)
         {
-            return this.dependencyResolver.Resolve(name, typeof(IConsumerOf<>).MakeGenericType(messageType));
+            return this.dependencyResolver.Resolve(name, typeof(IConsumer<>).MakeGenericType(messageType));
         }
 
         private IConnectionStringProvider GetConnectionStringProvider(string name)

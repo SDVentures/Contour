@@ -53,7 +53,7 @@ namespace Contour.Receiving
         /// </param>
         /// <typeparam name="T">
         /// </typeparam>
-        public abstract void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer) where T : class;
+        public abstract void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer) where T : class;
 
         /// <summary>
         /// The start.

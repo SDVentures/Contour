@@ -80,7 +80,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <typeparam name="T">
         /// The message payload type
         /// </typeparam>
-        public override void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer)
+        public override void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer)
         {
             this.logger.Trace($"Registering consumer of [{typeof(T).Name}] in receiver of label [{label}]");
 

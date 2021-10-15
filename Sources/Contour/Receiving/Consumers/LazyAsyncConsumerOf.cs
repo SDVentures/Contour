@@ -18,17 +18,10 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class LazyConsumerOf<T> : IConsumerOf<T>
+    public class LazyAsyncConsumerOf<T> : IAsyncConsumerOf<T>
         where T : class
     {
-        #region Fields
-
-        /// <summary>
-        /// The _handler.
-        /// </summary>
-        private readonly Lazy<IConsumerOf<T>> _handler;
-
-        #endregion
+        private readonly Lazy<IAsyncConsumerOf<T>> _handler;
 
         #region Constructors and Destructors
 
@@ -38,9 +31,9 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyConsumerOf(Func<object> handlerResolver)
+        public LazyAsyncConsumerOf(Func<object> handlerResolver) 
         {
-            this._handler = new Lazy<IConsumerOf<T>>(() => (IConsumerOf<T>)handlerResolver(), true);
+            this._handler = new Lazy<IAsyncConsumerOf<T>>(() => (IAsyncConsumerOf<T>)handlerResolver(), true);
         }
 
         /// <summary>
@@ -49,24 +42,19 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyConsumerOf(Func<IConsumerOf<T>> handlerResolver)
+        public LazyAsyncConsumerOf(Func<IAsyncConsumerOf<T>> handlerResolver)
         {
-            this._handler = new Lazy<IConsumerOf<T>>(handlerResolver, true);
+            this._handler = new Lazy<IAsyncConsumerOf<T>>(handlerResolver, true);
         }
 
         #endregion
 
         #region Public Methods and Operators
 
-        /// <summary>
-        /// The handle.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        public void Handle(IConsumingContext<T> context)
+        
+        public async Task HandleAsync(IConsumingContext<T> context)
         {
-            this._handler.Value.Handle(context);
+            await this._handler.Value.HandleAsync(context).ConfigureAwait(false);
         }
 
         #endregion

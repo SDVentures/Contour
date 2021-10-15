@@ -26,7 +26,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         
         Task<IMessage> Expect(string correlationId, Type expectedResponseType, TimeSpan? timeout);
 
-        void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator)
+        void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer, IMessageValidator validator)
             where T : class;
 
         void StartConsuming();

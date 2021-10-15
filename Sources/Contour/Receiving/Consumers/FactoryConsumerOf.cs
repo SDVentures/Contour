@@ -1,11 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FactoryConsumerOf.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   The factory consumer of.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
+﻿using System.Threading.Tasks;
 
 namespace Contour.Receiving.Consumers
 {
@@ -16,7 +9,7 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class FactoryConsumerOf<T> : IConsumerOf<T>
+    public class FactoryConsumerOf<T> : IAsyncConsumerOf<T>, IConsumerOf<T>
         where T : class
     {
         #region Fields
@@ -24,7 +17,7 @@ namespace Contour.Receiving.Consumers
         /// <summary>
         /// The _handler resolver.
         /// </summary>
-        private readonly Func<IConsumerOf<T>> _handlerResolver;
+        private readonly Func<IConsumer<T>> _handlerResolver;
 
         #endregion
 
@@ -36,7 +29,7 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public FactoryConsumerOf(Func<IConsumerOf<T>> handlerResolver)
+        public FactoryConsumerOf(Func<IConsumer<T>> handlerResolver)
         {
             this._handlerResolver = handlerResolver;
         }
@@ -49,7 +42,7 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public FactoryConsumerOf(Func<object> handlerResolver)
         {
-            this._handlerResolver = () => (IConsumerOf<T>)handlerResolver();
+            this._handlerResolver = () => (IConsumer<T>)handlerResolver();
         }
 
         #endregion
@@ -64,8 +57,20 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public void Handle(IConsumingContext<T> context)
         {
-            this._handlerResolver().
+            ((IConsumerOf<T>)this._handlerResolver()).
                 Handle(context);
+        }
+
+        public async Task HandleAsync(IConsumingContext<T> context)
+        {
+            if (this._handlerResolver() is IAsyncConsumerOf<T> of)
+            {
+                await of.HandleAsync(context);
+            }
+            else
+            {
+                throw new Exception($"It is not async consumer. Type: {this._handlerResolver.GetType()}");
+            }
         }
 
         #endregion
