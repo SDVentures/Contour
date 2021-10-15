@@ -69,7 +69,7 @@ namespace Contour.Receiving.Consumers
             }
             else
             {
-                throw new Exception("It is not async consumer");
+                throw new Exception($"It is not async consumer. Type: {this._handlerResolver.GetType()}");
             }
         }
 
