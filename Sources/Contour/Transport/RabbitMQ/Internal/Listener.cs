@@ -264,7 +264,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
             else
             {
-                throw new ArgumentException("Parameter consumer mast realize  IConsumerOf<T> or IAsyncConsumerOf<T>", nameof(consumer));
+                throw new ArgumentException($"Parameter consumer mast realize  IConsumerOf<T> or IAsyncConsumerOf<T>, type: {consumer.GetType().Name}", nameof(consumer));
             }
 
 
@@ -464,6 +464,17 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             try
             {
+                /* TODO кажется надо разделить метод инициализации и старта консмамера на два метода, и старт выполнить после цикла ниже
+                это должно помочь не забирать сообщения из шины, пока шина не готова
+                 из метода выносится отдельно следующий код:
+                  var tag = channel.StartConsuming(
+                        this.endpoint.ListeningSource,
+                        this.ReceiverOptions.IsAcceptRequired(),
+                        consumer);
+
+                    this.logger.Trace(
+                        $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
+                 */
                 var consumer = this.InitializeConsumer(token, out var channel);
 
                 var waitSecond = 0;
