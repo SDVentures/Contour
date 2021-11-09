@@ -407,7 +407,7 @@ namespace Contour.Configurator
                 case Lifestyle.Normal:
                     return consumerFactory();
                 case Lifestyle.Lazy:
-                    consumerType = consumerFactory().GetType().Name == typeof(IAsyncConsumerOf<>).MakeGenericType(messageType).Name ? typeof(LazyAsyncConsumerOf<>).MakeGenericType(messageType) : typeof(LazyConsumerOf<>).MakeGenericType(messageType);
+                    consumerType = typeof(LazyConsumerOf<>).MakeGenericType(messageType);
                     return Activator.CreateInstance(consumerType, consumerFactory);
                 case Lifestyle.Delegated:
                     consumerType = typeof(FactoryConsumerOf<>).MakeGenericType(messageType);
@@ -512,7 +512,7 @@ namespace Contour.Configurator
 
             if (endpoint == null)
             {
-                throw new ArgumentException(string.Format("Попытка найти конфигурацию для endpoint {0} закончилось провалом, пожалуйста укажите необходимую информацию в конфигурации {1}", endpointName, ServiceBusSectionName));
+                throw new ArgumentException($"Попытка найти конфигурацию для endpoint {endpointName} закончилось провалом, пожалуйста укажите необходимую информацию в конфигурации {ServiceBusSectionName}");
             }
 
             return endpoint;

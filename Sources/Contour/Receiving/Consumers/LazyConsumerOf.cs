@@ -18,7 +18,7 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public class LazyConsumerOf<T> : IConsumerOf<T>
+    public class LazyConsumerOf<T> : IConsumerOf<T>, IAsyncConsumerOf<T>
         where T : class
     {
         #region Fields
@@ -26,7 +26,11 @@ namespace Contour.Receiving.Consumers
         /// <summary>
         /// The _handler.
         /// </summary>
-        private readonly Lazy<IConsumerOf<T>> _handler;
+        private readonly Lazy<IConsumer<T>> handler;
+
+        private IConsumerOf<T> syncConsumer;
+
+        private IAsyncConsumerOf<T> asyncConsumer;
 
         #endregion
 
@@ -40,7 +44,7 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public LazyConsumerOf(Func<object> handlerResolver)
         {
-            this._handler = new Lazy<IConsumerOf<T>>(() => (IConsumerOf<T>)handlerResolver(), true);
+            this.handler = new Lazy<IConsumer<T>>(() => (IConsumer<T>)handlerResolver(), true);
         }
 
         /// <summary>
@@ -49,9 +53,9 @@ namespace Contour.Receiving.Consumers
         /// <param name="handlerResolver">
         /// The handler resolver.
         /// </param>
-        public LazyConsumerOf(Func<IConsumerOf<T>> handlerResolver)
+        public LazyConsumerOf(Func<IConsumer<T>> handlerResolver)
         {
-            this._handler = new Lazy<IConsumerOf<T>>(handlerResolver, true);
+            this.handler = new Lazy<IConsumer<T>>(handlerResolver, true);
         }
 
         #endregion
@@ -66,9 +70,34 @@ namespace Contour.Receiving.Consumers
         /// </param>
         public void Handle(IConsumingContext<T> context)
         {
-            this._handler.Value.Handle(context);
+            if (!this.handler.IsValueCreated)
+            {
+                this.syncConsumer = this.handler.Value as IConsumerOf<T>;
+
+                if (this.syncConsumer == null)
+                {
+                    throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IConsumerOf<T>");
+                }
+            }
+
+            this.syncConsumer.Handle(context);
         }
 
         #endregion
+
+        public async Task HandleAsync(IConsumingContext<T> context)
+        {
+            if (!this.handler.IsValueCreated)
+            {
+                this.asyncConsumer = this.handler.Value as IAsyncConsumerOf<T>;
+
+                if (this.asyncConsumer == null)
+                {
+                    throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T>");
+                }
+            }
+
+            await this.asyncConsumer.HandleAsync(context);
+        }
     }
 }
