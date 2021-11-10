@@ -73,11 +73,11 @@ namespace Contour.Receiving.Consumers
             if (!this.handler.IsValueCreated)
             {
                 this.syncConsumer = this.handler.Value as IConsumerOf<T>;
+            }
 
-                if (this.syncConsumer == null)
-                {
-                    throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IConsumerOf<T>");
-                }
+            if (this.syncConsumer == null)
+            {
+                throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IConsumerOf<T>");
             }
 
             this.syncConsumer.Handle(context);
@@ -90,11 +90,11 @@ namespace Contour.Receiving.Consumers
             if (!this.handler.IsValueCreated)
             {
                 this.asyncConsumer = this.handler.Value as IAsyncConsumerOf<T>;
+            }
 
-                if (this.asyncConsumer == null)
-                {
-                    throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T>");
-                }
+            if (this.asyncConsumer == null)
+            {
+                throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T>");
             }
 
             await this.asyncConsumer.HandleAsync(context);
