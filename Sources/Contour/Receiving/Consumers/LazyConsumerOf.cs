@@ -85,19 +85,30 @@ namespace Contour.Receiving.Consumers
 
         #endregion
 
-        public async Task HandleAsync(IConsumingContext<T> context)
+        public Task HandleAsync(IConsumingContext<T> context)
         {
             if (!this.handler.IsValueCreated)
             {
                 this.asyncConsumer = this.handler.Value as IAsyncConsumerOf<T>;
+                if (this.asyncConsumer == null)
+                {
+                    this.syncConsumer = this.handler.Value as IConsumerOf<T>;
+                }
             }
 
-            if (this.asyncConsumer == null)
+            if (this.asyncConsumer != null)
             {
-                throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T>");
+                return this.asyncConsumer.HandleAsync(context);
             }
-
-            await this.asyncConsumer.HandleAsync(context);
+            else if (this.syncConsumer != null)
+            {
+                this.syncConsumer.Handle(context);
+                return Task.CompletedTask;
+            }
+            else
+            {
+                throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T> or IConsumerOf<T>");
+            }
         }
     }
 }

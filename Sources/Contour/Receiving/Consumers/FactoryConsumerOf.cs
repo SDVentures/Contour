@@ -61,6 +61,8 @@ namespace Contour.Receiving.Consumers
                 Handle(context);
         }
 
+
+        // TODO этот код не работает, но и не используется, исправить при случае
         public async Task HandleAsync(IConsumingContext<T> context)
         {
             if (this._handlerResolver() is IAsyncConsumerOf<T> of)
