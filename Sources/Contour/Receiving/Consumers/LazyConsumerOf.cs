@@ -100,15 +100,14 @@ namespace Contour.Receiving.Consumers
             {
                 return this.asyncConsumer.HandleAsync(context);
             }
-            else if (this.syncConsumer != null)
+
+            if (this.syncConsumer != null)
             {
                 this.syncConsumer.Handle(context);
                 return Task.CompletedTask;
             }
-            else
-            {
-                throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T> or IConsumerOf<T>");
-            }
+
+            throw new Exception($"This type: [{this.handler.Value.GetType()}] is not implement IAsyncConsumerOf<T> or IConsumerOf<T>");
         }
     }
 }
