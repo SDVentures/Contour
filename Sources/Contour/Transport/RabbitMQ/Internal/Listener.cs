@@ -464,17 +464,6 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             try
             {
-                /* TODO кажется надо разделить метод инициализации и старта консмамера на два метода, и старт выполнить после цикла ниже
-                это должно помочь не забирать сообщения из шины, пока шина не готова
-                 из метода выносится отдельно следующий код:
-                  var tag = channel.StartConsuming(
-                        this.endpoint.ListeningSource,
-                        this.ReceiverOptions.IsAcceptRequired(),
-                        consumer);
-
-                    this.logger.Trace(
-                        $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
-                 */
                 var consumer = this.InitializeConsumer(token, out var channel);
 
                 var waitSecond = 0;
@@ -496,6 +485,8 @@ namespace Contour.Transport.RabbitMQ.Internal
                         break;
                     }
                 }
+
+                this.StartConsuming(consumer, channel);
 
                 this.logger.Info($"Listner {this} start consuming.");
 
@@ -552,6 +543,13 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             var consumer = channel.BuildCancellableConsumer(token);
+           
+
+            return consumer;
+        }
+
+        private void StartConsuming(IBasicConsumer consumer, RabbitChannel channel)
+        {
             var tag = channel.StartConsuming(
                 this.endpoint.ListeningSource,
                 this.ReceiverOptions.IsAcceptRequired(),
@@ -559,8 +557,6 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(
                 $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
-
-            return consumer;
         }
 
         private void OnChannelShutdown(IChannel channel, ShutdownEventArgs args)
