@@ -189,6 +189,13 @@ namespace Contour
             return headers;
         }
 
+        public static void ApplySentTimestamp(IDictionary<string, object> headers)
+        {
+            var sent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            headers[SentTimestamp] = sent;
+        }
+
         /// <summary>
         /// Применяет к коллекции заголовков установку заголовка <c>Ttl</c>.
         /// </summary>

@@ -96,6 +96,7 @@ namespace Contour.Sending
         /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(object payload, IDictionary<string, object> headers) where T : class
         {
+            Headers.ApplySentTimestamp(headers);
             var message = new Message(this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
@@ -138,6 +139,7 @@ namespace Contour.Sending
         [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
         public Task Send(object payload, IDictionary<string, object> headers)
         {
+            Headers.ApplySentTimestamp(headers);
             var message = new Message(this.Configuration.Label, headers, payload);
 
             return this.ProcessFilter(message, null);
@@ -185,6 +187,7 @@ namespace Contour.Sending
         /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(MessageLabel label, object payload, IDictionary<string, object> headers) where T : class
         {
+            Headers.ApplySentTimestamp(headers);
             if (!headers.ContainsKey(Headers.CorrelationId))
             {
                 headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
@@ -215,6 +218,7 @@ namespace Contour.Sending
         /// <returns>Задача выполнения отправки сообщения.</returns>
         public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey)
         {
+            Headers.ApplySentTimestamp(headers);
             var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
 
             return this.ProcessFilter(message, connectionKey);
