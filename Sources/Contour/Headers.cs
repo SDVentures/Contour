@@ -67,6 +67,8 @@ namespace Contour
         /// Максимальное количество сообщений в очереди.
         /// </summary>
         public static readonly string QueueMaxLength = "x-max-length";
+        
+        public static readonly string SentTimestamp = "x-sent-timestamp";
 
         /// <summary>
         /// Коллекция заголовков, значения которых менять запрещено
@@ -185,6 +187,13 @@ namespace Contour
             }
 
             return headers;
+        }
+
+        public static void ApplySentTimestamp(IDictionary<string, object> headers)
+        {
+            var sent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            headers[SentTimestamp] = sent;
         }
 
         /// <summary>

@@ -82,6 +82,11 @@ namespace Contour.Receiving
             await this.Delivery.Forward(label.ToMessageLabel(), this.Message.Payload);
         }
 
+        public async Task ForwardAsync<TOut>(string label, TOut payload) where TOut : class
+        {
+            await this.Delivery.Forward(label.ToMessageLabel(), payload);
+        }
+
         /// <summary>
         /// Пересылает сообщение, устанавливая указанную метку.
         /// </summary>

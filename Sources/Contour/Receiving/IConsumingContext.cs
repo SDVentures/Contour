@@ -46,6 +46,13 @@ namespace Contour.Receiving
         /// </summary>
         /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
         Task ForwardAsync(string label);
+        
+        /// <summary>
+        /// Пересылает сообщение, устанавливая указанную метку.
+        /// </summary>
+        /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
+        /// <param name="payload">Новое содержимое сообщения.</param>
+        Task ForwardAsync<TOut>(string label, TOut payload) where TOut : class;
 
         /// <summary>
         /// Пересылает сообщение, устанавливая указанную метку.
