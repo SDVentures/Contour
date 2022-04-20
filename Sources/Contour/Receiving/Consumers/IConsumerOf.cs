@@ -7,6 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Threading.Tasks;
+
 namespace Contour.Receiving.Consumers
 {
     /// <summary>
@@ -14,7 +17,7 @@ namespace Contour.Receiving.Consumers
     /// </summary>
     /// <typeparam name="T">
     /// </typeparam>
-    public interface IConsumerOf<T> : IConsumer
+    public interface IConsumerOf<T> : IConsumer<T>
         where T : class
     {
         #region Public Methods and Operators

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +34,8 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.ConnectionString = connectionString;
             this.busContext = busContext;
 
+            this.ConnectionKey = GetConnectionKey(connectionString);
+
             var clientProperties = new Dictionary<string, object>
             {
                 { "Endpoint", this.endpoint.Address },
@@ -45,7 +49,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                 Uri = new Uri(this.ConnectionString),
                 AutomaticRecoveryEnabled = false,
                 ClientProperties = clientProperties,
-                RequestedConnectionTimeout = ConnectionTimeout
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout)
             };
         }
 
@@ -58,6 +62,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         public Guid Id { get; }
 
         public string ConnectionString { get; }
+
+        public string ConnectionKey { get; }
 
         public void Open(CancellationToken token)
         {
@@ -89,46 +95,19 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                     catch (Exception ex)
                     {
-                        var secondsToRetry = Math.Min(10, retryCount);
-
-                        this.logger.WarnFormat(
-                            "Unable to connect to RabbitMQ. Retrying in {0} seconds...",
-                            ex,
-                            secondsToRetry);
-
                         if (con != null)
                         {
                             con.ConnectionShutdown -= this.OnConnectionShutdown;
-                            con.Abort(OperationTimeout);
+                            con.Abort(TimeSpan.FromMilliseconds(OperationTimeout));
                         }
 
+                        var secondsToRetry = Math.Min(10, retryCount);
+
+                        this.logger.Warn(m => m("Unable to connect to RabbitMQ on connection string: [{1}]. Retrying in {0} seconds...", secondsToRetry, this.ConnectionString), ex);
+                        
                         Thread.Sleep(TimeSpan.FromSeconds(secondsToRetry));
                         retryCount++;
                     }
-                }
-            }
-        }
-
-        [Obsolete("Use cancellable version")]
-        public RabbitChannel OpenChannel()
-        {
-            lock (this.syncRoot)
-            {
-                if (this.connection == null || !this.connection.IsOpen)
-                {
-                    throw new InvalidOperationException("RabbitMQ connection is not open.");
-                }
-
-                try
-                {
-                    var model = this.connection.CreateModel();
-                    var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString);
-                    return channel;
-                }
-                catch (Exception ex)
-                {
-                    this.logger.Error($"Failed to open a new channel in connection [{this}] due to: {ex.Message}", ex);
-                    throw;
                 }
             }
         }
@@ -149,12 +128,12 @@ namespace Contour.Transport.RabbitMQ.Internal
                     try
                     {
                         var model = this.connection.CreateModel();
-                        var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString);
+                        var channel = new RabbitChannel(this.Id, model, this.busContext, this.ConnectionString, this.ConnectionKey);
                         return channel;
                     }
                     catch (Exception ex)
                     {
-                        this.logger.Error($"Failed to open a new channel due to: {ex.Message}; retrying...", ex);
+                        this.logger.Error($"Failed to open a new channel on connection string: [{this.ConnectionString}] due to: {ex.Message}; retrying...", ex);
                     }
                 }
             }
@@ -171,10 +150,10 @@ namespace Contour.Transport.RabbitMQ.Internal
                         this.logger.Trace($"[{this.endpoint}]: closing connection.");
                         try
                         {
-                            this.connection.Close(OperationTimeout);
+                            this.connection.Close(TimeSpan.FromMilliseconds(OperationTimeout));
                             if (this.connection.CloseReason != null)
                             {
-                                this.connection.Abort(OperationTimeout);
+                                this.connection.Abort(TimeSpan.FromMilliseconds(OperationTimeout));
                             }
                         }
                         catch (AlreadyClosedException ex)
@@ -234,7 +213,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         public override string ToString()
         {
-            return $"{this.Id} : {this.ConnectionString}";
+            return $"{this.Id} : {this.ConnectionString} : {this.ConnectionKey}";
         }
 
         protected virtual void OnOpened()
@@ -266,6 +245,17 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                     this.OnClosed();
                 });
+        }
+
+
+        // TODO вынести знание о DNS и прочем за пределы контура, вычислять данные вне контура и передавать на старте
+        private static string GetConnectionKey(string connectionString)
+        {
+            var uri = new Uri(connectionString, UriKind.Absolute);
+
+            var ip = string.Join(",", Dns.GetHostAddresses(uri.Host).OrderBy(x => x.ToString()));
+
+            return $"{ip}:{uri.Port}:{uri.Segments.Last()}";
         }
     }
 }

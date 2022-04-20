@@ -67,6 +67,14 @@ namespace Contour
         /// Максимальное количество сообщений в очереди.
         /// </summary>
         public static readonly string QueueMaxLength = "x-max-length";
+        
+        public static readonly string SentTimestamp = "x-sent-timestamp";
+
+        /// <summary>
+        /// Коллекция заголовков, значения которых менять запрещено
+        /// </summary>
+        private static readonly HashSet<string> NotImmutableHeaders =
+            new HashSet<string>(new[] { CorrelationId, OriginalMessageId, MessageLabel, ReplyRoute });
 
         /// <summary>
         /// Максимальное количество байт, которые занимают сообщения в очереди
@@ -86,8 +94,7 @@ namespace Contour
         /// <returns>Если заголовок существует, тогда его значение, иначе <c>null</c> или 0.</returns>
         public static T Extract<T>(IDictionary<string, object> headers, string key)
         {
-            object value;
-            if (headers.TryGetValue(key, out value))
+            if (headers.TryGetValue(key, out var value))
             {
                 headers.Remove(key);
                 return (T)value;
@@ -104,21 +111,19 @@ namespace Contour
         /// <returns>Строковое значение заголовка или пустая строка, если заголовка не существует в наборе.</returns>
         public static string GetString(IDictionary<string, object> headers, string key)
         {
-            object value;
-            if (headers.TryGetValue(key, out value))
-            {
-                if (value is string)
-                {
-                    return (string)value;
-                }
+            return GetStringPrivate(headers, key);
+        }
 
-                if (value is byte[])
-                {
-                    return Encoding.UTF8.GetString((byte[])value);
-                }
-            }
+        /// <summary>
+        /// Возвращает заголовки из хранилища заголовков
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string GetString(string key)
+        {
+            var storedHeaders = MessageHeaderStorage.LoadStatic();
 
-            return string.Empty;
+            return GetStringPrivate(storedHeaders, key);
         }
 
         /// <summary>
@@ -189,6 +194,13 @@ namespace Contour
             return headers;
         }
 
+        public static void ApplySentTimestamp(IDictionary<string, object> headers)
+        {
+            var sent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            headers[SentTimestamp] = sent;
+        }
+
         /// <summary>
         /// Применяет к коллекции заголовков установку заголовка <c>Ttl</c>.
         /// </summary>
@@ -208,9 +220,34 @@ namespace Contour
                 {
                     headers.Add(header);
                 }
+                else
+                {
+                    if (!NotImmutableHeaders.Contains(header.Key))
+                    {
+                        headers[header.Key] = header.Value;
+                    }
+                }
             }
             
             return headers;
+        }
+
+        private static string GetStringPrivate(IDictionary<string, object> headers, string key)
+        {
+            if (headers.TryGetValue(key, out var value))
+            {
+                if (value is string s)
+                {
+                    return s;
+                }
+
+                if (value is byte[] bytes)
+                {
+                    return Encoding.UTF8.GetString(bytes);
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

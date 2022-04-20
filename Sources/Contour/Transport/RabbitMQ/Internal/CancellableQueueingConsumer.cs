@@ -1,4 +1,6 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using Common.Logging;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -14,6 +16,7 @@
     internal class CancellableQueueingConsumer : DefaultBasicConsumer
     {
         private readonly CancellationToken cancellationToken;
+
         private readonly BlockingCollection<BasicDeliverEventArgs> queue = new BlockingCollection<BasicDeliverEventArgs>();
 
         /// <summary>
@@ -66,11 +69,17 @@
         /// <param name="body">
         /// The body.
         /// </param>
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, byte[] body)
+        public override void HandleBasicDeliver(string consumerTag,
+            ulong deliveryTag,
+            bool redelivered,
+            string exchange,
+            string routingKey,
+            IBasicProperties properties,
+            ReadOnlyMemory<byte> body)
         {
             try
             {
-                this.queue.Add(new BasicDeliverEventArgs { Exchange = exchange, RoutingKey = routingKey, ConsumerTag = consumerTag, DeliveryTag = deliveryTag, Redelivered = redelivered, BasicProperties = properties, Body = body }, this.cancellationToken);
+                this.queue.Add(new BasicDeliverEventArgs { Exchange = exchange, RoutingKey = routingKey, ConsumerTag = consumerTag, DeliveryTag = deliveryTag, Redelivered = redelivered, BasicProperties = properties, Body = body.ToArray() }, this.cancellationToken);
             }
             catch (InvalidOperationException)
             {

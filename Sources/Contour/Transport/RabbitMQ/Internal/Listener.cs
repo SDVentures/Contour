@@ -77,6 +77,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private ITicketTimer ticketTimer;
         private ConcurrentBag<Task> workers;
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Listener"/> class. 
         /// </summary>
@@ -119,7 +120,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
-        internal delegate void ConsumingAction(RabbitDelivery delivery);
+        internal delegate Task ConsumingAction(RabbitDelivery delivery);
 
         /// <summary>
         /// Метки сообщений, которые может обработать слушатель.
@@ -188,8 +189,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </returns>
         public Task<IMessage> Expect(string correlationId, Type expectedResponseType, TimeSpan? timeout)
         {
-            Expectation expectation;
-            if (this.expectations.TryGetValue(correlationId, out expectation))
+            if (this.expectations.TryGetValue(correlationId, out var expectation))
             {
                 return expectation.Task;
             }
@@ -217,23 +217,56 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <typeparam name="T">
         /// Тип входящего сообщения.
         /// </typeparam>
-        public void RegisterConsumer<T>(MessageLabel label, IConsumerOf<T> consumer, IMessageValidator validator) where T : class
+        public void RegisterConsumer<T>(MessageLabel label, IConsumer<T> consumer, IMessageValidator validator) where T : class
         {
-            ConsumingAction consumingAction = delivery =>
-                {
-                    IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
+            ConsumingAction consumingAction;
 
-                    if (validator != null)
+            if (consumer is IAsyncConsumerOf<T>)
+            {
+                
+                consumingAction = delivery =>
                     {
-                        validator.Validate(context.Message).ThrowIfBroken();
-                    }
-                    else
-                    {
-                        this.validatorRegistry.Validate(context.Message);
-                    }
+                        IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
 
-                    consumer.Handle(context);
-                };
+                        if (validator != null)
+                        {
+                            validator.Validate(context.Message)
+                                .ThrowIfBroken();
+                        }
+                        else
+                        {
+                            this.validatorRegistry.Validate(context.Message);
+                        }
+                        
+                        return ((IAsyncConsumerOf<T>)consumer).HandleAsync(context);
+                    };
+            }
+            else if (consumer is IConsumerOf<T>)
+            {
+                consumingAction = delivery =>
+                    {
+                        IConsumingContext<T> context = delivery.BuildConsumingContext<T>(label);
+
+                        if (validator != null) 
+                        {
+                            validator.Validate(context.Message)
+                                .ThrowIfBroken();
+                        }
+                        else
+                        {
+                            this.validatorRegistry.Validate(context.Message);
+                        }
+
+                        ((IConsumerOf<T>)consumer).Handle(context);
+
+                        return Task.CompletedTask;
+                    };
+            }
+            else
+            {
+                throw new ArgumentException($"Parameter consumer mast realize  IConsumerOf<T> or IAsyncConsumerOf<T>, type: {consumer.GetType().Name}", nameof(consumer));
+            }
+
 
             this.consumers[label] = consumingAction;
         }
@@ -262,14 +295,14 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 this.workers = new ConcurrentBag<Task>(Enumerable
                     .Range(0, count)
-                    .Select(
-                        _ =>
-                            Task.Factory.StartNew(
-                                () => this.ConsumerTaskMethod(token), token, TaskCreationOptions.LongRunning,
+                    .Select(async 
+                        _ => await 
+                            Task.Factory.StartNew(async 
+                                () => await this.ConsumerTaskMethod(token), token, TaskCreationOptions.LongRunning,
                                 TaskScheduler.Default)));
 
                 this.isConsuming = true;
-                this.logger.Trace("Listener started successfully");
+                this.logger.Trace("Listener's workers started successfully");
             }
         }
 
@@ -301,7 +334,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
-        private void Deliver(RabbitDelivery delivery)
+        private async Task Deliver(RabbitDelivery delivery)
         {
             DiagnosticProps.Store(DiagnosticProps.Names.ConsumerConnectionString, delivery.Channel.ConnectionString);
 
@@ -325,15 +358,16 @@ namespace Contour.Transport.RabbitMQ.Internal
                 this.logger.Trace(m => m("Сообщение было обработано в конечных точках: [{0}].", breadcrumbs));
             }
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
 
             try
-            {
-                bool processed = this.TryHandleAsResponse(delivery);
+            {   
+                // тут не происходит ничего, что можно было бы сделать асинхронно
+                var processed = this.TryHandleAsResponse(delivery);
 
                 if (!processed)
                 {
-                    processed = this.TryHandleAsSubscription(delivery);
+                    processed = await this.TryHandleAsSubscription(delivery);
                 }
 
                 if (!processed)
@@ -364,8 +398,7 @@ namespace Contour.Transport.RabbitMQ.Internal
 
                 this.cancellationTokenSource.Cancel(true);
 
-                Task worker;
-                while (this.workers.TryTake(out worker))
+                while (this.workers.TryTake(out var worker))
                 {
                     try
                     {
@@ -378,8 +411,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                 }
 
-                RabbitChannel channel;
-                while (this.channels.TryTake(out channel))
+                while (this.channels.TryTake(out var channel))
                 {
                     try
                     {
@@ -428,27 +460,49 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="token">
         /// Сигнальный объект аварийного досрочного завершения обработки.
         /// </param>
-        private void ConsumerTaskMethod(CancellationToken token)
+        private async Task ConsumerTaskMethod(CancellationToken token)
         {
             try
             {
-                RabbitChannel channel;
-                var consumer = this.InitializeConsumer(token, out channel);
+                var consumer = this.InitializeConsumer(token, out var channel);
+
+                var waitSecond = 0;
+                // если шина так и не стала готова работать, то не смысла начинать слушать сообщения, что бы потом их потерять
+                while (true)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
+                    if (!this.busContext.WhenReady.WaitOne(60000))
+                    {
+                        waitSecond += 60;
+                        this.logger.Warn(m => m ("Wait when bus [{0}] will be ready already {1} seconds. Continue waiting.", this.busContext.Endpoint.Address, waitSecond));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                this.StartConsuming(consumer, channel);
+
+                this.logger.Info($"Listner {this} start consuming.");
 
                 while (!token.IsCancellationRequested)
                 {
                     var message = consumer.Dequeue();
-                    this.Deliver(this.BuildDeliveryFrom(channel, message));
+                    await this.Deliver(this.BuildDeliveryFrom(channel, message));
                 }
             }
             catch (OperationCanceledException)
             {
-                this.logger.Info($"Consume operation of listener has been canceled");
+                this.logger.Info("Consume operation of listener has been canceled");
             }
             catch (Exception ex)
             {
-                this.logger.Error(
-                    $"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has failed due to [{ex.Message}]");
+                this.logger.Error($"Listener of [{this.endpoint.ListeningSource}] at [{this.BrokerUrl}] has failed due to [{ex.Message}]");
             }
         }
 
@@ -489,6 +543,13 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             var consumer = channel.BuildCancellableConsumer(token);
+           
+
+            return consumer;
+        }
+
+        private void StartConsuming(IBasicConsumer consumer, RabbitChannel channel)
+        {
             var tag = channel.StartConsuming(
                 this.endpoint.ListeningSource,
                 this.ReceiverOptions.IsAcceptRequired(),
@@ -496,8 +557,6 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(
                 $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
-
-            return consumer;
         }
 
         private void OnChannelShutdown(IChannel channel, ShutdownEventArgs args)
@@ -544,8 +603,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="correlationId">Корреляционный идентификатор, с помощью которого определяется принадлежность ответа определенному запросу.</param>
         private void OnResponseTimeout(string correlationId)
         {
-            Expectation expectation;
-            if (this.expectations.TryRemove(correlationId, out expectation))
+            if (this.expectations.TryRemove(correlationId, out var expectation))
             {
                 expectation.Timeout();
             }
@@ -559,20 +617,20 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// </param>
         private void OnUnhandled(RabbitDelivery delivery)
         {
-            this.logger.Warn(m => m("No handler for message labeled [{0}] on queue [{1}].", delivery.Label, this.endpoint.ListeningSource));
+            this.logger.Warn(m => m("No handler for message labeled [{0}] on queue [{1}]. On connection string: [{2}]", delivery.Label, this.endpoint.ListeningSource, this.BrokerUrl));
 
             this.ReceiverOptions.GetUnhandledDeliveryStrategy()
                 .Value.Handle(new RabbitUnhandledConsumingContext(delivery));
         }
 
         /// <summary>
-        /// Пытается обработать сообщение как запрос.
+        /// Пытается обработать сообщение как ответ.
         /// </summary>
         /// <param name="delivery">
         /// Входящее сообщение.
         /// </param>
         /// <returns>
-        /// Если <c>true</c> - тогда сообщение обработано как запрос, иначе - <c>false</c>.
+        /// Если <c>true</c> - тогда сообщение обработано как ответ, иначе - <c>false</c>.
         /// </returns>
         private bool TryHandleAsResponse(RabbitDelivery delivery)
         {
@@ -581,10 +639,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                 return false;
             }
 
-            string correlationId = delivery.CorrelationId;
+            var correlationId = delivery.CorrelationId;
 
-            Expectation expectation;
-            if (!this.expectations.TryRemove(correlationId, out expectation))
+            if (!this.expectations.TryRemove(correlationId, out var expectation))
             {
                 return false;
             }
@@ -607,15 +664,15 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>
         /// Если <c>true</c> - входящее сообщение обработано, иначе <c>false</c>.
         /// </returns>
-        private bool TryHandleAsSubscription(RabbitDelivery delivery)
+        private async Task<bool> TryHandleAsSubscription(RabbitDelivery delivery)
         {
-            ConsumingAction consumingAction;
-            if (!this.consumers.TryGetValue(delivery.Label, out consumingAction))
+            if (!this.consumers.TryGetValue(delivery.Label, out var consumingAction))
             {
                 this.consumers.TryGetValue(MessageLabel.Any, out consumingAction);
 
                 if (consumingAction == null)
                 {
+                    // wtf?
                     consumingAction = this.consumers.Values.FirstOrDefault();
                 }
             }
@@ -623,7 +680,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             if (consumingAction != null)
             {
                 this.messageHeaderStorage.Store(delivery.Headers);
-                consumingAction(delivery);
+                await consumingAction(delivery);
                 return true;
             }
 
@@ -671,13 +728,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             /// <summary>
             /// Задача завершения ожидания.
             /// </summary>
-            public Task<IMessage> Task
-            {
-                get
-                {
-                    return this.completionSource.Task;
-                }
-            }
+            public Task<IMessage> Task => this.completionSource.Task;
 
             /// <summary>
             /// Квиток об учете времени ожидания ответа.

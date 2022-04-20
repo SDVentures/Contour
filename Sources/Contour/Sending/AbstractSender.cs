@@ -96,6 +96,7 @@ namespace Contour.Sending
         /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(object payload, IDictionary<string, object> headers) where T : class
         {
+            Headers.ApplySentTimestamp(headers);
             var message = new Message(this.Configuration.Label, headers, payload);
 
             var exchange = new MessageExchange(message, typeof(T));
@@ -138,9 +139,10 @@ namespace Contour.Sending
         [Obsolete("Необходимо использовать метод Send с указанием метки сообщения.")]
         public Task Send(object payload, IDictionary<string, object> headers)
         {
+            Headers.ApplySentTimestamp(headers);
             var message = new Message(this.Configuration.Label, headers, payload);
 
-            return this.ProcessFilter(message);
+            return this.ProcessFilter(message, null);
         }
 
         /// <summary>
@@ -185,6 +187,7 @@ namespace Contour.Sending
         /// <returns>Request processing task.</returns>
         public Task<T> Request<T>(MessageLabel label, object payload, IDictionary<string, object> headers) where T : class
         {
+            Headers.ApplySentTimestamp(headers);
             if (!headers.ContainsKey(Headers.CorrelationId))
             {
                 headers[Headers.CorrelationId] = Guid.NewGuid().ToString("n");
@@ -211,12 +214,27 @@ namespace Contour.Sending
         /// <param name="label">Метка отправляемого сообщения.</param>
         /// <param name="payload">Тело сообщения.</param>
         /// <param name="headers">Заголовки сообщения.</param>
+        /// <param name="connectionKey">Идентификатор подключения, по которому нужно отправить сообщение</param>
+        /// <returns>Задача выполнения отправки сообщения.</returns>
+        public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey)
+        {
+            Headers.ApplySentTimestamp(headers);
+            var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
+
+            return this.ProcessFilter(message, connectionKey);
+        }
+
+
+        /// <summary>
+        /// Отправляет одностороннее сообщение.
+        /// </summary>
+        /// <param name="label">Метка отправляемого сообщения.</param>
+        /// <param name="payload">Тело сообщения.</param>
+        /// <param name="headers">Заголовки сообщения.</param>
         /// <returns>Задача выполнения отправки сообщения.</returns>
         public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers)
         {
-            var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
-
-            return this.ProcessFilter(message);
+            return this.Send(label, payload, headers, null);
         }
 
         /// <summary>
@@ -245,20 +263,21 @@ namespace Contour.Sending
         /// Фильтр обработки сообщения, который отсылает сообщение.
         /// </summary>
         /// <param name="exchange">Отсылаемое сообщение.</param>
+        /// <param name="connectionKey">ИД подключения, через которую надо отослать сообщение</param>
         /// <returns>Задача выполнения фильтра.</returns>
-        protected abstract Task<MessageExchange> InternalSend(MessageExchange exchange);
+        protected abstract Task<MessageExchange> InternalSend(MessageExchange exchange, string connectionKey);
 
         /// <summary>
         /// Обрабатывает сообщение с помощью зарегистрированных фильтров.
         /// </summary>
         /// <param name="message">Обрабатываемое сообщение.</param>
         /// <returns>Задача обработки сообщения с помощью фильтров.</returns>
-        private Task ProcessFilter(IMessage message)
+        private Task ProcessFilter(IMessage message, string connectionKey)
         {
             var exchange = new MessageExchange(message, null);
             var invoker = new MessageExchangeFilterInvoker(this.filters);
 
-            return invoker.Process(exchange);
+            return invoker.Process(exchange, connectionKey);
         }
 
         /// <summary>

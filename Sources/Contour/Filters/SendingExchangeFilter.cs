@@ -13,7 +13,7 @@
         /// <summary>
         /// The _sending action.
         /// </summary>
-        private readonly Func<MessageExchange, Task> _sendingAction;
+        private readonly Func<MessageExchange, string, Task> sendingAction;
 
         #endregion
 
@@ -25,9 +25,9 @@
         /// <param name="sendingAction">
         /// The sending action.
         /// </param>
-        public SendingExchangeFilter(Func<MessageExchange, Task> sendingAction)
+        public SendingExchangeFilter(Func<MessageExchange, string, Task> sendingAction)
         {
-            this._sendingAction = sendingAction;
+            this.sendingAction = sendingAction;
         }
 
         #endregion
@@ -48,9 +48,13 @@
         /// </returns>
         public Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker)
         {
-            return this._sendingAction(exchange).ContinueWith(_ => invoker.Continue(exchange).Result);
+            return this.Process(exchange, invoker, null);
         }
 
+        public Task<MessageExchange> Process(MessageExchange exchange, MessageExchangeFilterInvoker invoker, string connectionKey)
+        {
+            return this.sendingAction(exchange, connectionKey).ContinueWith(_ => invoker.Continue(exchange, connectionKey).Result);
+        }
         #endregion
     }
 }

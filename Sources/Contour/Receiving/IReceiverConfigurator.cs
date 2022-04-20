@@ -29,18 +29,6 @@ namespace Contour.Receiving
         /// <returns>Конфигуратор получателя с установленной стратегией обработки сообщений</returns>
         IReceiverConfigurator OnFailed(Action<IFailedConsumingContext> failedDeliveryHandler);
 
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        IReceiverConfigurator<T> ReactWith<T>(Action<T> handlerAction) where T : class;
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        IReceiverConfigurator<T> ReactWith<T>(Action<T, IConsumingContext<T>> handlerAction) where T : class;
-
         /// <summary>Регистрирует фабрику обработчиков входящего сообщения.</summary>
         /// <param name="consumerFactoryFunc">Фабрика обработчиков входящих сообщений.</param>
         /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
@@ -51,7 +39,7 @@ namespace Contour.Receiving
         /// <param name="consumer">Обработчик входящего сообщения.</param>
         /// <typeparam name="T">Тип обрабатываемого сообщения.</typeparam>
         /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        IReceiverConfigurator<T> ReactWith<T>(IConsumerOf<T> consumer) where T : class;
+        IReceiverConfigurator<T> ReactWith<T>(IConsumer<T> consumer) where T : class;
 
         /// <summary>
         /// Устанавливает необходимость явного подтверждения успешной обработки сообщения.
@@ -119,16 +107,6 @@ namespace Contour.Receiving
         /// <param name="failedDeliveryHandler">Обработчик сообщений, получение которых завершилось провалом.</param>
         /// <returns>Конфигуратор получателя с установленной стратегией обработки сообщений</returns>
         new IReceiverConfigurator<T> OnFailed(Action<IFailedConsumingContext> failedDeliveryHandler);
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        IReceiverConfigurator<T> ReactWith(Action<T> handlerAction);
-
-        /// <summary>Регистрирует обработчик входящего сообщения.</summary>
-        /// <param name="handlerAction">Обработчик входящего сообщения.</param>
-        /// <returns>Конфигуратор получателя с установленным обработчиком входящих сообщений.</returns>
-        IReceiverConfigurator<T> ReactWith(Action<T, IConsumingContext<T>> handlerAction);
 
         /// <summary>Регистрирует фабрику обработчиков входящего сообщения.</summary>
         /// <param name="consumerFactoryFunc">Фабрика обработчиков входящих сообщений.</param>

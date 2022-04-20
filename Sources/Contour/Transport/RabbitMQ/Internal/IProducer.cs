@@ -11,6 +11,8 @@ namespace Contour.Transport.RabbitMQ.Internal
 
         string BrokerUrl { get; }
 
+        string ConnectionKey { get; }
+
         MessageLabel Label { get; }
 
         Task Publish(IMessage message);

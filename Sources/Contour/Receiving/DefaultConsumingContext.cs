@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Contour.Receiving
 {
@@ -46,13 +48,7 @@ namespace Contour.Receiving
         /// <summary>
         /// Верно, если можно ответить на это сообщение.
         /// </summary>
-        public bool CanReply
-        {
-            get
-            {
-                return this.Delivery.CanReply;
-            }
-        }
+        public bool CanReply => this.Delivery.CanReply;
 
         /// <summary>
         /// Помечает сообщение как обработанное.
@@ -75,9 +71,20 @@ namespace Contour.Receiving
         /// Пересылает сообщение, устанавливая указанную метку.
         /// </summary>
         /// <param name="label">Новая метка, с которой пересылается сообщение.</param>
+        [Obsolete("Используйте ForwardAsync")]
         public void Forward(string label)
         {
             this.Forward(label, this.Message.Payload);
+        }
+
+        public async Task ForwardAsync(string label)
+        {
+            await this.Delivery.Forward(label.ToMessageLabel(), this.Message.Payload);
+        }
+
+        public async Task ForwardAsync<TOut>(string label, TOut payload) where TOut : class
+        {
+            await this.Delivery.Forward(label.ToMessageLabel(), payload);
         }
 
         /// <summary>

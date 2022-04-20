@@ -15,14 +15,17 @@ namespace Contour.Transport.RabbitMQ.Internal
     /// </summary>
     internal class RabbitBus : AbstractBus, IBusAdvanced
     {
-        private readonly object syncRoot = new object();
         private readonly ILog logger = LogManager.GetLogger<RabbitBus>();
-        private readonly ManualResetEvent isRestarting = new ManualResetEvent(false);
         private readonly ManualResetEvent ready = new ManualResetEvent(false);
         private readonly IConnectionPool<IRabbitConnection> connectionPool;
 
+        /// <summary>
+        /// Шина полностью сконфигурированна и готова слушать входящие и публиковать исходящии, осталось ее только включить
+        /// </summary>
+        private bool isPrepared;
+
         private CancellationTokenSource cancellationTokenSource;
-        private Task restartTask;
+        private Task workTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitBus" /> class.
@@ -34,7 +37,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.cancellationTokenSource = new CancellationTokenSource();
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
-            this.restartTask = completion.Task;
+            this.workTask = completion.Task;
             
             this.connectionPool = new RabbitConnectionPool(this);
         }
@@ -45,36 +48,54 @@ namespace Contour.Transport.RabbitMQ.Internal
         public override WaitHandle WhenReady => this.ready;
 
         /// <summary>
-        /// The panic.
-        /// </summary>
-        public void Panic()
-        {
-            this.Restart();
-        }
-
-        /// <summary>
         /// Starts a bus
         /// </summary>
-        /// <param name="waitForReadiness">The wait for readiness.</param>
         /// <exception cref="AggregateException">Any exceptions thrown during the bus start</exception>
-        public override void Start(bool waitForReadiness = true)
+        public override Task Start()
         {
             if (this.IsStarted || this.IsShuttingDown)
             {
-                return;
+                return Task.FromResult(0);
             }
 
-            this.Restart(waitForReadiness);
+            this.logger.Trace(m => m("{0}: Starting...", this.Endpoint));
+
+            var token = this.cancellationTokenSource.Token;
+            this.workTask = Task.Factory.StartNew(this.PrepareTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(_ => this.StartTask(), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            if (t.IsFaulted)
+                            {
+                                // TODO ошибка тут приводит к тому, что сервис зависает навсегда с неготовой шиной
+                                // если раньше это приводило к потере сообщений, при попытке их обработать, теперь сервис просто ничего делать не будет
+                                this.logger.Error(m => m("Error on restarting bus: {0}", this.Endpoint.Address), t.Exception.InnerException);
+                                throw t.Exception.InnerException;
+                            }
+                        });
+            
+            return this.workTask;
+        }
+
+        /// <summary>
+        /// Prepare a bus
+        /// </summary>
+        /// <returns>Task </returns>
+        public override Task Prepare()
+        {
+            var token = this.cancellationTokenSource.Token;
+            return Task.Factory.StartNew(this.PrepareTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public override void Stop()
         {
-            this.ResetRestartTask();
+            this.ResetWorkTask();
 
             var token = this.cancellationTokenSource.Token;
-            this.restartTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            this.workTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-            this.restartTask.Wait(5000);
+            this.workTask.Wait(5000);
         }
 
         /// <summary>
@@ -98,7 +119,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             // если не ожидать завершения задачи до сброса флага IsShuttingDown,
             // тогда в случае ошибок (например, когда обработчик пытается отправить сообщение в шину, а она в состоянии закрытия)
             // задача может не успеть закрыться и она входит в бесконечное ожидание в методе Restart -> ResetRestartTask.
-            this.restartTask.Wait();
+            this.workTask.Wait();
 
             this.ComponentTracker.UnregisterAll();
             this.IsShuttingDown = false;
@@ -164,45 +185,28 @@ namespace Contour.Transport.RabbitMQ.Internal
             return sender;
         }
 
-        protected override void Restart(bool waitForReadiness = true)
-        {
-            lock (this.syncRoot)
-            {
-                if (this.isRestarting.WaitOne(0) || this.IsShuttingDown)
-                {
-                    return;
-                }
-
-                this.ready.Reset();
-                this.isRestarting.Set();
-            }
-
-            this.logger.Trace(m => m("{0}: Restarting...", this.Endpoint));
-
-            this.ResetRestartTask();
-
-            var token = this.cancellationTokenSource.Token;
-            this.restartTask = Task.Factory.StartNew(this.StopTask, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(_ => this.StartTask(), token, TaskContinuationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(
-                    t =>
-                        {
-                            this.isRestarting.Reset();
-                            if (t.IsFaulted)
-                            {
-                                throw t.Exception.InnerException;
-                            }
-                        });
-
-            if (waitForReadiness)
-            {
-                this.restartTask.Wait(5000);
-            }
-        }
-
         private void StartTask()
         {
             if (this.IsShuttingDown)
+            {
+                return;
+            }
+
+            this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
+            this.ready.Set();
+            this.IsStarted = true;
+            
+            this.OnStarted();
+        }
+
+        private void PrepareTask()
+        {
+            if (this.IsShuttingDown)
+            {
+                return;
+            }
+
+            if (this.isPrepared)
             {
                 return;
             }
@@ -215,11 +219,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.logger.Trace(m => m("{0}: starting components.", this.Endpoint));
             this.ComponentTracker.StartAll();
 
-            this.logger.Trace(m => m("{0}: marking as ready.", this.Endpoint));
-            this.IsStarted = true;
-            this.ready.Set();
-
-            this.OnStarted();
+            this.isPrepared = true;
         }
 
         private void StopTask()
@@ -240,14 +240,14 @@ namespace Contour.Transport.RabbitMQ.Internal
             this.OnStopped();
         }
 
-        private void ResetRestartTask()
+        private void ResetWorkTask()
         {
-            if (!this.restartTask.IsCompleted)
+            if (!this.workTask.IsCompleted)
             {
                 this.cancellationTokenSource.Cancel();
                 try
                 {
-                    this.restartTask.Wait();
+                    this.workTask.Wait();
                 }
                 catch (AggregateException ex)
                 {

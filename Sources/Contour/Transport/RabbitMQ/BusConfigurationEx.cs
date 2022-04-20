@@ -109,19 +109,19 @@ namespace Contour.Transport.RabbitMQ
                     return e;
                 };
 
-            c.Route("document.Contour.unhandled").Persistently().ConfiguredWith(faultRouteResolverBuilder).ReuseConnection();
-            c.Route("document.Contour.failed").Persistently().ConfiguredWith(faultRouteResolverBuilder).ReuseConnection();
+            c.Route(SystemQueues.Unhandled).Persistently().ConfiguredWith(faultRouteResolverBuilder).ReuseConnection();
+            c.Route(SystemQueues.Fault).Persistently().ConfiguredWith(faultRouteResolverBuilder).ReuseConnection();
 
             c.OnUnhandled(
                 d =>
                     {
-                        d.Forward("document.Contour.unhandled", d.BuildFaultMessage());
+                        d.Forward(SystemQueues.Unhandled, d.BuildFaultMessage());
                         d.Accept();
                     });
             c.OnFailed(
                 d =>
                     {
-                        d.Forward("document.Contour.failed", d.BuildFaultMessage());
+                        d.Forward(SystemQueues.Fault, d.BuildFaultMessage());
                         d.Accept();
                     });
 

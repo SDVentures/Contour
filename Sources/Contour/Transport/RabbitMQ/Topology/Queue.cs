@@ -27,13 +27,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// <summary>
         /// Адрес очереди.
         /// </summary>
-        public string Address
-        {
-            get
-            {
-                return this.Name;
-            }
-        }
+        public string Address => this.Name;
 
         /// <summary>
         /// Признак удаляемой очереди.
@@ -134,7 +128,7 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}", this.Name);
+            return $"{this.Name}";
         }
 
         /// <summary>

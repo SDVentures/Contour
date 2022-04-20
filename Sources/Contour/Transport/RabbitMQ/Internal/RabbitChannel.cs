@@ -28,13 +28,15 @@
         /// <param name="model">A native transport channel</param>
         /// <param name="busContext">A bus context</param>
         /// <param name="connectionString">Used connection string</param>
-        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext, string connectionString)
+        /// <param name="connectionKey">Key by connection string</param>
+        public RabbitChannel(Guid connectionId, IModel model, IBusContext busContext, string connectionString, string connectionKey)
         {
             this.ConnectionId = connectionId;
             this.Model = model;
             this.busContext = busContext;
             this.ConnectionString = connectionString;
             this.logger = LogManager.GetLogger($"{this.GetType().FullName}({this.ConnectionId}, {this.GetHashCode()})");
+            this.ConnectionKey = connectionKey;
 
             this.Model.ModelShutdown += this.OnModelShutdown;
         }
@@ -45,6 +47,8 @@
         internal string ConnectionString { get; }
 
         public Guid ConnectionId { get; }
+
+        public string ConnectionKey { get; }
 
         /// <summary>
         /// The failed.
@@ -97,7 +101,15 @@
         /// </param>
         public void Bind(Queue queue, Exchange exchange, string routingKey)
         {
-            this.SafeNativeInvoke(n => n.QueueBind(queue.Name, exchange.Name, routingKey));
+            try
+            {
+                this.SafeNativeInvoke(n => n.QueueBind(queue.Name, exchange.Name, routingKey));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to bind queue to exchange [{1}:{2}] on channel: {0}", this.ToString(), exchange.Name, queue.Name), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -115,18 +127,6 @@
         }
 
         /// <summary>
-        /// The build queuing consumer.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="QueueingBasicConsumer"/>.
-        /// </returns>
-        public QueueingBasicConsumer BuildQueueingConsumer()
-        {
-            var consumer = new QueueingBasicConsumer(this.Model);
-            return consumer;
-        }
-
-        /// <summary>
         /// The declare.
         /// </summary>
         /// <param name="exchange">
@@ -134,7 +134,15 @@
         /// </param>
         public void Declare(Exchange exchange)
         {
-            this.SafeNativeInvoke(n => n.ExchangeDeclare(exchange.Name, exchange.Type, exchange.Durable, exchange.AutoDelete, new Dictionary<string, object>()));
+            try
+            {
+                this.SafeNativeInvoke(n => n.ExchangeDeclare(exchange.Name, exchange.Type, exchange.Durable, exchange.AutoDelete, new Dictionary<string, object>()));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to Declare Exchange [{1}] on channel: {0}", this.ToString(), exchange.Name), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -145,21 +153,33 @@
         /// </param>
         public void Declare(Queue queue)
         {
-            var arguments = new Dictionary<string, object>();
-            if (queue.Ttl.HasValue)
+            try
             {
-                arguments.Add(Contour.Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
-            }
-            if (queue.Limit.HasValue)
-            {
-                arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
-            }
-            if (queue.MaxLengthBytes.HasValue)
-            {
-                arguments.Add(Contour.Headers.QueueMaxLengthBytes, (int)queue.MaxLengthBytes);
-            }
+                var arguments = new Dictionary<string, object>();
+                if (queue.Ttl.HasValue)
+                {
+                    arguments.Add(Contour.Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
+                }
 
-            this.SafeNativeInvoke(n => n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
+                if (queue.Limit.HasValue)
+                {
+                    arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
+                }
+
+                if (queue.MaxLengthBytes.HasValue)
+                {
+                    arguments.Add(Contour.Headers.QueueMaxLengthBytes, (int)queue.MaxLengthBytes);
+                }
+
+                this.SafeNativeInvoke(n =>
+                    n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to Declare Queue [{1}] on channel: {0}", this.ToString(), queue.Name),
+                    e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -170,11 +190,19 @@
         /// </returns>
         public string DeclareDefaultQueue()
         {
-            string queueName = string.Empty;
+            try
+            {
+                var queueName = string.Empty;
 
-            this.SafeNativeInvoke(n => queueName = n.QueueDeclare());
+                this.SafeNativeInvoke(n => queueName = n.QueueDeclare());
 
-            return queueName;
+                return queueName;
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to Declare Default Queue on channel: {0}", this.ToString()), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -314,17 +342,6 @@
         }
 
         /// <summary>
-        /// The request publish.
-        /// </summary>
-        /// <param name="qos">
-        /// The qos.
-        /// </param>
-        public void RequestPublish(QoSParams qos)
-        {
-            this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
-        }
-
-        /// <summary>
         /// The set qos.
         /// </summary>
         /// <param name="qos">
@@ -332,7 +349,15 @@
         /// </param>
         public void SetQos(QoSParams qos)
         {
-            this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
+            try
+            {
+                this.SafeNativeInvoke(n => n.BasicQos(qos.PrefetchSize, qos.PrefetchCount, false));
+            }
+            catch (Exception e)
+            {
+                this.logger.Error(m => m("Failed to set Qos on channel: {0}", this.ToString()), e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -352,43 +377,18 @@
         /// </returns>
         public string StartConsuming(IListeningSource listeningSource, bool requireAccept, IBasicConsumer consumer)
         {
-            string consumerTag = string.Empty;
-
-            this.SafeNativeInvoke(n => consumerTag = n.BasicConsume(listeningSource.Address, !requireAccept, consumer));
-
-            return consumerTag;
-        }
-
-        /// <summary>
-        /// The stop consuming.
-        /// </summary>
-        /// <param name="consumerTag">
-        /// The consumer tag.
-        /// </param>
-        public void StopConsuming(string consumerTag)
-        {
-            this.SafeNativeInvoke(n => n.BasicCancel(consumerTag));
-        }
-
-        /// <summary>
-        /// The try stop consuming.
-        /// </summary>
-        /// <param name="consumerTag">
-        /// The consumer tag.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool TryStopConsuming(string consumerTag)
-        {
             try
             {
-                this.Model.BasicCancel(consumerTag);
-                return true;
+                var consumerTag = string.Empty;
+
+                this.SafeNativeInvoke(n => consumerTag = n.BasicConsume(listeningSource.Address, !requireAccept, consumer));
+
+                return consumerTag;
             }
-            catch
+            catch (Exception e)
             {
-                return false;
+                this.logger.Error(m => m("Failed start consuming on channel."), e);
+                throw;
             }
         }
 
@@ -406,7 +406,7 @@
         /// </returns>
         public IMessage UnpackAs(Type type, RabbitDelivery delivery)
         {
-            var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body, type);
+            var payload = this.busContext.PayloadConverter.ToObject(delivery.Args.Body.ToArray(), type);
             return new Message(delivery.Label, delivery.Headers, payload);
         }
 
@@ -434,7 +434,7 @@
             }
             catch (Exception ex)
             {
-                this.logger.Error($"Channel action failed due to {ex.Message}", ex);
+                this.logger.Error($"Channel action failed due to {ex.Message}, connection string: [{this.ConnectionString}]", ex);
                 throw;
             }
         }

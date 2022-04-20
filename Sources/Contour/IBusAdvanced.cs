@@ -29,14 +29,5 @@
         IEnumerable<ISender> Senders { get; }
 
         #endregion
-
-        #region Public Methods and Operators
-
-        /// <summary>
-        ///   Принудительный перезапуск клиента шины.
-        /// </summary>
-        void Panic();
-
-        #endregion
     }
 }
