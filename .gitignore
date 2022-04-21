@@ -2,6 +2,7 @@
 .fake/
 .axoCover/
 .vs/
+.idea/
 bin/
 obj/
 paket-files/

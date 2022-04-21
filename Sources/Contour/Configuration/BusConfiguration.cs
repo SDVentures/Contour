@@ -9,7 +9,7 @@ using Contour.Receiving;
 using Contour.Sending;
 using Contour.Serialization;
 using Contour.Validation;
-
+ 
 namespace Contour.Configuration
 {
     /// <summary>
@@ -503,6 +503,24 @@ namespace Contour.Configuration
         public void UseFaultQueueLimit(int queueLimit)
         {
             this.ReceiverDefaults.FaultQueueLimit = queueLimit;
+        }
+
+        /// <summary>
+        /// The message queue length limit.
+        /// </summary>
+        /// <param name="queueLimit">The message queue length limit.</param>
+        public void UseQueueLimit(int queueLimit)
+        {
+            this.ReceiverDefaults.QueueLimit = queueLimit;
+        }
+
+        /// <summary>
+        /// The message queue length limit in bytes.
+        /// </summary>
+        /// <param name="bytes">The message queue limit in bytes.</param>
+        public void UseQueueMaxLengthBytes(int bytes)
+        {
+            this.ReceiverDefaults.QueueMaxLengthBytes = bytes;
         }
 
         /// <summary>

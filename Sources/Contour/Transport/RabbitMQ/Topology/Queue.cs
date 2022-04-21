@@ -60,6 +60,11 @@ namespace Contour.Transport.RabbitMQ.Topology
         public int? Limit { get; internal set; }
 
         /// <summary>
+        /// Максимальное количество байт, которое занимают сообщения в очереди.
+        /// </summary>
+        public int? MaxLengthBytes { get; internal set; }
+
+        /// <summary>
         /// Создает экземпляр построителя очереди с именем <paramref name="name"/>.
         /// </summary>
         /// <param name="name">

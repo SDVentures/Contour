@@ -59,6 +59,17 @@ namespace Contour.Receiving
         public Maybe<int> FaultQueueLimit { protected get; set; }
 
         /// <summary>
+        /// Максимальное количество сообщений в потребляющей очереди.
+        /// </summary>
+        public Maybe<int> QueueLimit { protected get; set; }
+
+        /// <summary>
+        /// Максимальное количество байт, которые занимают сообщения в потребляющей очереди.
+        /// </summary>
+        public Maybe<int> QueueMaxLengthBytes { protected get; set; }
+
+
+        /// <summary>
         /// Обработчик сообщений, для которых не найден потребитель.
         /// </summary>
         public Maybe<IUnhandledDeliveryStrategy> UnhandledDeliveryStrategy { protected get; set; }
@@ -131,7 +142,7 @@ namespace Contour.Receiving
 
         /// <summary>
         /// Возвращает длительность хранения сообщений в Fault очереди.
-        /// </summary>
+        /// </summary> 
         /// <returns>
         /// Возвращает длительность хранения сообщений в Fault очереди.
         /// </returns>
@@ -150,5 +161,28 @@ namespace Contour.Receiving
         {
             return this.Pick<ReceiverOptions, int>((o) => o.FaultQueueLimit);
         }
+
+        /// <summary>
+        /// Возвращает максимальное количество сообщений в потребляющей очереди.
+        /// </summary>
+        /// <returns>
+        /// Возвращает максимальное количество сообщений в потребляющей очереди.
+        /// </returns>
+        public Maybe<int> GetQueueLimit()
+        {
+            return this.Pick<ReceiverOptions, int>((o) => o.QueueLimit);
+        }
+
+        /// <summary>
+        /// Возвращает максимальное количество байт, которые занимають сообщения в потребляющей очереди.
+        /// </summary>
+        /// <returns>
+        /// Возвращает максимальное количество байт, которые занимають сообщения в потребляющей очереди.
+        /// </returns>
+        public Maybe<int> GetQueueMaxLengthBytes()
+        {
+            return this.Pick<ReceiverOptions, int>((o) => o.QueueMaxLengthBytes);
+        }
+
     }
 }

@@ -19,5 +19,9 @@
         string ConnectionString { get; }
 
         bool? ReuseConnection { get; }
+
+        int? QueueLimit { get; }
+
+        int? QueueMaxLengthBytes { get; }
     }
 }

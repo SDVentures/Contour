@@ -9,6 +9,7 @@
     using Receiving;
     using Topology;
     using global::RabbitMQ.Client;
+    using System.Diagnostics;
 
     /// <summary>
     /// The rabbit channel.
@@ -159,16 +160,24 @@
                 {
                     arguments.Add(Contour.Headers.QueueMessageTtl, (long)queue.Ttl.Value.TotalMilliseconds);
                 }
+
                 if (queue.Limit.HasValue)
                 {
                     arguments.Add(Contour.Headers.QueueMaxLength, (int)queue.Limit);
                 }
-                
-                this.SafeNativeInvoke(n => n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
+
+                if (queue.MaxLengthBytes.HasValue)
+                {
+                    arguments.Add(Contour.Headers.QueueMaxLengthBytes, (int)queue.MaxLengthBytes);
+                }
+
+                this.SafeNativeInvoke(n =>
+                    n.QueueDeclare(queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, arguments));
             }
             catch (Exception e)
             {
-                this.logger.Error(m => m("Failed to Declare Queue [{1}] on channel: {0}", this.ToString(), queue.Name), e);
+                this.logger.Error(m => m("Failed to Declare Queue [{1}] on channel: {0}", this.ToString(), queue.Name),
+                    e);
                 throw;
             }
         }

@@ -77,6 +77,11 @@ namespace Contour
             new HashSet<string>(new[] { CorrelationId, OriginalMessageId, MessageLabel, ReplyRoute });
 
         /// <summary>
+        /// Максимальное количество байт, которые занимают сообщения в очереди
+        /// </summary>
+        public static readonly string QueueMaxLengthBytes = "x-max-length-bytes";
+
+        /// <summary>
         /// Получает значение заголовка из сообщения и удаляет его из списка заголовков сообщения.
         /// </summary>
         /// <param name="headers">

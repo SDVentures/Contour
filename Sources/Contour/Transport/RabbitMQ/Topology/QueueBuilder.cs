@@ -86,5 +86,16 @@ namespace Contour.Transport.RabbitMQ.Topology
             this.Instance.Limit = queueLimit;
             return this;
         }
+
+        /// <summary>
+        /// Добавляет в построитель настройки максимального количества байт, которое занимает очередь
+        /// </summary>
+        /// <param name="bytes">Максимальное количество сообщений в очереди.</param>
+        /// <returns>Построитель очереди.</returns>
+        public QueueBuilder WithMaxLengthBytes(int bytes)
+        {
+            this.Instance.MaxLengthBytes = bytes;
+            return this;
+        }
     }
 }
