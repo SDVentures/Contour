@@ -1,0 +1,14 @@
+source https://api.nuget.org/v3/index.json
+
+nuget Common.Logging 3.4.1
+nuget RabbitMQ.Client 5.0.1
+nuget System.Configuration.ConfigurationManager 4.5.0
+
+nuget FAKE 5.0.0
+nuget RestSharp 105.2.3
+nuget FluentAssertions 5.3.0
+nuget Newtonsoft.Json 11.0.2
+nuget NUnit 2.6.4
+nuget Moq 4.2.1312.1622
+nuget NUnit.Runners 2.6.4
+nuget NuGet.CommandLine 2.8.6
