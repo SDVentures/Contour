@@ -49,7 +49,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                 Uri = new Uri(this.ConnectionString),
                 AutomaticRecoveryEnabled = false,
                 ClientProperties = clientProperties,
-                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout)
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout),
+                DispatchConsumersAsync = true,
+                ConsumerDispatchConcurrency = 1
             };
         }
 
