@@ -1,15 +1,15 @@
-﻿namespace Contour.Transport.RabbitMQ.Internal
+﻿using RabbitMQ.Client.Events;
+
+namespace Contour.Transport.RabbitMQ.Internal
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Threading;
     using Common.Logging;
     using Helpers;
     using Receiving;
     using Topology;
     using global::RabbitMQ.Client;
-    using System.Diagnostics;
 
     /// <summary>
     /// The rabbit channel.
@@ -121,9 +121,9 @@
         /// <returns>
         /// The <see cref="CancellableQueueingConsumer"/>.
         /// </returns>
-        public CancellableQueueingConsumer BuildCancellableConsumer(CancellationToken cancellationToken)
+        public AsyncEventingBasicConsumer BuildConsumer()
         {
-            return new CancellableQueueingConsumer(this.Model, cancellationToken);
+            return new AsyncEventingBasicConsumer(this.Model);
         }
 
         /// <summary>
@@ -390,6 +390,15 @@
                 this.logger.Error(m => m("Failed start consuming on channel."), e);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Unsubscribe consumer from queue via <param name="tag"/> subscription ID.
+        /// </summary>
+        /// <param name="tag">Subscription ID</param>
+        public void StopConsuming(string tag)
+        {
+            this.Model.BasicCancel(tag);
         }
 
         /// <summary>

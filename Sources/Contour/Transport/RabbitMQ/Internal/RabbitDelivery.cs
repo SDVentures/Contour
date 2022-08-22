@@ -242,7 +242,9 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <returns>Заголовки сообщения.</returns>
         private IDictionary<string, object> ExtractHeadersFrom(BasicDeliverEventArgs args)
         {
-            var h = new Dictionary<string, object>(args.BasicProperties.Headers);
+            var h = args.BasicProperties.Headers != null
+                ? new Dictionary<string, object>(args.BasicProperties.Headers)
+                : new Dictionary<string, object>();
 
             if (this.CorrelationId != null)
             {
