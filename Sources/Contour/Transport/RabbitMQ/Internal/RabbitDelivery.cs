@@ -176,6 +176,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             var headers = new Dictionary<string, object>(this.Headers);
             headers[Contour.Headers.CorrelationId] = this.CorrelationId;
             headers[Contour.Headers.ReplyRoute] = this.ReplyRoute;
+            headers[Contour.Headers.Expires] = this.Args.BasicProperties.Expiration;
             Contour.Headers.ApplyBreadcrumbs(headers, this.busContext.Endpoint.Address);
             Contour.Headers.ApplyOriginalMessageId(headers);
 
