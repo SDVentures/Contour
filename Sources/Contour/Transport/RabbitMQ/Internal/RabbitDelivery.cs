@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using Contour.Configuration;
@@ -176,7 +177,10 @@ namespace Contour.Transport.RabbitMQ.Internal
             var headers = new Dictionary<string, object>(this.Headers);
             headers[Contour.Headers.CorrelationId] = this.CorrelationId;
             headers[Contour.Headers.ReplyRoute] = this.ReplyRoute;
-            headers[Contour.Headers.Expires] = this.Args.BasicProperties.Expiration;
+            if (!string.IsNullOrEmpty(this.Args.BasicProperties.Expiration) && long.TryParse(this.Args.BasicProperties.Expiration, out var expiration))
+            {
+                headers[Contour.Headers.Ttl] = TimeSpan.FromMilliseconds(expiration);
+            }
             Contour.Headers.ApplyBreadcrumbs(headers, this.busContext.Endpoint.Address);
             Contour.Headers.ApplyOriginalMessageId(headers);
 
