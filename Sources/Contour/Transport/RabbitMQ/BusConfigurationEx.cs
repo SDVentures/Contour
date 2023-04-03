@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using Contour.Configuration;
@@ -125,6 +125,15 @@ namespace Contour.Transport.RabbitMQ
                         d.Accept();
                     });
 
+            return busConfigurator;
+        }
+
+        public static bool RmqUseAsyncConsuming { get; private set; }
+
+        // Костыль, чтобы не тянеть в общую конфигурацию специфичную для эксперимента настройку
+        public static IBusConfiguration ConfigureRabbitMq(this IBusConfiguration busConfigurator, bool asyncConsuming)
+        {
+            RmqUseAsyncConsuming = asyncConsuming;
             return busConfigurator;
         }
     }
