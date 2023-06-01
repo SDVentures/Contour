@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -213,18 +213,31 @@ namespace Contour.Sending
         /// </summary>
         /// <param name="label">Метка отправляемого сообщения.</param>
         /// <param name="payload">Тело сообщения.</param>
+        /// <param name="options">Заголовки сообщения.</param>
+        /// <param name="connectionKey">Идентификатор подключения, по которому нужно отправить сообщение</param>
+        /// <returns>Задача выполнения отправки сообщения.</returns>
+        private Task Send(MessageLabel label, object payload, PublishingOptions options, string connectionKey)
+        {
+            var headers = this.ApplyOptions(options);
+            Headers.ApplySentTimestamp(headers);
+            var messageLabel = this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label;
+
+            return this.ProcessFilter(new Message(messageLabel, headers, payload), connectionKey);
+        }
+
+        /// <summary>
+        /// Отправляет одностороннее сообщение.
+        /// </summary>
+        /// <param name="label">Метка отправляемого сообщения.</param>
+        /// <param name="payload">Тело сообщения.</param>
         /// <param name="headers">Заголовки сообщения.</param>
         /// <param name="connectionKey">Идентификатор подключения, по которому нужно отправить сообщение</param>
         /// <returns>Задача выполнения отправки сообщения.</returns>
         public Task Send(MessageLabel label, object payload, IDictionary<string, object> headers, string connectionKey)
         {
-            Headers.ApplySentTimestamp(headers);
-            var message = new Message(this.Configuration.Label.Equals(MessageLabel.Any) ? label : this.Configuration.Label, headers, payload);
-
-            return this.ProcessFilter(message, connectionKey);
+            return this.Send(label, payload, new PublishingOptions { AdditionalHeaders = new Dictionary<string, object>(headers) }, connectionKey);
         }
-
-
+        
         /// <summary>
         /// Отправляет одностороннее сообщение.
         /// </summary>
@@ -246,7 +259,7 @@ namespace Contour.Sending
         /// <returns>Задача выполнения отправки сообщения.</returns>
         public Task Send(MessageLabel label, object payload, PublishingOptions options)
         {
-            return this.Send(label, payload, this.ApplyOptions(options));
+            return this.Send(label, payload, options, null);
         }
 
         /// <summary>
