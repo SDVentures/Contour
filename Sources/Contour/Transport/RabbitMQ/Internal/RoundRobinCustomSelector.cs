@@ -39,7 +39,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             lock (this.syncRoot)
             {
-                var freshCycle = false;
+                var secondCycle = false;
                 IProducer firstTakenConsumer = null;
 
                 while (true)
@@ -47,21 +47,30 @@ namespace Contour.Transport.RabbitMQ.Internal
                     while (this.enumerator.MoveNext())
                     {
                         var current = this.enumerator.Current;
-                        if (firstTakenConsumer == null)
-                            firstTakenConsumer = current;
                         if (current.IsInGoodCondition)
                         {
                             return current;
                         }
+                        if (firstTakenConsumer == null)
+                        { 
+                            // save first consumer in case we can't find any in a good state
+                            firstTakenConsumer = current;
+                        }
                     }
 
-                    if (freshCycle)
+                    if (secondCycle)
                     {
                         while (this.enumerator.MoveNext())
                         {
                             var current = this.enumerator.Current;
+                            if (current.IsInGoodCondition)
+                            {
+                                return current;
+                            }
                             if (firstTakenConsumer == current)
                             {
+                                // assuming that we iterated a whole cycle and all consumers are not in a good state
+                                // so return the first one
                                 return firstTakenConsumer;
                             }
                         }
@@ -70,7 +79,7 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
 
                     Logger.Trace("Starting the next round of producers' selection");
-                    freshCycle = true;
+                    secondCycle = true;
 
                     this.enumerator = this.producers.GetEnumerator();
                 }
