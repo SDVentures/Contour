@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace Contour.Transport.RabbitMQ.Internal
@@ -24,5 +24,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         void Stop();
 
         void UseCallbackListener(IListener listener);
+
+        bool IsInGoodCondition { get; }
     }
 }

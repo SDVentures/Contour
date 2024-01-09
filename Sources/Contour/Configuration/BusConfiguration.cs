@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.Logging;
@@ -8,6 +8,8 @@ using Contour.Helpers;
 using Contour.Receiving;
 using Contour.Sending;
 using Contour.Serialization;
+using Contour.Transport.RabbitMQ;
+using Contour.Transport.RabbitMQ.Internal;
 using Contour.Validation;
  
 namespace Contour.Configuration
@@ -586,6 +588,18 @@ namespace Contour.Configuration
         public void UseConnectionStringProvider(IConnectionStringProvider provider)
         {
             this.EndpointOptions.ConnectionStringProvider = provider;
+        }
+        
+        public void SetExperimentalProducerSelector()
+        {
+            if (SenderDefaults is RabbitSenderOptions rabbitSenderOptions)
+            {
+                rabbitSenderOptions.ProducerSelectorBuilder = new ExperimentalProducerSelectorBuilder();
+            }
+            else
+            {
+                Logger.Warn("SetExperimentalProducerSelector called, but not implemented");
+            }
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -58,6 +58,8 @@ namespace Contour.Transport.RabbitMQ.Internal
         }
 
         public event EventHandler<ProducerStoppedEventArgs> Stopped = (sender, args) => { };
+
+        public bool IsInGoodCondition => !connection.IsBlocked;
 
         public bool StopOnChannelShutdown { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,7 +55,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             if (this.IsStarted || this.IsShuttingDown)
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             this.logger.Trace(m => m("{0}: Starting...", this.Endpoint));
