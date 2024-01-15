@@ -82,7 +82,7 @@ namespace Contour
         public static readonly string QueueMaxLengthBytes = "x-max-length-bytes";
 
         /// <summary>
-        /// 
+        /// Хранилище для заголовков контура
         /// </summary>
         public static IIncomingMessageHeaderStorage GlobalStorage { get; internal set; }
 

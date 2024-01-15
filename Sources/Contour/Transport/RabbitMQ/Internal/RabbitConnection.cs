@@ -120,14 +120,14 @@ namespace Contour.Transport.RabbitMQ.Internal
         private void OnConnectionBlocked(object sender, global::RabbitMQ.Client.Events.ConnectionBlockedEventArgs e)
         {
             // todo: reduce logging level later
-            this.logger.Warn($"OnConnectionBlocked {sender}. Reason: {e.Reason}");
+            this.logger.Warn(m => m($"OnConnectionBlocked {sender}. Reason: {e.Reason}"));
             IsBlocked = true;
         }
 
         private void OnConnectionUnblocked(object sender, EventArgs e)
         {
             // todo: reduce logging level later
-            this.logger.Warn($"OnConnectionUnblocked {sender}");
+            this.logger.Warn(m => m($"OnConnectionUnblocked {sender}"));
             IsBlocked = false;
         }
 

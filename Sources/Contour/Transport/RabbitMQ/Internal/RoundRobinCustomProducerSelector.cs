@@ -5,14 +5,14 @@ using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
-    internal class RoundRobinCustomSelector : IProducerSelector
+    internal class RoundRobinCustomProducerSelector : IProducerSelector
     {
         private static readonly ILog Logger = LogManager.GetLogger<RoundRobinSelector>();
         private readonly object syncRoot = new object();
         private readonly IEnumerable<IProducer> producers;
         private IEnumerator<IProducer> enumerator;
 
-        public RoundRobinCustomSelector(IEnumerable<IProducer> items)
+        public RoundRobinCustomProducerSelector(IEnumerable<IProducer> items)
         {
             this.producers = items ?? throw new ArgumentNullException(nameof(items));
             this.enumerator = this.producers.GetEnumerator();
