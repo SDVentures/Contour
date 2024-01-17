@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace Contour
@@ -8,7 +7,7 @@ namespace Contour
     {
         private static readonly AsyncLocal<ConcurrentDictionary<string, string>> Storage = new AsyncLocal<ConcurrentDictionary<string, string>>();
 
-        internal static void Store(string name, string value)
+        public static void Store(string name, string value)
         {
             if (Storage.Value == null)
             {

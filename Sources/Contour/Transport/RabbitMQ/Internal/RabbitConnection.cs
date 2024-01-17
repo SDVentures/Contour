@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -87,6 +87,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                     {
                         con = this.connectionFactory.CreateConnection();
                         con.ConnectionShutdown += this.OnConnectionShutdown;
+                        
+                        con.ConnectionBlocked += OnConnectionBlocked;
+                        con.ConnectionUnblocked += OnConnectionUnblocked;
                         this.connection = con;
                         this.OnOpened();
                         this.logger.Info($"Connection [{this.Id}] opened at [{this.connection.Endpoint}]");
@@ -110,6 +113,22 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                 }
             }
+        }
+
+        public bool IsBlocked { get; private set; }
+
+        private void OnConnectionBlocked(object sender, global::RabbitMQ.Client.Events.ConnectionBlockedEventArgs e)
+        {
+            // todo: reduce logging level later
+            this.logger.Warn(m => m($"OnConnectionBlocked {sender}. Reason: {e.Reason}"));
+            IsBlocked = true;
+        }
+
+        private void OnConnectionUnblocked(object sender, EventArgs e)
+        {
+            // todo: reduce logging level later
+            this.logger.Warn(m => m($"OnConnectionUnblocked {sender}"));
+            IsBlocked = false;
         }
 
         public RabbitChannel OpenChannel(CancellationToken token)

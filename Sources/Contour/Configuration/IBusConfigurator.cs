@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Contour.Configurator;
 
 namespace Contour.Configuration
@@ -315,5 +315,10 @@ namespace Contour.Configuration
         /// </summary>
         /// <param name="provider"></param>
         void UseConnectionStringProvider(IConnectionStringProvider provider);
+
+        /// <summary>
+        /// Experimental code, remove or refactor
+        /// </summary>
+        void SetExperimentalProducerSelector();
     }
 }

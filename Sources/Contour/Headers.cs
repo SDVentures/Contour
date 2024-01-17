@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -80,6 +80,11 @@ namespace Contour
         /// Максимальное количество байт, которые занимают сообщения в очереди
         /// </summary>
         public static readonly string QueueMaxLengthBytes = "x-max-length-bytes";
+
+        /// <summary>
+        /// Хранилище для заголовков контура
+        /// </summary>
+        public static IIncomingMessageHeaderStorage GlobalStorage { get; internal set; }
 
         /// <summary>
         /// Получает значение заголовка из сообщения и удаляет его из списка заголовков сообщения.

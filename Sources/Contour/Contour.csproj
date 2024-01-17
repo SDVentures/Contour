@@ -8,7 +8,7 @@
     <Description>The package contains abstract interfaces of service bus and specific transport implementation for AMQP/RabbitMQ</Description>
     <Company>Social Discovery Ventures</Company>
     <Authors>SDV Team</Authors>
-    <Version>3.0.0-pr9</Version>
+    <Version>3.2.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   
