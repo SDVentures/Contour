@@ -1,4 +1,4 @@
-﻿using Contour.Transport.RabbitMQ.Topology;
+using Contour.Transport.RabbitMQ.Topology;
 using RabbitMQ.Client;
 
 namespace Contour.Transport.RabbitMQ.Internal
@@ -464,7 +464,32 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             try
             {
-                var consumer = this.InitializeConsumer(token, out var channel);
+                Func<Task> startConsuming;
+                if (BusConfigurationEx.RmqUseAsyncConsuming)
+                {
+                    var consumer = this.InitializeAsyncConsumer(token, out var channel);
+                    startConsuming = () =>
+                    {
+                        this.StartConsumingAsync(consumer, channel, token);
+                        return Task.CompletedTask;
+                    };
+                }
+                else
+                {
+                    var consumer = this.InitializeConsumer(token, out var channel);
+                    startConsuming = async () =>
+                    {
+                        this.StartConsuming(consumer, channel);
+
+                        this.logger.Info($"Listner {this} start consuming.");
+
+                        while (!token.IsCancellationRequested)
+                        {
+                            var message = consumer.Dequeue();
+                            await this.Deliver(this.BuildDeliveryFrom(channel, message));
+                        }
+                    };
+                }
 
                 var waitSecond = 0;
                 // если шина так и не стала готова работать, то не смысла начинать слушать сообщения, что бы потом их потерять
@@ -486,17 +511,9 @@ namespace Contour.Transport.RabbitMQ.Internal
                     }
                 }
 
-                this.StartConsuming(consumer, channel);
-
-                this.logger.Info($"Listner {this} start consuming.");
-
-                while (!token.IsCancellationRequested)
-                {
-                    var message = consumer.Dequeue();
-                    await this.Deliver(this.BuildDeliveryFrom(channel, message));
-                }
+                await startConsuming();
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e) when (e.CancellationToken == token)
             {
                 this.logger.Info("Consume operation of listener has been canceled");
             }
@@ -543,7 +560,7 @@ namespace Contour.Transport.RabbitMQ.Internal
             }
 
             var consumer = channel.BuildCancellableConsumer(token);
-           
+
 
             return consumer;
         }
@@ -557,6 +574,82 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             this.logger.Trace(
                 $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
+        }
+
+
+        private AsyncEventingBasicConsumer InitializeAsyncConsumer(CancellationToken token, out RabbitChannel channel)
+        {
+            // Opening a new channel may lead to a new connection creation
+            channel = this.connection.OpenChannel(token);
+            channel.Shutdown += this.OnChannelShutdown;
+            this.channels.Add(channel);
+
+            if (this.ReceiverOptions.GetQoS().HasValue)
+            {
+                channel.SetQos(
+                    this.ReceiverOptions.GetQoS().Value);
+            }
+
+            var consumer = channel.BuildConsumer();
+
+            return consumer;
+        }
+
+        private void StartConsumingAsync(AsyncEventingBasicConsumer consumer, RabbitChannel channel, CancellationToken token)
+        {
+            consumer.Received += (s, e) => HandleMessage(e);
+
+            string tag = string.Empty;
+
+            async Task HandleMessage(BasicDeliverEventArgs args)
+            {
+                RabbitDelivery delivery = null;
+                try
+                {
+                    delivery = this.BuildDeliveryFrom(channel, args);
+                }
+                catch (Exception e)
+                {
+                    this.logger.Fatal(x => x("Delivery object has not been constructed, fetch a follow messages of the consumer for '{0}' is unpossible.", this.endpoint.ListeningSource.Address), e);
+                    throw;
+                }
+
+                try
+                {
+                    await this.Deliver(delivery);
+                }
+                catch (Exception e)
+                {
+                    this.OnFailure(delivery, e);
+                }
+            }
+
+
+            CancellationTokenRegistration cancellationCallbackRegistration = default;
+
+            void UnsubscribeConsumer()
+            {
+                channel.StopConsuming(tag);
+                cancellationCallbackRegistration.Dispose();
+            }
+
+            cancellationCallbackRegistration = token.Register(UnsubscribeConsumer);
+
+            if (token.IsCancellationRequested)
+            {
+                UnsubscribeConsumer();
+                return;
+            }
+
+            tag = channel.StartConsuming(
+                this.endpoint.ListeningSource,
+                this.ReceiverOptions.IsAcceptRequired(),
+                consumer);
+
+            this.logger.Trace(
+                $"A consumer tagged [{tag}] has been registered in listener of [{string.Join(",", this.AcceptedLabels)}]");
+
+            this.logger.Info($"Listner {this} start consuming.");
         }
 
         private void OnChannelShutdown(IChannel channel, ShutdownEventArgs args)

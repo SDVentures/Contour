@@ -38,8 +38,9 @@ namespace Contour.Transport.RabbitMQ.Internal
             var completion = new TaskCompletionSource<object>();
             completion.SetResult(new object());
             this.workTask = completion.Task;
-            
-            this.connectionPool = new RabbitConnectionPool(this);
+
+            var async = BusConfigurationEx.RmqUseAsyncConsuming;
+            this.connectionPool = new RabbitConnectionPool(this, async);
         }
         
         /// <summary>

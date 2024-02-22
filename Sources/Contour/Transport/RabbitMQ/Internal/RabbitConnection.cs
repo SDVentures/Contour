@@ -27,7 +27,7 @@ namespace Contour.Transport.RabbitMQ.Internal
         private readonly ConnectionFactory connectionFactory;
         private INativeConnection connection;
 
-        public RabbitConnection(IEndpoint endpoint, string connectionString, IBusContext busContext)
+        public RabbitConnection(IEndpoint endpoint, string connectionString, IBusContext busContext, bool async = false)
         {
             this.Id = Guid.NewGuid();
             this.endpoint = endpoint;
@@ -49,8 +49,14 @@ namespace Contour.Transport.RabbitMQ.Internal
                 Uri = new Uri(this.ConnectionString),
                 AutomaticRecoveryEnabled = false,
                 ClientProperties = clientProperties,
-                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout)
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout),
             };
+
+            if (async)
+            {
+                this.connectionFactory.DispatchConsumersAsync = true;
+                this.connectionFactory.ConsumerDispatchConcurrency = 1;
+            }
         }
 
         public event EventHandler Opened;
