@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +6,10 @@ using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
+    /// <summary>
+    /// Using round-robin algorithm to select the next producer. 
+    /// Improved version: <see cref="RoundRobinGoodConditionProducerSelector"/>
+    /// </summary>
     internal class RoundRobinSelector : IProducerSelector
     {
         private static readonly ILog Logger = LogManager.GetLogger<RoundRobinSelector>();

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -6,7 +6,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     {
         public IProducerSelector Build(IEnumerable<IProducer> items)
         {
-            return new RoundRobinSelector(items);
+            return new RoundRobinGoodConditionProducerSelector(items);
         }
     }
 }

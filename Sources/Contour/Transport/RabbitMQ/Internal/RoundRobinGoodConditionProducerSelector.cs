@@ -5,14 +5,18 @@ using Common.Logging;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
-    internal class RoundRobinCustomProducerSelector : IProducerSelector
+    /// <summary>
+    /// Using round-robin algorithm to select the next producer. 
+    /// Will skip producers in a bad state if there are any good producers left.
+    /// </summary>
+    internal class RoundRobinGoodConditionProducerSelector : IProducerSelector
     {
-        private static readonly ILog Logger = LogManager.GetLogger<RoundRobinSelector>();
+        private static readonly ILog Logger = LogManager.GetLogger<RoundRobinGoodConditionProducerSelector>();
         private readonly object syncRoot = new object();
         private readonly IEnumerable<IProducer> producers;
         private IEnumerator<IProducer> enumerator;
 
-        public RoundRobinCustomProducerSelector(IEnumerable<IProducer> items)
+        public RoundRobinGoodConditionProducerSelector(IEnumerable<IProducer> items)
         {
             this.producers = items ?? throw new ArgumentNullException(nameof(items));
             this.enumerator = this.producers.GetEnumerator();

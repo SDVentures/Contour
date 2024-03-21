@@ -6,7 +6,7 @@ namespace Contour.Transport.RabbitMQ.Internal
     {
         public IProducerSelector Build(IEnumerable<IProducer> items)
         {
-            return new RoundRobinCustomProducerSelector(items);
+            return new RoundRobinGoodConditionProducerSelector(items);
         }
     }
 }
