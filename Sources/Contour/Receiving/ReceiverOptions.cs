@@ -76,6 +76,10 @@ namespace Contour.Receiving
 
         public bool Delayed { get; set; }
 
+        public bool Direct { get; set; }
+
+        public string DirectId { get; set; }
+
         /// <summary>
         /// Создает новый экземпляр настроек как копию существующего.
         /// </summary>

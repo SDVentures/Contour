@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+
 namespace Contour.Transport.RabbitMQ.Topology
 {
     using Contour.Topology;
@@ -33,9 +35,9 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// <param name="routingKey">
         /// The routing key.
         /// </param>
-        public static void Bind(this ITopologyBuilder topology, Exchange exchange, Queue queue, string routingKey = "")
+        public static void Bind(this ITopologyBuilder topology, Exchange exchange, Queue queue, string routingKey = "", IDictionary<string, object> arguments = null)
         {
-            ((TopologyBuilder)topology).Bind(exchange, queue, routingKey);
+            ((TopologyBuilder)topology).Bind(exchange, queue, routingKey, arguments);
         }
 
         /// <summary>

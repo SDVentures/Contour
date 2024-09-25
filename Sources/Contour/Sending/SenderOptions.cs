@@ -56,6 +56,8 @@ namespace Contour.Sending
         /// </summary>
         public bool Delayed {  get; set; }
 
+        public bool Direct {  get; set; }
+
         /// <summary>
         /// Время ожидания подтверждения получения сообщения, null если требуется бесконечное ожидание.
         /// </summary>

@@ -3,6 +3,7 @@ using System.Threading;
 using Contour.Receiving;
 using Contour.Topology;
 using Contour.Transport.RabbitMQ.Internal;
+using System.Collections.Generic;
 
 namespace Contour.Transport.RabbitMQ.Topology
 {
@@ -49,11 +50,11 @@ namespace Contour.Transport.RabbitMQ.Topology
         /// <param name="routingKey">
         /// Ключ маршрутизации, используется для определения очереди, в которую должно быть отправлено сообщение.
         /// </param>
-        public void Bind(Exchange exchange, Queue queue, string routingKey = "")
+        public void Bind(Exchange exchange, Queue queue, string routingKey = "", IDictionary<string, object> arguments = null)
         {
             using (var channel = (RabbitChannel)this.channelProvider.OpenChannel(CancellationToken.None))
             {
-                channel.Bind(queue, exchange, routingKey);
+                channel.Bind(queue, exchange, routingKey, arguments);
             }
         }
 

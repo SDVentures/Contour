@@ -20,6 +20,8 @@ namespace Contour.Configurator.Configuration
 
         bool Delayed { get; }
 
+        bool Direct { get; }
+
         TimeSpan? ConfirmTimeout { get; }
     }
 }

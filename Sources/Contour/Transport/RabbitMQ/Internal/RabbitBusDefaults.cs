@@ -2,6 +2,8 @@
 using Contour.Receiving;
 using Contour.Sending;
 using Contour.Transport.RabbitMQ.Topology;
+using System.Collections.Generic;
+using Contour.Helpers;
 
 namespace Contour.Transport.RabbitMQ.Internal
 {
@@ -35,9 +37,19 @@ namespace Contour.Transport.RabbitMQ.Internal
         {
             string label = builder.Sender.Label.Name;
             ExchangeBuilder exchangeBuilder = Exchange.Named(label).Durable;
-            exchangeBuilder = builder.Sender.Options.Delayed
-                ? exchangeBuilder.DelayedFanout 
-                : exchangeBuilder.Fanout;
+
+            if (builder.Sender.Options.Delayed)
+            {
+                exchangeBuilder = builder.Sender.Options.Direct
+                    ? exchangeBuilder.DelayedHeaders
+                    : exchangeBuilder.DelayedFanout;
+            }
+            else
+            {
+                exchangeBuilder = builder.Sender.Options.Direct
+                    ? exchangeBuilder.Headers
+                    : exchangeBuilder.Fanout;
+            }
             
             Exchange exchange = builder.Topology.Declare(exchangeBuilder);
 
@@ -59,9 +71,22 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             string queueName = builder.Endpoint.Address + "." + label;
 
-            var queueBuilder = Queue
-                .Named(queueName)
-                .Durable;
+            QueueBuilder queueBuilder;
+
+            if (builder.Receiver.Options.Direct)
+            {
+                queueName += "." + builder.Receiver.Options.DirectId;
+                queueBuilder = Queue
+                    .Named(queueName)
+                    .AutoDelete
+                    .Exclusive;
+            }
+            else
+            {
+                queueBuilder = Queue
+                    .Named(queueName)
+                    .Durable;
+            }
 
             var options = builder.Receiver.Options;
 
@@ -77,13 +102,33 @@ namespace Contour.Transport.RabbitMQ.Internal
 
             Queue queue = builder.Topology.Declare(queueBuilder);
             ExchangeBuilder exchangeBuilder = Exchange.Named(label).Durable;
-            exchangeBuilder = builder.Receiver.Options.Delayed
-                ? exchangeBuilder.DelayedFanout
-                : exchangeBuilder.Fanout;
+
+            if (builder.Receiver.Options.Delayed)
+            {
+                exchangeBuilder = builder.Receiver.Options.Direct
+                    ? exchangeBuilder.DelayedHeaders
+                    : exchangeBuilder.DelayedFanout;
+            }
+            else
+            {
+                exchangeBuilder = builder.Receiver.Options.Direct
+                    ? exchangeBuilder.Headers
+                    : exchangeBuilder.Fanout;
+            }
             
             Exchange exchange = builder.Topology.Declare(exchangeBuilder);
 
-            builder.Topology.Bind(exchange, queue);
+            Dictionary<string, object> arguments = null;
+            if (builder.Receiver.Options.Direct)
+            {
+                arguments = new Dictionary<string, object>()
+                {
+                    { Headers.DirectId, builder.Receiver.Options.DirectId },
+                    { Headers.MatchHeaders, "all" },
+                };
+            }
+
+            builder.Topology.Bind(exchange, queue, "", arguments);
 
             return builder.ListenTo(queue, exchange);
         }

@@ -25,5 +25,9 @@
         int? QueueMaxLengthBytes { get; }
 
         bool Delayed { get; }
+
+        bool Direct { get; }
+
+        string DirectId { get; }
     }
 }

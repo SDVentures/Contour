@@ -94,6 +94,9 @@ namespace Contour.Configurator
         [ConfigurationProperty("delayed", DefaultValue = false)]
         public bool Delayed => (bool)base["delayed"];
 
+        [ConfigurationProperty("direct")]
+        public bool Direct => (bool)base["direct"];
+
         /// <summary>
         /// Gets confirmation timeout on publishing.
         /// </summary>

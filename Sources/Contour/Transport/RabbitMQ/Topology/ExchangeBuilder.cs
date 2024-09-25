@@ -96,6 +96,15 @@ namespace Contour.Transport.RabbitMQ.Topology
             }
         }
 
+        public ExchangeBuilder Headers
+        {
+            get
+            {
+                this.Instance.Type = ExchangeType.Headers;
+                return this;
+            }
+        }
+
         public ExchangeBuilder DelayedDirect
         {
             get
@@ -122,6 +131,16 @@ namespace Contour.Transport.RabbitMQ.Topology
             {
                 this.Instance.Type = DelayedExchangeType;
                 this.Instance.Arguments[DelayedExchangeSubtypeArgumentName] = ExchangeType.Topic;
+                return this;
+            }
+        }
+
+        public ExchangeBuilder DelayedHeaders
+        {
+            get
+            {
+                this.Instance.Type = DelayedExchangeType;
+                this.Instance.Arguments[DelayedExchangeSubtypeArgumentName] = ExchangeType.Headers;
                 return this;
             }
         }

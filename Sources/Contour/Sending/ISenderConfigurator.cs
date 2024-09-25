@@ -34,6 +34,8 @@ namespace Contour.Sending
         /// <returns>Sender configurator.</returns>
         ISenderConfiguration Delayed();
 
+        ISenderConfigurator Direct();
+
         /// <summary>
         /// Устанавливает псевдоним метки отправляемого сообщения.
         /// </summary>

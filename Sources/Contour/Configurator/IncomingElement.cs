@@ -117,6 +117,12 @@ namespace Contour.Configurator
         [ConfigurationProperty("delayed")]
         public bool Delayed => (bool)base["delayed"];
 
+        [ConfigurationProperty("direct")]
+        public bool Direct => (bool)base["direct"];
+
+        [ConfigurationProperty("directId")]
+        public string DirectId => (string)base["directId"];
+
         IQos IIncoming.Qos => this.Qos;
     }
 }

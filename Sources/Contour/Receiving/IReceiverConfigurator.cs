@@ -92,6 +92,8 @@ namespace Contour.Receiving
         /// </summary>
         /// <returns>Конфигуратор получателя.</returns>
         IReceiverConfigurator Delayed();
+
+        IReceiverConfigurator Direct(string id);
     }
 
     /// <summary>

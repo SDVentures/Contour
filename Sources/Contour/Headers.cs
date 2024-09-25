@@ -53,6 +53,10 @@ namespace Contour
         /// </summary>
         public static readonly string Delay = "x-delay";
 
+        public static readonly string DirectId = "direct-id";
+
+        public static readonly string MatchHeaders = "x-match";
+
         /// <summary>
         /// Время жизни сообщений в очереди.
         /// </summary>
@@ -219,7 +223,12 @@ namespace Contour
                 headers[Delay] = delay.Value.TotalMilliseconds;
             }
         }
-        
+
+        public static void ApplyDirectId(Dictionary<string, object> headers, string directId)
+        {
+            headers[DirectId] = directId;
+        }
+
         /// <summary>
         /// Применяет к коллекции заголовков установку заголовка <c>Ttl</c>.
         /// </summary>

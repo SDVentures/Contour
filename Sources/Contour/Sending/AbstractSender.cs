@@ -319,6 +319,11 @@ namespace Contour.Sending
             {
                 Headers.ApplyDelay(outputHeaders, options.Delay);
             }
+
+            if (this.Configuration.Options.Direct)
+            {
+                Headers.ApplyDirectId(outputHeaders, options.DirectId);
+            }
             
             Maybe<TimeSpan?> ttl = BusOptions.Pick(options.Ttl, this.Configuration.Options.GetTtl());
             Headers.ApplyTtl(outputHeaders, ttl);

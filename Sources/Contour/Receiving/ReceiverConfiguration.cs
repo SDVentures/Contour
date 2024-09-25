@@ -205,5 +205,13 @@ namespace Contour.Receiving
 
             return this;
         }
+
+        public IReceiverConfigurator Direct(string id)
+        {
+            this.Options.Direct = true;
+            this.Options.DirectId = id;
+
+            return this;
+        }
     }
 }

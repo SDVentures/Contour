@@ -99,11 +99,11 @@ namespace Contour.Transport.RabbitMQ.Internal
         /// <param name="routingKey">
         /// The routing key.
         /// </param>
-        public void Bind(Queue queue, Exchange exchange, string routingKey)
+        public void Bind(Queue queue, Exchange exchange, string routingKey, IDictionary<string, object> arguments = null)
         {
             try
             {
-                this.SafeNativeInvoke(n => n.QueueBind(queue.Name, exchange.Name, routingKey));
+                this.SafeNativeInvoke(n => n.QueueBind(queue.Name, exchange.Name, routingKey, arguments));
             }
             catch (Exception e)
             {

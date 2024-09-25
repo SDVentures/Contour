@@ -240,6 +240,11 @@ namespace Contour.Configurator
                     configurator.Delayed();
                 }
 
+                if (outgoingElement.Direct)
+                {
+                    configurator.Direct();
+                }
+
                 // Connection string
                 var connectionString = endpointConfig.ConnectionString;
                 if (!string.IsNullOrEmpty(outgoingElement.ConnectionString))
@@ -340,6 +345,11 @@ namespace Contour.Configurator
                 if (incomingElement.Delayed)
                 {
                     configurator.Delayed();
+                }
+
+                if (incomingElement.Direct)
+                {
+                    configurator.Direct(incomingElement.DirectId);
                 }
 
                 // Connection string

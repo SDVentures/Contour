@@ -101,6 +101,13 @@ namespace Contour.Sending
             return this;
         }
 
+        public ISenderConfigurator Direct()
+        {
+            this.Options.Direct = true;
+
+            return this;
+        }
+
         /// <summary>
         /// Проверяет корректность конфигурации.
         /// </summary>

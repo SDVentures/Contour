@@ -37,6 +37,8 @@ namespace Contour.Sending
         /// </summary>
         public TimeSpan? Delay { get; set; }
         
+        public string DirectId { get; set; }
+
         /// <summary>
         /// Дополнительные заголовки
         /// </summary>
